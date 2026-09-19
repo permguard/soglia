@@ -18,6 +18,3 @@ The fabric decides what may execute, moves the work across services, and keeps e
 It is made of two parts.
 The **Agentic Execution Fabric (AEF)** coordinates distributed execution.
 The **Agentic Trust Fabric (ATF)** preserves trust and authority continuity across that execution.
-
-> Early stage.
-> Documentation and code will follow.
