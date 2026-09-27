@@ -9,7 +9,31 @@
   <img src="assets/soglia.png" alt="Soglia Runtime" width="820">
 </p>
 
-**Trusted execution for AI agents, under authority that never expands.**
+**Trusted execution for AI agents and mission-critical workloads under authority that never expands.**
+
+*Soglia* is Italian for **threshold**: the boundary something must cross before it can have an effect on the outside world.
+
+For an autonomous agent, Soglia is that boundary.
+
+```text
+Agent
+  |
+  | intention / request
+  v
+========================
+         SOGLIA
+========================
+  | identity
+  | isolation
+  | network mediation
+  | policy enforcement
+  | fail-closed
+  v
+External effect
+```
+
+The agent may decide what it wants to do.
+Soglia controls the boundary between that decision and its real-world effects.
 
 Soglia is the runtime where AI agents run and act on the outside world under Permguard's control.
 Agents think and propose.
@@ -19,10 +43,10 @@ Soglia decides what may execute, isolates the code that executes it, and lets it
 
 Soglia works beside Permguard, and the two stay separate.
 
-| Layer                  | What it is                                                                   |
-| ---------------------- | ---------------------------------------------------------------------------- |
-| Permguard              | Control Plane, Data Plane and Trust Plane: PIC, trust, policy and authority  |
-| Soglia Runtime         | The agent execution runtime: isolation, mediation, lifecycle and enforcement |
+| Layer     | What it is                                                                   |
+| --------- | ---------------------------------------------------------------------------- |
+| Permguard | Control Plane, Data Plane and Trust Plane: PIC, trust, policy and authority  |
+| Soglia    | The agent execution runtime: isolation, mediation, lifecycle and enforcement |
 
 Permguard decides and verifies authority.
 Soglia creates and confines the concrete Execution that must obey it.
@@ -100,10 +124,10 @@ task test:acceptance   # the privileged suite: T1-T10, H1-H4, and the backends o
 
 On macOS there are two ways to work.
 
-| Where                              | What runs                                                                |
-| ---------------------------------- | ------------------------------------------------------------------------ |
-| Natively                           | `task test:portable`: lint and tests of `soglia-core` and `soglia-proxy` |
-| In [.devcontainer/](.devcontainer) | Everything, with the editor and rust-analyzer running inside Linux       |
+| Where                              | What runs                                                                 |
+| ---------------------------------- | ------------------------------------------------------------------------- |
+| Natively                           | `task test:portable`: lint and tests of `soglia-core` and `soglia-proxy`  |
+| In [.devcontainer/](.devcontainer) | Everything, with the editor and rust-analyzer running inside Linux        |
 
 The devcontainer is built from [dev/linux/Dockerfile](dev/linux/Dockerfile), the same image `dev/linux/run.sh` and the CI use.
 Outside an editor, `dev/linux/run.sh make check` runs the full gate in that image.
