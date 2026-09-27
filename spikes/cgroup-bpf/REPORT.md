@@ -178,3 +178,166 @@ pre-update hash `c8502f4e87a4269c2611473731d2a9a4617ded40f80a7eb079e6a4551faa222
 
 The replacement two-replay gate is satisfied. Candidate A/B/C/D remains
 unselected; no candidate review was performed by this correction.
+
+## Final comparative evidence review
+
+Review date: 2026-09-27.
+
+Final classification: `DRIFT` (non-material). The behavioral and security
+invariants are `MATCH`; the explicitly bounded differences are classified
+below. There is no `FAIL` or `UNPROVEN` result in the reviewed invariant set.
+
+`REPRODUCIBILITY_CONFIRMED`
+
+This review compares only the historical final S0-S14 evidence with the two
+authoritative replays produced after the S14 cleanup correction. Intermediate
+historical attempts, diagnostic runs, earlier replay pairs and the preserved
+failed runs are not used as the historical baseline and do not count toward
+the final pair.
+
+### Reviewed replay pair
+
+The host wrapper created two distinct VM names, rejected any pre-existing VM
+with either name, provisioned and ran them sequentially, and printed `Two
+independent fresh-VM replays completed.` The runner additionally accepted the
+authoritative command only after atomically claiming an absent root-owned
+pristine marker. The captured runs have distinct run IDs and each records
+`requested_only: null`, `requested_from: null` and `authoritative: true`.
+
+| Replay | Fresh VM | Evidence | Run result | Final audit |
+| --- | --- | --- | --- | --- |
+| #1 | `soglia-spike-replay-20260927T161150Z-98802-r1` | [`replay-1790525576624-5754`](evidence/replay/replay-1790525576624-5754/) | 16/16 PASS; terminal `COMPLETE/PASS` | PASS; 1,299 registry entries, zero live |
+| #2 | `soglia-spike-replay-20260927T161150Z-98802-r2` | [`replay-1790525780260-5753`](evidence/replay/replay-1790525780260-5753/) | 16/16 PASS; terminal `COMPLETE/PASS` | PASS; 1,299 registry entries, zero live |
+
+The final audits independently proved every registered resource and both
+run-owned roots absent. The complete evidence-tree manifests contain 11,849
+files with SHA-256
+`b6d4b337f2e5f4615fad385e58f3202756f810c0b7ed7fac0aa8fb810ac9bbb8`
+for replay #1 and 11,846 files with SHA-256
+`e60ea6e03c2bd7c0898b060704e4a42d9ceba68797851ff9308addb0b032355b`
+for replay #2. These are provenance hashes, not an expectation that dynamic
+command evidence be byte-identical.
+
+Both `source.json` files identify repository commit
+`8272bb36d3229728089946427c674dd45be62da8`, contain 34,521 source/artifact
+hash entries, and have an exactly equal canonical hash map. Its SHA-256 is
+`828cfce90b0cc8be74340157cec9514c35f6dfd52d694db34c42d9c2a8de4e82`.
+The runner hash is
+`868102f8d8e71d0ec3ae8ae710b56d49a72501156d011931881b220a4f7213eb`;
+the S14 implementation hash is
+`581642acc884ef9fa669a2aafd0b42a207f29236d2b3d8373029efddf83e836d`.
+Thus no executable or evidence input changed between replay #1 and replay #2.
+
+### Historical baseline provenance
+
+The historical baseline is exclusively the final evidence selected by the
+historical report. For each row below, the manifest is the sorted sequence of
+`SHA-256(file)  path`, with the path relative to `spikes/cgroup-bpf-old/`; the
+reported value is the SHA-256 of those manifest bytes.
+
+| Test | Final historical evidence path | Files | Manifest SHA-256 |
+| --- | --- | ---: | --- |
+| S0 | [`evidence/s0`](../cgroup-bpf-old/evidence/s0/) | 60 | `6f77c7a351f418f3744763fd39d5a49be0a6c559dd5b72d54d18609cce951c53` |
+| S1 | [`evidence/s1/port-fixed`](../cgroup-bpf-old/evidence/s1/port-fixed/) | 28 | `ec70717246cbddd7dcc9678c3d79d41397d5c9f0244303e6cdcedbfa7ef4c0f5` |
+| S1b | [`evidence/s1b/race`](../cgroup-bpf-old/evidence/s1b/race/) | 29 | `be6b7fc82356a1031c556fdf53d5359ea32f0c419e7124d22a4fa6202a27d3c8` |
+| S2 | [`evidence/s2/run2`](../cgroup-bpf-old/evidence/s2/run2/) | 32 | `1dbcdc8a5a338cf389059d6b6857b93ef5aa6b0951c6100ac48149adaf24ed2e` |
+| S3 | [`evidence/s3`](../cgroup-bpf-old/evidence/s3/) | 88 | `f535a3ed03eaf7e138ed533d8bcca542b6e415f2f70bcde57b0109c0f1f7c255` |
+| S4 | [`evidence/s4/run2`](../cgroup-bpf-old/evidence/s4/run2/) | 43 | `be8b7ea0abfe7f8e1f1a859610dfd16bdbe04e5d914acfb26d675a7f90b2e065` |
+| S5 | [`evidence/s5/run3`](../cgroup-bpf-old/evidence/s5/run3/) | 15 | `de54a808fb7f634a98ab80e0d1bcd0fbc71b034c12b57819a9eb2d08eee0186a` |
+| S6 | [`evidence/s6`](../cgroup-bpf-old/evidence/s6/) | 13 | `d92bb86574bb0bdeeb22ecdf93587292e6ed56250575a8975f1407be059864cf` |
+| S7 | [`evidence/s7/run2`](../cgroup-bpf-old/evidence/s7/run2/) | 39 | `af995971d8660faf538893167f6828f4c6096448eef7fe02bf046bb9e6eef149` |
+| S8 | [`evidence/s8/after-fix-run6`](../cgroup-bpf-old/evidence/s8/after-fix-run6/) | 91 | `41ac538e58f711b9fd9ba38eed2c8e86aacd99fece59114312ad65972f5f26f2` |
+| S9 | [`evidence/s9/run4`](../cgroup-bpf-old/evidence/s9/run4/) | 62 | `2be1f9120a34264a43065e61fc68bd2326b7c0ec1b29f419e8e6059195d7b7c6` |
+| S10 | [`evidence/s10/run3`](../cgroup-bpf-old/evidence/s10/run3/) | 73 | `8fb3684aafd84ba7a3f52a6ee34da2066b9e5532fc9423c43195265a6d6c039e` |
+| S11 | [`evidence/s11/run1`](../cgroup-bpf-old/evidence/s11/run1/) | 104 | `3d53036452daf1688c0edf8cb851ef68d9b7d8c7b225e7a96cd94bd67de1f633` |
+| S12 | [`evidence/s12/run1`](../cgroup-bpf-old/evidence/s12/run1/) | 47 | `541c2b9ae353bacd85c293dbad6c496218169a73a259a3366118ca791142854a` |
+| S13 | [`evidence/s13/run2`](../cgroup-bpf-old/evidence/s13/run2/) | 118 | `5eb2a0195d46a1b7202942c2a619cf572a522200b2cdb712e542c4561db317aa` |
+| S14 | [`evidence/s14/run1`](../cgroup-bpf-old/evidence/s14/run1/) | 316 | `054c3e4fa19060805625de12ef93cbca624eea7fe0d2457df6025fe59fe7f715` |
+
+The union contains 1,158 unique files and has manifest SHA-256
+`2d160644d87d7c4b08c59b2777309c60b18e6626c59c1617843aa78c75eb24c4`.
+This selection excludes every historical intermediate or partial result.
+
+During both final replays, the source manifest also captured a directory named
+`spikes/cgroup-bpf/evidence_old/`. It was the archive of earlier
+second-generation replay evidence, not the historical S0-S14 baseline above.
+Each `source.json` records exactly 34,428 entries below that path. After
+stripping the common prefix and sorting `relative-path<TAB>file-sha256`, both
+recorded sets have manifest SHA-256
+`d10944a6c4d24734d879999b6f0a9e9a397f36bfb5c16a0291fbd8455a4089d9`.
+The identical path-and-content manifest proves its provenance and also proves
+that it was unchanged between the two final replays. The path was subsequently
+renamed back to `spikes/cgroup-bpf/evidence/`; it was not used as historical
+input to this review.
+
+### Environment fingerprints
+
+| Fingerprint field | Historical final evidence | Replay #1 | Replay #2 | Classification |
+| --- | --- | --- | --- | --- |
+| OS / architecture | Ubuntu 24.04.4 LTS / aarch64 | same | same | `MATCH` |
+| Kernel | `6.8.0-134-generic` | same | same | `MATCH` |
+| BPF substrate | bpftool 7.4.0/libbpf 1.4; cgroup/BTF/bpffs proven by final tests | bpftool 7.4.0/libbpf 1.4; cgroup v2, BTF, bpffs true | same | `MATCH` |
+| Clang / runc | clang 18.1.3; runc 1.3.4 | same | same | `MATCH` |
+| FD limit relevant to S14 | soft 1,024 at the historical bound | 1,024 / 1,048,576 | 1,024 / 1,048,576 | `MATCH` |
+| Additional historical fields | Lima 2.2.0, VZ, 4 CPU, 8 GiB, 40 GiB; Rust/Cargo 1.97.1; LLVM 18.1.3; Aya 0.14.0 | not recorded in authoritative `environment.json` | not recorded in authoritative `environment.json` | `DRIFT` (`FINGERPRINT_COVERAGE`) |
+| Additional replay fields | not recorded in the historical fingerprint | uid 0; git 2.43.0; iproute2 6.1; nft 1.0.9; systemd 255 | identical | `DRIFT` (`FINGERPRINT_COVERAGE`) |
+
+The overlap required by the tested kernel/BPF behavior matches. The coverage
+asymmetry is recorded as drift rather than silently treating an unrecorded
+field as equal; it does not contradict any raw measurement.
+
+### S0-S14 comparison
+
+| Test | Historical final invariant versus replay #1 and #2 | Classification |
+| --- | --- | --- |
+| S0 | delegation obtained and verified; six attaches and ancestor composition; owned cleanup | `MATCH` |
+| S1 | live subject placement, six hook entries, tuple/cookie attribution, correct Resolve, fail-closed pre-resolution behavior | `MATCH` |
+| S1b | 64 delayed publications resolve and one missing publication denies at the two-second bound without app/DNS/outbound/IP fallback | `MATCH` |
+| S2 | 132 concurrent connections with unique attribution and zero mismatch/cross-attribution | `MATCH` |
+| S3 | FIN, RST and kill lifecycle cases reject stale identity across inode/cookie/source-port reuse | `MATCH` |
+| S4 | exact nft barrier relaxation exposes the control path while cgroup/connect4 prevents the BPF-denied direct path | `MATCH` |
+| S5 | all six hooks are independently exercised; omission of sockops remains fail closed | `MATCH` |
+| S6 | enforcement-layer synthesis remains evidence-derived and selects no candidate | `MATCH` |
+| S7 | pinned links/maps preserve enforcement after loader SIGKILL; removing only connect4 exposes the controlled path | `MATCH` |
+| S8 | autonomous Enforcer-loss detection, admission closure, agent/tunnel/runtime teardown, retained nft barrier and restart sweep-before-ready; no later RPC or post-loss effect | `MATCH` |
+| S9 | foreign ancestor allow plus child deny, with permissive-child control and no unsupported ordering claim | `MATCH` |
+| S10 | foreign rewrite composition is observed causally; normal and case-A paths do not establish, exact nft exposure admits only the rewritten case-B destination, and nft state is restored | `MATCH` |
+| S11 | representative lifecycle removes all ten resource classes and restores the owned baseline | `MATCH` |
+| S12 | capacity 8/8, overflow publication failure, unresolved deny with zero side effects, free-one recovery and correct control attribution | `MATCH` |
+| S13 | trusted ownership record, exact compatible recovery, fail-closed incompatible/unknown handling, four crash boundaries, READY-last ordering and no stale authorization | `MATCH` |
+| S14 | N=1/4/16/32 exact structural counts and correct sampled attribution; N=64 reaches the same 44-instance/1,016-FD `EMFILE` bound with complete cleanup | `DRIFT` (`EMFILE_ALLOCATION_SITE`) |
+
+The critical S8, S10, S12 and S13 invariants are therefore `MATCH`. S14 is
+deliberately classified `DRIFT`, not `FAIL`: all three evidence sets confirm
+`programs=6N`, `links=6N`, `maps=8+2N`, `pins=8+6N`, the same successful
+matrix points, the same bound at instance index 44 with 1,016 open FDs, and
+complete cleanup. Only the map being created at exhaustion differs:
+historically `soglia_cookie_a`, `soglia_counters` in replay #1 and
+`soglia_events` in replay #2. This is the permitted allocation-site drift; the
+structural model and security invariants are unchanged.
+
+### Other bounded drift and cleanup attribution
+
+| Observation | Classification | Effect |
+| --- | --- | --- |
+| S8 upper-bound timings: historical 109/119/125/130/131 ms versus 45/45/87/119/119 ms and 46/46/87/120/120 ms for detection/ingress/agents/tunnel/runtime | `DRIFT` (`TIMING_VARIATION`) | All required events remain bounded and ordered; no security invariant changes. |
+| systemd `sd_*` program IDs are replaced during tests on both replay VMs | `DRIFT` (`EXTERNAL_CHURN`) | Stable `(name,type,tag)` multisets are equal; non-systemd programs, all links and maps are unchanged; every registered test-owned object is absent. |
+| Dynamic kernel IDs, inodes, PIDs, timestamps and timing samples differ | `DRIFT` (`EPHEMERAL_IDENTITY`) | Expected fresh-run identity; comparisons use ownership, topology and semantic invariants rather than numeric reuse. |
+
+No drift weakened an assertion. Links and maps retained strict inventory
+comparison. Unknown or changed non-owned BPF objects would still have produced
+cleanup failure; only the evidenced stable systemd replacement was classified
+as external churn.
+
+### Production and scope guard
+
+The authorized S8 fail-closed lifecycle fix is part of the historical baseline
+at commit `c5feded84de41c4845cbe7e4ceee82142380578b`. From that baseline through
+current `HEAD`, the diff restricted to root `Cargo.toml`, `Cargo.lock`, `src/`,
+`crates/` and `fixtures/` is empty. Both replay source records also contain zero
+dirty entries in those production paths. The later changes are spike runner,
+evidence migration and host orchestration only. Therefore the comparison finds
+no new production modification after the authorized S8 baseline.
+
+Candidate A/B/C/D remains unselected. This review does not start candidate
+review or B1-B7, and it makes no production change.
