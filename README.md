@@ -80,7 +80,7 @@ Caller --------> HTTP / gRPC ingress
         +--------------+-----------------+
                        |
                        v
-                Soglia Egress PEP
+                Soglia Egress
                        |
               +--------+--------+
               |                 |
@@ -107,9 +107,9 @@ Caller --------> HTTP / gRPC ingress
               Caller
 ```
 
-> **PIC controls authority flow.**
-> **IFC controls information flow.**
-> **Soglia controls execution and effect flow.**
+**PIC controls authority flow.**
+**IFC controls information flow.**
+**Soglia controls execution and effect flow.**
 
 Inside the Execution there are no real backend credentials. The agent receives only authority material bound to that Execution.
 

@@ -103,9 +103,15 @@ The active identity is the triple:
 (cgroup_id, execution_nonce, backend_generation)
 ```
 
+The triple is one indivisible `BindingKey` in the production ABI.
+No component may authorize on one or two fields, compare a field through fallback logic, or combine fields observed from different records or generations.
 `backend_generation` belongs to the S13 host-wide state record.
 `execution_nonce` belongs to one Execution record and is copied into policy, cookie and tuple values.
 Resolve succeeds only when all three components match the current root-owned records and the current live binding.
+
+Activation has one authorization linearization point: the whole frozen policy value is replaced by one whole `ACTIVE` value only after the durable Enforcer record and live Supervisor `BindingKey` exist while the agent remains paused.
+Freeze linearizes in the opposite direction by revoking the live binding before replacing the whole policy value with `FROZEN`.
+There is no claim of a transaction spanning multiple kernel and userspace maps; safety comes from this ordering, the paused process, whole-value updates and fail-closed validation of every copy.
 
 The full `ExecutionId` remains in trusted userspace and is not an agent-visible or kernel-derived identity.
 The Enforcer's durable record owns the exact mapping from the identity triple to `ExecutionId` for privileged validation and cleanup.
@@ -143,6 +149,8 @@ Per-Execution quotas must not be claimed until their counter lifecycle is indepe
 Program and link inventory is constant: six programs and six links per backend generation, not per Execution.
 The design therefore avoids Candidate C's measured `6N` program/link multiplication.
 The READY record contains the exact count and identity of every map, program, link and pin.
+B7 must qualify this exact production topology with the production object: one shared set of six programs and six links attached at the `executions/` subtree for every tested Execution count, with no per-Execution program or link instances.
+S9 and S10 constrain foreign-ancestor behavior, but they are not evidence that this production shared-attachment topology works or scales.
 
 ## Candidate-A cookie lifecycle
 
