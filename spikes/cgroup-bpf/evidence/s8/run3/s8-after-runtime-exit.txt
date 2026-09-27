@@ -1,0 +1,67 @@
+# S8 state after failed runtime exits
+UTC=2026-09-27T07:27:22Z
+MainPID=0
+Result=exit-code
+ExecMainStatus=1
+ActiveState=failed
+SubState=failed
+main_alive=false
+sandbox_alive=false
+agent_processes_begin
+agent_processes_end
+ID                  PID         STATUS      BUNDLE                                    CREATED                          OWNER
+soglia-0229878aa2   0           stopped     /run/soglia-spike-s8/bundles/0229878aa2   2026-09-27T07:26:42.827418841Z   root
+soglia-64ea40cd8f   0           stopped     /run/soglia-spike-s8/bundles/64ea40cd8f   2026-09-27T07:26:42.812235869Z   root
+soglia-72b162cfab   0           stopped     /run/soglia-spike-s8/bundles/72b162cfab   2026-09-27T07:26:42.83943595Z    root
+Sep 27 09:26:42 lima-soglia-spike systemd[1]: Started soglia-spike-s8.service - /var/tmp/spike/target/release/soglia run -f /var/tmp/spike/s8/soglia.yaml.
+Sep 27 09:26:42 lima-soglia-spike soglia[44565]: 2026-09-27T07:26:42.633186Z  INFO privileges dropped event.name="startup.privileges_dropped" uid=990 gid=990
+Sep 27 09:26:42 lima-soglia-spike soglia[44565]: 2026-09-27T07:26:42.633459Z  INFO soglia is ready event.name="startup.ready" ingress=127.0.0.1:18089 egress=10.200.255.1:15001
+Sep 27 09:26:42 lima-soglia-spike soglia[44565]: 2026-09-27T07:26:42.793468Z  INFO execution admitted event.name="execution.admitted" execution_id=64ea40cd8f6bf78baaa438464657de0b agent=probe slot=0
+Sep 27 09:26:42 lima-soglia-spike soglia[44565]: 2026-09-27T07:26:42.793476Z  INFO execution admitted event.name="execution.admitted" execution_id=0229878aa29c9f4d66d2d5574b904b5f agent=probe slot=1
+Sep 27 09:26:42 lima-soglia-spike soglia[44565]: 2026-09-27T07:26:42.793479Z  INFO execution phase event.name="execution.phase" execution_id=64ea40cd8f6bf78baaa438464657de0b phase=Creating
+Sep 27 09:26:42 lima-soglia-spike soglia[44565]: 2026-09-27T07:26:42.793482Z  INFO execution phase event.name="execution.phase" execution_id=0229878aa29c9f4d66d2d5574b904b5f phase=Creating
+Sep 27 09:26:42 lima-soglia-spike soglia[44565]: 2026-09-27T07:26:42.793486Z  INFO execution admitted event.name="execution.admitted" execution_id=72b162cfab16ef736f6d576a51e43558 agent=probe slot=2
+Sep 27 09:26:42 lima-soglia-spike soglia[44565]: 2026-09-27T07:26:42.793491Z  INFO execution phase event.name="execution.phase" execution_id=72b162cfab16ef736f6d576a51e43558 phase=Creating
+Sep 27 09:26:42 lima-soglia-spike soglia[44565]: 2026-09-27T07:26:42.802301Z  INFO execution phase event.name="execution.phase" execution_id=64ea40cd8f6bf78baaa438464657de0b phase=Starting
+Sep 27 09:26:42 lima-soglia-spike soglia[44565]: 2026-09-27T07:26:42.810770Z  INFO execution phase event.name="execution.phase" execution_id=0229878aa29c9f4d66d2d5574b904b5f phase=Starting
+Sep 27 09:26:42 lima-soglia-spike soglia[44565]: 2026-09-27T07:26:42.818155Z  INFO execution phase event.name="execution.phase" execution_id=72b162cfab16ef736f6d576a51e43558 phase=Starting
+Sep 27 09:26:42 lima-soglia-spike soglia[44565]: 2026-09-27T07:26:42.843971Z  INFO execution phase event.name="execution.phase" execution_id=64ea40cd8f6bf78baaa438464657de0b phase=Ready
+Sep 27 09:26:42 lima-soglia-spike soglia[44565]: 2026-09-27T07:26:42.843977Z  INFO execution phase event.name="execution.phase" execution_id=64ea40cd8f6bf78baaa438464657de0b phase=Running
+Sep 27 09:26:42 lima-soglia-spike soglia[44565]: 2026-09-27T07:26:42.857130Z  INFO execution phase event.name="execution.phase" execution_id=0229878aa29c9f4d66d2d5574b904b5f phase=Ready
+Sep 27 09:26:42 lima-soglia-spike soglia[44565]: 2026-09-27T07:26:42.857136Z  INFO execution phase event.name="execution.phase" execution_id=0229878aa29c9f4d66d2d5574b904b5f phase=Running
+Sep 27 09:26:42 lima-soglia-spike soglia[44565]: 2026-09-27T07:26:42.868487Z  INFO execution phase event.name="execution.phase" execution_id=72b162cfab16ef736f6d576a51e43558 phase=Ready
+Sep 27 09:26:42 lima-soglia-spike soglia[44565]: 2026-09-27T07:26:42.868510Z  INFO execution phase event.name="execution.phase" execution_id=72b162cfab16ef736f6d576a51e43558 phase=Running
+Sep 27 09:26:45 lima-soglia-spike soglia[44565]: 2026-09-27T07:26:45.345114Z  INFO egress request allowed event.name="egress.allowed" execution_id=64ea40cd8f6bf78baaa438464657de0b method=CONNECT target=allowed.test:443 status=200
+Sep 27 09:26:49 lima-soglia-spike soglia[44565]: 2026-09-27T07:26:49.371186Z  INFO egress request allowed event.name="egress.allowed" execution_id=72b162cfab16ef736f6d576a51e43558 method=CONNECT target=allowed.test:444 status=200
+Sep 27 09:26:49 lima-soglia-spike soglia[44565]: 2026-09-27T07:26:49.467397Z  INFO execution admitted event.name="execution.admitted" execution_id=f61530e306c601925aa99bd7648c86f9 agent=probe slot=3
+Sep 27 09:26:49 lima-soglia-spike soglia[44565]: 2026-09-27T07:26:49.467410Z  INFO execution phase event.name="execution.phase" execution_id=f61530e306c601925aa99bd7648c86f9 phase=Creating
+Sep 27 09:26:49 lima-soglia-spike soglia[44565]: 2026-09-27T07:26:49.467447Z ERROR a privileged helper is gone; the runtime stops event.name="runtime.helper_lost" reason=the channel failed: Broken pipe (os error 32)
+Sep 27 09:26:49 lima-soglia-spike soglia[44565]: 2026-09-27T07:26:49.467453Z  INFO execution phase event.name="execution.phase" execution_id=f61530e306c601925aa99bd7648c86f9 phase=TearingDown
+Sep 27 09:26:49 lima-soglia-spike soglia[44565]: 2026-09-27T07:26:49.467481Z ERROR a privileged helper is gone; the runtime stops event.name="runtime.helper_lost" reason=the channel failed: Broken pipe (os error 32)
+Sep 27 09:26:49 lima-soglia-spike soglia[44565]: 2026-09-27T07:26:49.467485Z  INFO execution phase event.name="execution.phase" execution_id=f61530e306c601925aa99bd7648c86f9 phase=CleanupFailed
+Sep 27 09:26:49 lima-soglia-spike soglia[44565]: 2026-09-27T07:26:49.467486Z ERROR teardown could not be verified; the Execution is quarantined event.name="execution.cleanup_failed" execution_id=f61530e306c601925aa99bd7648c86f9 slot=3 reason=freeze: the helper channel failed: the channel failed: Broken pipe (os error 32) failures=1
+Sep 27 09:26:49 lima-soglia-spike soglia[44565]: 2026-09-27T07:26:49.467488Z ERROR the cleanup-failure threshold is reached; no new Execution is admitted event.name="runtime.admission_stopped" failures=1
+Sep 27 09:26:54 lima-soglia-spike soglia[44565]: 2026-09-27T07:26:54.860837Z  INFO execution phase event.name="execution.phase" execution_id=0229878aa29c9f4d66d2d5574b904b5f phase=CapturingResponse
+Sep 27 09:26:54 lima-soglia-spike soglia[44565]: 2026-09-27T07:26:54.860889Z  INFO execution phase event.name="execution.phase" execution_id=0229878aa29c9f4d66d2d5574b904b5f phase=TearingDown
+Sep 27 09:26:54 lima-soglia-spike soglia[44565]: 2026-09-27T07:26:54.861025Z ERROR a privileged helper is gone; the runtime stops event.name="runtime.helper_lost" reason=the channel failed: Broken pipe (os error 32)
+Sep 27 09:26:54 lima-soglia-spike soglia[44565]: 2026-09-27T07:26:54.861037Z  INFO execution phase event.name="execution.phase" execution_id=0229878aa29c9f4d66d2d5574b904b5f phase=CleanupFailed
+Sep 27 09:26:54 lima-soglia-spike soglia[44565]: 2026-09-27T07:26:54.861044Z ERROR teardown could not be verified; the Execution is quarantined event.name="execution.cleanup_failed" execution_id=0229878aa29c9f4d66d2d5574b904b5f slot=1 reason=freeze: the helper channel failed: the channel failed: Broken pipe (os error 32) failures=2
+Sep 27 09:26:54 lima-soglia-spike soglia[44565]: 2026-09-27T07:26:54.861049Z ERROR the cleanup-failure threshold is reached; no new Execution is admitted event.name="runtime.admission_stopped" failures=2
+Sep 27 09:27:05 lima-soglia-spike soglia[44565]: 2026-09-27T07:27:05.350645Z  INFO tunnel ended event.name="egress.tunnel_ended" execution_id=64ea40cd8f6bf78baaa438464657de0b end="closed"
+Sep 27 09:27:05 lima-soglia-spike soglia[44565]: 2026-09-27T07:27:05.350793Z  INFO execution phase event.name="execution.phase" execution_id=64ea40cd8f6bf78baaa438464657de0b phase=CapturingResponse
+Sep 27 09:27:05 lima-soglia-spike soglia[44565]: 2026-09-27T07:27:05.350801Z  INFO execution phase event.name="execution.phase" execution_id=64ea40cd8f6bf78baaa438464657de0b phase=TearingDown
+Sep 27 09:27:05 lima-soglia-spike soglia[44565]: 2026-09-27T07:27:05.351009Z ERROR a privileged helper is gone; the runtime stops event.name="runtime.helper_lost" reason=the channel failed: Broken pipe (os error 32)
+Sep 27 09:27:05 lima-soglia-spike soglia[44565]: 2026-09-27T07:27:05.351019Z  INFO execution phase event.name="execution.phase" execution_id=64ea40cd8f6bf78baaa438464657de0b phase=CleanupFailed
+Sep 27 09:27:05 lima-soglia-spike soglia[44565]: 2026-09-27T07:27:05.351025Z ERROR teardown could not be verified; the Execution is quarantined event.name="execution.cleanup_failed" execution_id=64ea40cd8f6bf78baaa438464657de0b slot=0 reason=freeze: the helper channel failed: the channel failed: Broken pipe (os error 32) failures=3
+Sep 27 09:27:05 lima-soglia-spike soglia[44565]: 2026-09-27T07:27:05.351028Z ERROR the cleanup-failure threshold is reached; no new Execution is admitted event.name="runtime.admission_stopped" failures=3
+Sep 27 09:27:09 lima-soglia-spike soglia[44565]: 2026-09-27T07:27:09.375421Z  INFO tunnel ended event.name="egress.tunnel_ended" execution_id=72b162cfab16ef736f6d576a51e43558 end="closed"
+Sep 27 09:27:09 lima-soglia-spike soglia[44565]: 2026-09-27T07:27:09.375674Z  INFO execution phase event.name="execution.phase" execution_id=72b162cfab16ef736f6d576a51e43558 phase=CapturingResponse
+Sep 27 09:27:09 lima-soglia-spike soglia[44565]: 2026-09-27T07:27:09.375693Z  INFO execution phase event.name="execution.phase" execution_id=72b162cfab16ef736f6d576a51e43558 phase=TearingDown
+Sep 27 09:27:09 lima-soglia-spike soglia[44565]: 2026-09-27T07:27:09.375883Z ERROR a privileged helper is gone; the runtime stops event.name="runtime.helper_lost" reason=the channel failed: Broken pipe (os error 32)
+Sep 27 09:27:09 lima-soglia-spike soglia[44565]: 2026-09-27T07:27:09.375914Z  INFO execution phase event.name="execution.phase" execution_id=72b162cfab16ef736f6d576a51e43558 phase=CleanupFailed
+Sep 27 09:27:09 lima-soglia-spike soglia[44565]: 2026-09-27T07:27:09.375926Z ERROR teardown could not be verified; the Execution is quarantined event.name="execution.cleanup_failed" execution_id=72b162cfab16ef736f6d576a51e43558 slot=2 reason=freeze: the helper channel failed: the channel failed: Broken pipe (os error 32) failures=4
+Sep 27 09:27:09 lima-soglia-spike soglia[44565]: 2026-09-27T07:27:09.375937Z ERROR the cleanup-failure threshold is reached; no new Execution is admitted event.name="runtime.admission_stopped" failures=4
+Sep 27 09:27:22 lima-soglia-spike soglia[44565]: 2026-09-27T07:27:22.469907Z ERROR Executions were still running at shutdown; the helpers kill them event.name="shutdown.incomplete"
+Sep 27 09:27:22 lima-soglia-spike soglia[44565]: soglia: a privileged helper was lost
+Sep 27 09:27:22 lima-soglia-spike systemd[1]: soglia-spike-s8.service: Main process exited, code=exited, status=1/FAILURE
+Sep 27 09:27:22 lima-soglia-spike systemd[1]: soglia-spike-s8.service: Failed with result 'exit-code'.

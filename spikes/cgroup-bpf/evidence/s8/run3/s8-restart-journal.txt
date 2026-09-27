@@ -1,0 +1,17 @@
+Sep 27 09:27:22 lima-soglia-spike soglia[44565]: 2026-09-27T07:27:22.469907Z ERROR Executions were still running at shutdown; the helpers kill them event.name="shutdown.incomplete"
+Sep 27 09:27:22 lima-soglia-spike soglia[44565]: soglia: a privileged helper was lost
+Sep 27 09:27:22 lima-soglia-spike systemd[1]: soglia-spike-s8.service: Main process exited, code=exited, status=1/FAILURE
+Sep 27 09:27:22 lima-soglia-spike systemd[1]: soglia-spike-s8.service: Failed with result 'exit-code'.
+Sep 27 09:27:22 lima-soglia-spike systemd[1]: Started soglia-spike-s8.service - /var/tmp/spike/target/release/soglia run -f /var/tmp/spike/s8/soglia.yaml.
+Sep 27 09:27:23 lima-soglia-spike soglia[45505]: 2026-09-27T07:27:23.068748Z  INFO a resource left by a previous run was removed event.name="startup.swept" helper="sandboxd" resource=sandbox of Execution 72b162cfab16ef736f6d576a51e43558
+Sep 27 09:27:23 lima-soglia-spike soglia[45505]: 2026-09-27T07:27:23.068994Z  INFO a resource left by a previous run was removed event.name="startup.swept" helper="sandboxd" resource=sandbox of Execution 0229878aa29c9f4d66d2d5574b904b5f
+Sep 27 09:27:23 lima-soglia-spike soglia[45505]: 2026-09-27T07:27:23.068999Z  INFO a resource left by a previous run was removed event.name="startup.swept" helper="sandboxd" resource=sandbox of Execution 64ea40cd8f6bf78baaa438464657de0b
+Sep 27 09:27:23 lima-soglia-spike soglia[45505]: 2026-09-27T07:27:23.118246Z  INFO a resource left by a previous run was removed event.name="startup.swept" helper="enforcer" resource=network of Execution 0229878aa29c9f4d66d2d5574b904b5f
+Sep 27 09:27:23 lima-soglia-spike soglia[45505]: 2026-09-27T07:27:23.118257Z  INFO a resource left by a previous run was removed event.name="startup.swept" helper="enforcer" resource=network of Execution 64ea40cd8f6bf78baaa438464657de0b
+Sep 27 09:27:23 lima-soglia-spike soglia[45505]: 2026-09-27T07:27:23.118259Z  INFO a resource left by a previous run was removed event.name="startup.swept" helper="enforcer" resource=network of Execution 72b162cfab16ef736f6d576a51e43558
+Sep 27 09:27:23 lima-soglia-spike soglia[45505]: 2026-09-27T07:27:23.118294Z  INFO privileges dropped event.name="startup.privileges_dropped" uid=990 gid=990
+Sep 27 09:27:23 lima-soglia-spike soglia[45505]: 2026-09-27T07:27:23.118572Z  INFO soglia is ready event.name="startup.ready" ingress=127.0.0.1:18089 egress=10.200.255.1:15001
+Sep 27 09:27:23 lima-soglia-spike soglia[45505]: 2026-09-27T07:27:23.249483Z  INFO soglia stopped event.name="shutdown.done"
+Sep 27 09:27:23 lima-soglia-spike systemd[1]: Stopping soglia-spike-s8.service - /var/tmp/spike/target/release/soglia run -f /var/tmp/spike/s8/soglia.yaml...
+Sep 27 09:27:23 lima-soglia-spike systemd[1]: soglia-spike-s8.service: Deactivated successfully.
+Sep 27 09:27:23 lima-soglia-spike systemd[1]: Stopped soglia-spike-s8.service - /var/tmp/spike/target/release/soglia run -f /var/tmp/spike/s8/soglia.yaml.

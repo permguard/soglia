@@ -87,8 +87,9 @@ pub async fn serve(
 ) {
     loop {
         let accepted = tokio::select! {
-            accepted = listener.accept() => accepted,
+            biased;
             _ = shutdown.wait_for(|stop| *stop) => return,
+            accepted = listener.accept() => accepted,
         };
         let (stream, peer) = match accepted {
             Ok(accepted) => accepted,
@@ -98,16 +99,21 @@ pub async fn serve(
             }
         };
         let executor = Arc::clone(&executor);
+        let mut connection_shutdown = shutdown.clone();
         tokio::spawn(async move {
             let service = service_fn(move |request| {
                 let executor = Arc::clone(&executor);
                 async move { Ok::<_, Infallible>(handle(executor, limits, request).await) }
             });
-            if let Err(error) = http1::Builder::new()
-                .serve_connection(TokioIo::new(stream), service)
-                .await
-            {
-                warn!(event.name = "ingress.connection_failed", peer = %peer, %error, "ingress connection ended with an error");
+            let connection = http1::Builder::new().serve_connection(TokioIo::new(stream), service);
+            tokio::select! {
+                biased;
+                _ = connection_shutdown.wait_for(|stop| *stop) => {}
+                result = connection => {
+                    if let Err(error) = result {
+                        warn!(event.name = "ingress.connection_failed", peer = %peer, %error, "ingress connection ended with an error");
+                    }
+                }
             }
         });
     }
@@ -250,6 +256,20 @@ mod tests {
         answer: Outcome,
     }
 
+    struct Pending {
+        started: Arc<tokio::sync::Notify>,
+    }
+
+    impl Executor for Pending {
+        fn execute(&self, _invocation: Invocation) -> Execution<'_> {
+            let started = Arc::clone(&self.started);
+            Box::pin(async move {
+                started.notify_one();
+                std::future::pending().await
+            })
+        }
+    }
+
     impl Executor for Scripted {
         fn execute(&self, invocation: Invocation) -> Execution<'_> {
             self.seen.lock().unwrap().push(invocation);
@@ -377,6 +397,47 @@ mod tests {
         let response = post(address, &oversized).await;
         assert!(response.starts_with("HTTP/1.1 413"), "{response}");
         assert!(executor.seen.lock().unwrap().is_empty());
+    }
+
+    #[tokio::test]
+    async fn runtime_cancellation_closes_an_active_ingress_request() {
+        let started = Arc::new(tokio::sync::Notify::new());
+        let executor = Arc::new(Pending {
+            started: Arc::clone(&started),
+        });
+        let listener = TcpListener::bind("127.0.0.1:0").await.unwrap();
+        let address = listener.local_addr().unwrap();
+        let (stop, stopped) = watch::channel(false);
+        tokio::spawn(serve(
+            listener,
+            executor as Arc<dyn Executor>,
+            IngressLimits {
+                max_request_bytes: 64,
+            },
+            stopped,
+        ));
+
+        let mut stream = TcpStream::connect(address).await.unwrap();
+        stream
+            .write_all(
+                b"POST /v1/execute/echo HTTP/1.1\r\nHost: soglia\r\nContent-Length: 0\r\nConnection: close\r\n\r\n",
+            )
+            .await
+            .unwrap();
+        tokio::time::timeout(Duration::from_secs(2), started.notified())
+            .await
+            .expect("the invocation did not start");
+
+        stop.send_replace(true);
+        let mut response = Vec::new();
+        tokio::time::timeout(Duration::from_secs(2), stream.read_to_end(&mut response))
+            .await
+            .expect("runtime cancellation must close active ingress")
+            .unwrap();
+        assert!(
+            response.is_empty(),
+            "no answer may escape after cancellation"
+        );
     }
 
     #[test]

@@ -1,0 +1,42 @@
+# S2 independent live membership proof before traffic
+UTC=2026-09-27T06:47:50Z
+index=0 execution_id=s2-execution-e0-generation-1 cgroup=/sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions/s2-e0 cgroup_inode=15144 agent_pid=35844 netns=soglia-s2-e0 netns_inode=4026532344 ip=10.201.0.1 expected_ident=2001001
+e0_proc_cgroup_begin
+0::/system.slice/soglia-spike-s0.service/executions/s2-e0
+e0_proc_cgroup_end
+e0_cgroup_procs_begin
+35844
+e0_cgroup_procs_end
+e0_cgroup_inode=15144
+e0_agent_netns_inode=4026532344
+e0_owned_netns_inode=4026532344
+index=1 execution_id=s2-execution-e1-generation-1 cgroup=/sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions/s2-e1 cgroup_inode=15186 agent_pid=35848 netns=soglia-s2-e1 netns_inode=4026532416 ip=10.201.0.5 expected_ident=2001002
+e1_proc_cgroup_begin
+0::/system.slice/soglia-spike-s0.service/executions/s2-e1
+e1_proc_cgroup_end
+e1_cgroup_procs_begin
+35848
+e1_cgroup_procs_end
+e1_cgroup_inode=15186
+e1_agent_netns_inode=4026532416
+e1_owned_netns_inode=4026532416
+index=2 execution_id=s2-execution-e2-generation-1 cgroup=/sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions/s2-e2 cgroup_inode=15228 agent_pid=35853 netns=soglia-s2-e2 netns_inode=4026532476 ip=10.201.0.9 expected_ident=2001003
+e2_proc_cgroup_begin
+0::/system.slice/soglia-spike-s0.service/executions/s2-e2
+e2_proc_cgroup_end
+e2_cgroup_procs_begin
+35853
+e2_cgroup_procs_end
+e2_cgroup_inode=15228
+e2_agent_netns_inode=4026532476
+e2_owned_netns_inode=4026532476
+index=3 execution_id=s2-execution-e3-generation-1 cgroup=/sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions/s2-e3 cgroup_inode=15270 agent_pid=35858 netns=soglia-s2-e3 netns_inode=4026532536 ip=10.201.0.13 expected_ident=2001004
+e3_proc_cgroup_begin
+0::/system.slice/soglia-spike-s0.service/executions/s2-e3
+e3_proc_cgroup_end
+e3_cgroup_procs_begin
+35858
+e3_cgroup_procs_end
+e3_cgroup_inode=15270
+e3_agent_netns_inode=4026532536
+e3_owned_netns_inode=4026532536

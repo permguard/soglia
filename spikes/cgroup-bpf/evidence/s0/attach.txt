@@ -1,0 +1,147 @@
+===== S0.3 PREPARATION =====
+$ systemctl show soglia-spike-s0.service -p Delegate -p DelegateControllers -p ControlGroup
+ControlGroup=/system.slice/soglia-spike-s0.service
+Delegate=yes
+DelegateControllers=cpu cpuset io memory pids
+
+$ cat runtime/cgroup.procs
+1536
+1556
+
+$ stat -c %i executions/s0-probe
+5160
+
+$ cat executions/s0-probe/cgroup.procs
+
+===== BPFFS BASELINE =====
+$ sudo ls -la /sys/fs/bpf
+total 0
+drwx-----T 2 root root 0 Sep 27 06:23 .
+drwxr-xr-x 9 root root 0 Sep 27 06:23 ..
+
+===== S0.3 RECOVERY PASS — 2026-09-27 ~07:06 CEST =====
+# Added by the reviewer. Everything below the "RECONSTRUCTED METADATA" line is taken from
+# evidence already on disk; nothing in it is an execution result.
+
+Sources searched:
+- repository: spikes/cgroup-bpf/, including evidence/s0/ and harness/
+- VM: /tmp, /var/tmp (cargo target excluded), /sys/fs/bpf
+- VM logs: journalctl -u soglia-spike-s0.service; journalctl _COMM=sudo since 06:30; kernel log
+
+Findings:
+- no file named attach-after-* or attach-removed-* exists, in the repository or in the VM
+- no file in /tmp or /var/tmp mentions attach-after-*, attach-removed-*, soglia-spike/exec or soglia-spike/global
+- harness/src/main.rs is the placeholder (sha256 8894a6ba46dafa79d05cb78d119772c4355e50af66abf7fdffb83a44f1512e7d, 06:13:40)
+- no harness binary exists under /var/tmp/spike/target
+- sudo log since 06:30 shows only: delegation script and unit (sudo 1506-1530), `mkdir executions`
+  preparation (sudo 1594), `bpftool prog/link show` and `ls /sys/fs/bpf` (sudo 1625-1639), and
+  read-only reviewer inspections (sudo 1644 onwards); no loader, no attach
+- at recovery time: no program named soglia* loaded; no link of type cgroup; /sys/fs/bpf empty;
+  executions/s0-probe inode 5160, empty
+
+NO EVIDENCE THAT S0.3 ATTACH WAS EXECUTED
+
+----- RECONSTRUCTED METADATA (from attach-preflight.txt, REPORT.md section 10, bpf/soglia_spike.c) -----
+target cgroup:        /sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions/s0-probe
+target inode:         5160 (expected cgroup_id)
+delegated unit:       soglia-spike-s0.service (active, MainPID 1536)
+BPF object:           /var/tmp/spike/bpf/soglia.o
+BPF object sha256:    05e426df7fbb09ef7bd4c3b50ac6ba5ed73b67c37b1b284871dd1a80124b3638 (preflight)
+Aya:                  0.14.0 (spikes/cgroup-bpf/Cargo.lock)
+globals (planned):    proxy_ip4 = 10.200.255.1, network byte order (const volatile __u32, .rodata)
+                      proxy_port = 15001, host byte order (const volatile __u32, .rodata)
+                      exec_ident = 0 (const volatile __u64, .rodata)
+map pin root:         /sys/fs/bpf/soglia-spike/global/
+link pin paths:       /sys/fs/bpf/soglia-spike/exec/s0-probe/{sock_create,connect4,connect6,sendmsg4,sendmsg6,sock_ops}
+baseline:             attach-baseline-prog.json (14 programs), attach-baseline-link.json (links 1, 2),
+                      attach-baseline-cgroup.json and attach-baseline-cgroup-effective.json (empty)
+
+----- EXECUTION RECORD -----
+build command:                PENDING — no execution evidence available
+execution command:            PENDING — no execution evidence available
+sha256 of harness/src/main.rs used: PENDING — no execution evidence available
+runtime sha256 of soglia.o:   PENDING — no execution evidence available
+soglia_sock_create (CgroupSock, cgroup_inet_sock_create): flags PENDING, result PENDING — no execution evidence available
+soglia_connect4 (CgroupSockAddr, cgroup_inet4_connect):   flags PENDING, result PENDING — no execution evidence available
+soglia_connect6 (CgroupSockAddr, cgroup_inet6_connect):   flags PENDING, result PENDING — no execution evidence available
+soglia_sendmsg4 (CgroupSockAddr, cgroup_udp4_sendmsg):    flags PENDING, result PENDING — no execution evidence available
+soglia_sendmsg6 (CgroupSockAddr, cgroup_udp6_sendmsg):    flags PENDING, result PENDING — no execution evidence available
+soglia_sockops (SockOps, cgroup_sock_ops):                flags PENDING, result PENDING — no execution evidence available
+
+===== S0.3 REAL ATTACH EXECUTION — 2026-09-27 07:13 CEST =====
+$ limactl shell --workdir /soglia/spikes/cgroup-bpf soglia-spike -- bash -lc '. ~/.cargo/env && CARGO_TARGET_DIR=/var/tmp/spike/target cargo build --release -p soglia-spike-harness'
+Finished `release` profile [optimized] target(s) in 0.50s
+
+$ sudo sh -c 'exec /var/tmp/spike/target/release/soglia-spike-harness /var/tmp/spike/bpf/soglia.o /sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions/s0-probe /sys/fs/bpf/soglia-spike/global /sys/fs/bpf/soglia-spike/exec/s0-probe /var/tmp/soglia-s03-ready-ebe95619 /var/tmp/soglia-s03-stop-ebe95619 >/var/tmp/soglia-s03-harness-ebe95619.log 2>&1 &'
+
+Aya version:                    0.14.0
+harness/src/main.rs sha256:     ebe95619d402e91fb795eeed95807a515ffba237d54e35a1555d6718bd81af13
+BPF object:                     /var/tmp/spike/bpf/soglia.o
+runtime BPF object sha256:      05e426df7fbb09ef7bd4c3b50ac6ba5ed73b67c37b1b284871dd1a80124b3638
+target cgroup:                  /sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions/s0-probe
+target inode / cgroup_id:       5160
+proxy_ip4:                      10.200.255.1, network bytes [0a, c8, ff, 01], const volatile __u32
+proxy_port:                     15001, host byte order, const volatile __u32
+exec_ident:                     0, const volatile __u64
+map pin root:                   /sys/fs/bpf/soglia-spike/global/
+link attach mode:               CgroupAttachMode::Single
+numeric flags passed to Aya:    0
+bpftool observed attach_flags:  multi (all six hooks)
+
+link pin paths:
+- /sys/fs/bpf/soglia-spike/exec/s0-probe/sock_create
+- /sys/fs/bpf/soglia-spike/exec/s0-probe/connect4
+- /sys/fs/bpf/soglia-spike/exec/s0-probe/connect6
+- /sys/fs/bpf/soglia-spike/exec/s0-probe/sendmsg4
+- /sys/fs/bpf/soglia-spike/exec/s0-probe/sendmsg6
+- /sys/fs/bpf/soglia-spike/exec/s0-probe/sock_ops
+
+per-hook results:
+- program=soglia_sock_create aya_type=CgroupSock expected_attach_type=cgroup_inet_sock_create mode=Single flags=0 result=SUCCESS bpftool_attach_flags=multi
+- program=soglia_connect4 aya_type=CgroupSockAddr expected_attach_type=cgroup_inet4_connect mode=Single flags=0 result=SUCCESS bpftool_attach_flags=multi
+- program=soglia_connect6 aya_type=CgroupSockAddr expected_attach_type=cgroup_inet6_connect mode=Single flags=0 result=SUCCESS bpftool_attach_flags=multi
+- program=soglia_sendmsg4 aya_type=CgroupSockAddr expected_attach_type=cgroup_udp4_sendmsg mode=Single flags=0 result=SUCCESS bpftool_attach_flags=multi
+- program=soglia_sendmsg6 aya_type=CgroupSockAddr expected_attach_type=cgroup_udp6_sendmsg mode=Single flags=0 result=SUCCESS bpftool_attach_flags=multi
+- program=soglia_sockops aya_type=SockOps expected_attach_type=cgroup_sock_ops mode=Single flags=0 result=SUCCESS bpftool_attach_flags=multi
+
+harness output:
+aya_version=0.14.0
+object=/var/tmp/spike/bpf/soglia.o
+cgroup=/sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions/s0-probe
+proxy_ip4=10.200.255.1 network_bytes=[0a, c8, ff, 01]
+proxy_port=15001 host_byte_order
+exec_ident=0
+map_pin_root=/sys/fs/bpf/soglia-spike/global
+link_pin_root=/sys/fs/bpf/soglia-spike/exec/s0-probe
+attach program=soglia_sock_create aya_type=CgroupSock expected_attach_type=cgroup_inet_sock_create mode=Single flags=0 pin=/sys/fs/bpf/soglia-spike/exec/s0-probe/sock_create
+attach program=soglia_sock_create result=SUCCESS
+attach program=soglia_connect4 aya_type=CgroupSockAddr expected_attach_type=cgroup_inet4_connect mode=Single flags=0 pin=/sys/fs/bpf/soglia-spike/exec/s0-probe/connect4
+attach program=soglia_connect4 result=SUCCESS
+attach program=soglia_connect6 aya_type=CgroupSockAddr expected_attach_type=cgroup_inet6_connect mode=Single flags=0 pin=/sys/fs/bpf/soglia-spike/exec/s0-probe/connect6
+attach program=soglia_connect6 result=SUCCESS
+attach program=soglia_sendmsg4 aya_type=CgroupSockAddr expected_attach_type=cgroup_udp4_sendmsg mode=Single flags=0 pin=/sys/fs/bpf/soglia-spike/exec/s0-probe/sendmsg4
+attach program=soglia_sendmsg4 result=SUCCESS
+attach program=soglia_sendmsg6 aya_type=CgroupSockAddr expected_attach_type=cgroup_udp6_sendmsg mode=Single flags=0 pin=/sys/fs/bpf/soglia-spike/exec/s0-probe/sendmsg6
+attach program=soglia_sendmsg6 result=SUCCESS
+attach program=soglia_sockops aya_type=SockOps expected_attach_type=cgroup_sock_ops mode=Single flags=0 pin=/sys/fs/bpf/soglia-spike/exec/s0-probe/sock_ops
+attach program=soglia_sockops result=SUCCESS
+state=READY all_six_links_pinned
+state=CLEANUP_BEGIN
+state=CLEANUP_COMPLETE
+
+post-cleanup live cross-check:
+- target inode remains 5160
+- target cgroup.procs remains empty
+- direct cgroup attachment output is empty
+- link state equals attach-baseline-link.json (ids 1 and 2 only)
+- program state equals attach-baseline-prog.json
+- /sys/fs/bpf is empty and /sys/fs/bpf/soglia-spike is absent
+
+===== POST-RUN EXTERNAL STATE CHANGE — 2026-09-27 07:15 CEST =====
+The immediate post-cleanup checks above completed while the original target still existed as inode 5160.
+At 07:15:13 CEST, after evidence collection and cleanup, systemd stopped and started `soglia-spike-s0.service` outside the harness run.
+The journal records an orderly stop, successful deactivation, and a new start at that timestamp; the unit has `Restart=no` and `NRestarts=0`, so this was not an automatic service restart.
+The new unit has MainPID 17949 and a new delegated-root inode 8952.
+The old `executions/s0-probe` cgroup no longer exists, so inode 5160 is now historical evidence and must not be reused for another run.
+The post-restart link set still equals the baseline (ids 1 and 2 only), and `/sys/fs/bpf` remains empty.
+No new S0.3 attach was attempted after this external state change.

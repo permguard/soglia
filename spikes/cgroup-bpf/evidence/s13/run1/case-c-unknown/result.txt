@@ -1,0 +1,10 @@
+foreign_provenance=test_created_by_s13_runner
+foreign_pin=/sys/fs/bpf/soglia-spike/s13/foreign/maps/soglia-looking-foreign
+foreign_type=array
+foreign_id_before=986
+foreign_id_after=986
+foreign_identity_preserved=true
+startup_ready=true
+trusted_owner_metadata=false
+unknown_state_diagnostic=false
+fail_closed_before_ready=false

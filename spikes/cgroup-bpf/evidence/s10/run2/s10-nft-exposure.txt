@@ -1,0 +1,5 @@
+exposure_handle=10
+exposure_rule=ip daddr 10.201.0.2 tcp dport 16001 ct state new counter accept comment s10-rewrite-exposure
+observe_packets_after_case_a=2
+unrelated_namespace_rules_changed=0
+host_rules_changed=0

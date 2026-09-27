@@ -1,0 +1,14 @@
+N=1
+programs=6
+links=6
+maps=10
+pins=14
+program_bytes_xlated=5736
+program_bytes_jited=4728
+program_bytes_memlock=24576
+map_bytes_memlock=1176080
+MemFree:         3671160 kB
+MemAvailable:    7606856 kB
+Slab:             299892 kB
+SReclaimable:     217852 kB
+SUnreclaim:        82040 kB

@@ -1,0 +1,22 @@
+# Copyright (c) 2022 Nitro Agility S.r.l.
+# SPDX-License-Identifier: Apache-2.0
+
+[package]
+name = "soglia-spike-harness"
+description = "Phase-1 cgroup-BPF spike harness. EXPERIMENTAL."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[dependencies]
+aya = "0.14"
+rustix = { version = "1", features = ["fs", "net", "process", "thread"] }
+serde_json = "1"
+soglia-core = { path = "../../../crates/soglia-core" }
+soglia-enforcer = { path = "../../../crates/soglia-enforcer" }
+soglia-sandbox = { path = "../../../crates/soglia-sandbox" }
+
+[lints]
+workspace = true

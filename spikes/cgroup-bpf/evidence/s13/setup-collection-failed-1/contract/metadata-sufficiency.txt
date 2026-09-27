@@ -1,0 +1,11 @@
+owner_field=ABSENT
+schema_version_field=ABSENT
+abi_or_layout_field=ABSENT
+generation_field=ABSENT
+authenticated_or_kernel_provenance_binding=ABSENT
+loader_write_of_soglia_meta=ABSENT
+loader_validation_of_soglia_meta=ABSENT
+startup_pin_inventory_validation=ABSENT
+supported_pin_sweep_or_recreate_state_machine=ABSENT
+current_contract_sufficient=false
+classification=OWNERSHIP_AND_COMPATIBILITY_UNDEFINED

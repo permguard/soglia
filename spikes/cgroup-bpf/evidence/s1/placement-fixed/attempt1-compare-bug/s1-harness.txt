@@ -1,0 +1,34 @@
+test=S1
+object=/var/tmp/spike/bpf/soglia-diag.o
+cgroup=/sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions/s1-e1
+netns=soglia-s1-e1
+execution_id=s1-execution-e1-generation-1
+execution_ip=10.201.0.1
+candidate_c_ident=1001001
+proxy=10.200.255.1:15001
+resolve_timeout_ms=2000
+attached_links=6
+policy_local[0]=1
+proxy_state=LISTENING
+state=READY_FOR_KERNEL_SNAPSHOT
+state=KERNEL_SNAPSHOT_RELEASED
+trusted_host_pid=32904
+announced_host_pid=32904
+target_cgroup_inode=14112
+host_launcher_proc_cgroup_begin
+0::/system.slice/soglia-spike-s0.service/executions/s1-e1
+host_launcher_proc_cgroup_end
+target_cgroup_procs_after_host_move_begin
+32904
+target_cgroup_procs_after_host_move_end
+host_pid_matches_trusted_lifecycle=true
+host_pid_in_exact_proc_cgroup=false
+host_pid_in_target_cgroup_procs=true
+host_launcher_stopped_before_netns=true
+host_placement_proven=false
+S1_DIAGNOSTIC_CLASSIFICATION=SUBJECT_PLACEMENT_FAILURE
+host_launcher_status=signal: 9 (SIGKILL)
+host_launcher_stderr="host_launcher_pid=32904\n"
+state=CLEANUP_BEGIN
+state=CLEANUP_COMPLETE
+S1 ATTRIBUTION ERROR: trusted host PID placement was not proven

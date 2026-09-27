@@ -1,0 +1,6 @@
+     1	classification=KNOWN_COMPATIBLE phase=INTENT generation=1
+     2	sweep=verified_absent generation=1
+     3	record_phase=INTENT state_id=cab51f544051fa56cf2350519b2747ea generation=2
+     4	/soglia/spikes/cgroup-bpf/s13-state-manager.sh: line 510: 78383 Killed                  "$loader" "$object" "$cgroup" "$pin_root/maps" "$pin_root/links" "$internal_ready" > /dev/null 2>&1
+     5	record_phase=READY state_id=cab51f544051fa56cf2350519b2747ea generation=2
+     6	startup_ready=true

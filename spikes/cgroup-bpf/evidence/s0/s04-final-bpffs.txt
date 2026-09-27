@@ -1,0 +1,18 @@
+$ sudo ls -la /sys/fs/bpf
+total 0
+drwx-----T 2 root root 0 Sep 27 07:32 .
+drwxr-xr-x 9 root root 0 Sep 27 06:35 ..
+$ sudo find /sys/fs/bpf -mindepth 1 -maxdepth 5 -ls
+
+S0.4d comparison with fresh run baseline:
+full_program_set_equals_run_baseline=yes
+link_set_equals_run_baseline=yes
+test_owned_programs_absent=yes
+test_owned_cgroup_links_absent=yes
+ancestor_equals_empty_baseline=yes
+child_equals_empty_baseline=yes
+effective_equals_empty_baseline=yes
+bpffs_equals_empty_baseline=yes
+executions_inode=13326
+s0_probe_inode=13368
+s0_probe_empty=yes

@@ -1,0 +1,158 @@
+# S2 topology
+UTC=2026-09-27T06:47:23Z
+executions_inode=14892
+execution index=0 id=s2-execution-e0-generation-1 cgroup=/sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions/s2-e0 inode=14934 ip=10.201.0.1 netns=soglia-s2-e0 ident=2001001
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00 promiscuity 0  allmulti 0 minmtu 0 maxmtu 0 numtxqueues 1 numrxqueues 1 gso_max_size 65536 gso_max_segs 65535 tso_max_size 524280 tso_max_segs 65535 gro_max_size 65536 
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host 
+       valid_lft forever preferred_lft forever
+2: eth0@if24: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default qlen 1000
+    link/ether 7e:79:f6:62:e6:58 brd ff:ff:ff:ff:ff:ff link-netnsid 0 promiscuity 0  allmulti 0 minmtu 68 maxmtu 65535 
+    veth numtxqueues 4 numrxqueues 4 gso_max_size 65536 gso_max_segs 65535 tso_max_size 524280 tso_max_segs 65535 gro_max_size 65536 
+    inet 10.201.0.1/30 scope global eth0
+       valid_lft forever preferred_lft forever
+    inet6 fe80::7c79:f6ff:fe62:e658/64 scope link tentative 
+       valid_lft forever preferred_lft forever
+10.200.255.1 via 10.201.0.2 dev eth0 
+10.201.0.0/30 dev eth0 proto kernel scope link src 10.201.0.1 
+table inet soglia {
+	chain input {
+		type filter hook input priority filter; policy drop;
+		iif "lo" accept
+		ct state established,related accept
+	}
+
+	chain output {
+		type filter hook output priority filter; policy drop;
+		oif "lo" accept
+		ct state established,related accept
+		ip daddr 10.200.255.1 tcp dport 15001 ct state new accept
+	}
+
+	chain forward {
+		type filter hook forward priority filter; policy drop;
+	}
+}
+execution index=1 id=s2-execution-e1-generation-1 cgroup=/sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions/s2-e1 inode=14976 ip=10.201.0.5 netns=soglia-s2-e1 ident=2001002
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00 promiscuity 0  allmulti 0 minmtu 0 maxmtu 0 numtxqueues 1 numrxqueues 1 gso_max_size 65536 gso_max_segs 65535 tso_max_size 524280 tso_max_segs 65535 gro_max_size 65536 
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host 
+       valid_lft forever preferred_lft forever
+2: eth0@if25: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default qlen 1000
+    link/ether 76:95:09:bc:01:4e brd ff:ff:ff:ff:ff:ff link-netnsid 0 promiscuity 0  allmulti 0 minmtu 68 maxmtu 65535 
+    veth numtxqueues 4 numrxqueues 4 gso_max_size 65536 gso_max_segs 65535 tso_max_size 524280 tso_max_segs 65535 gro_max_size 65536 
+    inet 10.201.0.5/30 scope global eth0
+       valid_lft forever preferred_lft forever
+    inet6 fe80::7495:9ff:febc:14e/64 scope link tentative 
+       valid_lft forever preferred_lft forever
+10.200.255.1 via 10.201.0.6 dev eth0 
+10.201.0.4/30 dev eth0 proto kernel scope link src 10.201.0.5 
+table inet soglia {
+	chain input {
+		type filter hook input priority filter; policy drop;
+		iif "lo" accept
+		ct state established,related accept
+	}
+
+	chain output {
+		type filter hook output priority filter; policy drop;
+		oif "lo" accept
+		ct state established,related accept
+		ip daddr 10.200.255.1 tcp dport 15001 ct state new accept
+	}
+
+	chain forward {
+		type filter hook forward priority filter; policy drop;
+	}
+}
+execution index=2 id=s2-execution-e2-generation-1 cgroup=/sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions/s2-e2 inode=15018 ip=10.201.0.9 netns=soglia-s2-e2 ident=2001003
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00 promiscuity 0  allmulti 0 minmtu 0 maxmtu 0 numtxqueues 1 numrxqueues 1 gso_max_size 65536 gso_max_segs 65535 tso_max_size 524280 tso_max_segs 65535 gro_max_size 65536 
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host 
+       valid_lft forever preferred_lft forever
+2: eth0@if26: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default qlen 1000
+    link/ether 4e:ea:38:78:78:0e brd ff:ff:ff:ff:ff:ff link-netnsid 0 promiscuity 0  allmulti 0 minmtu 68 maxmtu 65535 
+    veth numtxqueues 4 numrxqueues 4 gso_max_size 65536 gso_max_segs 65535 tso_max_size 524280 tso_max_segs 65535 gro_max_size 65536 
+    inet 10.201.0.9/30 scope global eth0
+       valid_lft forever preferred_lft forever
+    inet6 fe80::4cea:38ff:fe78:780e/64 scope link tentative 
+       valid_lft forever preferred_lft forever
+10.200.255.1 via 10.201.0.10 dev eth0 
+10.201.0.8/30 dev eth0 proto kernel scope link src 10.201.0.9 
+table inet soglia {
+	chain input {
+		type filter hook input priority filter; policy drop;
+		iif "lo" accept
+		ct state established,related accept
+	}
+
+	chain output {
+		type filter hook output priority filter; policy drop;
+		oif "lo" accept
+		ct state established,related accept
+		ip daddr 10.200.255.1 tcp dport 15001 ct state new accept
+	}
+
+	chain forward {
+		type filter hook forward priority filter; policy drop;
+	}
+}
+execution index=3 id=s2-execution-e3-generation-1 cgroup=/sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions/s2-e3 inode=15060 ip=10.201.0.13 netns=soglia-s2-e3 ident=2001004
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00 promiscuity 0  allmulti 0 minmtu 0 maxmtu 0 numtxqueues 1 numrxqueues 1 gso_max_size 65536 gso_max_segs 65535 tso_max_size 524280 tso_max_segs 65535 gro_max_size 65536 
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host 
+       valid_lft forever preferred_lft forever
+2: eth0@if27: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default qlen 1000
+    link/ether 9a:cf:ef:28:f4:7e brd ff:ff:ff:ff:ff:ff link-netnsid 0 promiscuity 0  allmulti 0 minmtu 68 maxmtu 65535 
+    veth numtxqueues 4 numrxqueues 4 gso_max_size 65536 gso_max_segs 65535 tso_max_size 524280 tso_max_segs 65535 gro_max_size 65536 
+    inet 10.201.0.13/30 scope global eth0
+       valid_lft forever preferred_lft forever
+    inet6 fe80::98cf:efff:fe28:f47e/64 scope link tentative 
+       valid_lft forever preferred_lft forever
+10.200.255.1 via 10.201.0.14 dev eth0 
+10.201.0.12/30 dev eth0 proto kernel scope link src 10.201.0.13 
+table inet soglia {
+	chain input {
+		type filter hook input priority filter; policy drop;
+		iif "lo" accept
+		ct state established,related accept
+	}
+
+	chain output {
+		type filter hook output priority filter; policy drop;
+		oif "lo" accept
+		ct state established,related accept
+		ip daddr 10.200.255.1 tcp dport 15001 ct state new accept
+	}
+
+	chain forward {
+		type filter hook forward priority filter; policy drop;
+	}
+}
+table inet soglia_spike_s2 {
+	chain input {
+		type filter hook input priority filter - 10; policy accept;
+		iifname "sgh-s2e0" ip saddr != 10.201.0.1 drop
+		iifname "sgh-s2e1" ip saddr != 10.201.0.5 drop
+		iifname "sgh-s2e2" ip saddr != 10.201.0.9 drop
+		iifname "sgh-s2e3" ip saddr != 10.201.0.13 drop
+		iifname { "sgh-s2e0", "sgh-s2e1", "sgh-s2e2", "sgh-s2e3" } ct state invalid drop
+		iifname { "sgh-s2e0", "sgh-s2e1", "sgh-s2e2", "sgh-s2e3" } ct state new meta l4proto != tcp drop
+		iifname { "sgh-s2e0", "sgh-s2e1", "sgh-s2e2", "sgh-s2e3" } ct state new ip daddr != 10.200.255.1 drop
+		iifname { "sgh-s2e0", "sgh-s2e1", "sgh-s2e2", "sgh-s2e3" } ct state new tcp dport != 15001 drop
+	}
+
+	chain forward {
+		type filter hook forward priority filter - 10; policy accept;
+		iifname { "sgh-s2e0", "sgh-s2e1", "sgh-s2e2", "sgh-s2e3" } drop
+		oifname { "sgh-s2e0", "sgh-s2e1", "sgh-s2e2", "sgh-s2e3" } drop
+	}
+}

@@ -1,0 +1,30 @@
+# S13 v2 fresh baseline
+UTC=2026-09-27T09:17:05Z
+Linux lima-soglia-spike 6.8.0-134-generic #134-Ubuntu SMP PREEMPT_DYNAMIC Fri Jun 26 18:28:11 UTC 2026 aarch64 aarch64 aarch64 GNU/Linux
+MainPID=22563
+ControlGroup=/system.slice/soglia-spike-s0.service
+Delegate=yes
+DelegateControllers=cpu cpuset io memory pids
+ActiveState=active
+SubState=running
+delegated_root_inode=12456
+/sys/fs/cgroup/system.slice/soglia-spike-s0.service/runtime inode=12516
+CgroupPath
+ID       AttachType      AttachFlags     Name           
+/run/soglia uid=0 gid=0 mode=700 type=directory
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1000\    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP mode DEFAULT group default qlen 1000\    link/ether 52:55:55:05:5d:ad brd ff:ff:ff:ff:ff:ff
+table ip nat { # handle 1
+	chain LIMADNS { # handle 1
+	}
+
+	chain PREROUTING { # handle 2
+		type nat hook prerouting priority dstnat; policy accept;
+		counter packets 249 bytes 14913 jump LIMADNS # handle 3
+	}
+
+	chain OUTPUT { # handle 4
+		type nat hook output priority dstnat; policy accept;
+		counter packets 245 bytes 15244 jump LIMADNS # handle 5
+	}
+}

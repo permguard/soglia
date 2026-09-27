@@ -1,0 +1,21 @@
+# S1 host-first placement rerun build
+UTC=2026-09-27T06:05:26Z
++ ./build.sh /var/tmp/spike/bpf
+foreign.o
+gpl-probe-cgroup-from-id.o
+gpl-probe-task-btf.o
+netns-probe.o
+soglia-delay.o
+soglia-diag.o
+soglia-relax-all.o
+soglia-relax-dgram.o
+soglia-relax-inet6.o
+soglia-small.o
+soglia-trace.o
+soglia.o
+vmlinux.h
++ cargo build --release -p soglia-spike-harness --bin s1_attribution
+   Compiling soglia-spike-harness v0.0.0 (/soglia/spikes/cgroup-bpf/harness)
+    Finished `release` profile [optimized] target(s) in 0.60s
++ cargo build --release -p soglia-spike-agent --target aarch64-unknown-linux-musl
+    Finished `release` profile [optimized] target(s) in 0.01s

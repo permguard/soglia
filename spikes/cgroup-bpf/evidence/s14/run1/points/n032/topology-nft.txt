@@ -1,0 +1,576 @@
+table inet soglia_s14 {
+	chain input {
+		type filter hook input priority filter; policy drop;
+		iif "lo" accept
+		ct state established,related accept
+	}
+
+	chain output {
+		type filter hook output priority filter; policy drop;
+		oif "lo" accept
+		ct state established,related accept
+		ip daddr 10.200.255.1 tcp dport 15001 ct state new accept
+	}
+
+	chain forward {
+		type filter hook forward priority filter; policy drop;
+	}
+}
+table inet soglia_s14 {
+	chain input {
+		type filter hook input priority filter; policy drop;
+		iif "lo" accept
+		ct state established,related accept
+	}
+
+	chain output {
+		type filter hook output priority filter; policy drop;
+		oif "lo" accept
+		ct state established,related accept
+		ip daddr 10.200.255.1 tcp dport 15001 ct state new accept
+	}
+
+	chain forward {
+		type filter hook forward priority filter; policy drop;
+	}
+}
+table inet soglia_s14 {
+	chain input {
+		type filter hook input priority filter; policy drop;
+		iif "lo" accept
+		ct state established,related accept
+	}
+
+	chain output {
+		type filter hook output priority filter; policy drop;
+		oif "lo" accept
+		ct state established,related accept
+		ip daddr 10.200.255.1 tcp dport 15001 ct state new accept
+	}
+
+	chain forward {
+		type filter hook forward priority filter; policy drop;
+	}
+}
+table inet soglia_s14 {
+	chain input {
+		type filter hook input priority filter; policy drop;
+		iif "lo" accept
+		ct state established,related accept
+	}
+
+	chain output {
+		type filter hook output priority filter; policy drop;
+		oif "lo" accept
+		ct state established,related accept
+		ip daddr 10.200.255.1 tcp dport 15001 ct state new accept
+	}
+
+	chain forward {
+		type filter hook forward priority filter; policy drop;
+	}
+}
+table inet soglia_s14 {
+	chain input {
+		type filter hook input priority filter; policy drop;
+		iif "lo" accept
+		ct state established,related accept
+	}
+
+	chain output {
+		type filter hook output priority filter; policy drop;
+		oif "lo" accept
+		ct state established,related accept
+		ip daddr 10.200.255.1 tcp dport 15001 ct state new accept
+	}
+
+	chain forward {
+		type filter hook forward priority filter; policy drop;
+	}
+}
+table inet soglia_s14 {
+	chain input {
+		type filter hook input priority filter; policy drop;
+		iif "lo" accept
+		ct state established,related accept
+	}
+
+	chain output {
+		type filter hook output priority filter; policy drop;
+		oif "lo" accept
+		ct state established,related accept
+		ip daddr 10.200.255.1 tcp dport 15001 ct state new accept
+	}
+
+	chain forward {
+		type filter hook forward priority filter; policy drop;
+	}
+}
+table inet soglia_s14 {
+	chain input {
+		type filter hook input priority filter; policy drop;
+		iif "lo" accept
+		ct state established,related accept
+	}
+
+	chain output {
+		type filter hook output priority filter; policy drop;
+		oif "lo" accept
+		ct state established,related accept
+		ip daddr 10.200.255.1 tcp dport 15001 ct state new accept
+	}
+
+	chain forward {
+		type filter hook forward priority filter; policy drop;
+	}
+}
+table inet soglia_s14 {
+	chain input {
+		type filter hook input priority filter; policy drop;
+		iif "lo" accept
+		ct state established,related accept
+	}
+
+	chain output {
+		type filter hook output priority filter; policy drop;
+		oif "lo" accept
+		ct state established,related accept
+		ip daddr 10.200.255.1 tcp dport 15001 ct state new accept
+	}
+
+	chain forward {
+		type filter hook forward priority filter; policy drop;
+	}
+}
+table inet soglia_s14 {
+	chain input {
+		type filter hook input priority filter; policy drop;
+		iif "lo" accept
+		ct state established,related accept
+	}
+
+	chain output {
+		type filter hook output priority filter; policy drop;
+		oif "lo" accept
+		ct state established,related accept
+		ip daddr 10.200.255.1 tcp dport 15001 ct state new accept
+	}
+
+	chain forward {
+		type filter hook forward priority filter; policy drop;
+	}
+}
+table inet soglia_s14 {
+	chain input {
+		type filter hook input priority filter; policy drop;
+		iif "lo" accept
+		ct state established,related accept
+	}
+
+	chain output {
+		type filter hook output priority filter; policy drop;
+		oif "lo" accept
+		ct state established,related accept
+		ip daddr 10.200.255.1 tcp dport 15001 ct state new accept
+	}
+
+	chain forward {
+		type filter hook forward priority filter; policy drop;
+	}
+}
+table inet soglia_s14 {
+	chain input {
+		type filter hook input priority filter; policy drop;
+		iif "lo" accept
+		ct state established,related accept
+	}
+
+	chain output {
+		type filter hook output priority filter; policy drop;
+		oif "lo" accept
+		ct state established,related accept
+		ip daddr 10.200.255.1 tcp dport 15001 ct state new accept
+	}
+
+	chain forward {
+		type filter hook forward priority filter; policy drop;
+	}
+}
+table inet soglia_s14 {
+	chain input {
+		type filter hook input priority filter; policy drop;
+		iif "lo" accept
+		ct state established,related accept
+	}
+
+	chain output {
+		type filter hook output priority filter; policy drop;
+		oif "lo" accept
+		ct state established,related accept
+		ip daddr 10.200.255.1 tcp dport 15001 ct state new accept
+	}
+
+	chain forward {
+		type filter hook forward priority filter; policy drop;
+	}
+}
+table inet soglia_s14 {
+	chain input {
+		type filter hook input priority filter; policy drop;
+		iif "lo" accept
+		ct state established,related accept
+	}
+
+	chain output {
+		type filter hook output priority filter; policy drop;
+		oif "lo" accept
+		ct state established,related accept
+		ip daddr 10.200.255.1 tcp dport 15001 ct state new accept
+	}
+
+	chain forward {
+		type filter hook forward priority filter; policy drop;
+	}
+}
+table inet soglia_s14 {
+	chain input {
+		type filter hook input priority filter; policy drop;
+		iif "lo" accept
+		ct state established,related accept
+	}
+
+	chain output {
+		type filter hook output priority filter; policy drop;
+		oif "lo" accept
+		ct state established,related accept
+		ip daddr 10.200.255.1 tcp dport 15001 ct state new accept
+	}
+
+	chain forward {
+		type filter hook forward priority filter; policy drop;
+	}
+}
+table inet soglia_s14 {
+	chain input {
+		type filter hook input priority filter; policy drop;
+		iif "lo" accept
+		ct state established,related accept
+	}
+
+	chain output {
+		type filter hook output priority filter; policy drop;
+		oif "lo" accept
+		ct state established,related accept
+		ip daddr 10.200.255.1 tcp dport 15001 ct state new accept
+	}
+
+	chain forward {
+		type filter hook forward priority filter; policy drop;
+	}
+}
+table inet soglia_s14 {
+	chain input {
+		type filter hook input priority filter; policy drop;
+		iif "lo" accept
+		ct state established,related accept
+	}
+
+	chain output {
+		type filter hook output priority filter; policy drop;
+		oif "lo" accept
+		ct state established,related accept
+		ip daddr 10.200.255.1 tcp dport 15001 ct state new accept
+	}
+
+	chain forward {
+		type filter hook forward priority filter; policy drop;
+	}
+}
+table inet soglia_s14 {
+	chain input {
+		type filter hook input priority filter; policy drop;
+		iif "lo" accept
+		ct state established,related accept
+	}
+
+	chain output {
+		type filter hook output priority filter; policy drop;
+		oif "lo" accept
+		ct state established,related accept
+		ip daddr 10.200.255.1 tcp dport 15001 ct state new accept
+	}
+
+	chain forward {
+		type filter hook forward priority filter; policy drop;
+	}
+}
+table inet soglia_s14 {
+	chain input {
+		type filter hook input priority filter; policy drop;
+		iif "lo" accept
+		ct state established,related accept
+	}
+
+	chain output {
+		type filter hook output priority filter; policy drop;
+		oif "lo" accept
+		ct state established,related accept
+		ip daddr 10.200.255.1 tcp dport 15001 ct state new accept
+	}
+
+	chain forward {
+		type filter hook forward priority filter; policy drop;
+	}
+}
+table inet soglia_s14 {
+	chain input {
+		type filter hook input priority filter; policy drop;
+		iif "lo" accept
+		ct state established,related accept
+	}
+
+	chain output {
+		type filter hook output priority filter; policy drop;
+		oif "lo" accept
+		ct state established,related accept
+		ip daddr 10.200.255.1 tcp dport 15001 ct state new accept
+	}
+
+	chain forward {
+		type filter hook forward priority filter; policy drop;
+	}
+}
+table inet soglia_s14 {
+	chain input {
+		type filter hook input priority filter; policy drop;
+		iif "lo" accept
+		ct state established,related accept
+	}
+
+	chain output {
+		type filter hook output priority filter; policy drop;
+		oif "lo" accept
+		ct state established,related accept
+		ip daddr 10.200.255.1 tcp dport 15001 ct state new accept
+	}
+
+	chain forward {
+		type filter hook forward priority filter; policy drop;
+	}
+}
+table inet soglia_s14 {
+	chain input {
+		type filter hook input priority filter; policy drop;
+		iif "lo" accept
+		ct state established,related accept
+	}
+
+	chain output {
+		type filter hook output priority filter; policy drop;
+		oif "lo" accept
+		ct state established,related accept
+		ip daddr 10.200.255.1 tcp dport 15001 ct state new accept
+	}
+
+	chain forward {
+		type filter hook forward priority filter; policy drop;
+	}
+}
+table inet soglia_s14 {
+	chain input {
+		type filter hook input priority filter; policy drop;
+		iif "lo" accept
+		ct state established,related accept
+	}
+
+	chain output {
+		type filter hook output priority filter; policy drop;
+		oif "lo" accept
+		ct state established,related accept
+		ip daddr 10.200.255.1 tcp dport 15001 ct state new accept
+	}
+
+	chain forward {
+		type filter hook forward priority filter; policy drop;
+	}
+}
+table inet soglia_s14 {
+	chain input {
+		type filter hook input priority filter; policy drop;
+		iif "lo" accept
+		ct state established,related accept
+	}
+
+	chain output {
+		type filter hook output priority filter; policy drop;
+		oif "lo" accept
+		ct state established,related accept
+		ip daddr 10.200.255.1 tcp dport 15001 ct state new accept
+	}
+
+	chain forward {
+		type filter hook forward priority filter; policy drop;
+	}
+}
+table inet soglia_s14 {
+	chain input {
+		type filter hook input priority filter; policy drop;
+		iif "lo" accept
+		ct state established,related accept
+	}
+
+	chain output {
+		type filter hook output priority filter; policy drop;
+		oif "lo" accept
+		ct state established,related accept
+		ip daddr 10.200.255.1 tcp dport 15001 ct state new accept
+	}
+
+	chain forward {
+		type filter hook forward priority filter; policy drop;
+	}
+}
+table inet soglia_s14 {
+	chain input {
+		type filter hook input priority filter; policy drop;
+		iif "lo" accept
+		ct state established,related accept
+	}
+
+	chain output {
+		type filter hook output priority filter; policy drop;
+		oif "lo" accept
+		ct state established,related accept
+		ip daddr 10.200.255.1 tcp dport 15001 ct state new accept
+	}
+
+	chain forward {
+		type filter hook forward priority filter; policy drop;
+	}
+}
+table inet soglia_s14 {
+	chain input {
+		type filter hook input priority filter; policy drop;
+		iif "lo" accept
+		ct state established,related accept
+	}
+
+	chain output {
+		type filter hook output priority filter; policy drop;
+		oif "lo" accept
+		ct state established,related accept
+		ip daddr 10.200.255.1 tcp dport 15001 ct state new accept
+	}
+
+	chain forward {
+		type filter hook forward priority filter; policy drop;
+	}
+}
+table inet soglia_s14 {
+	chain input {
+		type filter hook input priority filter; policy drop;
+		iif "lo" accept
+		ct state established,related accept
+	}
+
+	chain output {
+		type filter hook output priority filter; policy drop;
+		oif "lo" accept
+		ct state established,related accept
+		ip daddr 10.200.255.1 tcp dport 15001 ct state new accept
+	}
+
+	chain forward {
+		type filter hook forward priority filter; policy drop;
+	}
+}
+table inet soglia_s14 {
+	chain input {
+		type filter hook input priority filter; policy drop;
+		iif "lo" accept
+		ct state established,related accept
+	}
+
+	chain output {
+		type filter hook output priority filter; policy drop;
+		oif "lo" accept
+		ct state established,related accept
+		ip daddr 10.200.255.1 tcp dport 15001 ct state new accept
+	}
+
+	chain forward {
+		type filter hook forward priority filter; policy drop;
+	}
+}
+table inet soglia_s14 {
+	chain input {
+		type filter hook input priority filter; policy drop;
+		iif "lo" accept
+		ct state established,related accept
+	}
+
+	chain output {
+		type filter hook output priority filter; policy drop;
+		oif "lo" accept
+		ct state established,related accept
+		ip daddr 10.200.255.1 tcp dport 15001 ct state new accept
+	}
+
+	chain forward {
+		type filter hook forward priority filter; policy drop;
+	}
+}
+table inet soglia_s14 {
+	chain input {
+		type filter hook input priority filter; policy drop;
+		iif "lo" accept
+		ct state established,related accept
+	}
+
+	chain output {
+		type filter hook output priority filter; policy drop;
+		oif "lo" accept
+		ct state established,related accept
+		ip daddr 10.200.255.1 tcp dport 15001 ct state new accept
+	}
+
+	chain forward {
+		type filter hook forward priority filter; policy drop;
+	}
+}
+table inet soglia_s14 {
+	chain input {
+		type filter hook input priority filter; policy drop;
+		iif "lo" accept
+		ct state established,related accept
+	}
+
+	chain output {
+		type filter hook output priority filter; policy drop;
+		oif "lo" accept
+		ct state established,related accept
+		ip daddr 10.200.255.1 tcp dport 15001 ct state new accept
+	}
+
+	chain forward {
+		type filter hook forward priority filter; policy drop;
+	}
+}
+table inet soglia_s14 {
+	chain input {
+		type filter hook input priority filter; policy drop;
+		iif "lo" accept
+		ct state established,related accept
+	}
+
+	chain output {
+		type filter hook output priority filter; policy drop;
+		oif "lo" accept
+		ct state established,related accept
+		ip daddr 10.200.255.1 tcp dport 15001 ct state new accept
+	}
+
+	chain forward {
+		type filter hook forward priority filter; policy drop;
+	}
+}

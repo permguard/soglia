@@ -1,0 +1,31 @@
+# Copyright (c) 2022 Nitro Agility S.r.l.
+# SPDX-License-Identifier: Apache-2.0
+
+# The Linux VM the Phase-1 cgroup-BPF spike runs in: Ubuntu 24.04, aarch64, a real kernel.
+#
+#   limactl create --name=soglia-spike spikes/cgroup-bpf/lima.yaml
+#   limactl start soglia-spike
+#
+# The repository is mounted writable at /soglia. Build output stays on the VM's own disk
+# (CARGO_TARGET_DIR), because building on the shared mount is slow and the spike never needs
+# its artifacts on the host.
+
+minimumLimaVersion: 2.0.0
+
+base:
+  - template:_images/ubuntu-24.04
+
+vmType: vz
+arch: aarch64
+cpus: 4
+memory: 8GiB
+disk: 40GiB
+
+mounts:
+  - location: "{{.Home}}/source/nitro/permguard-workspace/repos/soglia"
+    mountPoint: /soglia
+    writable: true
+
+containerd:
+  system: false
+  user: false

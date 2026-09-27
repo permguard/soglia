@@ -1,0 +1,36 @@
+# Foreign (non-Soglia) cgroup BPF programs present before S0.3 — read-only inspection
+
+$ bpftool cgroup tree
+CgroupPath
+ID       AttachType      AttachFlags     Name           
+/sys/fs/cgroup/system.slice/systemd-networkd.service
+    666      cgroup_device   multi           sd_devices                     
+/sys/fs/cgroup/system.slice/systemd-udevd.service
+    673      cgroup_inet_ingress multi           sd_fw_ingress                  
+    672      cgroup_inet_egress multi           sd_fw_egress                   
+/sys/fs/cgroup/system.slice/polkit.service
+    674      cgroup_device   multi           sd_devices                     
+/sys/fs/cgroup/system.slice/systemd-journald.service
+    677      cgroup_inet_ingress multi           sd_fw_ingress                  
+    676      cgroup_inet_egress multi           sd_fw_egress                   
+    675      cgroup_device   multi           sd_devices                     
+/sys/fs/cgroup/system.slice/systemd-resolved.service
+    671      cgroup_device   multi           sd_devices                     
+/sys/fs/cgroup/system.slice/systemd-timesyncd.service
+    670      cgroup_device   multi           sd_devices                     
+/sys/fs/cgroup/system.slice/systemd-logind.service
+    669      cgroup_inet_ingress multi           sd_fw_ingress                  
+    668      cgroup_inet_egress multi           sd_fw_egress                   
+    667      cgroup_device   multi           sd_devices                     
+
+$ bpftool cgroup show /sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions/s0-probe effective
+(end of effective list)
+
+$ bpftool cgroup show /sys/fs/cgroup
+(end)
+$ bpftool cgroup show /sys/fs/cgroup/system.slice
+(end)
+$ bpftool cgroup show /sys/fs/cgroup/system.slice/soglia-spike-s0.service
+(end)
+$ bpftool cgroup show /sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions
+(end)

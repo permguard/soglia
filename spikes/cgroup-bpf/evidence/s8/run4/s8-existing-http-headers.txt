@@ -1,0 +1,6 @@
+HTTP/1.1 500 Internal Server Error
+content-type: application/json
+soglia-execution-id: 466dd111452f883e2463af2be97a0edd
+content-length: 109
+date: Sun, 27 Sep 2026 07:29:19 GMT
+

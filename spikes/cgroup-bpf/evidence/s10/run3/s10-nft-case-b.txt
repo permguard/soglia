@@ -1,0 +1,20 @@
+table inet soglia { # handle 1
+	chain input { # handle 1
+		type filter hook input priority filter; policy drop;
+		iif "lo" accept # handle 4
+		ct state established,related accept # handle 5
+	}
+
+	chain output { # handle 2
+		type filter hook output priority filter; policy drop;
+		oif "lo" accept # handle 6
+		ct state established,related accept # handle 7
+		ip daddr 10.200.255.1 tcp dport 15001 ct state new accept # handle 8
+		ip daddr 10.201.0.2 tcp dport 16001 counter packets 3 bytes 180 comment "s10-rewrite-observe" # handle 9
+		ip daddr 10.201.0.2 tcp dport 16001 ct state new counter packets 1 bytes 60 accept comment "s10-rewrite-exposure" # handle 10
+	}
+
+	chain forward { # handle 3
+		type filter hook forward priority filter; policy drop;
+	}
+}

@@ -1,0 +1,4 @@
+# S1 attempt 3 build provenance
+UTC=2026-09-27T05:50:54Z
+   Compiling soglia-spike-harness v0.0.0 (/soglia/spikes/cgroup-bpf/harness)
+    Finished `release` profile [optimized] target(s) in 0.56s

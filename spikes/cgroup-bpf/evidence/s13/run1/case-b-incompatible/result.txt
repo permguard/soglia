@@ -1,0 +1,6 @@
+compatibility_field_available=false
+synthetic_incompatible_state_created=false
+startup_attempted=false
+admission_attempted=false
+reason=changing_any_u64_slot_would_invent_an_undefined_metadata_contract
+result=UNPROVEN

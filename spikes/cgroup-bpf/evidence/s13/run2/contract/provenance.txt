@@ -1,0 +1,4 @@
+13690b948c0e40e37be7486767f6902100cb2ca89c7498f87f9a04cd4c10f4e8  /var/tmp/spike/bpf/soglia-diag.o
+7f32cd03d2a876b404f3bc951c362ab0cdf94cca06b9fa10e1679b05ef3c8b22  /soglia/spikes/cgroup-bpf/s13-state-manager.sh
+53960d86a003a569b0b6bc76cfc07b8d311741303a4271bd53a2d817778dd7cc  /soglia/spikes/cgroup-bpf/bpf/soglia_spike.c
+f8a542183351f779d2aced20b82bbbb0016a30c5d1f713f85f82f58c030a99c1  /soglia/spikes/cgroup-bpf/S13-CONTRACT.md

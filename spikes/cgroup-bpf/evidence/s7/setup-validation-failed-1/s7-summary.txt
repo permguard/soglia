@@ -1,0 +1,12 @@
+# S7 result
+UTC=2026-09-27T07:12:18Z
+loader_loss=SIGKILL status 137 and /proc PID absent
+pinned_link_identity_preserved=true
+pinned_maps_preserved=true
+kernel_connect4_deny_after_loader_loss=true
+direct_listener_accept_after_loader_loss=false
+connect4_unpin_detached_only_connect4=true
+direct_path_after_connect4_unpin=established
+lost_userspace_functionality=loader no longer owns FDs, consumes ring events, manages policy, or performs automatic unpin/cleanup
+retained_kernel_functionality=pinned programs execute and pinned maps retain/update state
+S7_RESULT=PASS

@@ -1,0 +1,20 @@
+# Independent read-only S14 final cleanup validation
+UTC=2026-09-27T09:54:16Z
+unit_active=active
+unit_inode=12456
+cgroups_begin
+/sys/fs/cgroup/system.slice/soglia-spike-s0.service/runtime inode=12516
+cgroups_end
+bpf_tree_begin
+CgroupPath
+ID       AttachType      AttachFlags     Name
+bpf_tree_end
+bpffs_count=0
+s14_netns_count=0
+s14_link_count=0
+s14_process_count=0
+executions_absent=true
+s14_bpffs_root_absent=true
+s14_runtime_absent=true
+s13_trusted_record_absent=true
+independent_final_cleanup=PASS

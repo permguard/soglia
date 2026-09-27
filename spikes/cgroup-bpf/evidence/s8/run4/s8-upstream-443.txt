@@ -1,0 +1,2 @@
+{"event":"application_pulse_echoed","peer":"11.0.0.1:44154","byte":80}
+{"cmd":"listen4-pulse-hold 11.0.0.1:443 20","ok":true,"detail":"accepted 11.0.0.1:44154, echoed one application byte, and held 20s"}

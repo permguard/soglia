@@ -1,0 +1,13 @@
+ownership_proven=true
+compatibility_proven=true
+old_state_id=f40d8b84ff126cfdf958a3d5e139b549
+new_state_id=d1f5ddef4b72a61957cfd37a16db35f2
+old_generation=1
+new_generation=2
+old_map_ids={"soglia_policy":1091,"soglia_tuples":1082,"soglia_cookie_a":1084,"soglia_sk_b":1088,"soglia_events":1086,"soglia_counters":1085,"soglia_denies":1083,"soglia_meta":1087,"soglia_diag_entries":1092,"soglia_port_diag":1090}
+new_map_ids={"soglia_policy":1100,"soglia_tuples":1103,"soglia_cookie_a":1101,"soglia_sk_b":1105,"soglia_events":1096,"soglia_counters":1098,"soglia_denies":1102,"soglia_meta":1106,"soglia_diag_entries":1104,"soglia_port_diag":1097}
+old_ids_absent=true
+fresh_authorization_maps_empty=true
+startup_ready_after_sweep_and_recreate=true
+stale_authorization_reused=false
+result=PASS

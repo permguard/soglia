@@ -1,0 +1,127 @@
+test=S1
+object=/var/tmp/spike/bpf/soglia-diag.o
+cgroup=/sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions/s1-e1
+netns=soglia-s1-e1
+execution_id=s11-execution-generation-1
+execution_ip=10.201.0.1
+candidate_c_ident=11001001
+proxy=10.200.255.1:15001
+resolve_timeout_ms=2000
+attached_links=6
+policy_local[0]=1
+delayed_publication_mode=false
+proxy_state=LISTENING
+state=READY_FOR_KERNEL_SNAPSHOT
+state=KERNEL_SNAPSHOT_RELEASED
+trusted_host_pid=63687
+announced_host_pid=63687
+target_cgroup_inode=26406
+expected_proc_cgroup_line="0::/system.slice/soglia-spike-s0.service/executions/s1-e1"
+host_launcher_proc_cgroup_begin
+0::/system.slice/soglia-spike-s0.service/executions/s1-e1
+host_launcher_proc_cgroup_end
+target_cgroup_procs_after_host_move_begin
+63687
+target_cgroup_procs_after_host_move_end
+host_pid_matches_trusted_lifecycle=true
+host_pid_in_exact_proc_cgroup=true
+host_pid_in_target_cgroup_procs=true
+host_launcher_stopped_before_netns=true
+host_placement_proven=true
+state=HOST_PID_PLACED_THEN_RELEASED_TO_NETNS
+trusted_agent_pid=63687
+announced_agent_pid=63687
+target_cgroup_inode=26406
+expected_proc_cgroup_line="0::/system.slice/soglia-spike-s0.service/executions/s1-e1"
+agent_proc_cgroup_begin
+0::/system.slice/soglia-spike-s0.service/executions/s1-e1
+agent_proc_cgroup_end
+target_cgroup_procs_begin
+63687
+target_cgroup_procs_end
+pid_matches_trusted_lifecycle=true
+agent_in_exact_proc_cgroup=true
+agent_pid_in_target_cgroup_procs=true
+agent_netns_inode=4026532344
+owned_netns_inode=4026532344
+agent_in_owned_netns=true
+live_membership_proven=true
+state=MEMBERSHIP_PROVEN_BEFORE_CONNECTION
+policy_local_before_connection=1
+proxy_state=ACCEPTED peer=10.201.0.1:59278 local=10.200.255.1:15001
+application_bytes_read_before_resolve=0
+outbound_effects_before_resolve=0
+ip_fallback_authorization=false
+tuple_key_hex=0ac900010ac8ff018ee70000993a0000
+resolve_latency_ns=3916
+expected_cgroup_inode=26406
+sock_cookie=12555
+candidate_a_cgroup=26406
+candidate_b_cgroup=26406
+candidate_c_ident=11001001
+candidate_d_netns_cookie=19
+publish_ktime_ns=14933857831973
+sockops_current_cgroup=26406
+raw_remote_port=2570715136
+soglia_diag_entries_diagnostic_status=exit status: 0
+soglia_diag_entries_diagnostic_stdout_begin
+[{"key":["0x00","0x00","0x00","0x00"],"value":["0x01","0x00","0x00","0x00","0x00","0x00","0x00","0x00"],"formatted":{"key":0,"value":1}},{"key":["0x01","0x00","0x00","0x00"],"value":["0x01","0x00","0x00","0x00","0x00","0x00","0x00","0x00"],"formatted":{"key":1,"value":1}},{"key":["0x02","0x00","0x00","0x00"],"value":["0x06","0x00","0x00","0x00","0x00","0x00","0x00","0x00"],"formatted":{"key":2,"value":6}},{"key":["0x03","0x00","0x00","0x00"],"value":["0x01","0x00","0x00","0x00","0x00","0x00","0x00","0x00"],"formatted":{"key":3,"value":1}},{"key":["0x04","0x00","0x00","0x00"],"value":["0x01","0x00","0x00","0x00","0x00","0x00","0x00","0x00"],"formatted":{"key":4,"value":1}},{"key":["0x05","0x00","0x00","0x00"],"value":["0x01","0x00","0x00","0x00","0x00","0x00","0x00","0x00"],"formatted":{"key":5,"value":1}},{"key":["0x06","0x00","0x00","0x00"],"value":["0x01","0x00","0x00","0x00","0x00","0x00","0x00","0x00"],"formatted":{"key":6,"value":1}}]
+soglia_diag_entries_diagnostic_stdout_end
+soglia_diag_entries_diagnostic_stderr_begin
+soglia_diag_entries_diagnostic_stderr_end
+soglia_port_diag_diagnostic_status=exit status: 0
+soglia_port_diag_diagnostic_stdout_begin
+[{"key":["0x00","0x00","0x00","0x00"],"value":["0x3a","0x99","0x00","0x00"],"formatted":{"key":0,"value":39226}},{"key":["0x01","0x00","0x00","0x00"],"value":["0x3a","0x99","0x00","0x00"],"formatted":{"key":1,"value":39226}},{"key":["0x02","0x00","0x00","0x00"],"value":["0x99","0x3a","0x00","0x00"],"formatted":{"key":2,"value":15001}},{"key":["0x03","0x00","0x00","0x00"],"value":["0x00","0x00","0x3a","0x99"],"formatted":{"key":3,"value":2570715136}},{"key":["0x04","0x00","0x00","0x00"],"value":["0x00","0x00","0x00","0x00"],"formatted":{"key":4,"value":0}},{"key":["0x05","0x00","0x00","0x00"],"value":["0x3a","0x99","0x00","0x00"],"formatted":{"key":5,"value":39226}},{"key":["0x06","0x00","0x00","0x00"],"value":["0x99","0x3a","0x00","0x00"],"formatted":{"key":6,"value":15001}},{"key":["0x07","0x00","0x00","0x00"],"value":["0x00","0x00","0x00","0x00"],"formatted":{"key":7,"value":0}},{"key":["0x08","0x00","0x00","0x00"],"value":["0x99","0x3a","0x00","0x00"],"formatted":{"key":8,"value":15001}},{"key":["0x09","0x00","0x00","0x00"],"value":["0x99","0x3a","0x00","0x00"],"formatted":{"key":9,"value":15001}},{"key":["0x0a","0x00","0x00","0x00"],"value":["0x99","0x3a","0x00","0x00"],"formatted":{"key":10,"value":15001}},{"key":["0x0b","0x00","0x00","0x00"],"value":["0x99","0x3a","0x00","0x00"],"formatted":{"key":11,"value":15001}}]
+soglia_port_diag_diagnostic_stdout_end
+soglia_port_diag_diagnostic_stderr_begin
+soglia_port_diag_diagnostic_stderr_end
+soglia_counters_diagnostic_status=exit status: 0
+soglia_counters_diagnostic_stdout_begin
+[{"key":["0x00","0x00","0x00","0x00"],"value":["0x00","0x00","0x00","0x00","0x00","0x00","0x00","0x00"],"formatted":{"key":0,"value":0}},{"key":["0x01","0x00","0x00","0x00"],"value":["0x00","0x00","0x00","0x00","0x00","0x00","0x00","0x00"],"formatted":{"key":1,"value":0}},{"key":["0x02","0x00","0x00","0x00"],"value":["0x01","0x00","0x00","0x00","0x00","0x00","0x00","0x00"],"formatted":{"key":2,"value":1}},{"key":["0x03","0x00","0x00","0x00"],"value":["0x00","0x00","0x00","0x00","0x00","0x00","0x00","0x00"],"formatted":{"key":3,"value":0}},{"key":["0x04","0x00","0x00","0x00"],"value":["0x00","0x00","0x00","0x00","0x00","0x00","0x00","0x00"],"formatted":{"key":4,"value":0}},{"key":["0x05","0x00","0x00","0x00"],"value":["0x00","0x00","0x00","0x00","0x00","0x00","0x00","0x00"],"formatted":{"key":5,"value":0}},{"key":["0x06","0x00","0x00","0x00"],"value":["0x00","0x00","0x00","0x00","0x00","0x00","0x00","0x00"],"formatted":{"key":6,"value":0}},{"key":["0x07","0x00","0x00","0x00"],"value":["0x00","0x00","0x00","0x00","0x00","0x00","0x00","0x00"],"formatted":{"key":7,"value":0}},{"key":["0x08","0x00","0x00","0x00"],"value":["0x00","0x00","0x00","0x00","0x00","0x00","0x00","0x00"],"formatted":{"key":8,"value":0}}]
+soglia_counters_diagnostic_stdout_end
+soglia_counters_diagnostic_stderr_begin
+soglia_counters_diagnostic_stderr_end
+soglia_cookie_a_diagnostic_status=exit status: 0
+soglia_cookie_a_diagnostic_stdout_begin
+[{"key":["0x0b","0x31","0x00","0x00","0x00","0x00","0x00","0x00"],"value":["0x26","0x67","0x00","0x00","0x00","0x00","0x00","0x00"],"formatted":{"key":12555,"value":26406}}]
+soglia_cookie_a_diagnostic_stdout_end
+soglia_cookie_a_diagnostic_stderr_begin
+soglia_cookie_a_diagnostic_stderr_end
+soglia_tuples_diagnostic_status=exit status: 0
+soglia_tuples_diagnostic_stdout_begin
+[{"key":["0x0a","0xc9","0x00","0x01","0x0a","0xc8","0xff","0x01","0x8e","0xe7","0x00","0x00","0x99","0x3a","0x00","0x00"],"value":["0x0b","0x31","0x00","0x00","0x00","0x00","0x00","0x00","0x26","0x67","0x00","0x00","0x00","0x00","0x00","0x00","0x26","0x67","0x00","0x00","0x00","0x00","0x00","0x00","0xa9","0xdc","0xa7","0x00","0x00","0x00","0x00","0x00","0x13","0x00","0x00","0x00","0x00","0x00","0x00","0x00","0x25","0x8c","0x4a","0x0f","0x95","0x0d","0x00","0x00","0x26","0x67","0x00","0x00","0x00","0x00","0x00","0x00","0x00","0x00","0x3a","0x99","0x00","0x00","0x00","0x00"],"formatted":{"key":{"saddr":16828682,"daddr":33540106,"sport":59278,"dport":15001},"value":{"sock_cookie":12555,"a_cgid":26406,"b_cgid":26406,"c_ident":11001001,"d_netns":19,"ts_ns":14933857831973,"sockops_current_cgid":26406,"raw_remote_port":2570715136}}}]
+soglia_tuples_diagnostic_stdout_end
+soglia_tuples_diagnostic_stderr_begin
+soglia_tuples_diagnostic_stderr_end
+soglia_denies_diagnostic_status=exit status: 0
+soglia_denies_diagnostic_stdout_begin
+[]
+soglia_denies_diagnostic_stdout_end
+soglia_denies_diagnostic_stderr_begin
+soglia_denies_diagnostic_stderr_end
+diag_entry_counts=[1, 1, 6, 1, 1, 1, 1]
+port_diag_values=[39226, 39226, 15001, 2570715136, 0, 39226, 15001, 0, 15001, 15001, 15001, 15001]
+port_diag_hex=["0x0000993a", "0x0000993a", "0x00003a99", "0x993a0000", "0x00000000", "0x0000993a", "0x00003a99", "0x00000000", "0x00003a99", "0x00003a99", "0x00003a99", "0x00003a99"]
+existing_counters=[0, 0, 1, 0, 0, 0, 0, 0, 0]
+cookie_entry_count=1
+tuple_entry_count=1
+staging_entry_count=0
+bpf_event_count=0
+candidate_a_resolves_current_execution=true
+candidate_b_resolves_current_execution=true
+candidate_c_resolves_current_execution=true
+candidate_d_recorded_only=true
+ip_veth_cross_check=true
+ip_veth_used_for_authorization=false
+application_line_after_resolve="HELLO 0"
+resolve_result=s11-execution-generation-1
+diagnostic_tuple_entries=1
+agent_status=signal: 9 (SIGKILL)
+agent_stdout_begin
+{"cmd":"barrier /run/soglia-spike-s1-agent.ready /run/soglia-spike-s1-agent.go 30","ok":true,"detail":"released pid=63687"}
+agent_stdout_end
+agent_stderr_begin
+host_launcher_pid=63687
+agent_stderr_end
+state=CLEANUP_BEGIN
+state=CLEANUP_COMPLETE

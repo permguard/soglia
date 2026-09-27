@@ -1,0 +1,102 @@
+# S0.3 preflight — collected 2026-09-27T04:38:09Z inside VM soglia-spike
+
+$ systemctl show soglia-spike-s0.service -p ActiveState -p SubState -p MainPID -p Delegate -p DelegateControllers -p ControlGroup
+MainPID=1536
+ControlGroup=/system.slice/soglia-spike-s0.service
+Delegate=yes
+DelegateControllers=cpu cpuset io memory pids
+ActiveState=active
+SubState=running
+
+== /sys/fs/cgroup/system.slice/soglia-spike-s0.service
+cgroup.procs: []
+cgroup.subtree_control: [memory pids]
+cgroup.controllers: [cpuset cpu io memory pids]
+stat: root:root 755 inode=5016
+cgroup.events: populated 1 frozen 0 
+== /sys/fs/cgroup/system.slice/soglia-spike-s0.service/runtime
+cgroup.procs: [1536 1556 ]
+cgroup.subtree_control: []
+cgroup.controllers: [memory pids]
+stat: root:root 755 inode=5076
+cgroup.events: populated 1 frozen 0 
+== /sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions
+cgroup.procs: []
+cgroup.subtree_control: [memory pids]
+cgroup.controllers: [memory pids]
+stat: root:root 755 inode=5118
+cgroup.events: populated 0 frozen 0 
+== /sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions/s0-probe
+cgroup.procs: []
+cgroup.subtree_control: []
+cgroup.controllers: [memory pids]
+stat: root:root 755 inode=5160
+cgroup.events: populated 0 frozen 0 
+
+S0.3 target cgroup: /sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions/s0-probe
+S0.3 target cgroup inode (expected cgroup_id): 5160
+
+$ ls -la /var/tmp/spike/bpf/soglia.o
+-rw-rw-r-- 1 nicolagallo nicolagallo 46832 Sep 27 06:00 /var/tmp/spike/bpf/soglia.o
+$ sha256sum /var/tmp/spike/bpf/soglia.o
+05e426df7fbb09ef7bd4c3b50ac6ba5ed73b67c37b1b284871dd1a80124b3638  /var/tmp/spike/bpf/soglia.o
+REPORT.md value: 05e426df7fbb09ef7bd4c3b50ac6ba5ed73b67c37b1b284871dd1a80124b3638
+
+$ bpftool prog show (baseline)
+2: tracing  name hid_tail_call  tag 7cc47bbf07148bfe  gpl
+	loaded_at 2026-09-27T06:23:07+0200  uid 0
+	xlated 56B  jited 216B  memlock 4096B  map_ids 2
+	btf_id 6
+18: tracepoint  name lima_ticker  tag c25137cf587ada03
+	loaded_at 2026-09-27T06:23:12+0200  uid 0
+	xlated 104B  jited 200B  memlock 4096B  map_ids 5
+666: cgroup_device  name sd_devices  tag 134b8a301991f6b7  gpl
+	loaded_at 2026-09-27T06:32:33+0200  uid 0
+	xlated 504B  jited 496B  memlock 4096B
+667: cgroup_device  name sd_devices  tag 384856681694f215  gpl
+	loaded_at 2026-09-27T06:32:33+0200  uid 0
+	xlated 744B  jited 680B  memlock 4096B
+668: cgroup_skb  name sd_fw_egress  tag 6deef7357e7b4530  gpl
+	loaded_at 2026-09-27T06:32:33+0200  uid 0
+	xlated 64B  jited 144B  memlock 4096B
+669: cgroup_skb  name sd_fw_ingress  tag 6deef7357e7b4530  gpl
+	loaded_at 2026-09-27T06:32:33+0200  uid 0
+	xlated 64B  jited 144B  memlock 4096B
+670: cgroup_device  name sd_devices  tag ee0e253c78993a24  gpl
+	loaded_at 2026-09-27T06:32:33+0200  uid 0
+	xlated 416B  jited 432B  memlock 4096B
+671: cgroup_device  name sd_devices  tag 654d7024997e7811  gpl
+	loaded_at 2026-09-27T06:32:33+0200  uid 0
+	xlated 464B  jited 472B  memlock 4096B
+672: cgroup_skb  name sd_fw_egress  tag 6deef7357e7b4530  gpl
+	loaded_at 2026-09-27T06:32:33+0200  uid 0
+	xlated 64B  jited 144B  memlock 4096B
+673: cgroup_skb  name sd_fw_ingress  tag 6deef7357e7b4530  gpl
+	loaded_at 2026-09-27T06:32:33+0200  uid 0
+	xlated 64B  jited 144B  memlock 4096B
+674: cgroup_device  name sd_devices  tag fba67f14acbaee05  gpl
+	loaded_at 2026-09-27T06:32:33+0200  uid 0
+	xlated 184B  jited 224B  memlock 4096B
+675: cgroup_device  name sd_devices  tag 134b8a301991f6b7  gpl
+	loaded_at 2026-09-27T06:32:33+0200  uid 0
+	xlated 504B  jited 496B  memlock 4096B
+676: cgroup_skb  name sd_fw_egress  tag 6deef7357e7b4530  gpl
+	loaded_at 2026-09-27T06:32:33+0200  uid 0
+	xlated 64B  jited 144B  memlock 4096B
+677: cgroup_skb  name sd_fw_ingress  tag 6deef7357e7b4530  gpl
+	loaded_at 2026-09-27T06:32:33+0200  uid 0
+	xlated 64B  jited 144B  memlock 4096B
+
+$ bpftool link show (baseline)
+1: tracing  prog 2  
+	prog_type tracing  attach_type modify_return  
+	target_obj_id 1  target_btf_id 130765  
+2: perf_event  prog 18  
+	tracepoint sys_exit_bind  
+(end of link list)
+
+$ bpftool cgroup show /sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions/s0-probe (baseline)
+(end of cgroup attachments)
+
+$ ls -A /sys/fs/bpf (baseline)
+(end of bpffs listing)

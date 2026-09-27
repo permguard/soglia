@@ -1,0 +1,45 @@
+table inet soglia_host {
+	set exec_src {
+		type ifname . ipv4_addr
+		elements = { "sgh-1e5bdfaa42" . 10.201.0.1,
+			     "sgh-7951d6a33d" . 10.201.0.3,
+			     "sgh-161cfef4b8" . 10.201.0.5 }
+	}
+
+	set exec_ingress {
+		type ipv4_addr . inet_service
+		elements = { 10.201.0.1 . 8080,
+			     10.201.0.3 . 8080,
+			     10.201.0.5 . 8080 }
+	}
+
+	chain prerouting {
+		type filter hook prerouting priority raw; policy accept;
+		iifname "sgh-*" meta nfproto ipv6 drop
+		iifname "sgh-*" iifname . ip saddr != @exec_src drop
+	}
+
+	chain input {
+		type filter hook input priority filter - 10; policy accept;
+		iifname "sgh-*" ct state invalid drop
+		iifname "sgh-*" ct state new meta l4proto != tcp drop
+		iifname "sgh-*" ct state new ip daddr != 10.200.255.1 drop
+		iifname "sgh-*" ct state new tcp dport != 15001 drop
+		iifname != "sgh-*" ip daddr 10.200.255.1 drop
+	}
+
+	chain forward {
+		type filter hook forward priority filter - 10; policy accept;
+		iifname "sgh-*" drop
+		oifname "sgh-*" drop
+	}
+
+	chain output {
+		type filter hook output priority filter - 10; policy accept;
+		oifname "sgh-*" meta nfproto ipv6 drop
+		oifname "sgh-*" ct state invalid drop
+		oifname "sgh-*" ct state new meta l4proto != tcp drop
+		oifname "sgh-*" ct state new meta skuid != 990 drop
+		oifname "sgh-*" ct state new ip daddr . tcp dport != @exec_ingress drop
+	}
+}

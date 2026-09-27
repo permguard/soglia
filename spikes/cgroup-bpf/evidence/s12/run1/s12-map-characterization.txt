@@ -1,0 +1,11 @@
+# S12 authorization-relevant map characterization
+UTC=2026-09-27T08:44:20Z
+soglia_tuples|HASH|8 in S12 (4096 normal)|sockops ACTIVE_ESTABLISHED publish|Proxy Resolve|failed update increments C_TUPLE_INSERT_FAILED and emits EV_MAP_FULL; no tuple means bounded DENY|authorization-final
+soglia_cookie_a|HASH|8 in S12 (4096 normal)|connect4 cookie->cgid|sockops candidate-A evidence|failed update leaves A absent; incomplete evidence must not authorize|authorization-supporting
+soglia_sk_b|SK_STORAGE|kernel-managed/no finite max_entries knob|connect4 create/get|sockops candidate-B evidence|allocation failure leaves B absent; incomplete evidence must not authorize; deterministic full test unavailable|authorization-supporting
+policy_local|ARRAY|1|trusted loader existing-key set|connect4 active gate|loader aborts if set fails; not a dynamic exhaustion case|authorization-gate
+soglia_policy|HASH|1024|shared-instance loader path|active gate when exec_ident=0|not read by the per-Execution path exercised in S12|not-current-path
+soglia_staging|HASH|SPIKE_TUPLE_MAX|delay variant sockops|S1b harness promotion|absent from small non-delay variant and not read by Resolve|not-current-path
+soglia_counters/soglia_denies/soglia_events/soglia_diag_entries/soglia_port_diag/soglia_map_fail_diag/soglia_meta|diagnostic/metadata|various|diagnostics|observers only|not-authorization
+candidate_C=loader rodata; no insertion-capacity failure
+candidate_D=netns-cookie helper only in this spike; trusted owner map not implemented/tested

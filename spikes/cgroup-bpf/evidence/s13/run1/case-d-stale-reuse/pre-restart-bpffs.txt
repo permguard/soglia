@@ -1,0 +1,14 @@
+d /sys/fs/bpf/soglia-spike
+d /sys/fs/bpf/soglia-spike/s13
+d /sys/fs/bpf/soglia-spike/s13/shared
+d /sys/fs/bpf/soglia-spike/s13/shared/maps
+f /sys/fs/bpf/soglia-spike/s13/shared/maps/soglia_cookie_a
+f /sys/fs/bpf/soglia-spike/s13/shared/maps/soglia_counters
+f /sys/fs/bpf/soglia-spike/s13/shared/maps/soglia_denies
+f /sys/fs/bpf/soglia-spike/s13/shared/maps/soglia_diag_entries
+f /sys/fs/bpf/soglia-spike/s13/shared/maps/soglia_events
+f /sys/fs/bpf/soglia-spike/s13/shared/maps/soglia_meta
+f /sys/fs/bpf/soglia-spike/s13/shared/maps/soglia_policy
+f /sys/fs/bpf/soglia-spike/s13/shared/maps/soglia_port_diag
+f /sys/fs/bpf/soglia-spike/s13/shared/maps/soglia_sk_b
+f /sys/fs/bpf/soglia-spike/s13/shared/maps/soglia_tuples

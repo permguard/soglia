@@ -1,0 +1,4 @@
+d /sys/fs/bpf/soglia-spike
+d /sys/fs/bpf/soglia-spike/s13-v2
+d /sys/fs/bpf/soglia-spike/s13-v2/maps
+f /sys/fs/bpf/soglia-spike/s13-v2/maps/soglia_policy

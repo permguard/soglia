@@ -1,0 +1,12 @@
+test=S2
+execution_count=4
+connections_per_execution=33
+connection_count=132
+source_port_range=40000-40032
+same_source_ports_reused_across_netns=true
+proxy=10.200.255.1:15001
+S2 CONCURRENCY ERROR: load soglia_connect4: the BPF_PROG_LOAD syscall returned Invalid argument (os error 22). Verifier output: fd 6 is not pointing to valid bpf_map
+verification time 6 usec
+stack depth 0
+processed 0 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0
+

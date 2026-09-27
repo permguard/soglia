@@ -1,0 +1,20 @@
+# S1 diagnostic live agent membership before connection
+UTC=2026-09-27T06:23:13Z
+trusted_host_pid=33538
+actual_agent_pid=33538
+actual_agent_pid_matches_placed_host_pid=true
+harness_membership_status=CORRECT
+target_cgroup=/sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions/s1-e1
+target_cgroup_inode=14562
+expected_proc_cgroup_line=0::/system.slice/soglia-spike-s0.service/executions/s1-e1
+agent_proc_cgroup_begin
+0::/system.slice/soglia-spike-s0.service/executions/s1-e1
+agent_proc_cgroup_end
+target_cgroup_procs_begin
+33538
+target_cgroup_procs_end
+proc_exact_membership=true
+cgroup_procs_contains_agent=true
+agent_netns_link=net:[4026532344]
+agent_netns_inode=4026532344
+owned_netns_inode=4026532344

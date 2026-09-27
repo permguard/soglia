@@ -1,0 +1,5 @@
+d /sys/fs/bpf/soglia-spike
+d /sys/fs/bpf/soglia-spike/s13
+d /sys/fs/bpf/soglia-spike/s13/foreign
+d /sys/fs/bpf/soglia-spike/s13/foreign/maps
+f /sys/fs/bpf/soglia-spike/s13/foreign/maps/soglia-looking-foreign

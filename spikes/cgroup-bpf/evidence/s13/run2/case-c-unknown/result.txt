@@ -1,0 +1,7 @@
+trusted_record=false
+foreign_pin=/sys/fs/bpf/soglia-spike/s13-v2/maps/soglia_policy
+foreign_id_before=1123
+foreign_id_after=1123
+foreign_identity_preserved=true
+startup_ready=false
+soglia_recovery_deleted_foreign=false

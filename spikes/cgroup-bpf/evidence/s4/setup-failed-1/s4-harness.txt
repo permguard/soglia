@@ -1,0 +1,1 @@
+./spikes/cgroup-bpf/run-s4.sh: line 267: /var/tmp/spike/target/release/s4_direct_deny: No such file or directory

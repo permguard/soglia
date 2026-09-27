@@ -1,0 +1,10 @@
+old_state_id=96f068e78c3965bcd9a6e3efe4142404
+new_state_id=4f0764ad5948543c86506995668a86fa
+old_generation=1
+new_generation=2
+old_map_ids={"soglia_policy":1046,"soglia_tuples":1039,"soglia_cookie_a":1043,"soglia_sk_b":1035,"soglia_events":1044,"soglia_counters":1040,"soglia_denies":1036,"soglia_meta":1038,"soglia_diag_entries":1042,"soglia_port_diag":1045}
+new_map_ids={"soglia_policy":1052,"soglia_tuples":1053,"soglia_cookie_a":1059,"soglia_sk_b":1051,"soglia_events":1057,"soglia_counters":1055,"soglia_denies":1050,"soglia_meta":1056,"soglia_diag_entries":1061,"soglia_port_diag":1058}
+old_map_ids_absent=true
+new_authorization_maps_empty=true
+old_tuple_lookup_absent=true
+stale_generation_authorized_new=false

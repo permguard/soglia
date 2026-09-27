@@ -1,0 +1,13 @@
+S14_SCOPE=Candidate_C_operational_cost_and_scaling
+MATRIX=1,4,16,32,64
+SIMULTANEOUS_EXECUTIONS=true
+HIGH_POINT_REASON=64_run_only_after_1_4_16_32_pass_and_VM_remains_healthy
+SAMPLE_RULE=N1:0;N4:0,last;N16+:0,middle,last
+SAMPLE_RULE_FIXED_BEFORE_RESULTS=true
+RESOURCE_TIMER_SCOPE=Candidate_C_object_load_program_load_attach_pin_and_local_policy_setup
+NETWORK_TOPOLOGY_CREATED_BEFORE_CANDIDATE_TIMER=true
+TEARDOWN_TIMER_SCOPE=BPF_links_objects_shared_map_pins
+FULL_TOPOLOGY_TEARDOWN_RECORDED_SEPARATELY=true
+IP_USED_FOR_AUTHORIZATION=false
+PRODUCTION_CODE_CHANGED=false
+CANDIDATE_SELECTED=false

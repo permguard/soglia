@@ -1,0 +1,22 @@
+# S1 narrow diagnostic build
+UTC=2026-09-27T05:58:48Z
++ ./build.sh /var/tmp/spike/bpf
+foreign.o
+gpl-probe-cgroup-from-id.o
+gpl-probe-task-btf.o
+netns-probe.o
+soglia-delay.o
+soglia-diag.o
+soglia-relax-all.o
+soglia-relax-dgram.o
+soglia-relax-inet6.o
+soglia-small.o
+soglia-trace.o
+soglia.o
+vmlinux.h
++ cargo build --release -p soglia-spike-harness --bin s1_attribution
+   Compiling soglia-spike-harness v0.0.0 (/soglia/spikes/cgroup-bpf/harness)
+    Finished `release` profile [optimized] target(s) in 0.53s
++ cargo build --release -p soglia-spike-agent --target aarch64-unknown-linux-musl
+   Compiling soglia-spike-agent v0.0.0 (/soglia/spikes/cgroup-bpf/agent)
+    Finished `release` profile [optimized] target(s) in 0.37s

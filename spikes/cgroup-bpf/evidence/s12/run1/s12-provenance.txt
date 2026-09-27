@@ -1,0 +1,24 @@
+# S12 small-variant provenance and scope
+UTC=2026-09-27T08:44:20Z
+/soglia/spikes/cgroup-bpf/bpf/soglia_spike.c:22://   SPIKE_TUPLE_MAX=<n>       a small tuple map, for exhaustion
+/soglia/spikes/cgroup-bpf/bpf/soglia_spike.c:25://   SPIKE_MAP_FAILURE_DIAGNOSTIC records raw update/allocation results for S12 only
+/soglia/spikes/cgroup-bpf/bpf/soglia_spike.c:37:#ifndef SPIKE_TUPLE_MAX
+/soglia/spikes/cgroup-bpf/bpf/soglia_spike.c:38:#define SPIKE_TUPLE_MAX 4096
+/soglia/spikes/cgroup-bpf/bpf/soglia_spike.c:120:    __uint(max_entries, SPIKE_TUPLE_MAX);
+/soglia/spikes/cgroup-bpf/bpf/soglia_spike.c:129:    __uint(max_entries, SPIKE_TUPLE_MAX);
+/soglia/spikes/cgroup-bpf/bpf/soglia_spike.c:139:    __uint(max_entries, SPIKE_TUPLE_MAX);
+/soglia/spikes/cgroup-bpf/bpf/soglia_spike.c:182:#ifdef SPIKE_MAP_FAILURE_DIAGNOSTIC
+/soglia/spikes/cgroup-bpf/build.sh:35:build soglia-small soglia_spike.c -DSPIKE_TUPLE_MAX=8
+/soglia/spikes/cgroup-bpf/build.sh:36:build soglia-small-diag soglia_spike.c \
+/soglia/spikes/cgroup-bpf/build.sh:37:    -DSPIKE_TUPLE_MAX=8 -DSPIKE_DIAGNOSTIC -DSPIKE_MAP_FAILURE_DIAGNOSTIC
+36850c40f73d504c074045f66457237eaffe521ff9e417468675aaf540f12470  /soglia/spikes/cgroup-bpf/bpf/soglia_spike.c
+97780d8890e155056313846af0812fce6db4a5da9baf79a782c015662a7d2e3a  /soglia/spikes/cgroup-bpf/build.sh
+032266e6383ec45a6886117360a4c41a08b4e1bd555efc69fb1a76e09c88ee8a  /soglia/spikes/cgroup-bpf/harness/src/bin/s12_exhaustion.rs
+d82fd17d6ecfc8d56b51b2a674513deffe800d5f9adb2e6fc30dc5a07bed554f  /var/tmp/spike/bpf/soglia-small-diag.o
+c4edae0d4674f8a4db1051b8ddc375c333c54f2f20edb186dd5b1b66abb75454  /var/tmp/spike/target/release/s12_exhaustion
+01242b74abc050e472688d7fd9641c66fe6c019b92a9c0653fbea79f51c2a6f0  /var/tmp/spike/target/aarch64-unknown-linux-musl/release/soglia-spike-agent
+/var/tmp/spike/bpf/soglia-small-diag.o:                                      ELF 64-bit LSB relocatable, eBPF, version 1 (SYSV), with debug_info, not stripped
+/var/tmp/spike/target/release/s12_exhaustion:                                ELF 64-bit LSB pie executable, ARM aarch64, version 1 (SYSV), dynamically linked, interpreter /lib/ld-linux-aarch64.so.1, BuildID[sha1]=0c9107440f697aff1bb33d41a86f511d32e21bde, for GNU/Linux 3.7.0, not stripped
+/var/tmp/spike/target/aarch64-unknown-linux-musl/release/soglia-spike-agent: ELF 64-bit LSB executable, ARM aarch64, version 1 (SYSV), statically linked, BuildID[sha1]=f0c052514c04a3c58d67df2f68b0b634a60b188a, not stripped
+normal_vs_capacity_only_program_instructions=IDENTICAL
+small_diag_extra_semantics=SPIKE_DIAGNOSTIC entry counters plus SPIKE_MAP_FAILURE_DIAGNOSTIC passive helper-result observations only

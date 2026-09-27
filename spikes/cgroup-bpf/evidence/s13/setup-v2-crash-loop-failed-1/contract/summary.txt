@@ -1,0 +1,6 @@
+production_backend_changed=false
+record_location=/run/soglia/cgroup-bpf-spike/state.json
+path_alone_is_ownership=false
+meta_alone_is_ownership=false
+trusted_record_required=true
+broad_prefix_cleanup=false

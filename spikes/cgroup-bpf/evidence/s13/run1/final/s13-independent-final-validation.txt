@@ -1,0 +1,21 @@
+UTC=2026-09-27T08:57:18Z
+unit_active=active
+delegated_root_inode=12456
+delegated_children_begin
+/sys/fs/cgroup/system.slice/soglia-spike-s0.service/runtime inode=12516
+delegated_children_end
+cgroup_tree_begin
+CgroupPath
+ID       AttachType      AttachFlags     Name
+cgroup_tree_end
+bpffs_begin
+bpffs_end
+netns_begin
+netns_end
+soglia_links_begin
+soglia_links_end
+soglia_nft_begin
+soglia_nft_end
+test_processes_begin
+test_processes_end
+independent_cleanup=PASS

@@ -1,0 +1,11 @@
+# S14 N=64 FD-limit diagnostic cleanup
+UTC=2026-09-27T09:48:09Z
+unit_active=active
+ABSENT /sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions
+ABSENT /sys/fs/bpf/soglia-spike/s14
+ABSENT /run/soglia-spike-s14
+ABSENT /run/soglia/cgroup-bpf-spike
+CgroupPath
+ID       AttachType      AttachFlags     Name           
+bpffs_begin
+bpffs_end

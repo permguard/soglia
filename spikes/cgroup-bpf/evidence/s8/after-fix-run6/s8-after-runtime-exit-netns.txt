@@ -1,0 +1,3 @@
+soglia-98a6214338 (id: 2)
+soglia-3c0aed3370 (id: 1)
+soglia-9b536050db (id: 0)

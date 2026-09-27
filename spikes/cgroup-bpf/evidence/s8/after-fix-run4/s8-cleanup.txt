@@ -1,0 +1,16 @@
+# S8 final cleanup verification
+UTC=2026-09-27T07:49:38Z
+unit_load_state=not-found
+ABSENT /sys/fs/cgroup/system.slice/soglia-spike-s8.service
+ABSENT /run/soglia-spike-s8
+ABSENT upstream-s8
+ABSENT soglia0
+soglia_netns_count=0
+soglia_veth_count=0
+soglia_host_table_count=0
+agent_process_count=0
+soglia_bpf_program_count=0
+cgroup_bpf_link_count=0
+hosts_restored=false
+bpffs_begin
+bpffs_end

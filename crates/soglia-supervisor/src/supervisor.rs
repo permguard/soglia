@@ -61,8 +61,48 @@ struct Inner {
     waiting: Semaphore,
     running: Arc<Semaphore>,
     cleanup_failures: AtomicU32,
+    runtime: RuntimeState,
+}
+
+/// The one-way runtime state shared by admission, effect cancellation and helper-loss observers.
+struct RuntimeState {
     admitting: AtomicBool,
+    helper_lost: AtomicBool,
     fatal: watch::Sender<bool>,
+    cancel: watch::Sender<bool>,
+}
+
+impl RuntimeState {
+    fn new(fatal: watch::Sender<bool>, cancel: watch::Sender<bool>) -> Self {
+        Self {
+            admitting: AtomicBool::new(true),
+            helper_lost: AtomicBool::new(false),
+            fatal,
+            cancel,
+        }
+    }
+
+    fn is_admitting(&self) -> bool {
+        self.admitting.load(Ordering::SeqCst)
+    }
+
+    fn stop_admitting(&self) {
+        self.admitting.store(false, Ordering::SeqCst);
+    }
+
+    /// Linearizes helper loss and broadcasts cancellation exactly once.
+    fn begin_helper_loss(&self) -> bool {
+        self.stop_admitting();
+        if self.helper_lost.swap(true, Ordering::SeqCst) {
+            return false;
+        }
+        self.cancel.send_replace(true);
+        true
+    }
+
+    fn finish_helper_loss(&self) {
+        self.fatal.send_replace(true);
+    }
 }
 
 /// Why an Execution ended before its agent answered.
@@ -114,6 +154,7 @@ impl Supervisor {
         enforcer: Helper,
         attribution: Arc<AttributionTable>,
         fatal: watch::Sender<bool>,
+        cancel: watch::Sender<bool>,
     ) -> Self {
         let runtime = &config.runtime;
         Self {
@@ -122,12 +163,11 @@ impl Supervisor {
                 waiting: Semaphore::new(runtime.max_queue as usize),
                 running: Arc::new(Semaphore::new(runtime.max_concurrency as usize)),
                 cleanup_failures: AtomicU32::new(0),
-                admitting: AtomicBool::new(true),
+                runtime: RuntimeState::new(fatal, cancel),
                 pool,
                 sandbox,
                 enforcer,
                 attribution,
-                fatal,
                 config,
             }),
         }
@@ -135,7 +175,16 @@ impl Supervisor {
 
     /// Stops admitting new Executions.
     pub fn stop_admitting(&self) {
-        self.inner.admitting.store(false, Ordering::SeqCst);
+        self.inner.runtime.stop_admitting();
+    }
+
+    /// Enters the one-way fail-closed transition after a helper child exits unexpectedly.
+    ///
+    /// The same transition is used when a concurrent RPC discovers a broken helper channel. Only
+    /// the first observer closes runtime work and helper channels; later observations are harmless.
+    pub fn helper_exited(&self, role: &'static str, reason: impl Into<String>) {
+        let reason = reason.into();
+        self.inner.helper_lost(role, &reason);
     }
 
     /// Waits until no Execution is running, or `deadline` passes.
@@ -178,7 +227,7 @@ impl Inner {
                 format!("no agent `{}` is configured", invocation.agent),
             );
         };
-        if !self.admitting.load(Ordering::SeqCst) {
+        if !self.runtime.is_admitting() {
             return refused(
                 None,
                 StatusCode::SERVICE_UNAVAILABLE,
@@ -209,7 +258,7 @@ impl Inner {
                 permit
             }
         };
-        if !self.admitting.load(Ordering::SeqCst) {
+        if !self.runtime.is_admitting() {
             return refused(
                 None,
                 StatusCode::SERVICE_UNAVAILABLE,
@@ -293,6 +342,7 @@ impl Inner {
     ) -> Result<Answer, Failure> {
         run.enter(ExecutionPhase::Creating);
         self.expect_done(
+            "enforcer",
             self.enforcer
                 .call(EnforcerRequest::Prepare {
                     id: run.id,
@@ -310,6 +360,7 @@ impl Inner {
 
         run.enter(ExecutionPhase::Starting);
         self.expect_done(
+            "sandboxd",
             self.sandbox
                 .call(SandboxRequest::Start {
                     id: run.id,
@@ -341,20 +392,29 @@ impl Inner {
         if run.bound {
             self.attribution.revoke(run.address);
         }
-        self.expect_done(self.enforcer.call(EnforcerRequest::Freeze { tag }).await)
-            .map_err(|reason| format!("freeze: {reason}"))?;
+        self.expect_done(
+            "enforcer",
+            self.enforcer.call(EnforcerRequest::Freeze { tag }).await,
+        )
+        .map_err(|reason| format!("freeze: {reason}"))?;
         let exit = match self.sandbox.call(SandboxRequest::Kill { tag }).await {
             Ok(HelperResponse::Exited { outcome }) => outcome,
             Ok(other) => return Err(format!("kill: unexpected answer {other:?}")),
             Err(error) => {
-                self.on_helper_error(&error);
+                self.on_helper_error("sandboxd", &error);
                 return Err(format!("kill: {error}"));
             }
         };
-        self.expect_done(self.sandbox.call(SandboxRequest::Destroy { tag }).await)
-            .map_err(|reason| format!("sandbox destroy: {reason}"))?;
-        self.expect_done(self.enforcer.call(EnforcerRequest::Destroy { tag }).await)
-            .map_err(|reason| format!("network destroy: {reason}"))?;
+        self.expect_done(
+            "sandboxd",
+            self.sandbox.call(SandboxRequest::Destroy { tag }).await,
+        )
+        .map_err(|reason| format!("sandbox destroy: {reason}"))?;
+        self.expect_done(
+            "enforcer",
+            self.enforcer.call(EnforcerRequest::Destroy { tag }).await,
+        )
+        .map_err(|reason| format!("network destroy: {reason}"))?;
 
         if run.bound && !self.attribution.remove(run.address, run.id) {
             return Err("the attribution could not be released".to_owned());
@@ -434,7 +494,7 @@ impl Inner {
             "teardown could not be verified; the Execution is quarantined"
         );
         if failures >= self.config.runtime.cleanup_failure_threshold {
-            self.admitting.store(false, Ordering::SeqCst);
+            self.runtime.stop_admitting();
             error!(
                 event.name = "runtime.admission_stopped",
                 failures, "the cleanup-failure threshold is reached; no new Execution is admitted"
@@ -442,24 +502,67 @@ impl Inner {
         }
     }
 
-    fn expect_done(&self, answer: Result<HelperResponse, HelperError>) -> Result<(), String> {
+    fn expect_done(
+        &self,
+        role: &'static str,
+        answer: Result<HelperResponse, HelperError>,
+    ) -> Result<(), String> {
         match answer {
             Ok(HelperResponse::Done) => Ok(()),
             Ok(other) => Err(format!("unexpected answer {other:?}")),
             Err(error) => {
-                self.on_helper_error(&error);
+                self.on_helper_error(role, &error);
                 Err(error.to_string())
             }
         }
     }
 
-    fn on_helper_error(&self, error: &HelperError) {
+    fn on_helper_error(&self, role: &'static str, error: &HelperError) {
         if let HelperError::Channel(reason) = error {
-            // A helper is gone: nothing can be created or verified any more.
-            self.admitting.store(false, Ordering::SeqCst);
-            error!(event.name = "runtime.helper_lost", reason = %reason, "a privileged helper is gone; the runtime stops");
-            self.fatal.send_replace(true);
+            self.helper_lost(role, reason);
         }
+    }
+
+    fn helper_lost(&self, role: &'static str, reason: &str) {
+        // Closing admission is the transition's linearization point. An operation that passed its
+        // final admission check before this store is already in flight and is cancelled below.
+        if !self.runtime.begin_helper_loss() {
+            return;
+        }
+
+        // Stop effect-producing work before terminating agents. The proxy and ingress receivers
+        // close active connections as well as their accept loops.
+        // sandboxd interprets EOF as kill-all. The duplicate descriptor makes this non-blocking
+        // even when another task is inside a helper exchange.
+        self.enforcer.close_channel();
+        self.sandbox.close_channel();
+        error!(event.name = "runtime.helper_lost", helper = role, reason = %reason, "a privileged helper is gone; the runtime stops fail-closed");
+        self.runtime.finish_helper_loss();
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn helper_loss_is_idempotent_stops_admission_and_cancels_work() {
+        let (fatal, fatal_seen) = watch::channel(false);
+        let (cancel, cancel_seen) = watch::channel(false);
+        let state = RuntimeState::new(fatal, cancel);
+
+        assert!(state.is_admitting());
+        assert!(state.begin_helper_loss());
+        assert!(!state.is_admitting());
+        assert!(*cancel_seen.borrow());
+        assert!(
+            !*fatal_seen.borrow(),
+            "fatal follows helper-channel closure"
+        );
+
+        state.finish_helper_loss();
+        assert!(*fatal_seen.borrow());
+        assert!(!state.begin_helper_loss(), "duplicate loss is a no-op");
     }
 }
 

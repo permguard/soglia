@@ -1,0 +1,21 @@
+# S14 cleanup verification: after
+UTC=2026-09-27T09:45:52Z
+unit_active=active
+delegated_root_inode=12456
+/sys/fs/cgroup/system.slice/soglia-spike-s0.service/runtime inode=12516
+ABSENT /sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions
+ABSENT /sys/fs/bpf/soglia-spike/s14
+ABSENT /run/soglia-spike-s14
+ABSENT /run/soglia/cgroup-bpf-spike
+cgroup_tree_begin
+CgroupPath
+ID       AttachType      AttachFlags     Name           
+cgroup_tree_end
+bpffs_begin
+bpffs_end
+owned_netns_begin
+owned_netns_end
+owned_links_begin
+owned_links_end
+owned_processes_begin
+owned_processes_end

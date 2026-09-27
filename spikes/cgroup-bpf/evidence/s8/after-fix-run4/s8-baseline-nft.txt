@@ -1,0 +1,14 @@
+table ip nat { # handle 1
+	chain LIMADNS { # handle 1
+	}
+
+	chain PREROUTING { # handle 2
+		type nat hook prerouting priority dstnat; policy accept;
+		counter packets 224 bytes 13413 jump LIMADNS # handle 3
+	}
+
+	chain OUTPUT { # handle 4
+		type nat hook output priority dstnat; policy accept;
+		counter packets 162 bytes 10069 jump LIMADNS # handle 5
+	}
+}

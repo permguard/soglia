@@ -1,0 +1,9 @@
+trusted_record=true
+matching_state_id=true
+mutated_field=abi_version
+expected_abi=1
+observed_abi=2
+startup_ready=false
+new_cgroup_programs=0
+object_ids_unchanged=true
+stale_state_not_consumed=true

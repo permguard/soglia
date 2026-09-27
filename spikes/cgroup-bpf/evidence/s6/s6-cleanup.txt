@@ -1,0 +1,12 @@
+# S6 read-only cleanup/non-mutation proof
+UTC=2026-09-27T07:09:21Z
+unit_active=active
+delegated_root_children_begin
+runtime
+delegated_root_children_end
+soglia_foreign_program_count=0
+cgroup_link_count=0
+program_baseline_equal=true
+link_baseline_equal=true
+map_baseline_equal=true
+bpffs_baseline_equal=true

@@ -1,0 +1,29 @@
+# Independent sampled membership proof N=16
+UTC=2026-09-27T09:45:52Z
+index=0 pid=83983 cgroup=/sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions/s14-e000 cgroup_inode=29217 netns=s14n16e000
+proc_cgroup_begin
+0::/system.slice/soglia-spike-s0.service/executions/s14-e000
+proc_cgroup_end
+cgroup_procs_begin
+83983
+cgroup_procs_end
+process_netns_inode=4026532344
+owned_netns_inode=4026532344
+index=8 pid=83987 cgroup=/sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions/s14-e008 cgroup_inode=29553 netns=s14n16e008
+proc_cgroup_begin
+0::/system.slice/soglia-spike-s0.service/executions/s14-e008
+proc_cgroup_end
+cgroup_procs_begin
+83987
+cgroup_procs_end
+process_netns_inode=4026532836
+owned_netns_inode=4026532836
+index=15 pid=83992 cgroup=/sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions/s14-e015 cgroup_inode=29847 netns=s14n16e015
+proc_cgroup_begin
+0::/system.slice/soglia-spike-s0.service/executions/s14-e015
+proc_cgroup_end
+cgroup_procs_begin
+83992
+cgroup_procs_end
+process_netns_inode=4026533256
+owned_netns_inode=4026533256

@@ -35,6 +35,9 @@ workspace = true
 [workspace]
 resolver = "3"
 members = ["crates/*", "fixtures/*"]
+# Experiments with their own workspaces and lock files. Nothing under `spikes/` is part of the
+# product, and nothing here may depend on it.
+exclude = ["spikes"]
 
 [workspace.package]
 version = "0.1.0"

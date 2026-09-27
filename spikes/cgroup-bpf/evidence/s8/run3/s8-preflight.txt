@@ -1,0 +1,30 @@
+# S8 clean preflight
+UTC=2026-09-27T07:26:42Z
+Linux lima-soglia-spike 6.8.0-134-generic #134-Ubuntu SMP PREEMPT_DYNAMIC Fri Jun 26 18:28:11 UTC 2026 aarch64 aarch64 aarch64 GNU/Linux
+MainPID=22563
+ControlGroup=/system.slice/soglia-spike-s0.service
+Delegate=yes
+DelegateControllers=cpu cpuset io memory pids
+ActiveState=active
+SubState=running
+delegated_s0_inode=12456
+delegated_s0_children_begin
+runtime
+delegated_s0_children_end
+/usr/sbin/runc
+/usr/sbin/nft
+/usr/sbin/ip
+/usr/sbin/bpftool
+/usr/bin/curl
+/usr/bin/ss
+/usr/bin/systemd-run
+hosts_sha256_before=33129f26e13d88b5e21b42b122d869cfeefcb7d00cffd701904da2fff23ab561
+soglia_netns_count=0
+soglia_veth_count=0
+soglia0_present=false
+soglia_host_table_count=0
+unexpected_soglia_test_process_count=0
+soglia_bpf_program_count=0
+cgroup_bpf_link_count=0
+bpffs_begin
+bpffs_end

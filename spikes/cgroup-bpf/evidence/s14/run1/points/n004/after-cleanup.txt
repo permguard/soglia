@@ -1,0 +1,24 @@
+# S14 cleanup verification: after
+UTC=2026-09-27T09:45:51Z
+unit_active=active
+delegated_root_inode=12456
+/sys/fs/cgroup/system.slice/soglia-spike-s0.service/runtime inode=12516
+ABSENT /sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions
+ABSENT /sys/fs/bpf/soglia-spike/s14
+ABSENT /run/soglia-spike-s14
+ABSENT /run/soglia/cgroup-bpf-spike
+cgroup_tree_begin
+CgroupPath
+ID       AttachType      AttachFlags     Name           
+cgroup_tree_end
+bpffs_begin
+bpffs_end
+owned_netns_begin
+owned_netns_end
+owned_links_begin
+126: s14h001@if2: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default qlen 1000\    link/ether fe:b0:71:b0:ba:e7 brd ff:ff:ff:ff:ff:ff link-netnsid 1
+127: s14h002@if2: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default qlen 1000\    link/ether 36:80:09:d4:2c:ed brd ff:ff:ff:ff:ff:ff link-netnsid 2
+128: s14h003@if2: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default qlen 1000\    link/ether 5e:0f:03:8e:ee:a8 brd ff:ff:ff:ff:ff:ff link-netnsid 3
+owned_links_end
+owned_processes_begin
+owned_processes_end

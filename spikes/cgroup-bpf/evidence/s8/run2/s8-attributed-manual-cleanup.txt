@@ -1,0 +1,24 @@
+# Attributed cleanup after S8 setup validation failure
+UTC=2026-09-27T07:27Z
+
+BEFORE
+56: soglia0: <BROADCAST,NOARP,UP,LOWER_UP> mtu 1500 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1000
+    link/ether e2:fa:32:b6:ed:b6 brd ff:ff:ff:ff:ff:ff
+nft_soglia_tables=0
+soglia_netns_count=0
+
+ACTION
+ip link del soglia0
+
+AFTER
+soglia0_present=false
+soglia_netns_count=0
+soglia_veth_count=0
+soglia_nft_table_count=0
+soglia_or_foreign_bpf_program_count=0
+cgroup_bpf_link_count=0
+bpffs_count=0
+
+The exact dummy interface was attributable to the preceding S8 test run: the NetnsNft backend
+creates it as its host proxy endpoint, the prior baseline was clean, and no other Soglia runtime was
+active. No unrelated link or nft state was changed.

@@ -1,0 +1,4 @@
+# S1 diagnostic phase-A rerun build
+UTC=2026-09-27T05:59:35Z
+   Compiling soglia-spike-harness v0.0.0 (/soglia/spikes/cgroup-bpf/harness)
+    Finished `release` profile [optimized] target(s) in 0.56s

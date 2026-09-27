@@ -1,0 +1,6 @@
+observe_packets_after_case_a=2
+observe_packets_after_case_b=3
+exposure_removed=true
+normal_ruleset_structure_restored=true
+70f50600d07dd417bd45ddeb1a4889facdea1dd11aeae240473dfc163c211547  /soglia/spikes/cgroup-bpf/evidence/s10/run3/s10-nft-normal-before-structure.json
+70f50600d07dd417bd45ddeb1a4889facdea1dd11aeae240473dfc163c211547  /soglia/spikes/cgroup-bpf/evidence/s10/run3/s10-nft-normal-restored-structure.json

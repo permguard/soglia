@@ -1,0 +1,4 @@
+temporary_rule_handle=9
+temporary_rule=ip daddr 10.201.0.2 tcp dport 16001 ct state new accept comment s4-direct-exposure
+unrelated_namespace_rules_changed=0
+host_rules_changed=0

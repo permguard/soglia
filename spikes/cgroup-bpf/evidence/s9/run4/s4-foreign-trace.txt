@@ -1,0 +1,6 @@
+reader_ready pin=/sys/fs/bpf/soglia-foreign-s9/foreign_trace duration_seconds=30
+record count=1 seq=13656989689032 who=2 daddr_raw=33605898 dport=16001 rewritten=0 hex=c8e404c46b0c0000020000000ac90002813e000000000000
+record count=2 seq=13658490551292 who=2 daddr_raw=33540106 dport=15001 rewritten=0 hex=fc3b7a1d6c0c0000020000000ac8ff01993a000000000000
+record count=3 seq=13658605696458 who=2 daddr_raw=33605898 dport=16001 rewritten=0 hex=ca3557246c0c0000020000000ac90002813e000000000000
+record count=4 seq=13658676552993 who=2 daddr_raw=33605898 dport=16001 rewritten=0 hex=216590286c0c0000020000000ac90002813e000000000000
+reader_complete records=4

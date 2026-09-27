@@ -1,0 +1,44 @@
+[
+  {
+    "id": 464,
+    "type": "cgroup",
+    "prog_id": 2258,
+    "cgroup_id": 28923,
+    "attach_type": "cgroup_inet_sock_create"
+  },
+  {
+    "id": 465,
+    "type": "cgroup",
+    "prog_id": 2259,
+    "cgroup_id": 28923,
+    "attach_type": "cgroup_inet4_connect"
+  },
+  {
+    "id": 466,
+    "type": "cgroup",
+    "prog_id": 2260,
+    "cgroup_id": 28923,
+    "attach_type": "cgroup_inet6_connect"
+  },
+  {
+    "id": 467,
+    "type": "cgroup",
+    "prog_id": 2261,
+    "cgroup_id": 28923,
+    "attach_type": "cgroup_udp4_sendmsg"
+  },
+  {
+    "id": 468,
+    "type": "cgroup",
+    "prog_id": 2262,
+    "cgroup_id": 28923,
+    "attach_type": "cgroup_udp6_sendmsg"
+  },
+  {
+    "id": 469,
+    "type": "cgroup",
+    "prog_id": 2263,
+    "cgroup_id": 28923,
+    "attach_type": "cgroup_sock_ops"
+  }
+]

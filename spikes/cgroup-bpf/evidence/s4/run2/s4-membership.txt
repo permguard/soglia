@@ -1,0 +1,21 @@
+# S4 live agent membership before any traffic
+UTC=2026-09-27T06:59:35Z
+actual_agent_pid=38638
+target_cgroup=/sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions/s4-e1
+target_cgroup_inode=15750
+expected_proc_cgroup_line=0::/system.slice/soglia-spike-s0.service/executions/s4-e1
+proc_exact_membership=true
+cgroup_procs_contains_agent=true
+agent_netns_inode=4026532344
+owned_netns_inode=4026532344
+netns_exact_membership=trueagent_proc_cgroup_begin
+0::/system.slice/soglia-spike-s0.service/executions/s4-e1
+agent_proc_cgroup_end
+target_cgroup_procs_begin
+38638
+target_cgroup_procs_end
+agent_netns_link=net:[4026532344]
+agent_netns_inode=4026532344
+owned_netns_inode=4026532344
+six_direct_programs=6
+six_effective_programs=6

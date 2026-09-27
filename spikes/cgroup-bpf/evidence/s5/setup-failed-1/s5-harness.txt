@@ -1,0 +1,5 @@
+test=S5
+execution_cgroup=/sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions/s5-e1
+execution_cgroup_inode=15894
+exec_ident=5001001
+S5 HOOK ISOLATION ERROR: bind IPv6 direct listener: Cannot assign requested address (os error 99)

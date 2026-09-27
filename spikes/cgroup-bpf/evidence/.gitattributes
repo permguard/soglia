@@ -1,0 +1,8 @@
+# Copyright (c) 2022 Nitro Agility S.r.l.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Raw command output, kept byte for byte as the tools printed it: bpftool pads its columns and
+# dpkg-query separates fields with tabs, so trailing whitespace here is evidence, not a defect.
+# Raw HTTP headers end their lines with CRLF; `-text` stops git from converting line endings
+# (as `core.autocrlf=input` would), so the files are committed exactly as captured.
+* -whitespace -text

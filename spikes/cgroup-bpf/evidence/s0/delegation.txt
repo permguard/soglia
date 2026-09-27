@@ -1,0 +1,125 @@
+$ sudo systemd-run --unit=soglia-spike-s0 --property=Delegate=yes /tmp/soglia-s0-delegation.sh
+
+===== UNIT BEFORE LEAF MOVE =====
+$ systemctl show soglia-spike-s0.service -p Delegate -p DelegateControllers -p ControlGroup
+ControlGroup=/system.slice/soglia-spike-s0.service
+Delegate=yes
+DelegateControllers=cpu cpuset io memory pids
+
+$ cat /proc/self/cgroup
+0::/system.slice/soglia-spike-s0.service
+
+DELEGATED_ROOT=/sys/fs/cgroup/system.slice/soglia-spike-s0.service
+
+$ cat <root>/cgroup.controllers
+cpuset cpu io memory pids
+
+$ cat <root>/cgroup.subtree_control
+
+$ cat <root>/cgroup.procs
+1536
+1543
+
+$ stat -c '%U:%G %a %n' <root> <root>/cgroup.procs <root>/cgroup.subtree_control
+root:root 755 /sys/fs/cgroup/system.slice/soglia-spike-s0.service
+root:root 644 /sys/fs/cgroup/system.slice/soglia-spike-s0.service/cgroup.procs
+root:root 644 /sys/fs/cgroup/system.slice/soglia-spike-s0.service/cgroup.subtree_control
+
+===== AFTER MOVING PROCESS TO runtime/ =====
+$ cat /proc/self/cgroup
+0::/system.slice/soglia-spike-s0.service/runtime
+
+$ cat <root>/cgroup.procs
+
+$ cat <root>/runtime/cgroup.procs
+1536
+1548
+
+$ echo "+memory +pids" > <root>/cgroup.subtree_control
+OK
+
+===== DELEGATED ROOT AFTER ENABLE =====
+$ systemctl show soglia-spike-s0.service -p Delegate -p DelegateControllers -p ControlGroup
+ControlGroup=/system.slice/soglia-spike-s0.service
+Delegate=yes
+DelegateControllers=cpu cpuset io memory pids
+
+$ cat <root>/cgroup.controllers
+cpuset cpu io memory pids
+
+$ cat <root>/cgroup.subtree_control
+memory pids
+
+$ stat -c '%U:%G %a %n' <root> <root>/cgroup.procs <root>/cgroup.subtree_control
+root:root 755 /sys/fs/cgroup/system.slice/soglia-spike-s0.service
+root:root 644 /sys/fs/cgroup/system.slice/soglia-spike-s0.service/cgroup.procs
+root:root 644 /sys/fs/cgroup/system.slice/soglia-spike-s0.service/cgroup.subtree_control
+
+$ ls -la <root>
+total 0
+drwxr-xr-x  3 root root 0 Sep 27 06:32 .
+drwxr-xr-x 29 root root 0 Sep 27 06:32 ..
+-r--r--r--  1 root root 0 Sep 27 06:32 cgroup.controllers
+-r--r--r--  1 root root 0 Sep 27 06:32 cgroup.events
+-rw-r--r--  1 root root 0 Sep 27 06:32 cgroup.freeze
+--w-------  1 root root 0 Sep 27 06:32 cgroup.kill
+-rw-r--r--  1 root root 0 Sep 27 06:32 cgroup.max.depth
+-rw-r--r--  1 root root 0 Sep 27 06:32 cgroup.max.descendants
+-rw-r--r--  1 root root 0 Sep 27 06:32 cgroup.pressure
+-rw-r--r--  1 root root 0 Sep 27 06:32 cgroup.procs
+-r--r--r--  1 root root 0 Sep 27 06:32 cgroup.stat
+-rw-r--r--  1 root root 0 Sep 27 06:32 cgroup.subtree_control
+-rw-r--r--  1 root root 0 Sep 27 06:32 cgroup.threads
+-rw-r--r--  1 root root 0 Sep 27 06:32 cgroup.type
+-rw-r--r--  1 root root 0 Sep 27 06:32 cpu.idle
+-rw-r--r--  1 root root 0 Sep 27 06:32 cpu.max
+-rw-r--r--  1 root root 0 Sep 27 06:32 cpu.max.burst
+-rw-r--r--  1 root root 0 Sep 27 06:32 cpu.pressure
+-r--r--r--  1 root root 0 Sep 27 06:32 cpu.stat
+-r--r--r--  1 root root 0 Sep 27 06:32 cpu.stat.local
+-rw-r--r--  1 root root 0 Sep 27 06:32 cpu.uclamp.max
+-rw-r--r--  1 root root 0 Sep 27 06:32 cpu.uclamp.min
+-rw-r--r--  1 root root 0 Sep 27 06:32 cpu.weight
+-rw-r--r--  1 root root 0 Sep 27 06:32 cpu.weight.nice
+-rw-r--r--  1 root root 0 Sep 27 06:32 cpuset.cpus
+-r--r--r--  1 root root 0 Sep 27 06:32 cpuset.cpus.effective
+-rw-r--r--  1 root root 0 Sep 27 06:32 cpuset.cpus.exclusive
+-r--r--r--  1 root root 0 Sep 27 06:32 cpuset.cpus.exclusive.effective
+-rw-r--r--  1 root root 0 Sep 27 06:32 cpuset.cpus.partition
+-rw-r--r--  1 root root 0 Sep 27 06:32 cpuset.mems
+-r--r--r--  1 root root 0 Sep 27 06:32 cpuset.mems.effective
+-rw-r--r--  1 root root 0 Sep 27 06:32 io.max
+-rw-r--r--  1 root root 0 Sep 27 06:32 io.pressure
+-rw-r--r--  1 root root 0 Sep 27 06:32 io.prio.class
+-r--r--r--  1 root root 0 Sep 27 06:32 io.stat
+-rw-r--r--  1 root root 0 Sep 27 06:32 io.weight
+-r--r--r--  1 root root 0 Sep 27 06:32 memory.current
+-r--r--r--  1 root root 0 Sep 27 06:32 memory.events
+-r--r--r--  1 root root 0 Sep 27 06:32 memory.events.local
+-rw-r--r--  1 root root 0 Sep 27 06:32 memory.high
+-rw-r--r--  1 root root 0 Sep 27 06:32 memory.low
+-rw-r--r--  1 root root 0 Sep 27 06:32 memory.max
+-rw-r--r--  1 root root 0 Sep 27 06:32 memory.min
+-r--r--r--  1 root root 0 Sep 27 06:32 memory.numa_stat
+-rw-r--r--  1 root root 0 Sep 27 06:32 memory.oom.group
+-r--r--r--  1 root root 0 Sep 27 06:32 memory.peak
+-rw-r--r--  1 root root 0 Sep 27 06:32 memory.pressure
+--w-------  1 root root 0 Sep 27 06:32 memory.reclaim
+-r--r--r--  1 root root 0 Sep 27 06:32 memory.stat
+-r--r--r--  1 root root 0 Sep 27 06:32 memory.swap.current
+-r--r--r--  1 root root 0 Sep 27 06:32 memory.swap.events
+-rw-r--r--  1 root root 0 Sep 27 06:32 memory.swap.high
+-rw-r--r--  1 root root 0 Sep 27 06:32 memory.swap.max
+-r--r--r--  1 root root 0 Sep 27 06:32 memory.swap.peak
+-r--r--r--  1 root root 0 Sep 27 06:32 memory.zswap.current
+-rw-r--r--  1 root root 0 Sep 27 06:32 memory.zswap.max
+-rw-r--r--  1 root root 0 Sep 27 06:32 memory.zswap.writeback
+-r--r--r--  1 root root 0 Sep 27 06:32 pids.current
+-r--r--r--  1 root root 0 Sep 27 06:32 pids.events
+-rw-r--r--  1 root root 0 Sep 27 06:32 pids.max
+-r--r--r--  1 root root 0 Sep 27 06:32 pids.peak
+drwxr-xr-x  2 root root 0 Sep 27 06:32 runtime
+
+$ cat <root>/runtime/cgroup.procs
+1536
+1554

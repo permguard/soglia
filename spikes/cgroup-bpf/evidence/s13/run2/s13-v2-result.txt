@@ -1,0 +1,12 @@
+S13_RESULT=PASS_AFTER_SPIKE_CONTRACT
+original_S13_FAIL=PRESERVED
+case_a=PASS_OWNED_COMPATIBLE_SWEPT_RECREATED_NO_REUSE
+case_b=PASS_OWNED_INCOMPATIBLE_FAIL_CLOSED_NO_READY
+case_c=PASS_UNKNOWN_FOREIGN_FAIL_CLOSED_UNCHANGED
+case_d=PASS_STALE_GENERATION_CANNOT_AUTHORIZE_NEW
+write_ahead_crash_boundaries=PASS
+readiness_order=PASS
+production_backend_implemented=false
+production_code_modified=false
+candidate_selected=false
+S14_STARTED=false

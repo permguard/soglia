@@ -1,0 +1,74 @@
+# S2 attached state before agent launch
+UTC=2026-09-27T06:47:50Z
+CgroupPath
+ID       AttachType      AttachFlags     Name           
+/sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions/s2-e3
+    1269     cgroup_inet_sock_create multi           soglia_sock_create                
+    1270     cgroup_inet4_connect multi           soglia_connect4                
+    1271     cgroup_inet6_connect multi           soglia_connect6                
+    1272     cgroup_udp4_sendmsg multi           soglia_sendmsg4                
+    1273     cgroup_udp6_sendmsg multi           soglia_sendmsg6                
+    1274     cgroup_sock_ops multi           soglia_sockops                 
+/sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions/s2-e1
+    1257     cgroup_inet_sock_create multi           soglia_sock_create                
+    1258     cgroup_inet4_connect multi           soglia_connect4                
+    1259     cgroup_inet6_connect multi           soglia_connect6                
+    1260     cgroup_udp4_sendmsg multi           soglia_sendmsg4                
+    1261     cgroup_udp6_sendmsg multi           soglia_sendmsg6                
+    1262     cgroup_sock_ops multi           soglia_sockops                 
+/sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions/s2-e2
+    1263     cgroup_inet_sock_create multi           soglia_sock_create                
+    1264     cgroup_inet4_connect multi           soglia_connect4                
+    1265     cgroup_inet6_connect multi           soglia_connect6                
+    1266     cgroup_udp4_sendmsg multi           soglia_sendmsg4                
+    1267     cgroup_udp6_sendmsg multi           soglia_sendmsg6                
+    1268     cgroup_sock_ops multi           soglia_sockops                 
+/sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions/s2-e0
+    1251     cgroup_inet_sock_create multi           soglia_sock_create                
+    1252     cgroup_inet4_connect multi           soglia_connect4                
+    1253     cgroup_inet6_connect multi           soglia_connect6                
+    1254     cgroup_udp4_sendmsg multi           soglia_sendmsg4                
+    1255     cgroup_udp6_sendmsg multi           soglia_sendmsg6                
+    1256     cgroup_sock_ops multi           soglia_sockops                 
+d /sys/fs/bpf/soglia-spike/s2
+d /sys/fs/bpf/soglia-spike/s2/links
+d /sys/fs/bpf/soglia-spike/s2/links/e0
+d /sys/fs/bpf/soglia-spike/s2/links/e1
+d /sys/fs/bpf/soglia-spike/s2/links/e2
+d /sys/fs/bpf/soglia-spike/s2/links/e3
+d /sys/fs/bpf/soglia-spike/s2/maps
+f /sys/fs/bpf/soglia-spike/s2/links/e0/connect4
+f /sys/fs/bpf/soglia-spike/s2/links/e0/connect6
+f /sys/fs/bpf/soglia-spike/s2/links/e0/sendmsg4
+f /sys/fs/bpf/soglia-spike/s2/links/e0/sendmsg6
+f /sys/fs/bpf/soglia-spike/s2/links/e0/sock_create
+f /sys/fs/bpf/soglia-spike/s2/links/e0/sock_ops
+f /sys/fs/bpf/soglia-spike/s2/links/e1/connect4
+f /sys/fs/bpf/soglia-spike/s2/links/e1/connect6
+f /sys/fs/bpf/soglia-spike/s2/links/e1/sendmsg4
+f /sys/fs/bpf/soglia-spike/s2/links/e1/sendmsg6
+f /sys/fs/bpf/soglia-spike/s2/links/e1/sock_create
+f /sys/fs/bpf/soglia-spike/s2/links/e1/sock_ops
+f /sys/fs/bpf/soglia-spike/s2/links/e2/connect4
+f /sys/fs/bpf/soglia-spike/s2/links/e2/connect6
+f /sys/fs/bpf/soglia-spike/s2/links/e2/sendmsg4
+f /sys/fs/bpf/soglia-spike/s2/links/e2/sendmsg6
+f /sys/fs/bpf/soglia-spike/s2/links/e2/sock_create
+f /sys/fs/bpf/soglia-spike/s2/links/e2/sock_ops
+f /sys/fs/bpf/soglia-spike/s2/links/e3/connect4
+f /sys/fs/bpf/soglia-spike/s2/links/e3/connect6
+f /sys/fs/bpf/soglia-spike/s2/links/e3/sendmsg4
+f /sys/fs/bpf/soglia-spike/s2/links/e3/sendmsg6
+f /sys/fs/bpf/soglia-spike/s2/links/e3/sock_create
+f /sys/fs/bpf/soglia-spike/s2/links/e3/sock_ops
+f /sys/fs/bpf/soglia-spike/s2/maps/soglia_cookie_a
+f /sys/fs/bpf/soglia-spike/s2/maps/soglia_counters
+f /sys/fs/bpf/soglia-spike/s2/maps/soglia_denies
+f /sys/fs/bpf/soglia-spike/s2/maps/soglia_diag_entries
+f /sys/fs/bpf/soglia-spike/s2/maps/soglia_events
+f /sys/fs/bpf/soglia-spike/s2/maps/soglia_meta
+f /sys/fs/bpf/soglia-spike/s2/maps/soglia_policy
+f /sys/fs/bpf/soglia-spike/s2/maps/soglia_port_diag
+f /sys/fs/bpf/soglia-spike/s2/maps/soglia_sk_b
+f /sys/fs/bpf/soglia-spike/s2/maps/soglia_staging
+f /sys/fs/bpf/soglia-spike/s2/maps/soglia_tuples

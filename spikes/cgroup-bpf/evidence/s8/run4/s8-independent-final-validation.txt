@@ -1,0 +1,30 @@
+# Independent post-run validation
+UTC=2026-09-27T07:30Z
+
+runner_exit_status=0
+s8_result=FAIL
+agent_offline_cargo_test=PASS (0 tests; build and test harness completed)
+run_s8_bash_syntax=PASS
+agent_rustfmt_check=PASS
+git_diff_check=PASS
+tracked_changes_under_src_or_crates=0
+program_baseline_equal_final=true
+link_baseline_equal_final=true
+map_baseline_equal_final=true
+bpffs_baseline_equal_final=true
+
+delegated_s0_active=true
+delegated_s0_delegate=yes
+delegated_s0_children=runtime
+s8_unit_load_state=not-found
+s8_unit_active_state=inactive
+soglia_netns_count=0
+soglia_test_link_count=0
+soglia_nft_table_count=0
+soglia_test_process_count=0
+soglia_or_foreign_bpf_program_count=0
+cgroup_bpf_link_count=0
+bpffs_count=0
+
+The final VM checks were performed independently after the runner trap completed; they do not rely
+only on successful cleanup commands.

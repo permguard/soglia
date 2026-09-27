@@ -1,0 +1,74 @@
+test=S1
+object=/var/tmp/spike/bpf/soglia.o
+cgroup=/sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions/s1-e1
+netns=soglia-s1-e1
+execution_id=s1-execution-e1-generation-1
+execution_ip=10.201.0.1
+candidate_c_ident=1001001
+proxy=10.200.255.1:15001
+resolve_timeout_ms=2000
+attached_links=6
+policy_local[0]=ACTIVE
+proxy_state=LISTENING
+state=READY_FOR_KERNEL_SNAPSHOT
+state=KERNEL_SNAPSHOT_RELEASED
+proxy_state=ACCEPTED peer=10.201.0.1:38824 local=10.200.255.1:15001
+application_bytes_read_before_resolve=0
+outbound_effects_before_resolve=0
+ip_fallback_authorization=false
+tuple_key_hex=0ac900010ac8ff01a8970000993a0000
+soglia_tuples_diagnostic_status=exit status: 0
+soglia_tuples_diagnostic_stdout_begin
+[]
+soglia_tuples_diagnostic_stdout_end
+soglia_tuples_diagnostic_stderr_begin
+soglia_tuples_diagnostic_stderr_end
+soglia_cookie_a_diagnostic_status=exit status: 0
+soglia_cookie_a_diagnostic_stdout_begin
+[]
+soglia_cookie_a_diagnostic_stdout_end
+soglia_cookie_a_diagnostic_stderr_begin
+soglia_cookie_a_diagnostic_stderr_end
+soglia_counters_diagnostic_status=exit status: 0
+soglia_counters_diagnostic_stdout_begin
+[{
+        "key": 0,
+        "value": 0
+    },{
+        "key": 1,
+        "value": 0
+    },{
+        "key": 2,
+        "value": 0
+    },{
+        "key": 3,
+        "value": 0
+    },{
+        "key": 4,
+        "value": 0
+    },{
+        "key": 5,
+        "value": 0
+    },{
+        "key": 6,
+        "value": 0
+    },{
+        "key": 7,
+        "value": 0
+    },{
+        "key": 8,
+        "value": 0
+    }
+]
+soglia_counters_diagnostic_stdout_end
+soglia_counters_diagnostic_stderr_begin
+soglia_counters_diagnostic_stderr_end
+soglia_denies_diagnostic_status=exit status: 0
+soglia_denies_diagnostic_stdout_begin
+[]
+soglia_denies_diagnostic_stdout_end
+soglia_denies_diagnostic_stderr_begin
+soglia_denies_diagnostic_stderr_end
+state=CLEANUP_BEGIN
+state=CLEANUP_COMPLETE
+S1 ATTRIBUTION ERROR: tuple unresolved after 2000 ms; timeout deny

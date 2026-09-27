@@ -1,0 +1,114 @@
+CgroupPath
+ID       AttachType      AttachFlags     Name           
+/sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions/s14-e003
+    2314     cgroup_inet_sock_create multi           soglia_sock_create                
+    2315     cgroup_inet4_connect multi           soglia_connect4                
+    2316     cgroup_inet6_connect multi           soglia_connect6                
+    2317     cgroup_udp4_sendmsg multi           soglia_sendmsg4                
+    2318     cgroup_udp6_sendmsg multi           soglia_sendmsg6                
+    2319     cgroup_sock_ops multi           soglia_sockops                 
+/sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions/s14-e011
+    2362     cgroup_inet_sock_create multi           soglia_sock_create                
+    2363     cgroup_inet4_connect multi           soglia_connect4                
+    2364     cgroup_inet6_connect multi           soglia_connect6                
+    2365     cgroup_udp4_sendmsg multi           soglia_sendmsg4                
+    2366     cgroup_udp6_sendmsg multi           soglia_sendmsg6                
+    2367     cgroup_sock_ops multi           soglia_sockops                 
+/sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions/s14-e001
+    2302     cgroup_inet_sock_create multi           soglia_sock_create                
+    2303     cgroup_inet4_connect multi           soglia_connect4                
+    2304     cgroup_inet6_connect multi           soglia_connect6                
+    2305     cgroup_udp4_sendmsg multi           soglia_sendmsg4                
+    2306     cgroup_udp6_sendmsg multi           soglia_sendmsg6                
+    2307     cgroup_sock_ops multi           soglia_sockops                 
+/sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions/s14-e008
+    2344     cgroup_inet_sock_create multi           soglia_sock_create                
+    2345     cgroup_inet4_connect multi           soglia_connect4                
+    2346     cgroup_inet6_connect multi           soglia_connect6                
+    2347     cgroup_udp4_sendmsg multi           soglia_sendmsg4                
+    2348     cgroup_udp6_sendmsg multi           soglia_sendmsg6                
+    2349     cgroup_sock_ops multi           soglia_sockops                 
+/sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions/s14-e006
+    2332     cgroup_inet_sock_create multi           soglia_sock_create                
+    2333     cgroup_inet4_connect multi           soglia_connect4                
+    2334     cgroup_inet6_connect multi           soglia_connect6                
+    2335     cgroup_udp4_sendmsg multi           soglia_sendmsg4                
+    2336     cgroup_udp6_sendmsg multi           soglia_sendmsg6                
+    2337     cgroup_sock_ops multi           soglia_sockops                 
+/sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions/s14-e014
+    2380     cgroup_inet_sock_create multi           soglia_sock_create                
+    2381     cgroup_inet4_connect multi           soglia_connect4                
+    2382     cgroup_inet6_connect multi           soglia_connect6                
+    2383     cgroup_udp4_sendmsg multi           soglia_sendmsg4                
+    2384     cgroup_udp6_sendmsg multi           soglia_sendmsg6                
+    2385     cgroup_sock_ops multi           soglia_sockops                 
+/sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions/s14-e004
+    2320     cgroup_inet_sock_create multi           soglia_sock_create                
+    2321     cgroup_inet4_connect multi           soglia_connect4                
+    2322     cgroup_inet6_connect multi           soglia_connect6                
+    2323     cgroup_udp4_sendmsg multi           soglia_sendmsg4                
+    2324     cgroup_udp6_sendmsg multi           soglia_sendmsg6                
+    2325     cgroup_sock_ops multi           soglia_sockops                 
+/sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions/s14-e012
+    2368     cgroup_inet_sock_create multi           soglia_sock_create                
+    2369     cgroup_inet4_connect multi           soglia_connect4                
+    2370     cgroup_inet6_connect multi           soglia_connect6                
+    2371     cgroup_udp4_sendmsg multi           soglia_sendmsg4                
+    2372     cgroup_udp6_sendmsg multi           soglia_sendmsg6                
+    2373     cgroup_sock_ops multi           soglia_sockops                 
+/sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions/s14-e002
+    2308     cgroup_inet_sock_create multi           soglia_sock_create                
+    2309     cgroup_inet4_connect multi           soglia_connect4                
+    2310     cgroup_inet6_connect multi           soglia_connect6                
+    2311     cgroup_udp4_sendmsg multi           soglia_sendmsg4                
+    2312     cgroup_udp6_sendmsg multi           soglia_sendmsg6                
+    2313     cgroup_sock_ops multi           soglia_sockops                 
+/sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions/s14-e010
+    2356     cgroup_inet_sock_create multi           soglia_sock_create                
+    2357     cgroup_inet4_connect multi           soglia_connect4                
+    2358     cgroup_inet6_connect multi           soglia_connect6                
+    2359     cgroup_udp4_sendmsg multi           soglia_sendmsg4                
+    2360     cgroup_udp6_sendmsg multi           soglia_sendmsg6                
+    2361     cgroup_sock_ops multi           soglia_sockops                 
+/sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions/s14-e000
+    2296     cgroup_inet_sock_create multi           soglia_sock_create                
+    2297     cgroup_inet4_connect multi           soglia_connect4                
+    2298     cgroup_inet6_connect multi           soglia_connect6                
+    2299     cgroup_udp4_sendmsg multi           soglia_sendmsg4                
+    2300     cgroup_udp6_sendmsg multi           soglia_sendmsg6                
+    2301     cgroup_sock_ops multi           soglia_sockops                 
+/sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions/s14-e009
+    2350     cgroup_inet_sock_create multi           soglia_sock_create                
+    2351     cgroup_inet4_connect multi           soglia_connect4                
+    2352     cgroup_inet6_connect multi           soglia_connect6                
+    2353     cgroup_udp4_sendmsg multi           soglia_sendmsg4                
+    2354     cgroup_udp6_sendmsg multi           soglia_sendmsg6                
+    2355     cgroup_sock_ops multi           soglia_sockops                 
+/sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions/s14-e007
+    2338     cgroup_inet_sock_create multi           soglia_sock_create                
+    2339     cgroup_inet4_connect multi           soglia_connect4                
+    2340     cgroup_inet6_connect multi           soglia_connect6                
+    2341     cgroup_udp4_sendmsg multi           soglia_sendmsg4                
+    2342     cgroup_udp6_sendmsg multi           soglia_sendmsg6                
+    2343     cgroup_sock_ops multi           soglia_sockops                 
+/sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions/s14-e015
+    2386     cgroup_inet_sock_create multi           soglia_sock_create                
+    2387     cgroup_inet4_connect multi           soglia_connect4                
+    2388     cgroup_inet6_connect multi           soglia_connect6                
+    2389     cgroup_udp4_sendmsg multi           soglia_sendmsg4                
+    2390     cgroup_udp6_sendmsg multi           soglia_sendmsg6                
+    2391     cgroup_sock_ops multi           soglia_sockops                 
+/sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions/s14-e005
+    2326     cgroup_inet_sock_create multi           soglia_sock_create                
+    2327     cgroup_inet4_connect multi           soglia_connect4                
+    2328     cgroup_inet6_connect multi           soglia_connect6                
+    2329     cgroup_udp4_sendmsg multi           soglia_sendmsg4                
+    2330     cgroup_udp6_sendmsg multi           soglia_sendmsg6                
+    2331     cgroup_sock_ops multi           soglia_sockops                 
+/sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions/s14-e013
+    2374     cgroup_inet_sock_create multi           soglia_sock_create                
+    2375     cgroup_inet4_connect multi           soglia_connect4                
+    2376     cgroup_inet6_connect multi           soglia_connect6                
+    2377     cgroup_udp4_sendmsg multi           soglia_sendmsg4                
+    2378     cgroup_udp6_sendmsg multi           soglia_sendmsg6                
+    2379     cgroup_sock_ops multi           soglia_sockops                 

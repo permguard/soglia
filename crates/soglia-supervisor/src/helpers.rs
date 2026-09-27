@@ -18,7 +18,7 @@ use std::io;
 use std::os::fd::OwnedFd;
 use std::os::unix::net::UnixStream;
 use std::path::Path;
-use std::process::{Child, Command, Stdio};
+use std::process::{Child, Command, ExitStatus, Stdio};
 use std::sync::{Arc, Mutex};
 
 use serde::Serialize;
@@ -52,13 +52,15 @@ impl std::error::Error for HelperError {}
 pub struct Helper {
     role: &'static str,
     channel: Arc<Mutex<UnixStream>>,
-    process: Mutex<Child>,
+    shutdown: UnixStream,
+    process: Arc<Mutex<Child>>,
 }
 
 impl Helper {
     /// Starts `executable` in `role` with one end of a fresh socketpair as its standard input.
     pub fn spawn(executable: &Path, role: &'static str) -> io::Result<Self> {
         let (ours, theirs) = UnixStream::pair()?;
+        let shutdown = ours.try_clone()?;
         let process = Command::new(executable)
             .arg(format!("__{role}"))
             .env_clear()
@@ -70,13 +72,47 @@ impl Helper {
         Ok(Self {
             role,
             channel: Arc::new(Mutex::new(ours)),
-            process: Mutex::new(process),
+            shutdown,
+            process: Arc::new(Mutex::new(process)),
         })
     }
 
     /// The helper's role, for logs.
     pub fn role(&self) -> &'static str {
         self.role
+    }
+
+    /// Waits for the helper child itself to exit, independently of any channel exchange.
+    ///
+    /// This is started once per helper after the async runtime exists. The child status is polled
+    /// without holding the process lock between polls, so `Drop` retains its bounded shutdown wait.
+    /// Closing the helper channel makes a healthy helper finish, while an abrupt exit is observed
+    /// without waiting for a later RPC.
+    pub fn watch_exit(&self) -> tokio::task::JoinHandle<Result<ExitStatus, HelperError>> {
+        let process = Arc::clone(&self.process);
+        tokio::spawn(async move {
+            loop {
+                let status = process
+                    .lock()
+                    .map_err(|_| HelperError::Channel("the child lock is poisoned".to_owned()))?
+                    .try_wait()
+                    .map_err(|error| HelperError::Channel(error.to_string()))?;
+                if let Some(status) = status {
+                    return Ok(status);
+                }
+                tokio::time::sleep(std::time::Duration::from_millis(10)).await;
+            }
+        })
+    }
+
+    /// Permanently closes the helper IPC channel, interrupting any in-flight exchange.
+    ///
+    /// `shutdown` is a duplicate of the Supervisor's socket end and does not need the exchange
+    /// lock. In particular, Enforcer loss can close sandboxd's channel even if another task is
+    /// blocked in an RPC; sandboxd treats EOF as the fail-closed instruction to kill every live
+    /// Execution.
+    pub fn close_channel(&self) {
+        let _ = self.shutdown.shutdown(std::net::Shutdown::Both);
     }
 
     /// Sends the configuration and waits until the helper has swept and is ready. Blocking: it runs
@@ -118,9 +154,7 @@ impl Drop for Helper {
     /// Closes the channel and waits for the helper to finish: on end of input it kills or freezes
     /// whatever is still live, and the runtime should not report itself stopped before that is done.
     fn drop(&mut self) {
-        if let Ok(stream) = self.channel.lock() {
-            let _ = stream.shutdown(std::net::Shutdown::Both);
-        }
+        self.close_channel();
         let Ok(mut process) = self.process.lock() else {
             return;
         };
@@ -135,6 +169,56 @@ impl Drop for Helper {
             "soglia: the {} helper did not exit after its channel closed",
             self.role
         );
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::os::unix::process::ExitStatusExt;
+    use std::time::Duration;
+
+    fn child(script: &str) -> Helper {
+        let (ours, theirs) = UnixStream::pair().unwrap();
+        let shutdown = ours.try_clone().unwrap();
+        let process = Command::new("/bin/sh")
+            .args(["-c", script])
+            .stdin(Stdio::from(OwnedFd::from(theirs)))
+            .stdout(Stdio::null())
+            .stderr(Stdio::null())
+            .spawn()
+            .unwrap();
+        Helper {
+            role: "test",
+            channel: Arc::new(Mutex::new(ours)),
+            shutdown,
+            process: Arc::new(Mutex::new(process)),
+        }
+    }
+
+    #[tokio::test]
+    async fn child_exit_is_observed_without_an_rpc() {
+        let helper = child("exit 23");
+        let status = tokio::time::timeout(Duration::from_secs(2), helper.watch_exit())
+            .await
+            .unwrap()
+            .unwrap()
+            .unwrap();
+        assert_eq!(status.code(), Some(23));
+    }
+
+    #[tokio::test]
+    async fn closing_the_channel_releases_a_healthy_helper() {
+        let helper = child("cat >/dev/null");
+        let exit = helper.watch_exit();
+        helper.close_channel();
+        let status = tokio::time::timeout(Duration::from_secs(2), exit)
+            .await
+            .unwrap()
+            .unwrap()
+            .unwrap();
+        assert!(status.success(), "{status:?}");
+        assert_eq!(status.signal(), None);
     }
 }
 

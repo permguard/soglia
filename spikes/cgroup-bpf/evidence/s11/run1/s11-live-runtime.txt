@@ -1,0 +1,24 @@
+# S11 live runc and runtime state
+UTC=2026-09-27T08:32:00Z
+runc_list_begin
+time="2026-09-27T10:32:00+02:00" level=error msg="open /run/runc: no such file or directory"
+runc_list_end
+runc_directory_begin
+runc_directory_end
+soglia_runtime_paths_begin
+f /run/netns/soglia-s1-e1
+f /run/soglia-spike-s1-agent.go
+f /run/soglia-spike-s1-agent.ready
+f /run/soglia-spike-s1-host.ready
+f /run/soglia-spike-s1-membership.captured
+f /run/soglia-spike-s1-membership.ready
+f /run/soglia-spike-s1-placement.captured
+f /run/soglia-spike-s1-placement.ready
+f /run/soglia-spike-s1.go
+f /run/soglia-spike-s1.ready
+f /run/systemd/generator/soglia.mount
+f /run/systemd/transient/soglia-spike-s0.service
+l /run/systemd/generator/local-fs.target.wants/soglia.mount
+l /run/systemd/units/invocation:soglia-spike-s0.service
+l /run/systemd/units/invocation:soglia.mount
+soglia_runtime_paths_end

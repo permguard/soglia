@@ -1,0 +1,44 @@
+# S11 live ownership and connection proof
+UTC=2026-09-27T08:32:01Z
+execution_id=s11-execution-generation-1
+execution_cgroup=/sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions/s1-e1
+execution_inode=26406
+execution_procs=63687 
+agent_pid=63687
+actual_agent_pid_matches_placed_host_pid=true
+proc_exact_membership=true
+cgroup_procs_contains_agent=true
+agent_netns_inode=4026532344
+owned_netns_inode=4026532344
+effective_program_count=6
+link_pin_count=6
+map_pin_count=10
+candidate_c_ident=11001001
+proxy_state=LISTENING
+proxy_state=ACCEPTED peer=10.201.0.1:59278 local=10.200.255.1:15001
+tuple_key_hex=0ac900010ac8ff018ee70000993a0000
+candidate_a_cgroup=26406
+candidate_b_cgroup=26406
+candidate_c_ident=11001001
+candidate_d_netns_cookie=19
+tuple_entry_count=1
+candidate_a_resolves_current_execution=true
+candidate_b_resolves_current_execution=true
+candidate_c_resolves_current_execution=true
+candidate_d_recorded_only=true
+resolve_result=s11-execution-generation-1
+diagnostic_tuple_entries=1
+socket_state_begin
+ESTAB 0      0       10.200.255.1:15001   10.201.0.1:59278 users:(("s1_attribution",pid=63648,fd=31))           
+socket_state_end
+runtime_markers_begin
+f /run/soglia-spike-s1-agent.go
+f /run/soglia-spike-s1-agent.ready
+f /run/soglia-spike-s1-host.ready
+f /run/soglia-spike-s1-membership.captured
+f /run/soglia-spike-s1-membership.ready
+f /run/soglia-spike-s1-placement.captured
+f /run/soglia-spike-s1-placement.ready
+f /run/soglia-spike-s1.go
+f /run/soglia-spike-s1.ready
+runtime_markers_end

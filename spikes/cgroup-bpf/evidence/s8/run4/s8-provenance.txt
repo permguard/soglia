@@ -1,0 +1,9 @@
+# S8 artifact provenance
+UTC=2026-09-27T07:29:07Z
+0a7e37aac35040066096623a48114eb3e0c5e2bf68f762ac5f15acb1e2672515  /soglia/spikes/cgroup-bpf/agent/src/main.rs
+07d9bb6542f672c07fca8cc54bd9f32b531f40b993dee1547c6a4ea9c1c2926b  /var/tmp/spike/target/release/soglia
+01242b74abc050e472688d7fd9641c66fe6c019b92a9c0653fbea79f51c2a6f0  /var/tmp/spike/target/aarch64-unknown-linux-musl/release/soglia-spike-agent
+7cc0f72ba9dba44ab658f5f4d8abd7072e5aafe1814b23850ae0b83f796a6e8c  /var/tmp/spike/s8/soglia.yaml
+/var/tmp/spike/target/release/soglia:                                        ELF 64-bit LSB pie executable, ARM aarch64, version 1 (SYSV), dynamically linked, interpreter /lib/ld-linux-aarch64.so.1, BuildID[sha1]=f18bad63cbd444e4e0973400c10fb4ca225661a8, for GNU/Linux 3.7.0, not stripped
+/var/tmp/spike/target/aarch64-unknown-linux-musl/release/soglia-spike-agent: ELF 64-bit LSB executable, ARM aarch64, version 1 (SYSV), statically linked, BuildID[sha1]=f0c052514c04a3c58d67df2f68b0b634a60b188a, not stripped
+soglia 0.1.0

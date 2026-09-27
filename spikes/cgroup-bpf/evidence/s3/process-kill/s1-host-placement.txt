@@ -1,0 +1,20 @@
+# S1 trusted host PID placement before network namespace entry
+UTC=2026-09-27T06:50:13Z
+trusted_host_pid=36830
+harness_placement_status=CORRECT
+target_cgroup=/sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions/s1-e1
+target_cgroup_inode=15582
+baseline_cgroup_procs_was_empty=true
+expected_proc_cgroup_line=0::/system.slice/soglia-spike-s0.service/executions/s1-e1
+host_pid_proc_cgroup_begin
+0::/system.slice/soglia-spike-s0.service/executions/s1-e1
+host_pid_proc_cgroup_end
+target_cgroup_procs_begin
+36830
+target_cgroup_procs_end
+State:	T (stopped)
+proc_exact_membership=true
+cgroup_procs_contains_host_pid=true
+host_pid_netns_link=net:[4026531840]
+host_pid_netns_inode=4026531840
+owned_netns_inode=4026532344

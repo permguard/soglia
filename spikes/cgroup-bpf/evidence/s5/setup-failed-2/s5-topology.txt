@@ -1,0 +1,83 @@
+# S5 controlled topology
+UTC=2026-09-27T07:06:15Z
+execution_id=s5-execution-generation-1
+execution_cgroup=/sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions/s5-e1
+execution_cgroup_inode=15978
+execution_cgroup_procs=
+owned_netns=soglia-s5-e1
+owned_netns_inode=4026532344
+45: soglia-proxy0: <BROADCAST,NOARP,UP,LOWER_UP> mtu 1500 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/ether 32:a7:93:3f:af:3a brd ff:ff:ff:ff:ff:ff promiscuity 0  allmulti 0 minmtu 0 maxmtu 0 
+    dummy numtxqueues 1 numrxqueues 1 gso_max_size 65536 gso_max_segs 65535 tso_max_size 65536 tso_max_segs 65535 gro_max_size 65536 
+    inet 10.200.255.1/32 scope global soglia-proxy0
+       valid_lft forever preferred_lft forever
+    inet6 fe80::30a7:93ff:fe3f:af3a/64 scope link 
+       valid_lft forever preferred_lft forever
+46: sgh-s5e1@if2: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default qlen 1000
+    link/ether f2:26:ca:81:11:ee brd ff:ff:ff:ff:ff:ff link-netns soglia-s5-e1 promiscuity 0  allmulti 0 minmtu 68 maxmtu 65535 
+    veth numtxqueues 4 numrxqueues 4 gso_max_size 65536 gso_max_segs 65535 tso_max_size 524280 tso_max_segs 65535 gro_max_size 65536 
+    inet 10.201.0.2/30 scope global sgh-s5e1
+       valid_lft forever preferred_lft forever
+    inet6 fd00:201::2/64 scope global nodad 
+       valid_lft forever preferred_lft forever
+    inet6 fe80::f026:caff:fe81:11ee/64 scope link tentative 
+       valid_lft forever preferred_lft forever
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00 promiscuity 0  allmulti 0 minmtu 0 maxmtu 0 numtxqueues 1 numrxqueues 1 gso_max_size 65536 gso_max_segs 65535 tso_max_size 524280 tso_max_segs 65535 gro_max_size 65536 
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host 
+       valid_lft forever preferred_lft forever
+2: eth0@if46: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default qlen 1000
+    link/ether 96:76:38:b1:1b:c4 brd ff:ff:ff:ff:ff:ff link-netnsid 0 promiscuity 0  allmulti 0 minmtu 68 maxmtu 65535 
+    veth numtxqueues 4 numrxqueues 4 gso_max_size 65536 gso_max_segs 65535 tso_max_size 524280 tso_max_segs 65535 gro_max_size 65536 
+    inet 10.201.0.1/30 scope global eth0
+       valid_lft forever preferred_lft forever
+    inet6 fd00:201::1/64 scope global nodad 
+       valid_lft forever preferred_lft forever
+    inet6 fe80::9476:38ff:feb1:1bc4/64 scope link tentative 
+       valid_lft forever preferred_lft forever
+10.200.255.1 via 10.201.0.2 dev eth0 
+10.201.0.0/30 dev eth0 proto kernel scope link src 10.201.0.1 
+fd00:201::/64 dev eth0 proto kernel metric 256 pref medium
+fe80::/64 dev eth0 proto kernel metric 256 pref medium
+namespace_nft_begin
+table inet soglia { # handle 1
+	chain input { # handle 1
+		type filter hook input priority filter; policy drop;
+		iif "lo" accept # handle 4
+		ct state established,related accept # handle 5
+	}
+
+	chain output { # handle 2
+		type filter hook output priority filter; policy drop;
+		oif "lo" accept # handle 6
+		ct state established,related accept # handle 7
+		ip daddr 10.200.255.1 tcp dport 15001 ct state new accept # handle 8
+		ip daddr 10.201.0.2 tcp dport 16001 ct state new accept # handle 9
+		ip6 daddr fd00:201::2 tcp dport 16002 ct state new accept # handle 10
+		ip daddr 10.201.0.2 udp dport 16003 accept # handle 11
+		ip6 daddr fd00:201::2 udp dport 16004 accept # handle 12
+	}
+
+	chain forward { # handle 3
+		type filter hook forward priority filter; policy drop;
+	}
+}
+namespace_nft_end
+host_nft_begin
+table inet soglia_spike_s5 { # handle 20
+	chain input { # handle 1
+		type filter hook input priority filter - 10; policy accept;
+		iifname "sgh-s5e1" ip saddr != 10.201.0.1 drop # handle 3
+		iifname "sgh-s5e1" ip6 saddr != fd00:201::1 drop # handle 4
+		iifname "sgh-s5e1" ct state invalid drop # handle 5
+	}
+
+	chain forward { # handle 2
+		type filter hook forward priority filter - 10; policy accept;
+		iifname "sgh-s5e1" drop # handle 6
+		oifname "sgh-s5e1" drop # handle 7
+	}
+}
+host_nft_end

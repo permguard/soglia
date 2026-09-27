@@ -1,0 +1,6 @@
+ancestor_cgroup=/sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions
+ancestor_cgroup_inode=26019
+child_cgroup=/sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions/s10-e1
+child_cgroup_inode=26061
+ancestor_cgroup_procs=
+child_cgroup_procs=

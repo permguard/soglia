@@ -1,0 +1,5 @@
+scope=spikes/cgroup-bpf/harness/src and run-s1.sh through run-s12.sh
+query=rm -rf targeting /sys/fs/bpf or bpffs; remove_dir_all targeting /sys/fs/bpf, bpffs, or soglia
+matches=0
+broad_name_or_path_based_bpffs_deletion_found=false
+note=fixed-name cleanup exists but is not trusted ownership metadata

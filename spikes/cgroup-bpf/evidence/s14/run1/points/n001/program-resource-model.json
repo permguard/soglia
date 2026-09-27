@@ -1,0 +1,112 @@
+[
+  {
+    "name": "soglia_connect4",
+    "count": 1,
+    "ids": [
+      2259
+    ],
+    "bytes_xlated": 1288,
+    "bytes_jited": 1016,
+    "bytes_memlock": 4096,
+    "map_ids": [
+      [
+        1280,
+        1287,
+        1283,
+        1284,
+        1286,
+        1288,
+        1285,
+        1289
+      ]
+    ]
+  },
+  {
+    "name": "soglia_connect6",
+    "count": 1,
+    "ids": [
+      2260
+    ],
+    "bytes_xlated": 688,
+    "bytes_jited": 600,
+    "bytes_memlock": 4096,
+    "map_ids": [
+      [
+        1284,
+        1286,
+        1288
+      ]
+    ]
+  },
+  {
+    "name": "soglia_sendmsg4",
+    "count": 1,
+    "ids": [
+      2261
+    ],
+    "bytes_xlated": 704,
+    "bytes_jited": 608,
+    "bytes_memlock": 4096,
+    "map_ids": [
+      [
+        1284,
+        1286,
+        1288
+      ]
+    ]
+  },
+  {
+    "name": "soglia_sendmsg6",
+    "count": 1,
+    "ids": [
+      2262
+    ],
+    "bytes_xlated": 688,
+    "bytes_jited": 600,
+    "bytes_memlock": 4096,
+    "map_ids": [
+      [
+        1284,
+        1286,
+        1288
+      ]
+    ]
+  },
+  {
+    "name": "soglia_sock_create",
+    "count": 1,
+    "ids": [
+      2258
+    ],
+    "bytes_xlated": 664,
+    "bytes_jited": 576,
+    "bytes_memlock": 4096,
+    "map_ids": [
+      [
+        1284,
+        1286,
+        1288
+      ]
+    ]
+  },
+  {
+    "name": "soglia_sockops",
+    "count": 1,
+    "ids": [
+      2263
+    ],
+    "bytes_xlated": 1704,
+    "bytes_jited": 1328,
+    "bytes_memlock": 4096,
+    "map_ids": [
+      [
+        1280,
+        1285,
+        1289,
+        1281,
+        1284,
+        1288
+      ]
+    ]
+  }
+]

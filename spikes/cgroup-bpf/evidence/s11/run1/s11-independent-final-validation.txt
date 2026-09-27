@@ -1,0 +1,26 @@
+# S11 independent post-run validation (attempt 2; exact process comm match)
+UTC=2026-09-27T08:33:00Z
+unit_active=active
+unit_inode=12456
+delegated_children_begin
+runtime inode=12516
+delegated_children_end
+test_processes_begin
+test_processes_end
+runc_begin
+time="2026-09-27T10:33:00+02:00" level=error msg="open /run/runc: no such file or directory"
+runc_end
+runtime_state_begin
+runtime_state_end
+netns_begin
+netns_end
+owned_links_begin
+owned_links_end
+owned_nft_begin
+owned_nft_end
+bpffs_begin
+bpffs_end
+soglia_foreign_program_count=0
+cgroup_link_count=0
+soglia_map_count=0
+independent_cleanup=PASS

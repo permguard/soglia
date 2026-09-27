@@ -1,0 +1,17 @@
+# Copyright (c) 2022 Nitro Agility S.r.l.
+# SPDX-License-Identifier: Apache-2.0
+
+[package]
+name = "soglia-spike-agent"
+description = "The agent the Phase-1 spike runs inside Executions. EXPERIMENTAL."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[dependencies]
+rustix = { version = "1", features = ["net", "fs", "process", "thread"] }
+
+[lints]
+workspace = true

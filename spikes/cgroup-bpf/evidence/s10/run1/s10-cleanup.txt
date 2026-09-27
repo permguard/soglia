@@ -1,0 +1,27 @@
+# S10 final cleanup verification
+UTC=2026-09-27T08:21:58Z
+unit_active=active
+ABSENT /sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions
+ABSENT /sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions/s10-e1
+ABSENT /sys/fs/bpf/soglia-spike
+ABSENT /sys/fs/bpf/soglia-foreign-s10
+ABSENT /run/netns/soglia-s10-e1
+delegated_root_children_begin
+runtime
+delegated_root_children_end
+cgroup_tree_begin
+CgroupPath
+ID       AttachType      AttachFlags     Name           
+cgroup_tree_end
+bpffs_begin
+bpffs_end
+netns_begin
+netns_end
+owned_links_begin
+owned_links_end
+owned_nft_begin
+owned_nft_end
+owned_processes_begin
+owned_processes_end
+soglia_foreign_program_count=0
+cgroup_link_count=0

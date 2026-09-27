@@ -1,0 +1,22 @@
+# S11 zero-residue verdict
+UTC=2026-09-27T08:32:01Z
+representative_lifecycle_created=true
+successful_resolve=1
+trusted_runner_exit_status=143
+processes_absent=true
+cgroups_absent=true
+container_runtime_state_absent=true
+network_namespace_absent=true
+veth_dummy_links_absent=true
+nft_state_absent=true
+bpf_links_programs_absent=true
+bpffs_pins_absent=true
+attribution_state_absent=true
+ownership_metadata_absent=true
+owned_baseline_restored=true
+host_link_structure_restored=true
+host_nft_structure_restored=true
+host_netns_set_restored=true
+independent_cleanup=PASS
+failure_control_reused=S3_process_kill_and_S7_S8_independent_residue_verifiers
+S11_RESULT=PASS

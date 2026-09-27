@@ -1,0 +1,30 @@
+# S8 runtime before traffic
+UTC=2026-09-27T07:46:16Z
+MainPID=50832
+ControlGroup=/system.slice/soglia-spike-s8.service
+Delegate=yes
+DelegateControllers=cpu cpuset io memory pids
+ActiveState=active
+SubState=running
+unit_inode=20709
+main_pid=50832
+sandbox_pid=50834 cmdline=/proc/self/exe __sandboxd 
+enforcer_pid=50835 cmdline=/proc/self/exe __enforcer 
+main_children=50834 50835 
+sandbox_ppid=50832
+enforcer_ppid=50832
+main_cgroup=0::/system.slice/soglia-spike-s8.service/runtime 
+sandbox_cgroup=0::/system.slice/soglia-spike-s8.service/runtime 
+enforcer_cgroup=0::/system.slice/soglia-spike-s8.service/runtime 
+  50832       1 S Sun Sep 27 09:46:16 2026 /var/tmp/spike/target/release/soglia run -f /var/tmp/spike/s8/soglia.yaml
+  50834   50832 S Sun Sep 27 09:46:16 2026 /proc/self/exe __sandboxd
+  50835   50832 S Sun Sep 27 09:46:16 2026 /proc/self/exe __enforcer
+State  Recv-Q Send-Q Local Address:Port  Peer Address:PortProcess                                     
+LISTEN 0      4096      127.0.0.54:53         0.0.0.0:*    users:(("systemd-resolve",pid=20004,fd=20))
+LISTEN 0      128         11.0.0.1:444        0.0.0.0:*    users:(("soglia-spike-ag",pid=50827,fd=3)) 
+LISTEN 0      128         11.0.0.1:443        0.0.0.0:*    users:(("soglia-spike-ag",pid=50826,fd=3)) 
+LISTEN 0      128     10.200.255.1:15001      0.0.0.0:*    users:(("soglia",pid=50832,fd=14))         
+LISTEN 0      128        127.0.0.1:18089      0.0.0.0:*    users:(("soglia",pid=50832,fd=15))         
+LISTEN 0      4096   127.0.0.53%lo:53         0.0.0.0:*    users:(("systemd-resolve",pid=20004,fd=18))
+LISTEN 0      4096         0.0.0.0:22         0.0.0.0:*    users:(("systemd",pid=1,fd=82))            
+LISTEN 0      4096            [::]:22            [::]:*    users:(("systemd",pid=1,fd=83))            

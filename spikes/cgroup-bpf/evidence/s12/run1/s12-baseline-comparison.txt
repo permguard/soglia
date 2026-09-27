@@ -1,0 +1,13 @@
+# S12 before/after kernel-object comparison
+program_set=IDENTICAL
+link_set=IDENTICAL
+map_set=IDENTICAL
+bpffs_paths=IDENTICAL
+owned_cgroup=ABSENT
+owned_netns=ABSENT
+owned_links=ABSENT
+owned_nft_table=ABSENT
+runtime_markers=ABSENT
+tuple_cookie_attribution_maps=ABSENT
+small_map_object_loaded=0
+independent_cleanup=PASS

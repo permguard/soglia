@@ -1,0 +1,13 @@
+Sep 27 09:47:05 lima-soglia-spike systemd[1]: Started soglia-spike-s8.service - /var/tmp/spike/target/release/soglia run -f /var/tmp/spike/s8/soglia.yaml.
+Sep 27 09:47:05 lima-soglia-spike soglia[52711]: 2026-09-27T07:47:05.649475Z  INFO a resource left by a previous run was removed event.name="startup.swept" helper="sandboxd" resource=sandbox of Execution cde4215e6a8644e429f408a630498517
+Sep 27 09:47:05 lima-soglia-spike soglia[52711]: 2026-09-27T07:47:05.649492Z  INFO a resource left by a previous run was removed event.name="startup.swept" helper="sandboxd" resource=sandbox of Execution fd005917220d61450c978df013c8fdf6
+Sep 27 09:47:05 lima-soglia-spike soglia[52711]: 2026-09-27T07:47:05.649493Z  INFO a resource left by a previous run was removed event.name="startup.swept" helper="sandboxd" resource=sandbox of Execution 193b9c7a1cb06a34242849e6b8b86d56
+Sep 27 09:47:05 lima-soglia-spike soglia[52711]: 2026-09-27T07:47:05.710953Z  INFO a resource left by a previous run was removed event.name="startup.swept" helper="enforcer" resource=network of Execution 193b9c7a1cb06a34242849e6b8b86d56
+Sep 27 09:47:05 lima-soglia-spike soglia[52711]: 2026-09-27T07:47:05.710963Z  INFO a resource left by a previous run was removed event.name="startup.swept" helper="enforcer" resource=network of Execution cde4215e6a8644e429f408a630498517
+Sep 27 09:47:05 lima-soglia-spike soglia[52711]: 2026-09-27T07:47:05.710965Z  INFO a resource left by a previous run was removed event.name="startup.swept" helper="enforcer" resource=network of Execution fd005917220d61450c978df013c8fdf6
+Sep 27 09:47:05 lima-soglia-spike soglia[52711]: 2026-09-27T07:47:05.711002Z  INFO privileges dropped event.name="startup.privileges_dropped" uid=990 gid=990
+Sep 27 09:47:05 lima-soglia-spike soglia[52711]: 2026-09-27T07:47:05.711407Z  INFO soglia is ready event.name="startup.ready" ingress=127.0.0.1:18089 egress=10.200.255.1:15001
+Sep 27 09:47:05 lima-soglia-spike soglia[52711]: 2026-09-27T07:47:05.842896Z  INFO soglia stopped event.name="shutdown.done"
+Sep 27 09:47:05 lima-soglia-spike systemd[1]: Stopping soglia-spike-s8.service - /var/tmp/spike/target/release/soglia run -f /var/tmp/spike/s8/soglia.yaml...
+Sep 27 09:47:05 lima-soglia-spike systemd[1]: soglia-spike-s8.service: Deactivated successfully.
+Sep 27 09:47:05 lima-soglia-spike systemd[1]: Stopped soglia-spike-s8.service - /var/tmp/spike/target/release/soglia run -f /var/tmp/spike/s8/soglia.yaml.

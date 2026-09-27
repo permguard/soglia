@@ -1,0 +1,81 @@
+# S8 live Execution membership before any agent network traffic
+UTC=2026-09-27T07:51:13Z
+unit=/sys/fs/cgroup/system.slice/soglia-spike-s8.service
+unit_inode=23710
+main_pid=55291
+sandbox_pid=55293
+enforcer_pid=55294
+runtime_membership=0::/system.slice/soglia-spike-s8.service/runtime 
+main_children=55293 55294 
+  55291       1 S Sun Sep 27 09:51:13 2026 /var/tmp/spike/target/release/soglia run -f /var/tmp/spike/s8/soglia.yaml
+  55293   55291 S Sun Sep 27 09:51:13 2026 /proc/self/exe __sandboxd
+  55294   55291 S Sun Sep 27 09:51:13 2026 /proc/self/exe __enforcer
+EXECUTION path=/sys/fs/cgroup/system.slice/soglia-spike-s8.service/executions/628240eb84 inode=24038
+cgroup_procs=55451 
+PID=55451 cgroup=0::/system.slice/soglia-spike-s8.service/executions/628240eb84  netns=net:[4026532355] cmdline=/agent serve 
+NETNS name=soglia-628240eb84 inode=4026532355
+table inet soglia { # handle 1
+	chain input { # handle 1
+		type filter hook input priority filter; policy drop;
+		iif "lo" accept # handle 4
+		ct state established,related accept # handle 5
+		ip saddr 10.201.0.0 ip daddr 10.201.0.1 tcp dport 8080 ct state new accept # handle 6
+	}
+
+	chain output { # handle 2
+		type filter hook output priority filter; policy drop;
+		oif "lo" accept # handle 7
+		ct state established,related accept # handle 8
+		ip daddr 10.200.255.1 tcp dport 15001 ct state new accept # handle 9
+	}
+
+	chain forward { # handle 3
+		type filter hook forward priority filter; policy drop;
+	}
+}
+EXECUTION path=/sys/fs/cgroup/system.slice/soglia-spike-s8.service/executions/7c96ed77dc inode=24131
+cgroup_procs=55493 
+PID=55493 cgroup=0::/system.slice/soglia-spike-s8.service/executions/7c96ed77dc  netns=net:[4026532417] cmdline=/agent serve 
+NETNS name=soglia-7c96ed77dc inode=4026532417
+table inet soglia { # handle 1
+	chain input { # handle 1
+		type filter hook input priority filter; policy drop;
+		iif "lo" accept # handle 4
+		ct state established,related accept # handle 5
+		ip saddr 10.201.0.2 ip daddr 10.201.0.3 tcp dport 8080 ct state new accept # handle 6
+	}
+
+	chain output { # handle 2
+		type filter hook output priority filter; policy drop;
+		oif "lo" accept # handle 7
+		ct state established,related accept # handle 8
+		ip daddr 10.200.255.1 tcp dport 15001 ct state new accept # handle 9
+	}
+
+	chain forward { # handle 3
+		type filter hook forward priority filter; policy drop;
+	}
+}
+EXECUTION path=/sys/fs/cgroup/system.slice/soglia-spike-s8.service/executions/c8b2adbc6c inode=24224
+cgroup_procs=55526 
+PID=55526 cgroup=0::/system.slice/soglia-spike-s8.service/executions/c8b2adbc6c  netns=net:[4026532477] cmdline=/agent serve 
+NETNS name=soglia-c8b2adbc6c inode=4026532477
+table inet soglia { # handle 1
+	chain input { # handle 1
+		type filter hook input priority filter; policy drop;
+		iif "lo" accept # handle 4
+		ct state established,related accept # handle 5
+		ip saddr 10.201.0.4 ip daddr 10.201.0.5 tcp dport 8080 ct state new accept # handle 6
+	}
+
+	chain output { # handle 2
+		type filter hook output priority filter; policy drop;
+		oif "lo" accept # handle 7
+		ct state established,related accept # handle 8
+		ip daddr 10.200.255.1 tcp dport 15001 ct state new accept # handle 9
+	}
+
+	chain forward { # handle 3
+		type filter hook forward priority filter; policy drop;
+	}
+}

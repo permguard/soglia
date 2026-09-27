@@ -1,0 +1,23 @@
+aya_version=0.14.0
+object=/var/tmp/spike/bpf/soglia.o
+cgroup=/sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions/s0-probe
+proxy_ip4=10.200.255.1 network_bytes=[0a, c8, ff, 01]
+proxy_port=15001 host_byte_order
+exec_ident=0
+map_pin_root=/sys/fs/bpf/soglia-spike/global
+link_pin_root=/sys/fs/bpf/soglia-spike/exec/s0-probe
+attach program=soglia_sock_create aya_type=CgroupSock expected_attach_type=cgroup_inet_sock_create mode=Single flags=0 pin=/sys/fs/bpf/soglia-spike/exec/s0-probe/sock_create
+attach program=soglia_sock_create result=SUCCESS
+attach program=soglia_connect4 aya_type=CgroupSockAddr expected_attach_type=cgroup_inet4_connect mode=Single flags=0 pin=/sys/fs/bpf/soglia-spike/exec/s0-probe/connect4
+attach program=soglia_connect4 result=SUCCESS
+attach program=soglia_connect6 aya_type=CgroupSockAddr expected_attach_type=cgroup_inet6_connect mode=Single flags=0 pin=/sys/fs/bpf/soglia-spike/exec/s0-probe/connect6
+attach program=soglia_connect6 result=SUCCESS
+attach program=soglia_sendmsg4 aya_type=CgroupSockAddr expected_attach_type=cgroup_udp4_sendmsg mode=Single flags=0 pin=/sys/fs/bpf/soglia-spike/exec/s0-probe/sendmsg4
+attach program=soglia_sendmsg4 result=SUCCESS
+attach program=soglia_sendmsg6 aya_type=CgroupSockAddr expected_attach_type=cgroup_udp6_sendmsg mode=Single flags=0 pin=/sys/fs/bpf/soglia-spike/exec/s0-probe/sendmsg6
+attach program=soglia_sendmsg6 result=SUCCESS
+attach program=soglia_sockops aya_type=SockOps expected_attach_type=cgroup_sock_ops mode=Single flags=0 pin=/sys/fs/bpf/soglia-spike/exec/s0-probe/sock_ops
+attach program=soglia_sockops result=SUCCESS
+state=READY all_six_links_pinned
+state=CLEANUP_BEGIN
+state=CLEANUP_COMPLETE

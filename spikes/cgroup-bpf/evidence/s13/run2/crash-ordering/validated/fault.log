@@ -1,0 +1,3 @@
+classification=FRESH
+record_phase=INTENT state_id=fc2d127677bef320d232cad6a5777437 generation=1
+fault_injected=after_validation_before_READY_record

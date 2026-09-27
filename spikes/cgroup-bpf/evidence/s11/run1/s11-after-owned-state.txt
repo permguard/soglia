@@ -1,0 +1,15 @@
+[cgroups]
+runtime inode=12516
+[unit_processes]
+runtime pid=22563 args=bash /tmp/soglia-s0-delegation.sh 
+runtime pid=22595 args=sleep infinity 
+[runc_containers]
+[owned_netns]
+[owned_links]
+[owned_nft_tables]
+[bpffs_paths]
+[owned_bpf_programs]
+[cgroup_bpf_links]
+[owned_bpf_maps]
+[runtime_state]
+f /run/systemd/transient/soglia-spike-s0.service

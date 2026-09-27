@@ -1,0 +1,15 @@
+foreign_object=/var/tmp/spike/bpf/foreign-s10.o
+foreign_object_sha256=eb6fed5fd3bdc28c24db116f77378527e80533803b65fdc269544bf7351ff8c5
+foreign_source_sha256=262339136af539b5b97b0fb5aac7b6104041739d58656625ca149536f9ee9ac3
+foreign_rewrite_id=1693
+foreign_rewrite_tag=8ee3f7fbc98e427b
+foreign_allow_attached=false
+attach_type=cgroup_inet4_connect
+attach_mode=legacy_multi
+configured_original_ip4_native=33540106
+configured_original_port_host=15001
+configured_rewrite_ip4_native=33605898
+configured_rewrite_port_host=16001
+ancestor_cgroup=/sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions
+ancestor_cgroup_inode=26187
+foreign_trace_map_id=889

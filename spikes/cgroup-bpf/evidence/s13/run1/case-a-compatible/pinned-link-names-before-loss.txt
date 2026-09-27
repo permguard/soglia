@@ -1,0 +1,6 @@
+connect4
+connect6
+sendmsg4
+sendmsg6
+sock_create
+sock_ops

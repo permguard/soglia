@@ -1,0 +1,5 @@
+same_object_layout=true
+trusted_owner_identified=false
+schema_compatibility_identified=false
+reason=soglia_meta_has_no_defined_fields_and_remains_all_zero
+case_a_precondition_established=false

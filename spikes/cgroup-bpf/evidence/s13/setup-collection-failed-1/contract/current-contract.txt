@@ -1,0 +1,116 @@
+# S13 current contract audit
+UTC=2026-09-27T08:55:12Z
+soglia_meta_source_begin
+    __uint(pinning, LIBBPF_PIN_BY_NAME);
+} soglia_denies SEC(".maps");
+
+// Schema metadata, written by the loader. No program reads it.
+struct {
+    __uint(type, BPF_MAP_TYPE_ARRAY);
+    __uint(max_entries, 1);
+    __type(key, __u32);
+    __type(value, __u64[4]);
+    __uint(pinning, LIBBPF_PIN_BY_NAME);
+} soglia_meta SEC(".maps");
+
+#ifdef SPIKE_TRACE
+soglia_meta_source_end
+loader_meta_accesses_begin
+loader_meta_accesses_end
+pin_and_cleanup_implementation_begin
+                .map(PathBuf::from)
+                .ok_or("missing cgroup path")?,
+            map_pin_root: args
+                .next()
+                .map(PathBuf::from)
+                .ok_or("missing map pin root")?,
+            link_pin_root: args
+                .next()
+                .map(PathBuf::from)
+                .ok_or("missing link pin root")?,
+            ready_file: args
+                .next()
+                .map(PathBuf::from)
+                .ok_or("missing ready-file path")?,
+            stop_file: args
+                .next()
+                .map(PathBuf::from)
+                .ok_or("missing stop-file path")?,
+        };
+        if args.next().is_some() {
+            return Err("unexpected extra arguments".to_owned());
+        }
+        Ok(config)
+    }
+}
+
+fn main() {
+    if let Err(error) = run() {
+        eprintln!("S0.3 HARNESS ERROR: {error}");
+        .try_into()
+        .map_err(|error| format!("require fd-backed BPF link for {name}: {error:#}"))?;
+    fd_link
+        .pin(pin)
+        .map_err(|error| format!("pin {name} at {}: {error:#}", pin.display()))
+}
+
+fn cleanup(links: Vec<PinnedLink>, map_pin_root: &Path, link_pin_root: &Path) {
+    for link in links.into_iter().rev() {
+        match link.unpin() {
+            Ok(fd_link) => drop(fd_link),
+            Err(error) => eprintln!("cleanup link unpin error: {error}"),
+        }
+    }
+    remove_map_pins(map_pin_root);
+    remove_empty_dir(link_pin_root);
+}
+
+fn remove_map_pins(root: &Path) {
+    for name in MAP_NAMES {
+        if let Err(error) = fs::remove_file(root.join(name)) {
+            if error.kind() != std::io::ErrorKind::NotFound {
+                eprintln!("cleanup map pin {name}: {error}");
+            }
+        }
+    }
+}
+
+fn remove_empty_dir(path: &Path) {
+    if let Err(error) = fs::remove_dir(path) {
+        if !matches!(
+            error.kind(),
+            std::io::ErrorKind::NotFound | std::io::ErrorKind::DirectoryNotEmpty
+        ) {
+            eprintln!("cleanup directory {}: {error}", path.display());
+        }
+        process::exit(1);
+    }
+}
+
+fn run() -> Result<(), String> {
+    let config = Config::parse()?;
+    fs::create_dir_all(&config.map_pins).map_err(display_error("create map pins"))?;
+    fs::create_dir_all(&config.link_pins).map_err(display_error("create link pins"))?;
+    let proxy_ip4 = u32::from_ne_bytes([10, 200, 255, 1]);
+    let proxy_port = 15_001_u32;
+    let exec_ident = 7_001_001_u64;
+    let mut loader = EbpfLoader::new();
+    loader
+        .override_global("proxy_ip4", &proxy_ip4, true)
+        .override_global("proxy_port", &proxy_port, true)
+        .override_global("exec_ident", &exec_ident, true)
+        .default_map_pin_directory(&config.map_pins);
+    let mut bpf = loader
+        .load_file(&config.object)
+        .map_err(|error| format!("load {}: {error:#}", config.object.display()))?;
+    let local_map = bpf.map_mut("policy_local").ok_or("policy_local missing")?;
+    let mut local = Array::<_, u64>::try_from(local_map)
+        .map_err(|error| format!("open policy_local: {error:#}"))?;
+    local
+        .set(0, 1, 0)
+        .map_err(|error| format!("activate policy_local: {error:#}"))?;
+    let cgroup = File::open(&config.cgroup)
+        .map_err(|error| format!("open {}: {error}", config.cgroup.display()))?;
+pin_and_cleanup_implementation_end
+broad_bpffs_delete_scan_begin
+broad_bpffs_delete_scan_end

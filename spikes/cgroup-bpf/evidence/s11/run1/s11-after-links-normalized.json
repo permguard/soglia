@@ -1,0 +1,18 @@
+[
+  {
+    "ifname": "eth0",
+    "link_type": "ether",
+    "address": "52:55:55:05:5d:ad",
+    "mtu": 1500,
+    "master": null,
+    "info_kind": null
+  },
+  {
+    "ifname": "lo",
+    "link_type": "loopback",
+    "address": "00:00:00:00:00:00",
+    "mtu": 65536,
+    "master": null,
+    "info_kind": null
+  }
+]

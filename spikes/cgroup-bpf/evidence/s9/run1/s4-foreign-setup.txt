@@ -1,0 +1,11 @@
+foreign_object=/var/tmp/spike/bpf/foreign.o
+foreign_object_sha256=5d8afe054da170c813b232ac7bd00de45da1483687c05dc328904c1eadf2395e
+foreign_source_sha256=4bd437eb05daf5790cc81ab65e5317cdb17883008a5d23b66297c5d3382d3a67
+foreign_allow_pin=/sys/fs/bpf/soglia-foreign-s9/foreign_allow
+foreign_rewrite_pin=/sys/fs/bpf/soglia-foreign-s9/foreign_rewrite
+foreign_rewrite_attached=false
+ancestor_cgroup=/sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions
+ancestor_cgroup_inode=25497
+attach_type=cgroup_inet4_connect
+attach_mode=legacy_multi
+foreign_trace_map_id=676

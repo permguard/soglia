@@ -1,0 +1,98 @@
+# S0.4 preflight — 2026-09-27T07:21:07+0200 inside VM soglia-spike
+# S0.3 target inode 5160 is historical; this preflight creates a fresh target.
+
+$ systemctl show soglia-spike-s0.service -p ActiveState -p SubState -p MainPID -p Delegate -p DelegateControllers -p ControlGroup -p NRestarts
+MainPID=22563
+NRestarts=0
+ControlGroup=/system.slice/soglia-spike-s0.service
+Delegate=yes
+DelegateControllers=cpu cpuset io memory pids
+ActiveState=active
+SubState=running
+
+delegated root: /sys/fs/cgroup/system.slice/soglia-spike-s0.service (inode 12456)
+root cgroup.controllers: [cpuset cpu io memory pids]
+root cgroup.subtree_control (before): [memory pids]
+root cgroup.procs: []
+runtime/cgroup.procs: [22563 22595 ]
+  pid 22563: bash /tmp/soglia-s0-delegation.sh 
+  pid 22595: sleep infinity 
+entries below root (before): [runtime ]
+
+$ mkdir /sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions
+ok
+$ echo "+memory +pids" > /sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions/cgroup.subtree_control
+ok
+$ mkdir /sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions/s0-probe
+ok
+
+root cgroup.subtree_control: [memory pids]
+executions: inode 13326, cgroup.subtree_control [memory pids], cgroup.procs []
+s0-probe: cgroup.controllers [memory pids], cgroup.procs [], populated 0
+
+S0_4_TARGET=/sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions/s0-probe
+S0_4_TARGET_INODE=13368
+
+$ bpftool cgroup show /sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions/s0-probe
+(end)
+$ bpftool cgroup show /sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions/s0-probe effective
+(end)
+$ bpftool cgroup show /sys/fs/cgroup
+(end)
+$ bpftool cgroup show /sys/fs/cgroup/system.slice
+(end)
+$ bpftool cgroup show /sys/fs/cgroup/system.slice/soglia-spike-s0.service
+(end)
+$ bpftool cgroup show /sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions
+(end)
+$ bpftool cgroup tree
+CgroupPath
+ID       AttachType      AttachFlags     Name           
+/sys/fs/cgroup/system.slice/systemd-networkd.service
+    1080     cgroup_device   multi           sd_devices                     
+/sys/fs/cgroup/system.slice/systemd-udevd.service
+    1073     cgroup_inet_ingress multi           sd_fw_ingress                  
+    1072     cgroup_inet_egress multi           sd_fw_egress                   
+/sys/fs/cgroup/system.slice/polkit.service
+    1074     cgroup_device   multi           sd_devices                     
+/sys/fs/cgroup/system.slice/systemd-journald.service
+    1068     cgroup_inet_ingress multi           sd_fw_ingress                  
+    1067     cgroup_inet_egress multi           sd_fw_egress                   
+    1066     cgroup_device   multi           sd_devices                     
+/sys/fs/cgroup/system.slice/fwupd.service
+    1084     cgroup_device   multi           sd_devices                     
+/sys/fs/cgroup/system.slice/systemd-resolved.service
+    1076     cgroup_device   multi           sd_devices                     
+/sys/fs/cgroup/system.slice/systemd-timesyncd.service
+    1075     cgroup_device   multi           sd_devices                     
+/sys/fs/cgroup/system.slice/systemd-logind.service
+    1079     cgroup_inet_ingress multi           sd_fw_ingress                  
+    1078     cgroup_inet_egress multi           sd_fw_egress                   
+    1077     cgroup_device   multi           sd_devices                     
+$ bpftool link show
+1: tracing  prog 2  
+	prog_type tracing  attach_type modify_return  
+	target_obj_id 1  target_btf_id 130765  
+2: perf_event  prog 18  
+	tracepoint sys_exit_bind  
+(end)
+$ bpftool prog show (ids, types, names)
+2 tracing hid_tail_call
+18 tracepoint lima_ticker
+1066 cgroup_device sd_devices
+1067 cgroup_skb sd_fw_egress
+1068 cgroup_skb sd_fw_ingress
+1072 cgroup_skb sd_fw_egress
+1073 cgroup_skb sd_fw_ingress
+1074 cgroup_device sd_devices
+1075 cgroup_device sd_devices
+1076 cgroup_device sd_devices
+1077 cgroup_device sd_devices
+1078 cgroup_skb sd_fw_egress
+1079 cgroup_skb sd_fw_ingress
+1080 cgroup_device sd_devices
+1084 cgroup_device sd_devices
+$ ls -la /sys/fs/bpf
+total 0
+drwx-----T 2 root root 0 Sep 27 07:13 .
+drwxr-xr-x 9 root root 0 Sep 27 06:35 ..

@@ -1,0 +1,7 @@
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1000\    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP mode DEFAULT group default qlen 1000\    link/ether 52:55:55:05:5d:ad brd ff:ff:ff:ff:ff:ff
+124: s14proxy0: <BROADCAST,NOARP,UP,LOWER_UP> mtu 1500 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1000\    link/ether 4e:9f:92:07:d7:de brd ff:ff:ff:ff:ff:ff
+125: s14h000@if2: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default qlen 1000\    link/ether e2:2c:60:db:7a:d9 brd ff:ff:ff:ff:ff:ff link-netns s14n4e000
+126: s14h001@if2: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default qlen 1000\    link/ether fe:b0:71:b0:ba:e7 brd ff:ff:ff:ff:ff:ff link-netns s14n4e001
+127: s14h002@if2: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default qlen 1000\    link/ether 36:80:09:d4:2c:ed brd ff:ff:ff:ff:ff:ff link-netns s14n4e002
+128: s14h003@if2: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default qlen 1000\    link/ether 5e:0f:03:8e:ee:a8 brd ff:ff:ff:ff:ff:ff link-netns s14n4e003

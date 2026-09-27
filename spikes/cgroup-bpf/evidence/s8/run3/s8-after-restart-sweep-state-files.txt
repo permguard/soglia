@@ -1,0 +1,6 @@
+d /run/soglia-spike-s8/bundles
+d /run/soglia-spike-s8/net
+d /run/soglia-spike-s8/runc
+d /run/soglia-spike-s8/sandbox
+f /run/soglia-spike-s8/lock
+f /run/soglia-spike-s8/net/host.json

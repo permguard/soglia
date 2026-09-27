@@ -1,0 +1,39 @@
+# S10 independent post-run cleanup verification
+UTC=2026-09-27T08:23:53Z
+unit_active=active
+unit_inode=12456
+delegated_root_children_begin
+runtime
+delegated_root_children_end
+ABSENT /sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions
+ABSENT /sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions/s10-e1
+ABSENT /sys/fs/bpf/soglia-spike
+ABSENT /sys/fs/bpf/soglia-foreign-s10
+ABSENT /run/netns/soglia-s10-e1
+cgroup_tree_begin
+CgroupPath
+ID       AttachType      AttachFlags     Name           
+cgroup_tree_end
+bpffs_begin
+bpffs_end
+soglia_foreign_program_count=0
+cgroup_link_count=0
+netns_begin
+netns_end
+owned_links_begin
+owned_links_end
+owned_nft_begin
+owned_nft_end
+owned_processes_begin
+owned_processes_end
+950d11c85b1046d6d759166498c43d7d666e66c3319250542d0d57bb62aae5e4  /soglia/spikes/cgroup-bpf/evidence/s10/run3/s10-baseline-prog.json
+950d11c85b1046d6d759166498c43d7d666e66c3319250542d0d57bb62aae5e4  /soglia/spikes/cgroup-bpf/evidence/s10/run3/s10-final-prog.json
+3c6ce95ee691f5cdd913dc1effaea62e795ff48d71b7a3e716f4d3eb21909dcd  /soglia/spikes/cgroup-bpf/evidence/s10/run3/s10-baseline-link.json
+3c6ce95ee691f5cdd913dc1effaea62e795ff48d71b7a3e716f4d3eb21909dcd  /soglia/spikes/cgroup-bpf/evidence/s10/run3/s10-final-link.json
+bcdcb3b4280b2c37687506d673ad8a9206be84fb13d43eecc73b246782fcb63b  /soglia/spikes/cgroup-bpf/evidence/s10/run3/s10-baseline-map.json
+bcdcb3b4280b2c37687506d673ad8a9206be84fb13d43eecc73b246782fcb63b  /soglia/spikes/cgroup-bpf/evidence/s10/run3/s10-final-map.json
+e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  /soglia/spikes/cgroup-bpf/evidence/s10/run3/s10-baseline-bpffs.txt
+e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  /soglia/spikes/cgroup-bpf/evidence/s10/run3/s10-final-bpffs.txt
+e56574ead8d491838f229eae7e3fd2b7d4c13bb7b674b5e05135eda41cf69da4  /soglia/spikes/cgroup-bpf/evidence/s10/run3/s10-baseline-host-nft-structure.json
+e56574ead8d491838f229eae7e3fd2b7d4c13bb7b674b5e05135eda41cf69da4  /soglia/spikes/cgroup-bpf/evidence/s10/run3/s10-final-host-nft-structure.json
+independent_cleanup=PASS

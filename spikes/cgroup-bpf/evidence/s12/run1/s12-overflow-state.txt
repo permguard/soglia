@@ -1,0 +1,15 @@
+# S12 full-map and overflow kernel snapshot
+UTC=2026-09-27T08:44:23Z
+tuple_occupancy=8
+cookie_occupancy=8
+direct_program_count=6
+effective_program_count=6
+execution_procs=64619 
+ESTAB 8      0       10.200.255.1:15001   10.201.0.1:42108 users:(("s12_exhaustion",pid=64563,fd=34))           
+ESTAB 8      0       10.200.255.1:15001   10.201.0.1:42126 users:(("s12_exhaustion",pid=64563,fd=35))           
+ESTAB 8      0       10.200.255.1:15001   10.201.0.1:42154 users:(("s12_exhaustion",pid=64563,fd=39))           
+ESTAB 8      0       10.200.255.1:15001   10.201.0.1:42120 users:(("s12_exhaustion",pid=64563,fd=36))           
+ESTAB 8      0       10.200.255.1:15001   10.201.0.1:42080 users:(("s12_exhaustion",pid=64563,fd=31))           
+ESTAB 8      0       10.200.255.1:15001   10.201.0.1:42136 users:(("s12_exhaustion",pid=64563,fd=37))           
+ESTAB 8      0       10.200.255.1:15001   10.201.0.1:42152 users:(("s12_exhaustion",pid=64563,fd=38))           
+ESTAB 8      0       10.200.255.1:15001   10.201.0.1:42082 users:(("s12_exhaustion",pid=64563,fd=33))           

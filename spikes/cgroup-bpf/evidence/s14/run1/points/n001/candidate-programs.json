@@ -1,0 +1,130 @@
+[
+  {
+    "id": 2258,
+    "type": "cgroup_sock",
+    "name": "soglia_sock_create",
+    "tag": "eea5a9c277a546d6",
+    "gpl_compatible": false,
+    "loaded_at": 1790502351,
+    "uid": 0,
+    "orphaned": false,
+    "bytes_xlated": 664,
+    "jited": true,
+    "bytes_jited": 576,
+    "bytes_memlock": 4096,
+    "map_ids": [
+      1284,
+      1286,
+      1288
+    ],
+    "btf_id": 722
+  },
+  {
+    "id": 2259,
+    "type": "cgroup_sock_addr",
+    "name": "soglia_connect4",
+    "tag": "df9c3439be853b4d",
+    "gpl_compatible": false,
+    "loaded_at": 1790502351,
+    "uid": 0,
+    "orphaned": false,
+    "bytes_xlated": 1288,
+    "jited": true,
+    "bytes_jited": 1016,
+    "bytes_memlock": 4096,
+    "map_ids": [
+      1280,
+      1287,
+      1283,
+      1284,
+      1286,
+      1288,
+      1285,
+      1289
+    ],
+    "btf_id": 722
+  },
+  {
+    "id": 2260,
+    "type": "cgroup_sock_addr",
+    "name": "soglia_connect6",
+    "tag": "c6994d7cab0ffa99",
+    "gpl_compatible": false,
+    "loaded_at": 1790502351,
+    "uid": 0,
+    "orphaned": false,
+    "bytes_xlated": 688,
+    "jited": true,
+    "bytes_jited": 600,
+    "bytes_memlock": 4096,
+    "map_ids": [
+      1284,
+      1286,
+      1288
+    ],
+    "btf_id": 722
+  },
+  {
+    "id": 2261,
+    "type": "cgroup_sock_addr",
+    "name": "soglia_sendmsg4",
+    "tag": "4675fb08d3b3d5fa",
+    "gpl_compatible": false,
+    "loaded_at": 1790502351,
+    "uid": 0,
+    "orphaned": false,
+    "bytes_xlated": 704,
+    "jited": true,
+    "bytes_jited": 608,
+    "bytes_memlock": 4096,
+    "map_ids": [
+      1284,
+      1286,
+      1288
+    ],
+    "btf_id": 722
+  },
+  {
+    "id": 2262,
+    "type": "cgroup_sock_addr",
+    "name": "soglia_sendmsg6",
+    "tag": "523bec458d754f5d",
+    "gpl_compatible": false,
+    "loaded_at": 1790502351,
+    "uid": 0,
+    "orphaned": false,
+    "bytes_xlated": 688,
+    "jited": true,
+    "bytes_jited": 600,
+    "bytes_memlock": 4096,
+    "map_ids": [
+      1284,
+      1286,
+      1288
+    ],
+    "btf_id": 722
+  },
+  {
+    "id": 2263,
+    "type": "sock_ops",
+    "name": "soglia_sockops",
+    "tag": "9bedb3719e62dd8b",
+    "gpl_compatible": false,
+    "loaded_at": 1790502351,
+    "uid": 0,
+    "orphaned": false,
+    "bytes_xlated": 1704,
+    "jited": true,
+    "bytes_jited": 1328,
+    "bytes_memlock": 4096,
+    "map_ids": [
+      1280,
+      1285,
+      1289,
+      1281,
+      1284,
+      1288
+    ],
+    "btf_id": 722
+  }
+]

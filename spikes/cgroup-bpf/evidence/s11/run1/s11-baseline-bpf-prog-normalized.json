@@ -1,0 +1,86 @@
+[
+  {
+    "id": 2,
+    "type": "tracing",
+    "name": "hid_tail_call",
+    "tag": "7cc47bbf07148bfe"
+  },
+  {
+    "id": 18,
+    "type": "tracepoint",
+    "name": "lima_ticker",
+    "tag": "c25137cf587ada03"
+  },
+  {
+    "id": 1066,
+    "type": "cgroup_device",
+    "name": "sd_devices",
+    "tag": "134b8a301991f6b7"
+  },
+  {
+    "id": 1067,
+    "type": "cgroup_skb",
+    "name": "sd_fw_egress",
+    "tag": "6deef7357e7b4530"
+  },
+  {
+    "id": 1068,
+    "type": "cgroup_skb",
+    "name": "sd_fw_ingress",
+    "tag": "6deef7357e7b4530"
+  },
+  {
+    "id": 1072,
+    "type": "cgroup_skb",
+    "name": "sd_fw_egress",
+    "tag": "6deef7357e7b4530"
+  },
+  {
+    "id": 1073,
+    "type": "cgroup_skb",
+    "name": "sd_fw_ingress",
+    "tag": "6deef7357e7b4530"
+  },
+  {
+    "id": 1074,
+    "type": "cgroup_device",
+    "name": "sd_devices",
+    "tag": "fba67f14acbaee05"
+  },
+  {
+    "id": 1075,
+    "type": "cgroup_device",
+    "name": "sd_devices",
+    "tag": "ee0e253c78993a24"
+  },
+  {
+    "id": 1076,
+    "type": "cgroup_device",
+    "name": "sd_devices",
+    "tag": "654d7024997e7811"
+  },
+  {
+    "id": 1077,
+    "type": "cgroup_device",
+    "name": "sd_devices",
+    "tag": "384856681694f215"
+  },
+  {
+    "id": 1078,
+    "type": "cgroup_skb",
+    "name": "sd_fw_egress",
+    "tag": "6deef7357e7b4530"
+  },
+  {
+    "id": 1079,
+    "type": "cgroup_skb",
+    "name": "sd_fw_ingress",
+    "tag": "6deef7357e7b4530"
+  },
+  {
+    "id": 1080,
+    "type": "cgroup_device",
+    "name": "sd_devices",
+    "tag": "134b8a301991f6b7"
+  }
+]

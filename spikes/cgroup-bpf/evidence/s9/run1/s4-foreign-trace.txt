@@ -1,0 +1,1 @@
+Error: map is not a perf event array

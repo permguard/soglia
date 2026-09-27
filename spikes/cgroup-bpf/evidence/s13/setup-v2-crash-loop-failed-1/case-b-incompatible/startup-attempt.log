@@ -1,0 +1,3 @@
+classification=INCOMPATIBLE
+startup_ready=false
+error=record ABI version mismatch

@@ -1,0 +1,8 @@
+fresh_cgroup_inode=27138
+ready_marker_present=true
+policy_entries=1
+cookie_entries=1
+tuple_entries=1
+map_identity_reused=true
+stale_attribution_present_at_ready=true
+recovery_or_compatibility_decision_before_ready=false

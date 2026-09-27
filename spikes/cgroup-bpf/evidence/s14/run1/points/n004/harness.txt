@@ -1,0 +1,38 @@
+test=S14
+candidate=C
+execution_count=4
+shared_map_pin_root=/sys/fs/bpf/soglia-spike/s14/maps
+per_execution_link_pin_root=/sys/fs/bpf/soglia-spike/s14/links
+sample_rule=N=1:[0];N=4:[0,N-1];N>=16:[0,N/2,N-1]
+execution_prepared index=0 id=s14-n4-execution-000-generation-1 ident=14004000 cgroup_inode=29007 object_load_ns=529084 policy_setup_ns=958 program_load_ns=471626 attach_ns=115918 pin_ns=17625 links=6
+execution_prepared index=1 id=s14-n4-execution-001-generation-1 ident=14004001 cgroup_inode=29049 object_load_ns=145500 policy_setup_ns=833 program_load_ns=456669 attach_ns=19501 pin_ns=12917 links=6
+execution_prepared index=2 id=s14-n4-execution-002-generation-1 ident=14004002 cgroup_inode=29091 object_load_ns=120250 policy_setup_ns=750 program_load_ns=456501 attach_ns=9751 pin_ns=13292 links=6
+execution_prepared index=3 id=s14-n4-execution-003-generation-1 ident=14004003 cgroup_inode=29133 object_load_ns=139917 policy_setup_ns=583 program_load_ns=470544 attach_ns=10917 pin_ns=20668 links=6
+object_load_total_ns=934751
+policy_setup_total_ns=3124
+program_load_total_ns=1855340
+attach_total_ns=156087
+pin_total_ns=64502
+candidate_preparation_total_ns=37178276
+state=READY_FOR_RESOURCE_SNAPSHOT
+sample_indices=0,3
+membership_proven index=0 pid=83232 cgroup=/sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions/s14-e000 cgroup_inode=29007 netns=s14n4e000 netns_inode=4026532344
+membership_proven index=3 pid=83237 cgroup=/sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions/s14-e003 cgroup_inode=29133 netns=s14n4e003 netns_inode=4026532536
+state=SAMPLED_MEMBERSHIPS_PROVEN_BEFORE_TRAFFIC
+candidate_c_resolve origin_index=3 execution_id=s14-n4-execution-003-generation-1 accepted_peer=10.202.0.13:40000 accepted_local=10.200.255.1:15001 tuple_hex=0aca000d0ac8ff01409c0000993a0000 c_ident=14004003 resolved_execution=s14-n4-execution-003-generation-1 a_cgid=29133 b_cgid=29133 ip_cross_check=true ip_used_for_authorization=false result=PASS
+candidate_c_resolve origin_index=0 execution_id=s14-n4-execution-000-generation-1 accepted_peer=10.202.0.1:40000 accepted_local=10.200.255.1:15001 tuple_hex=0aca00010ac8ff01409c0000993a0000 c_ident=14004000 resolved_execution=s14-n4-execution-000-generation-1 a_cgid=29007 b_cgid=29007 ip_cross_check=true ip_used_for_authorization=false result=PASS
+attribution_checks=2
+attribution_mismatches=0
+cross_execution_identity=0
+fallback_authorization=false
+state=ATTRIBUTION_PROVEN_CONNECTIONS_HELD
+application_released origin_index=3 peer=10.202.0.13:40000 local=10.200.255.1:15001 c_ident=14004003 request_bytes=8 after_resolve=true
+application_released origin_index=0 peer=10.202.0.1:40000 local=10.200.255.1:15001 c_ident=14004000 request_bytes=8 after_resolve=true
+agent_e000_status=exit status: 0
+agent_e000_stdout={"cmd":"barrier /run/soglia-spike-s14/e000.agent-ready /run/soglia-spike-s14/e000.go 30","ok":true,"detail":"released pid=83232"}
+{"cmd":"proxy-fixed","ok":true,"detail":"ATTRIBUTED s14-n4-execution-000-generation-1","i":0,"source_port":40000,"local":"10.202.0.1:40000"}
+agent_e003_status=exit status: 0
+agent_e003_stdout={"cmd":"barrier /run/soglia-spike-s14/e003.agent-ready /run/soglia-spike-s14/e003.go 30","ok":true,"detail":"released pid=83237"}
+{"cmd":"proxy-fixed","ok":true,"detail":"ATTRIBUTED s14-n4-execution-003-generation-1","i":0,"source_port":40000,"local":"10.202.0.13:40000"}
+candidate_bpf_teardown_ns=218459
+S14_POINT_RESULT=PASS

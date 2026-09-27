@@ -1,0 +1,29 @@
+# S1 live attached state
+UTC=2026-09-27T05:49:51Z
+CgroupPath
+ID       AttachType      AttachFlags     Name           
+/sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions/s1-e1
+    1145     cgroup_inet_sock_create multi           soglia_sock_create                
+    1146     cgroup_inet4_connect multi           soglia_connect4                
+    1147     cgroup_inet6_connect multi           soglia_connect6                
+    1148     cgroup_udp4_sendmsg multi           soglia_sendmsg4                
+    1149     cgroup_udp6_sendmsg multi           soglia_sendmsg6                
+    1150     cgroup_sock_ops multi           soglia_sockops                 
+d /sys/fs/bpf/soglia-spike/s1
+d /sys/fs/bpf/soglia-spike/s1/links
+d /sys/fs/bpf/soglia-spike/s1/maps
+f /sys/fs/bpf/soglia-spike/s1/links/connect4
+f /sys/fs/bpf/soglia-spike/s1/links/connect6
+f /sys/fs/bpf/soglia-spike/s1/links/sendmsg4
+f /sys/fs/bpf/soglia-spike/s1/links/sendmsg6
+f /sys/fs/bpf/soglia-spike/s1/links/sock_create
+f /sys/fs/bpf/soglia-spike/s1/links/sock_ops
+f /sys/fs/bpf/soglia-spike/s1/maps/soglia_cookie_a
+f /sys/fs/bpf/soglia-spike/s1/maps/soglia_counters
+f /sys/fs/bpf/soglia-spike/s1/maps/soglia_denies
+f /sys/fs/bpf/soglia-spike/s1/maps/soglia_events
+f /sys/fs/bpf/soglia-spike/s1/maps/soglia_meta
+f /sys/fs/bpf/soglia-spike/s1/maps/soglia_policy
+f /sys/fs/bpf/soglia-spike/s1/maps/soglia_sk_b
+f /sys/fs/bpf/soglia-spike/s1/maps/soglia_tuples
+execution_cgroup_procs=

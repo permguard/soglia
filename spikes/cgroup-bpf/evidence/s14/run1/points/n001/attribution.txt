@@ -1,0 +1,1 @@
+candidate_c_resolve origin_index=0 execution_id=s14-n1-execution-000-generation-1 accepted_peer=10.202.0.1:40000 accepted_local=10.200.255.1:15001 tuple_hex=0aca00010ac8ff01409c0000993a0000 c_ident=14001000 resolved_execution=s14-n1-execution-000-generation-1 a_cgid=28923 b_cgid=28923 ip_cross_check=true ip_used_for_authorization=false result=PASS

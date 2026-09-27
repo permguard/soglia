@@ -1,0 +1,24 @@
+# S12 fresh preflight
+UTC=2026-09-27T08:44:20Z
+Linux lima-soglia-spike 6.8.0-134-generic #134-Ubuntu SMP PREEMPT_DYNAMIC Fri Jun 26 18:28:11 UTC 2026 aarch64 aarch64 aarch64 GNU/Linux
+MainPID=22563
+NRestarts=0
+ControlGroup=/system.slice/soglia-spike-s0.service
+Delegate=yes
+DelegateControllers=cpu cpuset io memory pids
+ActiveState=active
+SubState=running
+delegated_root_inode=12456
+delegated_children_begin
+runtime inode=12516
+delegated_children_end
+CgroupPath
+ID       AttachType      AttachFlags     Name           
+bpffs_begin
+bpffs_end
+netns_begin
+netns_end
+owned_links_begin
+owned_links_end
+owned_nft_begin
+owned_nft_end

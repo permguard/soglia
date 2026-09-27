@@ -1,0 +1,9 @@
+loader_pid=40487
+loader_signal=SIGKILL
+loader_exit_status=137
+loader_proc_absent=true
+before_cgroup_programs=[{"id":1430,"name":"soglia_sock_create","attach_type":"cgroup_inet_sock_create"},{"id":1431,"name":"soglia_connect4","attach_type":"cgroup_inet4_connect"},{"id":1432,"name":"soglia_connect6","attach_type":"cgroup_inet6_connect"},{"id":1433,"name":"soglia_sendmsg4","attach_type":"cgroup_udp4_sendmsg"},{"id":1434,"name":"soglia_sendmsg6","attach_type":"cgroup_udp6_sendmsg"},{"id":1435,"name":"soglia_sockops","attach_type":"cgroup_sock_ops"}]
+after_cgroup_programs=[{"id":1430,"name":"soglia_sock_create","attach_type":"cgroup_inet_sock_create"},{"id":1431,"name":"soglia_connect4","attach_type":"cgroup_inet4_connect"},{"id":1432,"name":"soglia_connect6","attach_type":"cgroup_inet6_connect"},{"id":1433,"name":"soglia_sendmsg4","attach_type":"cgroup_udp4_sendmsg"},{"id":1434,"name":"soglia_sendmsg6","attach_type":"cgroup_udp6_sendmsg"},{"id":1435,"name":"soglia_sockops","attach_type":"cgroup_sock_ops"}]
+cgroup_program_identity_preserved=true
+link_pins_preserved=true
+map_pins_preserved=false

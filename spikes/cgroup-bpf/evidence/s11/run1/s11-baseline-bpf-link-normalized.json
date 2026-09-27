@@ -1,0 +1,16 @@
+[
+  {
+    "id": 1,
+    "type": "tracing",
+    "prog_id": 2,
+    "cgroup_id": null,
+    "attach_type": "modify_return"
+  },
+  {
+    "id": 2,
+    "type": "perf_event",
+    "prog_id": 18,
+    "cgroup_id": null,
+    "attach_type": null
+  }
+]

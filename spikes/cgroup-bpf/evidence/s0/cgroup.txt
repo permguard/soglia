@@ -1,0 +1,12 @@
+$ stat -fc %T /sys/fs/cgroup
+cgroup2fs
+
+$ mount | grep -E 'cgroup2|bpf'
+cgroup2 on /sys/fs/cgroup type cgroup2 (rw,nosuid,nodev,noexec,relatime,nsdelegate,memory_recursiveprot)
+bpf on /sys/fs/bpf type bpf (rw,nosuid,nodev,noexec,relatime,mode=700)
+
+$ cat /sys/fs/cgroup/cgroup.controllers
+cpuset cpu io memory hugetlb pids rdma misc
+
+$ cat /sys/fs/cgroup/cgroup.subtree_control
+cpuset cpu io memory pids

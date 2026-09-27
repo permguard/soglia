@@ -1,0 +1,22 @@
+UTC=2026-09-27T08:32:00Z cycle=1 step=begin
+UTC=2026-09-27T08:32:00Z cycle=1 step=kill_execution_cgroup
+UTC=2026-09-27T08:32:00Z cycle=1 step=wait_reap_process_tree
+UTC=2026-09-27T08:32:00Z cycle=1 step=remove_runtime_state
+UTC=2026-09-27T08:32:00Z cycle=1 step=remove_nft_state
+UTC=2026-09-27T08:32:00Z cycle=1 step=remove_veth_netns
+UTC=2026-09-27T08:32:00Z cycle=1 step=remove_execution_cgroups
+UTC=2026-09-27T08:32:00Z cycle=1 step=remove_bpf_links_maps_pins
+UTC=2026-09-27T08:32:00Z cycle=1 step=release_ownership_slot
+UTC=2026-09-27T08:32:00Z cycle=1 step=complete
+UTC=2026-09-27T08:32:01Z cycle=2 step=begin
+UTC=2026-09-27T08:32:01Z cycle=2 step=freeze_prevent_new_effects
+observed_frozen 1
+UTC=2026-09-27T08:32:01Z cycle=2 step=kill_execution_cgroup
+UTC=2026-09-27T08:32:01Z cycle=2 step=wait_reap_process_tree
+UTC=2026-09-27T08:32:01Z cycle=2 step=remove_runtime_state
+UTC=2026-09-27T08:32:01Z cycle=2 step=remove_nft_state
+UTC=2026-09-27T08:32:01Z cycle=2 step=remove_veth_netns
+UTC=2026-09-27T08:32:01Z cycle=2 step=remove_execution_cgroups
+UTC=2026-09-27T08:32:01Z cycle=2 step=remove_bpf_links_maps_pins
+UTC=2026-09-27T08:32:01Z cycle=2 step=release_ownership_slot
+UTC=2026-09-27T08:32:01Z cycle=2 step=complete

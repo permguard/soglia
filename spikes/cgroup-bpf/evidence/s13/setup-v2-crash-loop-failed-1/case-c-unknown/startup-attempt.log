@@ -1,0 +1,3 @@
+classification=UNKNOWN
+startup_ready=false
+error=bpffs pin root exists without a trusted ownership record

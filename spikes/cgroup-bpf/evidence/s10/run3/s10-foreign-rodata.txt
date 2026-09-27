@@ -1,0 +1,4 @@
+
+/var/tmp/spike/bpf/foreign-s10.o:	file format elf64-bpf
+Contents of section .rodata:
+ 0000 0ac8ff01 993a0000 0ac90002 813e0000  .....:.......>..

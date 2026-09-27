@@ -1,0 +1,118 @@
+    PID    PPID     SID STAT COMMAND         COMMAND
+      1       0       1 Ss   systemd         /usr/lib/systemd/systemd --system --deserialize=100
+      2       0       0 S    kthreadd        [kthreadd]
+      3       2       0 S    pool_workqueue_ [pool_workqueue_release]
+      4       2       0 I<   kworker/R-rcu_g [kworker/R-rcu_g]
+      5       2       0 I<   kworker/R-rcu_p [kworker/R-rcu_p]
+      6       2       0 I<   kworker/R-slub_ [kworker/R-slub_]
+      7       2       0 I<   kworker/R-netns [kworker/R-netns]
+      9       2       0 I<   kworker/0:0H-ev [kworker/0:0H-events_highpri]
+     12       2       0 I<   kworker/R-mm_pe [kworker/R-mm_pe]
+     13       2       0 I    rcu_tasks_kthre [rcu_tasks_kthread]
+     14       2       0 I    rcu_tasks_rude_ [rcu_tasks_rude_kthread]
+     15       2       0 I    rcu_tasks_trace [rcu_tasks_trace_kthread]
+     16       2       0 S    ksoftirqd/0     [ksoftirqd/0]
+     17       2       0 I    rcu_preempt     [rcu_preempt]
+     18       2       0 S    migration/0     [migration/0]
+     19       2       0 S    idle_inject/0   [idle_inject/0]
+     20       2       0 S    cpuhp/0         [cpuhp/0]
+     21       2       0 S    cpuhp/1         [cpuhp/1]
+     22       2       0 S    idle_inject/1   [idle_inject/1]
+     23       2       0 S    migration/1     [migration/1]
+     24       2       0 S    ksoftirqd/1     [ksoftirqd/1]
+     26       2       0 I<   kworker/1:0H-ev [kworker/1:0H-events_highpri]
+     27       2       0 S    cpuhp/2         [cpuhp/2]
+     28       2       0 S    idle_inject/2   [idle_inject/2]
+     29       2       0 S    migration/2     [migration/2]
+     30       2       0 S    ksoftirqd/2     [ksoftirqd/2]
+     32       2       0 I<   kworker/2:0H-ev [kworker/2:0H-events_highpri]
+     33       2       0 S    cpuhp/3         [cpuhp/3]
+     34       2       0 S    idle_inject/3   [idle_inject/3]
+     35       2       0 S    migration/3     [migration/3]
+     36       2       0 S    ksoftirqd/3     [ksoftirqd/3]
+     38       2       0 I<   kworker/3:0H-ev [kworker/3:0H-events_highpri]
+     39       2       0 S    kdevtmpfs       [kdevtmpfs]
+     40       2       0 I<   kworker/R-inet_ [kworker/R-inet_]
+     41       2       0 S    kauditd         [kauditd]
+     42       2       0 S    khungtaskd      [khungtaskd]
+     44       2       0 S    oom_reaper      [oom_reaper]
+     45       2       0 I<   kworker/R-write [kworker/R-write]
+     46       2       0 S    kcompactd0      [kcompactd0]
+     47       2       0 SN   ksmd            [ksmd]
+     49       2       0 SN   khugepaged      [khugepaged]
+     50       2       0 I<   kworker/R-kinte [kworker/R-kinte]
+     51       2       0 I<   kworker/R-kbloc [kworker/R-kbloc]
+     52       2       0 I<   kworker/R-blkcg [kworker/R-blkcg]
+     53       2       0 I<   kworker/R-tpm_d [kworker/R-tpm_d]
+     54       2       0 I<   kworker/R-ata_s [kworker/R-ata_s]
+     55       2       0 I<   kworker/R-md    [kworker/R-md]
+     56       2       0 I<   kworker/R-md_bi [kworker/R-md_bi]
+     57       2       0 I<   kworker/R-edac- [kworker/R-edac-]
+     58       2       0 I<   kworker/R-devfr [kworker/R-devfr]
+     59       2       0 S    watchdogd       [watchdogd]
+     60       2       0 I<   kworker/R-quota [kworker/R-quota]
+     61       2       0 I<   kworker/3:1H-kb [kworker/3:1H-kblockd]
+     62       2       0 S    kswapd0         [kswapd0]
+     63       2       0 S    ecryptfs-kthrea [ecryptfs-kthread]
+     64       2       0 I<   kworker/R-kthro [kworker/R-kthro]
+     65       2       0 I<   kworker/R-acpi_ [kworker/R-acpi_]
+     67       2       0 S    khvcd           [khvcd]
+     68       2       0 I<   kworker/R-mld   [kworker/R-mld]
+     69       2       0 I<   kworker/R-ipv6_ [kworker/R-ipv6_]
+     76       2       0 I<   kworker/R-kstrp [kworker/R-kstrp]
+     80       2       0 I<   kworker/u9:0    [kworker/u9:0]
+     84       2       0 I<   kworker/R-charg [kworker/R-charg]
+     85       2       0 S    irq/13-ACPI:Eve [irq/13-ACPI:Event]
+    110       2       0 I<   kworker/0:1H-kb [kworker/0:1H-kblockd]
+    114       2       0 I<   kworker/2:1H-kb [kworker/2:1H-kblockd]
+    137       2       0 I<   kworker/1:1H-kb [kworker/1:1H-kblockd]
+    139       2       0 S    hwrng           [hwrng]
+    191       2       0 I<   kworker/R-raid5 [kworker/R-raid5]
+    230       2       0 S    jbd2/vda1-8     [jbd2/vda1-8]
+    231       2       0 I<   kworker/R-ext4- [kworker/R-ext4-]
+    324       2       0 I<   kworker/R-kmpat [kworker/R-kmpat]
+    326       2       0 I<   kworker/R-kmpat [kworker/R-kmpat]
+    440       2       0 S    jbd2/vda16-8    [jbd2/vda16-8]
+    441       2       0 I<   kworker/R-ext4- [kworker/R-ext4-]
+    685       1     685 Ss   dbus-daemon     @dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only
+    689       1     689 Ssl  lima-guestagent /usr/local/bin/lima-guestagent daemon --vsock-port 2222 --runtime-dir=/run/lima-guestagent
+    706       1     706 Ss   systemd-logind  /usr/lib/systemd/systemd-logind
+    751       1     751 Ssl  unattended-upgr /usr/bin/python3 /usr/share/unattended-upgrades/unattended-upgrade-shutdown --wait-for-signal
+    756       1     756 Ss+  agetty          /sbin/agetty -o -p -- \u --keep-baud 115200,57600,38400,9600 - vt220
+    767       1     767 Ss+  agetty          /sbin/agetty -o -p -- \u --noclear - linux
+    778       1     778 Ss   systemd         /usr/lib/systemd/systemd --user --deserialize=24
+    792     778     778 S    (sd-pam)        (sd-pam)
+   1266       1    1266 Ss   sshd            sshd: nicolagallo [priv]
+   1312    1266    1266 S    sshd            sshd: nicolagallo@notty
+  18341       1   18341 SLsl multipathd      /sbin/multipathd -d -s
+  18806       1   18806 Ss   cron            /usr/sbin/cron -f -P
+  19682       1   19682 Ssl  polkitd         /usr/lib/polkit-1/polkitd --no-debug
+  19695       1   19695 Ssl  ModemManager    /usr/sbin/ModemManager
+  20004       1   20004 Ss   systemd-resolve /usr/lib/systemd/systemd-resolved
+  20009       1   20009 Ssl  systemd-timesyn /usr/lib/systemd/systemd-timesyncd
+  20011       1   20011 Ss   systemd-udevd   /usr/lib/systemd/systemd-udevd
+  20014       1   20014 Ssl  udisksd         /usr/libexec/udisks2/udisksd
+  20022       2       0 S    psimon          [psimon]
+  20023       1   20023 Ss   systemd-network /usr/lib/systemd/systemd-networkd
+  20034       1   20034 S<s  systemd-journal /usr/lib/systemd/systemd-journald
+  21975       2       0 S    psimon          [psimon]
+  21990       1   21990 Ssl  rsyslogd        /usr/sbin/rsyslogd -n -iNONE
+  22563       1   22563 Ss   bash            bash /tmp/soglia-s0-delegation.sh
+  22595   22563   22563 S    sleep           sleep infinity
+  43556       2       0 I    kworker/u8:4-ev [kworker/u8:4-events_unbound]
+  45471       2       0 I    kworker/1:2-eve [kworker/1:2-events]
+  51249       2       0 I    kworker/0:1-eve [kworker/0:1-events]
+  53487       2       0 I    kworker/u8:5-ev [kworker/u8:5-events_power_efficient]
+  58290       2       0 I    kworker/2:0-eve [kworker/2:0-events]
+  59244       2       0 I    kworker/0:3-eve [kworker/0:3-events]
+  59741       2       0 I    kworker/3:1-ine [kworker/3:1-inet_frag_wq]
+  59752       2       0 I    kworker/u8:2-fl [kworker/u8:2-flush-253:0]
+  60486       2       0 I    kworker/2:1-eve [kworker/2:1-events]
+  61067       2       0 I    kworker/3:0-cgr [kworker/3:0-cgroup_free]
+  61889       2       0 I    kworker/1:3-eve [kworker/1:3-events]
+  62075       2       0 I    kworker/3:2-eve [kworker/3:2-events]
+  62613       2       0 I    kworker/u8:1-ev [kworker/u8:1-events_power_efficient]
+  63431       2       0 I    kworker/3:3     [kworker/3:3]
+  63432    1312   63432 Ss   sudo            sudo bash /soglia/spikes/cgroup-bpf/run-s11.sh
+  63436   63432   63432 S    bash            bash /soglia/spikes/cgroup-bpf/run-s11.sh
+  63451   63436   63432 R    ps              ps -eo pid,ppid,sid,stat,comm,args --sort=pid

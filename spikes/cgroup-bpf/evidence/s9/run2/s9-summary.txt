@@ -1,0 +1,27 @@
+# S9 foreign ancestor allow coexistence
+UTC=2026-09-27T08:08:18Z
+runner_status=0
+result=UNPROVEN
+reason=the S4 causal harness or S9 evidence oracle did not complete
+foreign_allow_id=1564
+foreign_allow_tag=824ab03dccc4ea22
+foreign_attach_type=cgroup_inet4_connect
+foreign_attach_mode=legacy_multi
+foreign_rewrite_attached=false
+case_a=foreign_allow effective plus child soglia_connect4 deny: connection did not establish; listener accept false; hook entry, deny counter, deny map and deny event each observed
+case_b=foreign_allow effective plus spike-only permissive child control: connection established; listener accept true; deny counter zero
+nft_relaxation=one exact namespace output accept for 10.201.0.2:16001
+nft_restoration_exact=true
+foreign_trace_bytes=651
+ordering_claim=none; bpftool arrays prove attachment/effectiveness only, and no execution order is inferred from their list order
+namespace_constraint=owned netns route and all other namespace/host nft constraints remained active
+proxy_involvement_cases_a_b=false
+cleanup_soglia_foreign_program_count=0
+cleanup_cgroup_link_count=0
+cleanup_program_set_equals_baseline=true
+cleanup_link_set_equals_baseline=true
+cleanup_map_set_equals_baseline=true
+cleanup_bpffs_equals_baseline=true
+production_code_modified_by_s9=false
+candidate_selected=false
+S9_RESULT=UNPROVEN

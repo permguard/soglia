@@ -1,0 +1,12 @@
+# S5 isolated hook contribution summary
+UTC=2026-09-27T07:06:45Z
+sock_create=default denied IPv6 stream creation; relaxed creation succeeded
+connect6=with sock_create relaxed, hook denied and listener saw nothing; omitting only connect6 established
+sendmsg4=with datagram creation relaxed, hook denied and listener saw nothing; omitting only sendmsg4 delivered
+sendmsg6=with datagram creation relaxed, hook denied and listener saw nothing; omitting only sendmsg6 delivered
+connect4=hook denied direct IPv4 and listener saw nothing; omitting only connect4 established
+sockops=present published and resolved; omission still established to proxy but published no tuple, timed out fail-closed, and left connect4 cookie state until map cleanup
+ip_fallback_authorization=false
+production_code_modified=false
+candidate_selected=false
+S5_RESULT=PASS

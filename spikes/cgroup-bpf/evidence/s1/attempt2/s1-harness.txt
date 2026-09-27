@@ -1,0 +1,28 @@
+test=S1
+object=/var/tmp/spike/bpf/soglia.o
+cgroup=/sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions/s1-e1
+netns=soglia-s1-e1
+execution_id=s1-execution-e1-generation-1
+execution_ip=10.201.0.1
+candidate_c_ident=1001001
+proxy=10.200.255.1:15001
+resolve_timeout_ms=2000
+attached_links=6
+policy_local[0]=ACTIVE
+proxy_state=LISTENING
+state=READY_FOR_KERNEL_SNAPSHOT
+state=KERNEL_SNAPSHOT_RELEASED
+proxy_state=ACCEPTED peer=10.201.0.1:47234 local=10.200.255.1:15001
+application_bytes_read_before_resolve=0
+outbound_effects_before_resolve=0
+ip_fallback_authorization=false
+tuple_key_hex=0ac900010ac8ff0182b80000993a0000
+tuple_map_diagnostic_status=exit status: 0
+tuple_map_diagnostic_stdout_begin
+[]
+tuple_map_diagnostic_stdout_end
+tuple_map_diagnostic_stderr_begin
+tuple_map_diagnostic_stderr_end
+state=CLEANUP_BEGIN
+state=CLEANUP_COMPLETE
+S1 ATTRIBUTION ERROR: tuple unresolved after 2000 ms; timeout deny

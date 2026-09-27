@@ -1,0 +1,16 @@
+# S7 final cleanup verification
+UTC=2026-09-27T07:12:18Z
+unit_active=active
+ABSENT /sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions
+ABSENT /sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions/s7-e1
+ABSENT /sys/fs/bpf/soglia-spike
+ABSENT /run/netns/soglia-s7-e1
+delegated_root_children_begin
+runtime
+delegated_root_children_end
+CgroupPath
+ID       AttachType      AttachFlags     Name           
+bpffs_begin
+bpffs_end
+soglia_foreign_program_count=0
+cgroup_link_count=0

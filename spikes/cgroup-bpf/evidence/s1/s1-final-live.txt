@@ -1,0 +1,31 @@
+# S1 final read-only live verification after stop
+# Collected 2026-09-27T05:52:50Z inside VM soglia-spike.
+# The two preceding limactl working-directory warnings are host-path noise and are omitted.
+
+$ systemctl is-active soglia-spike-s0.service
+active
+
+$ find /sys/fs/cgroup/system.slice/soglia-spike-s0.service -mindepth 1 -maxdepth 1 -type d
+runtime
+
+$ bpftool cgroup tree /sys/fs/cgroup/system.slice/soglia-spike-s0.service
+CgroupPath
+ID       AttachType      AttachFlags     Name
+
+$ find /sys/fs/bpf -mindepth 1 | wc -l
+0
+
+$ bpftool -j prog show | jq '[.[] | select(.name | startswith("soglia_") or startswith("foreign_"))] | length'
+0
+
+$ bpftool -j link show | jq '[.[] | select(.type == "cgroup")] | length'
+0
+
+$ ip netns list | grep -E '^soglia-'
+(no output)
+
+$ ip -o link show | grep -E 'sgh-s1e1|soglia-proxy0'
+(no output)
+
+$ nft list tables | grep -E 'soglia_spike_s1|table inet soglia$'
+(no output)

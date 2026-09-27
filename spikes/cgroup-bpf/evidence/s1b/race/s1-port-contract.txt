@@ -1,0 +1,228 @@
+# S1 destination-port source and ABI contract
+UTC=2026-09-27T06:26:46Z
+aarch64
+Byte Order:                              Little Endian
+linux_uapi_bpf_sock_addr_begin
+struct bpf_sock_addr {
+	__u32 user_family;	/* Allows 4-byte read, but no write. */
+	__u32 user_ip4;		/* Allows 1,2,4-byte read and 4-byte write.
+				 * Stored in network byte order.
+				 */
+	__u32 user_ip6[4];	/* Allows 1,2,4,8-byte read and 4,8-byte write.
+				 * Stored in network byte order.
+				 */
+	__u32 user_port;	/* Allows 1,2,4-byte read and 4-byte write.
+				 * Stored in network byte order
+				 */
+	__u32 family;		/* Allows 4-byte read, but no write */
+	__u32 type;		/* Allows 4-byte read, but no write */
+	__u32 protocol;		/* Allows 4-byte read, but no write */
+	__u32 msg_src_ip4;	/* Allows 1,2,4-byte read and 4-byte write.
+				 * Stored in network byte order.
+				 */
+	__u32 msg_src_ip6[4];	/* Allows 1,2,4,8-byte read and 4,8-byte write.
+				 * Stored in network byte order.
+				 */
+	__bpf_md_ptr(struct bpf_sock *, sk);
+linux_uapi_bpf_sock_addr_end
+linux_uapi_bpf_sock_ops_begin
+struct bpf_sock_ops {
+	__u32 op;
+	union {
+		__u32 args[4];		/* Optionally passed to bpf program */
+		__u32 reply;		/* Returned by bpf program	    */
+		__u32 replylong[4];	/* Optionally returned by bpf prog  */
+	};
+	__u32 family;
+	__u32 remote_ip4;	/* Stored in network byte order */
+	__u32 local_ip4;	/* Stored in network byte order */
+	__u32 remote_ip6[4];	/* Stored in network byte order */
+	__u32 local_ip6[4];	/* Stored in network byte order */
+	__u32 remote_port;	/* Stored in network byte order */
+	__u32 local_port;	/* stored in host byte order */
+	__u32 is_fullsock;	/* Some TCP fields are only valid if
+				 * there is a full socket. If not, the
+				 * fields read as zero.
+				 */
+	__u32 snd_cwnd;
+	__u32 srtt_us;		/* Averaged RTT << 3 in usecs */
+linux_uapi_bpf_sock_ops_end
+spike_tuple_declaration_begin
+    __uint(type, BPF_MAP_TYPE_ARRAY);
+    __uint(max_entries, 1);
+    __type(key, __u32);
+    __type(value, __u64);
+} policy_local SEC(".maps");
+
+struct tuple {
+    __u32 saddr; // network byte order
+    __u32 daddr; // network byte order
+    __u32 sport; // host byte order
+    __u32 dport; // host byte order
+};
+
+struct evidence {
+    __u64 sock_cookie;
+    __u64 a_cgid;
+    __u64 b_cgid;
+    __u64 c_ident;
+    __u64 d_netns;
+    __u64 ts_ns;
+    __u64 sockops_current_cgid;
+    __u64 raw_remote_port;
+};
+
+struct {
+    __uint(type, BPF_MAP_TYPE_HASH);
+    __uint(max_entries, SPIKE_TUPLE_MAX);
+    __type(key, struct tuple);
+    __type(value, struct evidence);
+    __uint(pinning, LIBBPF_PIN_BY_NAME);
+} soglia_tuples SEC(".maps");
+
+#ifdef SPIKE_DELAY_PUBLISH
+spike_tuple_declaration_end
+spike_connect4_begin
+                                 __u32 type, __u32 daddr, __u32 dport)
+{
+    struct event event = {
+        .kind = kind,
+        .reason = reason,
+        .cgid = cgid,
+        .cookie = cookie,
+        .family = family,
+        .type = type,
+        .daddr = daddr,
+        .dport = dport,
+        .ts_ns = bpf_ktime_get_ns(),
+    };
+    if (bpf_ringbuf_output(&soglia_events, &event, sizeof(event), 0))
+        bump(C_EVENTS_DROPPED);
+}
+
+static __always_inline int active(__u64 cgid)
+{
+    if (exec_ident) {
+        __u32 zero = 0;
+        __u64 *state = bpf_map_lookup_elem(&policy_local, &zero);
+        return state && *state == STATE_ACTIVE;
+    }
+    struct policy_value *policy = bpf_map_lookup_elem(&soglia_policy, &cgid);
+    return policy && policy->state == STATE_ACTIVE;
+}
+
+SEC("cgroup/sock_create")
+int soglia_sock_create(struct bpf_sock *sk)
+{
+    diag_bump(0);
+    __u32 family = sk->family;
+    __u32 type = sk->type;
+    __u32 protocol = sk->protocol;
+
+    if (family == AF_INET && type == SOCK_STREAM && protocol == IPPROTO_TCP)
+        return 1;
+#ifdef SPIKE_RELAX_INET6_STREAM
+    if (family == AF_INET6 && type == SOCK_STREAM)
+        return 1;
+#endif
+#ifdef SPIKE_RELAX_DGRAM
+    if ((family == AF_INET || family == AF_INET6) && type == SOCK_DGRAM)
+        return 1;
+#endif
+    __u64 cgid = bpf_get_current_cgroup_id();
+    bump(C_SOCK_CREATE_DENY);
+    deny_count(cgid);
+    emit(EV_SOCK_CREATE_DENY, R_FAMILY, cgid, 0, family, type, 0, 0);
+    return 0;
+spike_connect4_end
+spike_key_publish_begin
+}
+
+SEC("cgroup/sendmsg6")
+int soglia_sendmsg6(struct bpf_sock_addr *ctx)
+{
+    __u64 cgid = bpf_get_current_cgroup_id();
+    bump(C_SENDMSG6_DENY);
+    deny_count(cgid);
+    emit(EV_SENDMSG_DENY, R_IPV6, cgid, bpf_get_socket_cookie(ctx), AF_INET6, ctx->type, 0,
+         bpf_ntohs((__u16)ctx->user_port));
+    return 0;
+}
+
+static __always_inline void key_of(struct bpf_sock_ops *skops, struct tuple *key)
+{
+    key->saddr = skops->local_ip4;
+    key->daddr = skops->remote_ip4;
+    key->sport = skops->local_port;
+    // remote_port is a network-order u32; the full-width conversion yields the host-order port.
+    key->dport = bpf_ntohl(skops->remote_port);
+}
+
+static __always_inline void publish(struct bpf_sock_ops *skops)
+{
+    diag_bump(6);
+    struct tuple key = {};
+    struct evidence evidence = {};
+
+    key_of(skops, &key);
+    __u32 raw_remote_port = skops->remote_port;
+    port_diag_set(P_SOCKOPS_RAW, raw_remote_port);
+    port_diag_set(P_SOCKOPS_LOW16, raw_remote_port & 0xffff);
+    port_diag_set(P_SOCKOPS_HIGH16, raw_remote_port >> 16);
+    port_diag_set(P_SOCKOPS_NTOHL, bpf_ntohl(raw_remote_port));
+    port_diag_set(P_SOCKOPS_OLD_EXTRACT, bpf_ntohl(raw_remote_port) >> 16);
+    port_diag_set(P_SOCKOPS_NTOHS_HIGH16, bpf_ntohs((__u16)(raw_remote_port >> 16)));
+    port_diag_set(P_TUPLE_ASSIGNED, key.dport);
+    port_diag_set(P_EXPECTED, proxy_port);
+    evidence.sock_cookie = bpf_get_socket_cookie(skops);
+    __u64 *a = bpf_map_lookup_elem(&soglia_cookie_a, &evidence.sock_cookie);
+    evidence.a_cgid = a ? *a : 0;
+    struct bpf_sock *sk = skops->sk;
+    if (sk) {
+        __u64 *b = bpf_sk_storage_get(&soglia_sk_b, sk, 0, 0);
+        evidence.b_cgid = b ? *b : 0;
+    }
+    evidence.c_ident = exec_ident;
+    evidence.d_netns = bpf_get_netns_cookie(skops);
+    evidence.ts_ns = bpf_ktime_get_ns();
+    evidence.sockops_current_cgid = bpf_get_current_cgroup_id();
+    evidence.raw_remote_port = skops->remote_port;
+
+#ifdef SPIKE_DELAY_PUBLISH
+    void *target = &soglia_staging;
+#else
+    void *target = &soglia_tuples;
+#endif
+    port_diag_set(P_TUPLE_BEFORE_INSERT, key.dport);
+    if (bpf_map_update_elem(target, &key, &evidence, BPF_ANY)) {
+        bump(C_TUPLE_INSERT_FAILED);
+        emit(EV_MAP_FULL, 0, evidence.a_cgid, evidence.sock_cookie, AF_INET, SOCK_STREAM, key.daddr,
+             key.dport);
+    } else {
+        bump(C_PUBLISHED);
+    }
+}
+spike_key_publish_end
+resolve_key_begin
+                .remove(&connection.key)
+                .map_err(|error| format!("S1b remove promoted staging tuple: {error:#}"))?;
+            let published = tuples
+                .get(&connection.key, 0)
+                .map_err(|error| format!("S1b Resolve after promotion: {error:#}"))?;
+            let evidence = decode_evidence(published);
+            if evidence[1] != expected_cgid
+                || evidence[2] != expected_cgid
+                || evidence[3] != config.exec_ident
+            {
+                return Err(format!(
+                    "S1b attribution mismatch at index {index}: A={} B={} C={}",
+                    evidence[1], evidence[2], evidence[3]
+                ));
+            }
+            let latency = connection.accepted_at.elapsed().as_nanos();
+            connection.resolved_latency_ns = Some(latency);
+            resolved += 1;
+            println!(
+                "s1b_resolve index={index} peer={} local={} latency_ns={latency} tuple_dport=15001 execution={} a_cgid={} b_cgid={} c_ident={} netns_cookie={}",
+                connection.peer,
+resolve_key_end

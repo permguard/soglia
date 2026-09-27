@@ -78,7 +78,9 @@ mod runtime {
     use std::fs;
     use std::net::{IpAddr, SocketAddr};
     use std::os::unix::fs::PermissionsExt;
+    use std::os::unix::process::ExitStatusExt;
     use std::path::{Path, PathBuf};
+    use std::process::ExitStatus;
     use std::sync::Arc;
     use std::time::Duration;
 
@@ -175,6 +177,9 @@ mod runtime {
         let pool = config.pool().map_err(|error| error.to_string())?;
         let attribution = Arc::new(AttributionTable::new());
         let (fatal, mut lost) = watch::channel(false);
+        let (stop, stopped) = watch::channel(false);
+        let mut sandbox_exit = sandbox.watch_exit();
+        let mut enforcer_exit = enforcer.watch_exit();
         let supervisor = Supervisor::new(
             Arc::clone(&config),
             pool,
@@ -182,6 +187,7 @@ mod runtime {
             enforcer,
             Arc::clone(&attribution),
             fatal,
+            stop.clone(),
         );
 
         let proxy_address =
@@ -198,7 +204,6 @@ mod runtime {
                 )
             })?;
 
-        let (stop, stopped) = watch::channel(false);
         let egress = Arc::new(EgressProxy::new(
             Arc::new(policy),
             attribution,
@@ -212,32 +217,83 @@ mod runtime {
         };
         let executor: Arc<dyn Executor> = Arc::new(supervisor.clone());
         tokio::spawn(ingress::serve(ingress_listener, executor, limits, stopped));
+
+        // A helper that died after its successful hello but before readiness must not be hidden by
+        // a ready event. The lifecycle watchers started before listener setup and do not need an
+        // RPC to observe exit.
+        tokio::task::yield_now().await;
+        if enforcer_exit.is_finished() {
+            let reason = helper_exit_reason(enforcer_exit.await);
+            supervisor.helper_exited("enforcer", reason);
+            drop(supervisor);
+            return Err("the enforcer exited before startup.ready".to_owned());
+        }
+        if sandbox_exit.is_finished() {
+            let reason = helper_exit_reason(sandbox_exit.await);
+            supervisor.helper_exited("sandboxd", reason);
+            drop(supervisor);
+            return Err("sandboxd exited before startup.ready".to_owned());
+        }
         info!(event.name = "startup.ready", ingress = %config.ingress.listen, egress = %proxy_address, "soglia is ready");
 
         let mut terminate = signal(SignalKind::terminate()).map_err(|error| error.to_string())?;
         let mut interrupt = signal(SignalKind::interrupt()).map_err(|error| error.to_string())?;
-        let helper_lost = tokio::select! {
-            _ = terminate.recv() => false,
-            _ = interrupt.recv() => false,
-            _ = lost.wait_for(|lost| *lost) => true,
+        #[derive(Clone, Copy)]
+        enum StopReason {
+            Signal,
+            EnforcerLost,
+            SandboxLost,
+            HelperRpcLost,
+        }
+        let stopped_by = tokio::select! {
+            _ = terminate.recv() => StopReason::Signal,
+            _ = interrupt.recv() => StopReason::Signal,
+            exit = &mut enforcer_exit => {
+                supervisor.helper_exited("enforcer", helper_exit_reason(exit));
+                StopReason::EnforcerLost
+            }
+            exit = &mut sandbox_exit => {
+                supervisor.helper_exited("sandboxd", helper_exit_reason(exit));
+                StopReason::SandboxLost
+            }
+            _ = lost.wait_for(|lost| *lost) => StopReason::HelperRpcLost,
         };
+        let helper_lost = !matches!(stopped_by, StopReason::Signal);
 
         supervisor.stop_admitting();
         stop.send_replace(true);
-        let grace = Duration::from_millis(config.runtime.teardown_timeout_ms)
-            + Duration::from_millis(
-                config
-                    .agents
-                    .values()
-                    .map(|agent| agent.timeout_ms)
-                    .max()
-                    .unwrap_or(0),
-            );
-        if !supervisor.drain(grace).await {
-            error!(
-                event.name = "shutdown.incomplete",
-                "Executions were still running at shutdown; the helpers kill them"
-            );
+        if helper_lost {
+            // The fail-closed transition already closed sandboxd's channel. Its process exits only
+            // after kill-all has finished, so this is the trusted Execution-termination barrier.
+            if !matches!(stopped_by, StopReason::SandboxLost)
+                && tokio::time::timeout(
+                    Duration::from_millis(config.runtime.teardown_timeout_ms),
+                    &mut sandbox_exit,
+                )
+                .await
+                .is_err()
+            {
+                error!(
+                    event.name = "shutdown.incomplete",
+                    "sandboxd did not finish terminating Executions before the helper-loss deadline"
+                );
+            }
+        } else {
+            let grace = Duration::from_millis(config.runtime.teardown_timeout_ms)
+                + Duration::from_millis(
+                    config
+                        .agents
+                        .values()
+                        .map(|agent| agent.timeout_ms)
+                        .max()
+                        .unwrap_or(0),
+                );
+            if !supervisor.drain(grace).await {
+                error!(
+                    event.name = "shutdown.incomplete",
+                    "Executions were still running at shutdown; the helpers kill them"
+                );
+            }
         }
         // Dropping the Supervisor closes the helper channels; each helper then kills or freezes what
         // is still live and exits, and the next start sweeps the rest.
@@ -248,6 +304,23 @@ mod runtime {
         } else {
             info!(event.name = "shutdown.done", "soglia stopped");
             Ok(())
+        }
+    }
+
+    fn helper_exit_reason(
+        outcome: Result<
+            Result<ExitStatus, soglia_supervisor::helpers::HelperError>,
+            tokio::task::JoinError,
+        >,
+    ) -> String {
+        match outcome {
+            Ok(Ok(status)) => match (status.code(), status.signal()) {
+                (Some(code), _) => format!("child exited with status {code}"),
+                (_, Some(signal)) => format!("child exited from signal {signal}"),
+                _ => format!("child exited: {status}"),
+            },
+            Ok(Err(error)) => error.to_string(),
+            Err(error) => format!("child watcher failed: {error}"),
         }
     }
 

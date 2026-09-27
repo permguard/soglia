@@ -1,0 +1,14 @@
+# S4 enforcement attribution
+UTC=2026-09-27T06:59:36Z
+normal_control=nft namespace output barrier denied direct target while spike-only BPF permitted it
+normal_control_proxy_path=established through 10.200.255.1:15001
+experimental_relaxation=one namespace output accept rule for 10.201.0.2:16001
+bpf_deny=connect4 hook entry 1, connect4 deny counter 1, per-cgroup deny entry 1, deny event 1
+bpf_deny_process_result=cannot establish
+bpf_deny_syn_or_accept=none observed by bound direct listener
+bpf_deny_proxy_involvement=false
+negative_control=with the same nft relaxation and only the spike-only direct BPF exception, connection established and listener accepted
+namespace_constraint=owned netns route plus namespace input/output/forward policy remained active; only one exact output exception was added
+host_topology_constraint=anti-spoof, invalid/non-TCP input checks and all forwarding drops remained active
+architecture=nft remains final destination barrier; BPF remains early deny and attribution hardening
+S4_RESULT=PASS

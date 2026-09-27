@@ -1,0 +1,112 @@
+[
+  {
+    "name": ".rodata",
+    "count": 1,
+    "ids": [
+      1280
+    ],
+    "bytes_memlock": 408,
+    "max_entries": [
+      1
+    ]
+  },
+  {
+    "name": "policy_local",
+    "count": 1,
+    "ids": [
+      1287
+    ],
+    "bytes_memlock": 392,
+    "max_entries": [
+      1
+    ]
+  },
+  {
+    "name": "soglia_cookie_a",
+    "count": 1,
+    "ids": [
+      1285
+    ],
+    "bytes_memlock": 329056,
+    "max_entries": [
+      4096
+    ]
+  },
+  {
+    "name": "soglia_counters",
+    "count": 1,
+    "ids": [
+      1284
+    ],
+    "bytes_memlock": 456,
+    "max_entries": [
+      9
+    ]
+  },
+  {
+    "name": "soglia_denies",
+    "count": 1,
+    "ids": [
+      1286
+    ],
+    "bytes_memlock": 83296,
+    "max_entries": [
+      1024
+    ]
+  },
+  {
+    "name": "soglia_events",
+    "count": 1,
+    "ids": [
+      1288
+    ],
+    "bytes_memlock": 78488,
+    "max_entries": [
+      65536
+    ]
+  },
+  {
+    "name": "soglia_meta",
+    "count": 1,
+    "ids": [
+      1282
+    ],
+    "bytes_memlock": 432,
+    "max_entries": [
+      1
+    ]
+  },
+  {
+    "name": "soglia_policy",
+    "count": 1,
+    "ids": [
+      1283
+    ],
+    "bytes_memlock": 91520,
+    "max_entries": [
+      1024
+    ]
+  },
+  {
+    "name": "soglia_sk_b",
+    "count": 1,
+    "ids": [
+      1289
+    ],
+    "bytes_memlock": 576,
+    "max_entries": [
+      0
+    ]
+  },
+  {
+    "name": "soglia_tuples",
+    "count": 1,
+    "ids": [
+      1281
+    ],
+    "bytes_memlock": 591456,
+    "max_entries": [
+      4096
+    ]
+  }
+]

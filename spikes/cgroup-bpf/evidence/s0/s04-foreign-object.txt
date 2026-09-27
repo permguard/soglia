@@ -1,0 +1,66 @@
+# foreign.o — static inspection before S0.4 (no load, no attach) — 2026-09-27T07:21:30+0200
+source: /soglia/spikes/cgroup-bpf/bpf/foreign.c
+source sha256: 4bd437eb05daf5790cc81ab65e5317cdb17883008a5d23b66297c5d3382d3a67
+object: /var/tmp/spike/bpf/foreign.o
+object sha256: 5d8afe054da170c813b232ac7bd00de45da1483687c05dc328904c1eadf2395e  size: 10128  mtime: 2026-09-27 06:00:11.967696458 +0200
+build: spikes/cgroup-bpf/build.sh /var/tmp/spike/bpf -> clang -target bpf -O2 -g -Wall -Werror -I/usr/include/$(gcc -dumpmachine) -c bpf/foreign.c -o foreign.o
+
+$ llvm-objdump -h /var/tmp/spike/bpf/foreign.o  (sections)
+Idx Name                   Size     VMA              Type
+  0                        00000000 0000000000000000 
+  1 .strtab                00000169 0000000000000000 
+  2 .text                  00000000 0000000000000000 TEXT
+  3 cgroup/connect4        000001e8 0000000000000000 TEXT
+  4 .relcgroup/connect4    00000060 0000000000000000 
+  5 license                0000000b 0000000000000000 DATA
+  6 .rodata                00000010 0000000000000000 DATA
+  7 .maps                  00000010 0000000000000000 DATA
+  8 .debug_loclists        0000002f 0000000000000000 DEBUG
+  9 .debug_abbrev          00000151 0000000000000000 DEBUG
+ 10 .debug_info            000002dc 0000000000000000 DEBUG
+ 11 .rel.debug_info        00000050 0000000000000000 
+ 12 .debug_str_offsets     000000ec 0000000000000000 DEBUG
+ 13 .rel.debug_str_offsets 00000390 0000000000000000 
+ 14 .debug_str             00000262 0000000000000000 DEBUG
+ 15 .debug_addr            00000048 0000000000000000 DEBUG
+ 16 .rel.debug_addr        00000080 0000000000000000 
+ 17 .BTF                   0000065f 0000000000000000 
+ 18 .rel.BTF               00000060 0000000000000000 
+ 19 .BTF.ext               00000228 0000000000000000 
+ 20 .rel.BTF.ext           00000200 0000000000000000 
+ 21 .debug_frame           00000040 0000000000000000 DEBUG
+ 22 .rel.debug_frame       00000040 0000000000000000 
+ 23 .debug_line            00000145 0000000000000000 DEBUG
+ 24 .rel.debug_line        000000c0 0000000000000000 
+ 25 .debug_line_str        000000b8 0000000000000000 DEBUG
+ 26 .llvm_addrsig          00000008 0000000000000000 
+ 27 .symtab                000001e0 0000000000000000 
+
+$ llvm-objdump -s -j license /var/tmp/spike/bpf/foreign.o
+Contents of section license:
+ 0000 41706163 68652d32 2e3000             Apache-2.0.
+
+$ llvm-readelf -s /var/tmp/spike/bpf/foreign.o  (program and map symbols)
+    12: 0000000000000000   168 FUNC    GLOBAL DEFAULT     3 foreign_allow
+    13: 0000000000000000    16 OBJECT  GLOBAL DEFAULT     7 foreign_trace
+    14: 00000000000000a8   320 FUNC    GLOBAL DEFAULT     3 foreign_rewrite
+    15: 0000000000000000     4 OBJECT  GLOBAL DEFAULT     6 proxy_ip4
+    16: 0000000000000004     4 OBJECT  GLOBAL DEFAULT     6 proxy_port
+    17: 0000000000000008     4 OBJECT  GLOBAL DEFAULT     6 rewrite_ip4
+    18: 000000000000000c     4 OBJECT  GLOBAL DEFAULT     6 rewrite_port
+    19: 0000000000000000    11 OBJECT  GLOBAL DEFAULT     5 LICENSE
+
+$ grep -n SEC/const volatile /soglia/spikes/cgroup-bpf/bpf/foreign.c
+16:char LICENSE[] SEC("license") = "Apache-2.0";
+18:const volatile __u32 proxy_ip4 = 0;
+19:const volatile __u32 proxy_port = 0;
+20:const volatile __u32 rewrite_ip4 = 0;
+21:const volatile __u32 rewrite_port = 0;
+34:} foreign_trace SEC(".maps");
+36:SEC("cgroup/connect4")
+46:    return 1;
+49:SEC("cgroup/connect4")
+58:    if (ctx->user_ip4 == proxy_ip4 && bpf_ntohs((__u16)ctx->user_port) == proxy_port) {
+59:        ctx->user_ip4 = rewrite_ip4;
+60:        ctx->user_port = bpf_htons((__u16)rewrite_port);
+64:    return 1;

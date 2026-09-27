@@ -1,0 +1,64 @@
+# S14 authoritative baseline
+UTC=2026-09-27T09:45:50Z
+Linux lima-soglia-spike 6.8.0-134-generic #134-Ubuntu SMP PREEMPT_DYNAMIC Fri Jun 26 18:28:11 UTC 2026 aarch64 aarch64 aarch64 GNU/Linux
+MainPID=22563
+NRestarts=0
+ControlGroup=/system.slice/soglia-spike-s0.service
+Delegate=yes
+DelegateControllers=cpu cpuset io memory pids
+ActiveState=active
+SubState=running
+delegated_root_inode=12456
+/sys/fs/cgroup/system.slice/soglia-spike-s0.service/runtime inode=12516
+CgroupPath
+ID       AttachType      AttachFlags     Name           
+proc_limits_begin
+real-time non-blocking time  (microseconds, -R) unlimited
+core file size              (blocks, -c) 0
+data seg size               (kbytes, -d) unlimited
+scheduling priority                 (-e) 0
+file size                   (blocks, -f) unlimited
+pending signals                     (-i) 31401
+max locked memory           (kbytes, -l) 1014056
+max memory size             (kbytes, -m) unlimited
+open files                          (-n) 1024
+pipe size                (512 bytes, -p) 8
+POSIX message queues         (bytes, -q) 819200
+real-time priority                  (-r) 0
+stack size                  (kbytes, -s) 8192
+cpu time                   (seconds, -t) unlimited
+max user processes                  (-u) 31401
+virtual memory              (kbytes, -v) unlimited
+file locks                          (-x) unlimited
+2
+proc_limits_end
+meminfo_begin
+MemTotal:        8112472 kB
+MemFree:         3708668 kB
+MemAvailable:    7644172 kB
+Slab:             299776 kB
+SReclaimable:     217784 kB
+SUnreclaim:        81992 kB
+meminfo_end
+netns_begin
+netns_end
+links_begin
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1000\    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP mode DEFAULT group default qlen 1000\    link/ether 52:55:55:05:5d:ad brd ff:ff:ff:ff:ff:ff
+links_end
+nft_begin
+table ip nat { # handle 1
+	chain LIMADNS { # handle 1
+	}
+
+	chain PREROUTING { # handle 2
+		type nat hook prerouting priority dstnat; policy accept;
+		counter packets 249 bytes 14913 jump LIMADNS # handle 3
+	}
+
+	chain OUTPUT { # handle 4
+		type nat hook output priority dstnat; policy accept;
+		counter packets 245 bytes 15244 jump LIMADNS # handle 5
+	}
+}
+nft_end

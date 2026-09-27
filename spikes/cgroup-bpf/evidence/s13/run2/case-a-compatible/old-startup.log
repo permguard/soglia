@@ -1,0 +1,5 @@
+classification=FRESH
+record_phase=INTENT state_id=f40d8b84ff126cfdf958a3d5e139b549 generation=1
+/soglia/spikes/cgroup-bpf/s13-state-manager.sh: line 510: 71681 Killed                  "$loader" "$object" "$cgroup" "$pin_root/maps" "$pin_root/links" "$internal_ready" > /dev/null 2>&1
+record_phase=READY state_id=f40d8b84ff126cfdf958a3d5e139b549 generation=1
+startup_ready=true

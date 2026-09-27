@@ -1,0 +1,22 @@
+$ sudo ls -la /sys/fs/bpf/soglia-spike/exec/s0-probe/
+total 0
+drwxr-xr-x 2 root root 0 Sep 27 07:13 .
+drwxr-xr-x 3 root root 0 Sep 27 07:13 ..
+-rw------- 1 root root 0 Sep 27 07:13 connect4
+-rw------- 1 root root 0 Sep 27 07:13 connect6
+-rw------- 1 root root 0 Sep 27 07:13 sendmsg4
+-rw------- 1 root root 0 Sep 27 07:13 sendmsg6
+-rw------- 1 root root 0 Sep 27 07:13 sock_create
+-rw------- 1 root root 0 Sep 27 07:13 sock_ops
+$ sudo ls -la /sys/fs/bpf/soglia-spike/global/
+total 0
+drwxr-xr-x 2 root root 0 Sep 27 07:13 .
+drwxr-xr-x 4 root root 0 Sep 27 07:13 ..
+-rw------- 1 root root 0 Sep 27 07:13 soglia_cookie_a
+-rw------- 1 root root 0 Sep 27 07:13 soglia_counters
+-rw------- 1 root root 0 Sep 27 07:13 soglia_denies
+-rw------- 1 root root 0 Sep 27 07:13 soglia_events
+-rw------- 1 root root 0 Sep 27 07:13 soglia_meta
+-rw------- 1 root root 0 Sep 27 07:13 soglia_policy
+-rw------- 1 root root 0 Sep 27 07:13 soglia_sk_b
+-rw------- 1 root root 0 Sep 27 07:13 soglia_tuples

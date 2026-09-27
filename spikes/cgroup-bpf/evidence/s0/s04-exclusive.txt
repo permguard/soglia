@@ -1,0 +1,67 @@
+# S0.4b — legacy EXCLUSIVE ancestor observation — 2026-09-27 CEST
+
+target ancestor: /sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions
+ancestor inode: 13326
+target child: /sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions/s0-probe
+child inode: 13368
+foreign object: /var/tmp/spike/bpf/foreign.o
+foreign object sha256: 5d8afe054da170c813b232ac7bd00de45da1483687c05dc328904c1eadf2395e
+Soglia object: /var/tmp/spike/bpf/soglia.o
+Soglia object sha256: 05e426df7fbb09ef7bd4c3b50ac6ba5ed73b67c37b1b284871dd1a80124b3638
+Aya: 0.14.0
+foreign legacy mode: EXCLUSIVE
+foreign legacy numeric flags: 0
+Soglia Aya mode: CgroupAttachMode::Single
+Soglia Aya numeric flags: 0
+
+An initial execution used harness source sha256 af6891c2216235888f721c35562026ce900e99095f0113802766e23bdced5ea2 and binary sha256 8e7541bd350a4ad7c66a98184b8f8c3dffaf2c05ba8b2b785273394c1d6436d2.
+It observed foreign_allow id 1091, tag 824ab03dccc4ea22, and a rejected bpf_link_create, but Aya's Display output omitted the nested errno.
+That execution cleaned the ancestor attachment, both foreign program pins, all Soglia map pins, and restored the run baseline before the authoritative rerun below.
+
+Authoritative rerun harness source sha256: a225cb91803d56ea7a79ba05d461c5e5167f6dc6b93a1844f9c53229d353c051
+Authoritative rerun harness binary sha256: 3396766f711a11a4cee1820202783dd42bf3f37473355304c6856df4e028adfb
+
+$ sudo bpftool prog loadall /var/tmp/spike/bpf/foreign.o /sys/fs/bpf/soglia-foreign-s04-exclusive
+$ sudo find /sys/fs/bpf/soglia-foreign-s04-exclusive -maxdepth 1 -type f -printf '%f\n' | sort
+foreign_allow
+foreign_rewrite
+
+Only foreign_allow was attached.
+foreign_rewrite was loaded and pinned but was never attached.
+
+foreign_allow before child attempt:
+{"id":1105,"type":"cgroup_sock_addr","name":"foreign_allow","tag":"824ab03dccc4ea22","gpl_compatible":false,"loaded_at":1790487050,"uid":0,"orphaned":false,"bytes_xlated":184,"jited":true,"bytes_jited":240,"bytes_memlock":4096,"map_ids":[104,106],"btf_id":129}
+
+$ sudo bpftool cgroup attach /sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions cgroup_inet4_connect pinned /sys/fs/bpf/soglia-foreign-s04-exclusive/foreign_allow
+result: SUCCESS
+ancestor attach_flags reported by bpftool: empty string (exclusive legacy attachment)
+
+$ sudo /var/tmp/spike/target/release/s04_connect4 /var/tmp/spike/bpf/soglia.o /sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions/s0-probe /sys/fs/bpf/soglia-spike/s04-global /sys/fs/bpf/soglia-spike/s04-connect4 /var/tmp/s04-exclusive-ready-a225cb /var/tmp/s04-exclusive-stop-a225cb
+aya_version=0.14.0
+program=soglia_connect4
+aya_type=CgroupSockAddr
+expected_attach_type=cgroup_inet4_connect
+mode=Single flags=0
+result=FAIL operation=bpf_link_create error=attach soglia_connect4: SyscallError(SyscallError { call: "bpf_link_create", io_error: Os { code: 1, kind: PermissionDenied, message: "Operation not permitted" } })
+S0.4 CONNECT4 ERROR: attach soglia_connect4: SyscallError(SyscallError { call: "bpf_link_create", io_error: Os { code: 1, kind: PermissionDenied, message: "Operation not permitted" } })
+harness exit status: 1
+
+foreign_allow after child attempt:
+{"id":1105,"type":"cgroup_sock_addr","name":"foreign_allow","tag":"824ab03dccc4ea22","gpl_compatible":false,"loaded_at":1790487050,"uid":0,"orphaned":false,"bytes_xlated":184,"jited":true,"bytes_jited":240,"bytes_memlock":4096,"map_ids":[104,106],"btf_id":129}
+
+foreign id before/after: 1105 / 1105
+foreign tag before/after: 824ab03dccc4ea22 / 824ab03dccc4ea22
+foreign program metadata unchanged: yes
+
+Cleanup commands:
+$ sudo bpftool cgroup detach /sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions cgroup_inet4_connect pinned /sys/fs/bpf/soglia-foreign-s04-exclusive/foreign_allow
+$ sudo unlink /sys/fs/bpf/soglia-foreign-s04-exclusive/foreign_allow
+$ sudo unlink /sys/fs/bpf/soglia-foreign-s04-exclusive/foreign_rewrite
+$ sudo rmdir /sys/fs/bpf/soglia-foreign-s04-exclusive
+
+Immediate cleanup observation:
+- ancestor direct output empty
+- child direct output empty
+- child effective output empty
+- link state returned to links 1 and 2 only
+- bpffs empty

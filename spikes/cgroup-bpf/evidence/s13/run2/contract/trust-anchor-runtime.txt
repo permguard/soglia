@@ -1,0 +1,15 @@
+valid_anchor_begin
+/run/soglia uid=0 gid=0 mode=700 type=directory
+/run/soglia/cgroup-bpf-spike uid=0 gid=0 mode=700 type=directory
+/run/soglia/cgroup-bpf-spike/state.json uid=0 gid=0 mode=600 type=regular file
+{"magic":"SOGLIA_CGROUP_BPF_SPIKE_STATE","schema_version":1,"abi_version":1,"state_id":"64bf1c264699117b583994915a544f31","generation":1,"phase":"READY","pin_root":"/sys/fs/bpf/soglia-spike/s13-v2","object_sha256":"13690b948c0e40e37be7486767f6902100cb2ca89c7498f87f9a04cd4c10f4e8","cgroup_inode":28569}
+valid_anchor_end
+classification=UNKNOWN
+startup_ready=false
+error=cgroup-BPF record directory trust check failed for /run/soglia/cgroup-bpf-spike: uid=0 gid=0 mode=755
+wrong_mode_exit=43
+classification=UNKNOWN
+startup_ready=false
+error=cgroup-BPF record directory is a symlink: /run/soglia/cgroup-bpf-spike
+symlink_exit=43
+trust_anchor_runtime_validation=PASS

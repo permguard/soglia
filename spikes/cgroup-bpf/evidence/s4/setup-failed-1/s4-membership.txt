@@ -1,0 +1,11 @@
+# S4 live agent membership before any traffic
+UTC=2026-09-27T06:58:46Z
+agent_proc_cgroup_begin
+agent_proc_cgroup_end
+target_cgroup_procs_begin
+target_cgroup_procs_end
+agent_netns_link=
+agent_netns_inode=
+owned_netns_inode=4026532344
+six_direct_programs=
+six_effective_programs=

@@ -1,0 +1,79 @@
+# S0.4c — legacy MULTI ancestor observation — 2026-09-27 CEST
+
+target ancestor: /sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions
+ancestor inode: 13326
+target child: /sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions/s0-probe
+child inode: 13368
+foreign object: /var/tmp/spike/bpf/foreign.o
+foreign object sha256: 5d8afe054da170c813b232ac7bd00de45da1483687c05dc328904c1eadf2395e
+Soglia object: /var/tmp/spike/bpf/soglia.o
+Soglia object sha256: 05e426df7fbb09ef7bd4c3b50ac6ba5ed73b67c37b1b284871dd1a80124b3638
+Aya: 0.14.0
+foreign legacy mode: MULTI
+foreign legacy flag: multi
+Soglia Aya mode: CgroupAttachMode::Single
+Soglia Aya numeric flags: 0
+harness source sha256: a225cb91803d56ea7a79ba05d461c5e5167f6dc6b93a1844f9c53229d353c051
+harness binary sha256: 3396766f711a11a4cee1820202783dd42bf3f37473355304c6856df4e028adfb
+
+An initial execution reached a successful Soglia link id 11, prog_id 1126, cgroup_id 13368, then the snapshot shell stopped after `bpftool link show pinned` returned non-zero despite printing the link JSON.
+Its EXIT trap stopped the harness, detached foreign_allow, removed both foreign pins, and restored empty ancestor/child/effective state, baseline links 1 and 2, and empty bpffs before the authoritative rerun below.
+
+$ sudo bpftool prog loadall /var/tmp/spike/bpf/foreign.o /sys/fs/bpf/soglia-foreign-s04-multi
+$ sudo find /sys/fs/bpf/soglia-foreign-s04-multi -maxdepth 1 -type f -printf '%f\n' | sort
+foreign_allow
+foreign_rewrite
+
+Only foreign_allow was attached.
+foreign_rewrite was loaded and pinned but was never attached.
+
+foreign_allow before child attempt:
+{"id":1133,"type":"cgroup_sock_addr","name":"foreign_allow","tag":"824ab03dccc4ea22","gpl_compatible":false,"loaded_at":1790487133,"uid":0,"orphaned":false,"bytes_xlated":184,"jited":true,"bytes_jited":240,"bytes_memlock":4096,"map_ids":[140,142],"btf_id":167}
+
+$ sudo bpftool cgroup attach /sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions cgroup_inet4_connect pinned /sys/fs/bpf/soglia-foreign-s04-multi/foreign_allow multi
+result: SUCCESS
+ancestor attach_flags reported by bpftool: multi
+
+$ sudo /var/tmp/spike/target/release/s04_connect4 /var/tmp/spike/bpf/soglia.o /sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions/s0-probe /sys/fs/bpf/soglia-spike/s04-global /sys/fs/bpf/soglia-spike/s04-connect4 /var/tmp/s04-multi2-ready-a225cb /var/tmp/s04-multi2-stop-a225cb
+aya_version=0.14.0
+program=soglia_connect4
+aya_type=CgroupSockAddr
+expected_attach_type=cgroup_inet4_connect
+mode=Single flags=0
+result=SUCCESS operation=bpf_link_create
+state=READY
+
+foreign_allow after child attempt:
+{"id":1133,"type":"cgroup_sock_addr","name":"foreign_allow","tag":"824ab03dccc4ea22","gpl_compatible":false,"loaded_at":1790487133,"uid":0,"orphaned":false,"bytes_xlated":184,"jited":true,"bytes_jited":240,"bytes_memlock":4096,"map_ids":[140,142],"btf_id":167}
+
+foreign id before/after: 1133 / 1133
+foreign tag before/after: 824ab03dccc4ea22 / 824ab03dccc4ea22
+foreign program metadata unchanged: yes
+Soglia link pin present during snapshot: yes
+Soglia link: id 12, type cgroup, prog_id 1140, cgroup_id 13368, attach_type cgroup_inet4_connect
+Soglia child attach_flags reported by bpftool: multi
+effective order reported by bpftool: soglia_connect4 (child), then foreign_allow (ancestor)
+
+Pinned state while attached:
+- /sys/fs/bpf/soglia-spike/s04-connect4
+- eight Soglia maps under /sys/fs/bpf/soglia-spike/s04-global/
+- /sys/fs/bpf/soglia-foreign-s04-multi/foreign_allow
+- /sys/fs/bpf/soglia-foreign-s04-multi/foreign_rewrite
+
+Harness cleanup output:
+state=CLEANUP_BEGIN
+state=CLEANUP_COMPLETE
+harness exit status: 0
+
+Foreign cleanup commands:
+$ sudo bpftool cgroup detach /sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions cgroup_inet4_connect pinned /sys/fs/bpf/soglia-foreign-s04-multi/foreign_allow
+$ sudo unlink /sys/fs/bpf/soglia-foreign-s04-multi/foreign_allow
+$ sudo unlink /sys/fs/bpf/soglia-foreign-s04-multi/foreign_rewrite
+$ sudo rmdir /sys/fs/bpf/soglia-foreign-s04-multi
+
+Immediate cleanup observation:
+- ancestor direct output empty
+- child direct output empty
+- child effective output empty
+- link state returned to links 1 and 2 only
+- bpffs empty

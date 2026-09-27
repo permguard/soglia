@@ -1,0 +1,8 @@
+CgroupPath
+ID       AttachType      AttachFlags     Name           
+/sys/fs/cgroup/system.slice/soglia-spike-s8.service/executions/193b9c7a1c
+    1484     cgroup_device   multi                                          
+/sys/fs/cgroup/system.slice/soglia-spike-s8.service/executions/fd00591722
+    1487     cgroup_device   multi                                          
+/sys/fs/cgroup/system.slice/soglia-spike-s8.service/executions/cde4215e6a
+    1490     cgroup_device   multi                                          

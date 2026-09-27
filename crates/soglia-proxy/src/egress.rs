@@ -150,19 +150,25 @@ impl EgressProxy {
     ) {
         loop {
             let accepted = tokio::select! {
-                accepted = listener.accept() => accepted,
+                biased;
                 _ = shutdown.wait_for(|stop| *stop) => return,
+                accepted = listener.accept() => accepted,
             };
             match accepted {
                 Ok((stream, peer)) => {
-                    tokio::spawn(Arc::clone(&self).connection(stream, peer));
+                    tokio::spawn(Arc::clone(&self).connection(stream, peer, shutdown.clone()));
                 }
                 Err(error) => warn!(event.name = "egress.accept_failed", %error, "accept failed"),
             }
         }
     }
 
-    async fn connection(self: Arc<Self>, stream: TcpStream, peer: SocketAddr) {
+    async fn connection(
+        self: Arc<Self>,
+        stream: TcpStream,
+        peer: SocketAddr,
+        mut shutdown: watch::Receiver<bool>,
+    ) {
         // Attribution comes from the kernel's view of the peer, before any byte from the agent is
         // read. Nothing the agent sends can change which Execution this connection belongs to.
         let Some(binding) = self.attribution.lookup(peer.ip()) else {
@@ -176,16 +182,20 @@ impl EgressProxy {
 
         let mut revoked = binding.clone();
         let proxy = Arc::clone(&self);
+        let request_shutdown = shutdown.clone();
         let service = service_fn(move |request| {
             let proxy = Arc::clone(&proxy);
             let binding = binding.clone();
-            async move { Ok::<_, Infallible>(proxy.handle(binding, request).await) }
+            let shutdown = request_shutdown.clone();
+            async move { Ok::<_, Infallible>(proxy.handle(binding, request, shutdown).await) }
         });
         let connection = http1::Builder::new()
             .serve_connection(TokioIo::new(stream), service)
             .with_upgrades();
 
         tokio::select! {
+            biased;
+            _ = shutdown.wait_for(|stop| *stop) => {}
             result = connection => {
                 if let Err(error) = result {
                     warn!(event.name = "egress.connection_failed", peer = %peer, %error, "connection ended with an error");
@@ -199,11 +209,12 @@ impl EgressProxy {
         self: Arc<Self>,
         binding: Binding,
         request: Request<Incoming>,
+        shutdown: watch::Receiver<bool>,
     ) -> Response<ProxyBody> {
         let method = request.method().clone();
         let presented = request.uri().to_string();
         let outcome = if method == Method::CONNECT {
-            self.connect(binding.clone(), request).await
+            self.connect(binding.clone(), request, shutdown).await
         } else {
             self.forward(request).await
         };
@@ -245,6 +256,7 @@ impl EgressProxy {
         self: Arc<Self>,
         binding: Binding,
         request: Request<Incoming>,
+        mut shutdown: watch::Receiver<bool>,
     ) -> Result<Response<ProxyBody>, Refusal> {
         let authority = request
             .uri()
@@ -270,21 +282,31 @@ impl EgressProxy {
         };
         let id = binding.id;
         tokio::spawn(async move {
-            match hyper::upgrade::on(request).await {
-                Ok(upgraded) => {
-                    let end = tunnel::run(TokioIo::new(upgraded), upstream, limits, binding).await;
-                    let end = match end {
-                        TunnelEnd::Closed(Ok(_)) => "closed",
-                        TunnelEnd::Closed(Err(_)) => "failed",
-                        TunnelEnd::Idle => "idle",
-                        TunnelEnd::ByteLimit => "byte-limit",
-                        TunnelEnd::Revoked => "execution-teardown",
-                    };
-                    info!(event.name = "egress.tunnel_ended", execution_id = %id, end, "tunnel ended");
+            let tunnel = async {
+                match hyper::upgrade::on(request).await {
+                    Ok(upgraded) => {
+                        let end =
+                            tunnel::run(TokioIo::new(upgraded), upstream, limits, binding).await;
+                        let end = match end {
+                            TunnelEnd::Closed(Ok(_)) => "closed",
+                            TunnelEnd::Closed(Err(_)) => "failed",
+                            TunnelEnd::Idle => "idle",
+                            TunnelEnd::ByteLimit => "byte-limit",
+                            TunnelEnd::Revoked => "execution-teardown",
+                        };
+                        info!(event.name = "egress.tunnel_ended", execution_id = %id, end, "tunnel ended");
+                    }
+                    Err(error) => {
+                        warn!(event.name = "egress.upgrade_failed", execution_id = %id, %error, "CONNECT upgrade failed");
+                    }
                 }
-                Err(error) => {
-                    warn!(event.name = "egress.upgrade_failed", execution_id = %id, %error, "CONNECT upgrade failed");
+            };
+            tokio::select! {
+                biased;
+                _ = shutdown.wait_for(|stop| *stop) => {
+                    info!(event.name = "egress.tunnel_ended", execution_id = %id, end = "runtime-shutdown", "tunnel ended");
                 }
+                () = tunnel => {}
             }
         });
 
@@ -460,7 +482,7 @@ mod tests {
     struct Harness {
         proxy: SocketAddr,
         attribution: Arc<AttributionTable>,
-        _shutdown: watch::Sender<bool>,
+        shutdown: watch::Sender<bool>,
     }
 
     fn limits() -> EgressLimits {
@@ -478,6 +500,15 @@ mod tests {
     async fn harness(
         port: u16,
         resolver: FixedResolver,
+        loopback: bool,
+        attribute: bool,
+    ) -> Harness {
+        harness_with_resolver(port, Arc::new(resolver), loopback, attribute).await
+    }
+
+    async fn harness_with_resolver(
+        port: u16,
+        resolver: Arc<dyn Resolver>,
         loopback: bool,
         attribute: bool,
     ) -> Harness {
@@ -511,7 +542,7 @@ mod tests {
         let proxy = Arc::new(EgressProxy::new(
             Arc::new(policy),
             Arc::clone(&attribution),
-            Arc::new(resolver),
+            resolver,
             limits(),
         ));
         let listener = TcpListener::bind("127.0.0.1:0").await.unwrap();
@@ -522,7 +553,7 @@ mod tests {
         Harness {
             proxy: address,
             attribution,
-            _shutdown: shutdown,
+            shutdown,
         }
     }
 
@@ -698,6 +729,91 @@ mod tests {
             closed.is_ok(),
             "the tunnel must close when its Execution tears down"
         );
+    }
+
+    #[tokio::test]
+    async fn runtime_cancellation_closes_an_open_tunnel() {
+        let upstream = echo_server().await;
+        let resolver = FixedResolver::default().with("allowed.test", &["127.0.0.1"]);
+        let harness = harness(upstream.port(), resolver, true, true).await;
+
+        let mut stream = TcpStream::connect(harness.proxy).await.unwrap();
+        stream
+            .write_all(
+                format!(
+                    "CONNECT allowed.test:{0} HTTP/1.1\r\nHost: allowed.test:{0}\r\n\r\n",
+                    upstream.port()
+                )
+                .as_bytes(),
+            )
+            .await
+            .unwrap();
+        let head = read_head(&mut stream).await;
+        assert!(head.starts_with("HTTP/1.1 200"), "{head}");
+        stream.write_all(b"before shutdown").await.unwrap();
+        let mut echoed = [0_u8; 15];
+        stream.read_exact(&mut echoed).await.unwrap();
+        assert_eq!(&echoed, b"before shutdown");
+
+        harness.shutdown.send_replace(true);
+        let mut rest = Vec::new();
+        let closed = tokio::time::timeout(Duration::from_secs(2), stream.read_to_end(&mut rest))
+            .await
+            .expect("runtime cancellation must close the tunnel");
+        assert_eq!(closed.unwrap(), 0);
+    }
+
+    struct BlockingResolver {
+        started: Arc<tokio::sync::Notify>,
+        dropped: Arc<tokio::sync::Notify>,
+    }
+
+    impl Resolver for BlockingResolver {
+        fn resolve<'a>(&'a self, _name: &'a str) -> crate::resolver::Resolution<'a> {
+            let started = Arc::clone(&self.started);
+            let dropped = Arc::clone(&self.dropped);
+            Box::pin(async move {
+                struct DropNotice(Arc<tokio::sync::Notify>);
+                impl Drop for DropNotice {
+                    fn drop(&mut self) {
+                        self.0.notify_one();
+                    }
+                }
+                let _notice = DropNotice(dropped);
+                started.notify_one();
+                std::future::pending().await
+            })
+        }
+    }
+
+    #[tokio::test]
+    async fn runtime_cancellation_drops_pending_dns() {
+        let started = Arc::new(tokio::sync::Notify::new());
+        let dropped = Arc::new(tokio::sync::Notify::new());
+        let resolver = Arc::new(BlockingResolver {
+            started: Arc::clone(&started),
+            dropped: Arc::clone(&dropped),
+        });
+        let harness = harness_with_resolver(443, resolver, true, true).await;
+
+        let mut stream = TcpStream::connect(harness.proxy).await.unwrap();
+        stream
+            .write_all(b"CONNECT allowed.test:443 HTTP/1.1\r\nHost: allowed.test:443\r\n\r\n")
+            .await
+            .unwrap();
+        tokio::time::timeout(Duration::from_secs(2), started.notified())
+            .await
+            .expect("the DNS operation did not start");
+
+        harness.shutdown.send_replace(true);
+        tokio::time::timeout(Duration::from_secs(2), dropped.notified())
+            .await
+            .expect("the pending DNS future was not cancelled");
+        let mut rest = Vec::new();
+        tokio::time::timeout(Duration::from_secs(2), stream.read_to_end(&mut rest))
+            .await
+            .expect("runtime cancellation must close the proxy connection")
+            .unwrap();
     }
 
     #[tokio::test]

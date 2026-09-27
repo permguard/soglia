@@ -1,0 +1,12 @@
+# S4 artifact provenance
+UTC=2026-09-27T06:58:46Z
+69e51d3e6f8ad395f4dc1b9f3cd90ed5a07b2596c28797d9182736b251b91121  /soglia/spikes/cgroup-bpf/bpf/soglia_spike.c
+0d5530d3f35bc86e6afdd6cdcc05a4a7e6a0f463f44578c5757d229602573362  /soglia/spikes/cgroup-bpf/harness/src/bin/s4_direct_deny.rs
+ac6f6f7fafd832a00b08d0e8db8b0af387d030b88c2740c9fb57cba510c2ef78  /soglia/spikes/cgroup-bpf/agent/src/main.rs
+68a83b3216eb17cbdc23381d022d0c95bb01800284f80c59f2c79259aad4b536  /var/tmp/spike/bpf/soglia-diag.o
+191383d0588dd764914f981e4c3ed0f31fdbc2b5b7274156e52e2c3718878a35  /var/tmp/spike/bpf/soglia-direct-control.o
+522f3b8a37e14203f43d6aefff90fe6e61363548d14d161199567c31ec393d95  /var/tmp/spike/target/aarch64-unknown-linux-musl/release/soglia-spike-agent
+/var/tmp/spike/bpf/soglia-diag.o:                                            ELF 64-bit LSB relocatable, eBPF, version 1 (SYSV), with debug_info, not stripped
+/var/tmp/spike/bpf/soglia-direct-control.o:                                  ELF 64-bit LSB relocatable, eBPF, version 1 (SYSV), with debug_info, not stripped
+/var/tmp/spike/target/release/s4_direct_deny:                                cannot open `/var/tmp/spike/target/release/s4_direct_deny' (No such file or directory)
+/var/tmp/spike/target/aarch64-unknown-linux-musl/release/soglia-spike-agent: ELF 64-bit LSB executable, ARM aarch64, version 1 (SYSV), statically linked, BuildID[sha1]=3b9d912d10af413f264291afabf68993ba5cf60e, not stripped

@@ -1,0 +1,19 @@
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1000\    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP mode DEFAULT group default qlen 1000\    link/ether 52:55:55:05:5d:ad brd ff:ff:ff:ff:ff:ff
+129: s14proxy0: <BROADCAST,NOARP,UP,LOWER_UP> mtu 1500 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1000\    link/ether 4e:9f:92:07:d7:de brd ff:ff:ff:ff:ff:ff
+130: s14h000@if2: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default qlen 1000\    link/ether e2:2c:60:db:7a:d9 brd ff:ff:ff:ff:ff:ff link-netns s14n16e000
+131: s14h001@if2: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default qlen 1000\    link/ether fe:b0:71:b0:ba:e7 brd ff:ff:ff:ff:ff:ff link-netns s14n16e001
+132: s14h002@if2: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default qlen 1000\    link/ether 36:80:09:d4:2c:ed brd ff:ff:ff:ff:ff:ff link-netns s14n16e002
+133: s14h003@if2: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default qlen 1000\    link/ether 5e:0f:03:8e:ee:a8 brd ff:ff:ff:ff:ff:ff link-netns s14n16e003
+134: s14h004@if2: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default qlen 1000\    link/ether aa:82:04:88:f0:20 brd ff:ff:ff:ff:ff:ff link-netns s14n16e004
+135: s14h005@if2: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default qlen 1000\    link/ether d2:a4:fa:bb:5e:bf brd ff:ff:ff:ff:ff:ff link-netns s14n16e005
+136: s14h006@if2: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default qlen 1000\    link/ether 76:ad:73:44:a4:43 brd ff:ff:ff:ff:ff:ff link-netns s14n16e006
+137: s14h007@if2: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default qlen 1000\    link/ether 82:36:19:19:99:40 brd ff:ff:ff:ff:ff:ff link-netns s14n16e007
+138: s14h008@if2: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default qlen 1000\    link/ether 82:78:ae:f7:36:60 brd ff:ff:ff:ff:ff:ff link-netns s14n16e008
+139: s14h009@if2: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default qlen 1000\    link/ether 9a:99:4e:32:50:ec brd ff:ff:ff:ff:ff:ff link-netns s14n16e009
+140: s14h010@if2: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default qlen 1000\    link/ether 3e:f4:6b:c9:9d:04 brd ff:ff:ff:ff:ff:ff link-netns s14n16e010
+141: s14h011@if2: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default qlen 1000\    link/ether e2:34:38:8a:c2:74 brd ff:ff:ff:ff:ff:ff link-netns s14n16e011
+142: s14h012@if2: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default qlen 1000\    link/ether 4a:80:52:33:71:e9 brd ff:ff:ff:ff:ff:ff link-netns s14n16e012
+143: s14h013@if2: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default qlen 1000\    link/ether 12:b4:72:73:3e:8c brd ff:ff:ff:ff:ff:ff link-netns s14n16e013
+144: s14h014@if2: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default qlen 1000\    link/ether b6:2b:25:9b:56:a6 brd ff:ff:ff:ff:ff:ff link-netns s14n16e014
+145: s14h015@if2: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default qlen 1000\    link/ether be:0c:73:5c:48:09 brd ff:ff:ff:ff:ff:ff link-netns s14n16e015

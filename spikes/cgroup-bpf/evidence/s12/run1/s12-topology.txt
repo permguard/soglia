@@ -1,0 +1,69 @@
+# S12 fresh topology
+UTC=2026-09-27T08:44:20Z
+execution_id=s12-execution-generation-1
+executions_inode=26541
+execution_inode=26583
+execution_procs=
+120: soglia-proxy0: <BROADCAST,NOARP,UP,LOWER_UP> mtu 1500 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/ether 32:a7:93:3f:af:3a brd ff:ff:ff:ff:ff:ff promiscuity 0  allmulti 0 minmtu 0 maxmtu 0 
+    dummy numtxqueues 1 numrxqueues 1 gso_max_size 65536 gso_max_segs 65535 tso_max_size 65536 tso_max_segs 65535 gro_max_size 65536 
+    inet 10.200.255.1/32 scope global soglia-proxy0
+       valid_lft forever preferred_lft forever
+    inet6 fe80::30a7:93ff:fe3f:af3a/64 scope link 
+       valid_lft forever preferred_lft forever
+121: sgh-s12e1@if2: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default qlen 1000
+    link/ether ca:02:1a:a9:b4:21 brd ff:ff:ff:ff:ff:ff link-netns soglia-s12-e1 promiscuity 0  allmulti 0 minmtu 68 maxmtu 65535 
+    veth numtxqueues 4 numrxqueues 4 gso_max_size 65536 gso_max_segs 65535 tso_max_size 524280 tso_max_segs 65535 gro_max_size 65536 
+    inet 10.201.0.2/30 scope global sgh-s12e1
+       valid_lft forever preferred_lft forever
+    inet6 fe80::c802:1aff:fea9:b421/64 scope link tentative 
+       valid_lft forever preferred_lft forever
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00 promiscuity 0  allmulti 0 minmtu 0 maxmtu 0 numtxqueues 1 numrxqueues 1 gso_max_size 65536 gso_max_segs 65535 tso_max_size 524280 tso_max_segs 65535 gro_max_size 65536 
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host 
+       valid_lft forever preferred_lft forever
+2: eth0@if121: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default qlen 1000
+    link/ether 8a:32:cf:f1:fa:90 brd ff:ff:ff:ff:ff:ff link-netnsid 0 promiscuity 0  allmulti 0 minmtu 68 maxmtu 65535 
+    veth numtxqueues 4 numrxqueues 4 gso_max_size 65536 gso_max_segs 65535 tso_max_size 524280 tso_max_segs 65535 gro_max_size 65536 
+    inet 10.201.0.1/30 scope global eth0
+       valid_lft forever preferred_lft forever
+    inet6 fe80::8832:cfff:fef1:fa90/64 scope link tentative 
+       valid_lft forever preferred_lft forever
+10.200.255.1 via 10.201.0.2 dev eth0 
+10.201.0.0/30 dev eth0 proto kernel scope link src 10.201.0.1 
+table inet soglia {
+	chain input {
+		type filter hook input priority filter; policy drop;
+		iif "lo" accept
+		ct state established,related accept
+	}
+
+	chain output {
+		type filter hook output priority filter; policy drop;
+		oif "lo" accept
+		ct state established,related accept
+		ip daddr 10.200.255.1 tcp dport 15001 ct state new accept
+	}
+
+	chain forward {
+		type filter hook forward priority filter; policy drop;
+	}
+}
+table inet soglia_spike_s12 {
+	chain input {
+		type filter hook input priority filter - 10; policy accept;
+		iifname "sgh-s12e1" ip saddr != 10.201.0.1 drop
+		iifname "sgh-s12e1" ct state invalid drop
+		iifname "sgh-s12e1" ct state new meta l4proto != tcp drop
+		iifname "sgh-s12e1" ct state new ip daddr != 10.200.255.1 drop
+		iifname "sgh-s12e1" ct state new tcp dport != 15001 drop
+	}
+
+	chain forward {
+		type filter hook forward priority filter - 10; policy accept;
+		iifname "sgh-s12e1" drop
+		oifname "sgh-s12e1" drop
+	}
+}

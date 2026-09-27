@@ -1,0 +1,9 @@
+f4819bfc4724048b2517ca98111c1bccacad85e53b6c5b1bb727e88e880c93c4  /soglia/spikes/cgroup-bpf/evidence/s1/port-fixed/s1-harness.txt
+f0ff2f620b1d5a6a21120b3306858676046c0f10b2ffe39dfe74c0f75e238749  /soglia/spikes/cgroup-bpf/evidence/s1b/race/s1-harness.txt
+ca362f6cac99a63b46fba88741fd92dbe9532752786aaa0aa305129f561fe6aa  /soglia/spikes/cgroup-bpf/evidence/s2/run2/s2-harness.txt
+8126f1c13a5bae57856def4d87b400e6daa50405c5ae7d15af903f71b4cab251  /soglia/spikes/cgroup-bpf/evidence/s3/s3-summary.txt
+58cac3a50e0b915e7842a5a6d7c3b729f11af70915e7ce8ce7a7b933bb25aaac  /soglia/spikes/cgroup-bpf/evidence/s4/run2/s4-harness.txt
+fcde47585f58692d8e87f4043db94441e7ac55350f5081fc7be2862e7de4ed00  /soglia/spikes/cgroup-bpf/evidence/s4/run2/s4-nft-before.json
+fcde47585f58692d8e87f4043db94441e7ac55350f5081fc7be2862e7de4ed00  /soglia/spikes/cgroup-bpf/evidence/s4/run2/s4-nft-after.json
+0feb4b6667f82599a22f0b9bab3c07c757b2059bbdd1cc1cbd0e548a0841ba73  /soglia/spikes/cgroup-bpf/evidence/s5/run3/s5-harness.txt
+e41060b8e4a2556068b2574d3959cdabe53b5e193e0d673ea16bb39bb01ff0df  /soglia/spikes/cgroup-bpf/evidence/s6/s6-enforcement-layer-table.md

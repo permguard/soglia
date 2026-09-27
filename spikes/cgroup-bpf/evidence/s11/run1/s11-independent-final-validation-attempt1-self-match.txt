@@ -1,0 +1,28 @@
+# S11 independent post-run validation
+UTC=2026-09-27T08:32:34Z
+unit_active=active
+unit_inode=12456
+delegated_children_begin
+runtime inode=12516
+delegated_children_end
+process_matches_begin
+64162 sudo bash -lc out=/soglia/spikes/cgroup-bpf/evidence/s11/run1/s11-independent-final-validation.txt; unit=/sys/fs/cgroup/system.slice/soglia-spike-s0.service; { echo "# S11 independent post-run validation"; date -u +"UTC=%FT%TZ"; echo "unit_active=$(systemctl is-active soglia-spike-s0.service)"; echo "unit_inode=$(stat -c %i "$unit")"; echo delegated_children_begin; find "$unit" -mindepth 1 -maxdepth 1 -type d -printf "%f inode=%i\n" | sort; echo delegated_children_end; echo process_matches_begin; pgrep -af "s1_attribution|soglia-spike-agent.*hold-proxy|run-s11.sh" || true; echo process_matches_end; echo runc_begin; runc list --format json 2>&1 || true; echo runc_end; echo runtime_state_begin; find /run -maxdepth 3 \( -name "soglia-spike-s1*" -o -name "soglia-s1-*" \) -print | sort; echo runtime_state_end; echo netns_begin; ip netns list; echo netns_end; echo owned_links_begin; ip -o link show | grep -E "sgh-|soglia-proxy" || true; echo owned_links_end; echo owned_nft_begin; nft list tables | grep soglia || true; echo owned_nft_end; echo bpffs_begin; find /sys/fs/bpf -mindepth 1 -maxdepth 6 -print | sort; echo bpffs_end; echo "soglia_foreign_program_count=$(bpftool -j prog show | jq "[.[] | select(((.name // \"\") | startswith(\"soglia_\")) or ((.name // \"\") | startswith(\"foreign_\")))] | length")"; echo "cgroup_link_count=$(bpftool -j link show | jq "[.[] | select(.type == \"cgroup\")] | length")"; echo "soglia_map_count=$(bpftool -j map show | jq "[.[] | select((.name // \"\") | startswith(\"soglia_\"))] | length")"; [[ ! -e "$unit/executions" ]] && [[ ! -e /sys/fs/bpf/soglia-spike ]] && [[ -z "$(ip netns list)" ]] && ! ip link show sgh-s1e1 >/dev/null 2>&1 && ! ip link show soglia-proxy0 >/dev/null 2>&1 && ! nft list table inet soglia_spike_s1 >/dev/null 2>&1 && [[ "$(bpftool -j prog show | jq "[.[] | select(((.name // \"\") | startswith(\"soglia_\")) or ((.name // \"\") | startswith(\"foreign_\")))] | length")" -eq 0 ]] && [[ "$(bpftool -j link show | jq "[.[] | select(.type == \"cgroup\")] | length")" -eq 0 ]] && [[ "$(bpftool -j map show | jq "[.[] | select((.name // \"\") | startswith(\"soglia_\"))] | length")" -eq 0 ]] && echo independent_cleanup=PASS || echo independent_cleanup=FAIL; } > "$out"; cat "$out"
+64166 bash -lc out=/soglia/spikes/cgroup-bpf/evidence/s11/run1/s11-independent-final-validation.txt; unit=/sys/fs/cgroup/system.slice/soglia-spike-s0.service; { echo "# S11 independent post-run validation"; date -u +"UTC=%FT%TZ"; echo "unit_active=$(systemctl is-active soglia-spike-s0.service)"; echo "unit_inode=$(stat -c %i "$unit")"; echo delegated_children_begin; find "$unit" -mindepth 1 -maxdepth 1 -type d -printf "%f inode=%i\n" | sort; echo delegated_children_end; echo process_matches_begin; pgrep -af "s1_attribution|soglia-spike-agent.*hold-proxy|run-s11.sh" || true; echo process_matches_end; echo runc_begin; runc list --format json 2>&1 || true; echo runc_end; echo runtime_state_begin; find /run -maxdepth 3 \( -name "soglia-spike-s1*" -o -name "soglia-s1-*" \) -print | sort; echo runtime_state_end; echo netns_begin; ip netns list; echo netns_end; echo owned_links_begin; ip -o link show | grep -E "sgh-|soglia-proxy" || true; echo owned_links_end; echo owned_nft_begin; nft list tables | grep soglia || true; echo owned_nft_end; echo bpffs_begin; find /sys/fs/bpf -mindepth 1 -maxdepth 6 -print | sort; echo bpffs_end; echo "soglia_foreign_program_count=$(bpftool -j prog show | jq "[.[] | select(((.name // \"\") | startswith(\"soglia_\")) or ((.name // \"\") | startswith(\"foreign_\")))] | length")"; echo "cgroup_link_count=$(bpftool -j link show | jq "[.[] | select(.type == \"cgroup\")] | length")"; echo "soglia_map_count=$(bpftool -j map show | jq "[.[] | select((.name // \"\") | startswith(\"soglia_\"))] | length")"; [[ ! -e "$unit/executions" ]] && [[ ! -e /sys/fs/bpf/soglia-spike ]] && [[ -z "$(ip netns list)" ]] && ! ip link show sgh-s1e1 >/dev/null 2>&1 && ! ip link show soglia-proxy0 >/dev/null 2>&1 && ! nft list table inet soglia_spike_s1 >/dev/null 2>&1 && [[ "$(bpftool -j prog show | jq "[.[] | select(((.name // \"\") | startswith(\"soglia_\")) or ((.name // \"\") | startswith(\"foreign_\")))] | length")" -eq 0 ]] && [[ "$(bpftool -j link show | jq "[.[] | select(.type == \"cgroup\")] | length")" -eq 0 ]] && [[ "$(bpftool -j map show | jq "[.[] | select((.name // \"\") | startswith(\"soglia_\"))] | length")" -eq 0 ]] && echo independent_cleanup=PASS || echo independent_cleanup=FAIL; } > "$out"; cat "$out"
+process_matches_end
+runc_begin
+time="2026-09-27T10:32:34+02:00" level=error msg="open /run/runc: no such file or directory"
+runc_end
+runtime_state_begin
+runtime_state_end
+netns_begin
+netns_end
+owned_links_begin
+owned_links_end
+owned_nft_begin
+owned_nft_end
+bpffs_begin
+bpffs_end
+soglia_foreign_program_count=0
+cgroup_link_count=0
+soglia_map_count=0
+independent_cleanup=PASS

@@ -1,0 +1,11 @@
+# S8 setup validation failure
+
+This attempt stopped before any Execution or helper-loss experiment. The fresh runtime refused to
+start because the host dummy interface `soglia0` existed without its ownership record. It was
+residue from the prior non-authoritative S8 runner-validation attempt: that attempt removed the
+host nft table but its cleanup omitted the backend's host dummy interface.
+
+The runner correctly failed closed at startup. Its trap removed the unit, state directory,
+listeners, `/etc/hosts` edit, nft state, netns/veth state, BPF state and scratch rootfs. The missing
+`soglia0` cleanup/check is corrected before the next run; this attempt remains preserved and is not
+used to classify S8.

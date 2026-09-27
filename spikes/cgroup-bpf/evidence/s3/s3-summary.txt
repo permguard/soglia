@@ -1,0 +1,27 @@
+# S3 lifecycle and reuse summary
+UTC=2026-09-27T06:50:13Z
+fin_generation_id=s3-execution-generation-1
+fin_cgroup_inode=15414
+fin_netns_cookie=5
+fin_source_port=41000
+fin_resolve=s3-execution-generation-1
+fin_cleanup_absent=3
+rst_generation_id=s3-execution-generation-2
+rst_cgroup_inode=15498
+rst_netns_cookie=6
+rst_source_port=41000
+rst_resolve=s3-execution-generation-2
+rst_cleanup_absent=3
+kill_generation_id=s3-execution-generation-3
+kill_cgroup_inode=15582
+kill_agent_pid=36830
+kill_signal=SIGKILL
+kill_runner_status=1
+kill_cleanup_absent=3
+fresh_cgroup_inodes=true
+fresh_netns_cookies=true
+port_reuse_across_generations=true
+old_generation_resolved_as_new=0
+cross_generation_attribution_count=0
+stale_tuple_or_cookie_residue_after_each_phase=0
+S3_RESULT=PASS

@@ -1,0 +1,51 @@
+test=S14
+candidate=C
+execution_count=64
+shared_map_pin_root=/sys/fs/bpf/soglia-spike/s14/maps
+per_execution_link_pin_root=/sys/fs/bpf/soglia-spike/s14/links
+sample_rule=N=1:[0];N=4:[0,N-1];N>=16:[0,N/2,N-1]
+execution_prepared index=0 id=s14-n64-execution-000-generation-1 ident=14064000 cgroup_inode=31317 object_load_ns=583835 policy_setup_ns=833 program_load_ns=440875 attach_ns=115165 pin_ns=14250 links=6
+execution_prepared index=1 id=s14-n64-execution-001-generation-1 ident=14064001 cgroup_inode=31359 object_load_ns=172250 policy_setup_ns=875 program_load_ns=473207 attach_ns=15041 pin_ns=19126 links=6
+execution_prepared index=2 id=s14-n64-execution-002-generation-1 ident=14064002 cgroup_inode=31401 object_load_ns=149000 policy_setup_ns=1166 program_load_ns=452959 attach_ns=13999 pin_ns=16583 links=6
+execution_prepared index=3 id=s14-n64-execution-003-generation-1 ident=14064003 cgroup_inode=31443 object_load_ns=153250 policy_setup_ns=666 program_load_ns=447625 attach_ns=14457 pin_ns=17625 links=6
+execution_prepared index=4 id=s14-n64-execution-004-generation-1 ident=14064004 cgroup_inode=31485 object_load_ns=115250 policy_setup_ns=708 program_load_ns=458041 attach_ns=11250 pin_ns=13502 links=6
+execution_prepared index=5 id=s14-n64-execution-005-generation-1 ident=14064005 cgroup_inode=31527 object_load_ns=119501 policy_setup_ns=667 program_load_ns=402960 attach_ns=11958 pin_ns=16542 links=6
+execution_prepared index=6 id=s14-n64-execution-006-generation-1 ident=14064006 cgroup_inode=31569 object_load_ns=104708 policy_setup_ns=542 program_load_ns=425709 attach_ns=8959 pin_ns=12126 links=6
+execution_prepared index=7 id=s14-n64-execution-007-generation-1 ident=14064007 cgroup_inode=31611 object_load_ns=134917 policy_setup_ns=750 program_load_ns=434543 attach_ns=11333 pin_ns=17000 links=6
+execution_prepared index=8 id=s14-n64-execution-008-generation-1 ident=14064008 cgroup_inode=31653 object_load_ns=110834 policy_setup_ns=584 program_load_ns=425543 attach_ns=9252 pin_ns=12085 links=6
+execution_prepared index=9 id=s14-n64-execution-009-generation-1 ident=14064009 cgroup_inode=31695 object_load_ns=102625 policy_setup_ns=458 program_load_ns=446667 attach_ns=7501 pin_ns=10209 links=6
+execution_prepared index=10 id=s14-n64-execution-010-generation-1 ident=14064010 cgroup_inode=31737 object_load_ns=95458 policy_setup_ns=417 program_load_ns=420877 attach_ns=8374 pin_ns=12665 links=6
+execution_prepared index=11 id=s14-n64-execution-011-generation-1 ident=14064011 cgroup_inode=31779 object_load_ns=125417 policy_setup_ns=792 program_load_ns=455792 attach_ns=11168 pin_ns=14707 links=6
+execution_prepared index=12 id=s14-n64-execution-012-generation-1 ident=14064012 cgroup_inode=31821 object_load_ns=119833 policy_setup_ns=625 program_load_ns=423458 attach_ns=9083 pin_ns=11959 links=6
+execution_prepared index=13 id=s14-n64-execution-013-generation-1 ident=14064013 cgroup_inode=31863 object_load_ns=109917 policy_setup_ns=750 program_load_ns=422250 attach_ns=8416 pin_ns=12959 links=6
+execution_prepared index=14 id=s14-n64-execution-014-generation-1 ident=14064014 cgroup_inode=31905 object_load_ns=110375 policy_setup_ns=625 program_load_ns=397417 attach_ns=8082 pin_ns=11750 links=6
+execution_prepared index=15 id=s14-n64-execution-015-generation-1 ident=14064015 cgroup_inode=31947 object_load_ns=101459 policy_setup_ns=541 program_load_ns=379582 attach_ns=10543 pin_ns=11918 links=6
+execution_prepared index=16 id=s14-n64-execution-016-generation-1 ident=14064016 cgroup_inode=31989 object_load_ns=98667 policy_setup_ns=542 program_load_ns=352376 attach_ns=7626 pin_ns=11543 links=6
+execution_prepared index=17 id=s14-n64-execution-017-generation-1 ident=14064017 cgroup_inode=32031 object_load_ns=101250 policy_setup_ns=500 program_load_ns=391499 attach_ns=8958 pin_ns=14333 links=6
+execution_prepared index=18 id=s14-n64-execution-018-generation-1 ident=14064018 cgroup_inode=32073 object_load_ns=101042 policy_setup_ns=541 program_load_ns=363501 attach_ns=10124 pin_ns=15082 links=6
+execution_prepared index=19 id=s14-n64-execution-019-generation-1 ident=14064019 cgroup_inode=32115 object_load_ns=105875 policy_setup_ns=500 program_load_ns=335335 attach_ns=8042 pin_ns=11126 links=6
+execution_prepared index=20 id=s14-n64-execution-020-generation-1 ident=14064020 cgroup_inode=32157 object_load_ns=111666 policy_setup_ns=542 program_load_ns=373002 attach_ns=13584 pin_ns=16875 links=6
+execution_prepared index=21 id=s14-n64-execution-021-generation-1 ident=14064021 cgroup_inode=32199 object_load_ns=106209 policy_setup_ns=584 program_load_ns=384084 attach_ns=7460 pin_ns=13416 links=6
+execution_prepared index=22 id=s14-n64-execution-022-generation-1 ident=14064022 cgroup_inode=32241 object_load_ns=103083 policy_setup_ns=542 program_load_ns=384999 attach_ns=6668 pin_ns=10125 links=6
+execution_prepared index=23 id=s14-n64-execution-023-generation-1 ident=14064023 cgroup_inode=32283 object_load_ns=104167 policy_setup_ns=459 program_load_ns=352750 attach_ns=6792 pin_ns=10500 links=6
+execution_prepared index=24 id=s14-n64-execution-024-generation-1 ident=14064024 cgroup_inode=32325 object_load_ns=130166 policy_setup_ns=1000 program_load_ns=400708 attach_ns=9167 pin_ns=11916 links=6
+execution_prepared index=25 id=s14-n64-execution-025-generation-1 ident=14064025 cgroup_inode=32367 object_load_ns=127334 policy_setup_ns=708 program_load_ns=377000 attach_ns=8165 pin_ns=9916 links=6
+execution_prepared index=26 id=s14-n64-execution-026-generation-1 ident=14064026 cgroup_inode=32409 object_load_ns=114167 policy_setup_ns=500 program_load_ns=360459 attach_ns=7834 pin_ns=10083 links=6
+execution_prepared index=27 id=s14-n64-execution-027-generation-1 ident=14064027 cgroup_inode=32451 object_load_ns=109750 policy_setup_ns=500 program_load_ns=346585 attach_ns=7375 pin_ns=10500 links=6
+execution_prepared index=28 id=s14-n64-execution-028-generation-1 ident=14064028 cgroup_inode=32493 object_load_ns=128292 policy_setup_ns=750 program_load_ns=392667 attach_ns=8500 pin_ns=12416 links=6
+execution_prepared index=29 id=s14-n64-execution-029-generation-1 ident=14064029 cgroup_inode=32535 object_load_ns=112000 policy_setup_ns=583 program_load_ns=371501 attach_ns=8583 pin_ns=10251 links=6
+execution_prepared index=30 id=s14-n64-execution-030-generation-1 ident=14064030 cgroup_inode=32577 object_load_ns=110834 policy_setup_ns=541 program_load_ns=356168 attach_ns=8208 pin_ns=10334 links=6
+execution_prepared index=31 id=s14-n64-execution-031-generation-1 ident=14064031 cgroup_inode=32619 object_load_ns=110459 policy_setup_ns=625 program_load_ns=370625 attach_ns=6916 pin_ns=9374 links=6
+execution_prepared index=32 id=s14-n64-execution-032-generation-1 ident=14064032 cgroup_inode=32661 object_load_ns=119209 policy_setup_ns=708 program_load_ns=399751 attach_ns=9334 pin_ns=14415 links=6
+execution_prepared index=33 id=s14-n64-execution-033-generation-1 ident=14064033 cgroup_inode=32703 object_load_ns=130709 policy_setup_ns=917 program_load_ns=439793 attach_ns=8417 pin_ns=10711 links=6
+execution_prepared index=34 id=s14-n64-execution-034-generation-1 ident=14064034 cgroup_inode=32745 object_load_ns=125292 policy_setup_ns=917 program_load_ns=390168 attach_ns=8000 pin_ns=13751 links=6
+execution_prepared index=35 id=s14-n64-execution-035-generation-1 ident=14064035 cgroup_inode=32787 object_load_ns=128167 policy_setup_ns=542 program_load_ns=423083 attach_ns=8709 pin_ns=11168 links=6
+execution_prepared index=36 id=s14-n64-execution-036-generation-1 ident=14064036 cgroup_inode=32829 object_load_ns=110959 policy_setup_ns=708 program_load_ns=380252 attach_ns=7457 pin_ns=16292 links=6
+execution_prepared index=37 id=s14-n64-execution-037-generation-1 ident=14064037 cgroup_inode=32871 object_load_ns=122834 policy_setup_ns=667 program_load_ns=379167 attach_ns=8043 pin_ns=11499 links=6
+execution_prepared index=38 id=s14-n64-execution-038-generation-1 ident=14064038 cgroup_inode=32913 object_load_ns=114334 policy_setup_ns=583 program_load_ns=389460 attach_ns=10665 pin_ns=20458 links=6
+execution_prepared index=39 id=s14-n64-execution-039-generation-1 ident=14064039 cgroup_inode=32955 object_load_ns=137376 policy_setup_ns=709 program_load_ns=454211 attach_ns=10583 pin_ns=17251 links=6
+execution_prepared index=40 id=s14-n64-execution-040-generation-1 ident=14064040 cgroup_inode=32997 object_load_ns=118792 policy_setup_ns=750 program_load_ns=409457 attach_ns=8752 pin_ns=13666 links=6
+execution_prepared index=41 id=s14-n64-execution-041-generation-1 ident=14064041 cgroup_inode=33039 object_load_ns=145833 policy_setup_ns=791 program_load_ns=387834 attach_ns=11375 pin_ns=19957 links=6
+execution_prepared index=42 id=s14-n64-execution-042-generation-1 ident=14064042 cgroup_inode=33081 object_load_ns=121417 policy_setup_ns=584 program_load_ns=346335 attach_ns=7000 pin_ns=15958 links=6
+execution_prepared index=43 id=s14-n64-execution-043-generation-1 ident=14064043 cgroup_inode=33123 object_load_ns=122875 policy_setup_ns=625 program_load_ns=378917 attach_ns=8248 pin_ns=10958 links=6
+S14 SCALING ERROR: load object for e44: map error: failed to create map `soglia_cookie_a`

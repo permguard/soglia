@@ -1,0 +1,30 @@
+CgroupPath
+ID       AttachType      AttachFlags     Name           
+/sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions/s14-e003
+    2286     cgroup_inet_sock_create multi           soglia_sock_create                
+    2287     cgroup_inet4_connect multi           soglia_connect4                
+    2288     cgroup_inet6_connect multi           soglia_connect6                
+    2289     cgroup_udp4_sendmsg multi           soglia_sendmsg4                
+    2290     cgroup_udp6_sendmsg multi           soglia_sendmsg6                
+    2291     cgroup_sock_ops multi           soglia_sockops                 
+/sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions/s14-e001
+    2274     cgroup_inet_sock_create multi           soglia_sock_create                
+    2275     cgroup_inet4_connect multi           soglia_connect4                
+    2276     cgroup_inet6_connect multi           soglia_connect6                
+    2277     cgroup_udp4_sendmsg multi           soglia_sendmsg4                
+    2278     cgroup_udp6_sendmsg multi           soglia_sendmsg6                
+    2279     cgroup_sock_ops multi           soglia_sockops                 
+/sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions/s14-e002
+    2280     cgroup_inet_sock_create multi           soglia_sock_create                
+    2281     cgroup_inet4_connect multi           soglia_connect4                
+    2282     cgroup_inet6_connect multi           soglia_connect6                
+    2283     cgroup_udp4_sendmsg multi           soglia_sendmsg4                
+    2284     cgroup_udp6_sendmsg multi           soglia_sendmsg6                
+    2285     cgroup_sock_ops multi           soglia_sockops                 
+/sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions/s14-e000
+    2268     cgroup_inet_sock_create multi           soglia_sock_create                
+    2269     cgroup_inet4_connect multi           soglia_connect4                
+    2270     cgroup_inet6_connect multi           soglia_connect6                
+    2271     cgroup_udp4_sendmsg multi           soglia_sendmsg4                
+    2272     cgroup_udp6_sendmsg multi           soglia_sendmsg6                
+    2273     cgroup_sock_ops multi           soglia_sockops                 

@@ -1,0 +1,4 @@
+# S1 host-first placement rerun, normalized membership verifier
+UTC=2026-09-27T06:06:01Z
+   Compiling soglia-spike-harness v0.0.0 (/soglia/spikes/cgroup-bpf/harness)
+    Finished `release` profile [optimized] target(s) in 0.61s

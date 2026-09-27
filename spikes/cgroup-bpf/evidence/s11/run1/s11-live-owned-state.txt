@@ -1,0 +1,74 @@
+[cgroups]
+executions inode=26364
+executions/s1-e1 inode=26406
+runtime inode=12516
+[unit_processes]
+executions/s1-e1 pid=63687 args=/var/tmp/spike/target/aarch64-unknown-linux-musl/release/soglia-spike-agent barrier /run/soglia-spike-s1-agent.ready /run/soglia-spike-s1-agent.go 30 hold-proxy 30 
+runtime pid=22563 args=bash /tmp/soglia-s0-delegation.sh 
+runtime pid=22595 args=sleep infinity 
+[runc_containers]
+[owned_netns]
+soglia-s1-e1 (id: 0)
+[owned_links]
+sgh-s1e1
+soglia-proxy0
+[owned_nft_tables]
+table inet soglia_spike_s1
+[bpffs_paths]
+d /sys/fs/bpf/soglia-spike
+d /sys/fs/bpf/soglia-spike/s1
+d /sys/fs/bpf/soglia-spike/s1/links
+d /sys/fs/bpf/soglia-spike/s1/maps
+f /sys/fs/bpf/soglia-spike/s1/links/connect4
+f /sys/fs/bpf/soglia-spike/s1/links/connect6
+f /sys/fs/bpf/soglia-spike/s1/links/sendmsg4
+f /sys/fs/bpf/soglia-spike/s1/links/sendmsg6
+f /sys/fs/bpf/soglia-spike/s1/links/sock_create
+f /sys/fs/bpf/soglia-spike/s1/links/sock_ops
+f /sys/fs/bpf/soglia-spike/s1/maps/soglia_cookie_a
+f /sys/fs/bpf/soglia-spike/s1/maps/soglia_counters
+f /sys/fs/bpf/soglia-spike/s1/maps/soglia_denies
+f /sys/fs/bpf/soglia-spike/s1/maps/soglia_diag_entries
+f /sys/fs/bpf/soglia-spike/s1/maps/soglia_events
+f /sys/fs/bpf/soglia-spike/s1/maps/soglia_meta
+f /sys/fs/bpf/soglia-spike/s1/maps/soglia_policy
+f /sys/fs/bpf/soglia-spike/s1/maps/soglia_port_diag
+f /sys/fs/bpf/soglia-spike/s1/maps/soglia_sk_b
+f /sys/fs/bpf/soglia-spike/s1/maps/soglia_tuples
+[owned_bpf_programs]
+1714	cgroup_sock	soglia_sock_create	89a3c9ecc9fb7ac8
+1715	cgroup_sock_addr	soglia_connect4	6d29a837a2cdfe6a
+1716	cgroup_sock_addr	soglia_connect6	c6994d7cab0ffa99
+1717	cgroup_sock_addr	soglia_sendmsg4	4675fb08d3b3d5fa
+1718	cgroup_sock_addr	soglia_sendmsg6	523bec458d754f5d
+1719	sock_ops	soglia_sockops	a431745e221a8fbd
+[cgroup_bpf_links]
+332	cgroup	1714	26406	cgroup_inet_sock_create
+333	cgroup	1715	26406	cgroup_inet4_connect
+334	cgroup	1716	26406	cgroup_inet6_connect
+335	cgroup	1717	26406	cgroup_udp4_sendmsg
+336	cgroup	1718	26406	cgroup_udp6_sendmsg
+337	cgroup	1719	26406	cgroup_sock_ops
+[owned_bpf_maps]
+923	array	soglia_port_dia
+924	hash	soglia_cookie_a
+925	hash	soglia_policy
+927	ringbuf	soglia_events
+929	array	soglia_diag_ent
+930	sk_storage	soglia_sk_b
+931	array	soglia_counters
+932	hash	soglia_denies
+933	array	soglia_meta
+934	hash	soglia_tuples
+[runtime_state]
+f /run/netns/soglia-s1-e1
+f /run/soglia-spike-s1-agent.go
+f /run/soglia-spike-s1-agent.ready
+f /run/soglia-spike-s1-host.ready
+f /run/soglia-spike-s1-membership.captured
+f /run/soglia-spike-s1-membership.ready
+f /run/soglia-spike-s1-placement.captured
+f /run/soglia-spike-s1-placement.ready
+f /run/soglia-spike-s1.go
+f /run/soglia-spike-s1.ready
+f /run/systemd/transient/soglia-spike-s0.service

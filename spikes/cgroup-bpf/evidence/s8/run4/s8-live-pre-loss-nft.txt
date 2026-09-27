@@ -1,0 +1,59 @@
+table ip nat { # handle 1
+	chain LIMADNS { # handle 1
+	}
+
+	chain PREROUTING { # handle 2
+		type nat hook prerouting priority dstnat; policy accept;
+		counter packets 218 bytes 13053 jump LIMADNS # handle 3
+	}
+
+	chain OUTPUT { # handle 4
+		type nat hook output priority dstnat; policy accept;
+		counter packets 84 bytes 5394 jump LIMADNS # handle 5
+	}
+}
+table inet soglia_host { # handle 31
+	set exec_src { # handle 5
+		type ifname . ipv4_addr
+		elements = { "sgh-900c4301e9" . 10.201.0.1,
+			     "sgh-466dd11145" . 10.201.0.3,
+			     "sgh-f66e625672" . 10.201.0.5 }
+	}
+
+	set exec_ingress { # handle 6
+		type ipv4_addr . inet_service
+		elements = { 10.201.0.1 . 8080,
+			     10.201.0.3 . 8080,
+			     10.201.0.5 . 8080 }
+	}
+
+	chain prerouting { # handle 1
+		type filter hook prerouting priority raw; policy accept;
+		iifname "sgh-*" meta nfproto ipv6 drop # handle 7
+		iifname "sgh-*" iifname . ip saddr != @exec_src drop # handle 8
+	}
+
+	chain input { # handle 2
+		type filter hook input priority filter - 10; policy accept;
+		iifname "sgh-*" ct state invalid drop # handle 9
+		iifname "sgh-*" ct state new meta l4proto != tcp drop # handle 10
+		iifname "sgh-*" ct state new ip daddr != 10.200.255.1 drop # handle 11
+		iifname "sgh-*" ct state new tcp dport != 15001 drop # handle 12
+		iifname != "sgh-*" ip daddr 10.200.255.1 drop # handle 13
+	}
+
+	chain forward { # handle 3
+		type filter hook forward priority filter - 10; policy accept;
+		iifname "sgh-*" drop # handle 14
+		oifname "sgh-*" drop # handle 15
+	}
+
+	chain output { # handle 4
+		type filter hook output priority filter - 10; policy accept;
+		oifname "sgh-*" meta nfproto ipv6 drop # handle 16
+		oifname "sgh-*" ct state invalid drop # handle 17
+		oifname "sgh-*" ct state new meta l4proto != tcp drop # handle 18
+		oifname "sgh-*" ct state new meta skuid != 990 drop # handle 19
+		oifname "sgh-*" ct state new ip daddr . tcp dport != @exec_ingress drop # handle 20
+	}
+}

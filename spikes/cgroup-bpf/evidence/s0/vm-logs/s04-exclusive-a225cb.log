@@ -1,0 +1,11 @@
+aya_version=0.14.0
+program=soglia_connect4
+aya_type=CgroupSockAddr
+expected_attach_type=cgroup_inet4_connect
+mode=Single flags=0
+object=/var/tmp/spike/bpf/soglia.o
+cgroup=/sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions/s0-probe
+map_pin_root=/sys/fs/bpf/soglia-spike/s04-global
+link_pin=/sys/fs/bpf/soglia-spike/s04-connect4
+result=FAIL operation=bpf_link_create error=attach soglia_connect4: SyscallError(SyscallError { call: "bpf_link_create", io_error: Os { code: 1, kind: PermissionDenied, message: "Operation not permitted" } })
+S0.4 CONNECT4 ERROR: attach soglia_connect4: SyscallError(SyscallError { call: "bpf_link_create", io_error: Os { code: 1, kind: PermissionDenied, message: "Operation not permitted" } })

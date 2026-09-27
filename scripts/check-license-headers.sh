@@ -29,6 +29,8 @@ while IFS= read -r file; do
         CODE_OF_CONDUCT.md) continue ;;
         # Third-party or generated.
         .gitignore | */node_modules/* | target/*) continue ;;
+        # Raw experiment output, kept byte for byte as the tools printed it.
+        spikes/*/evidence/*) continue ;;
     esac
 
     # Tracked but not on disk: a rename or deletion that has not been committed yet. The header

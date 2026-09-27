@@ -1,0 +1,11 @@
+# S1 artifact and source provenance
+UTC=2026-09-27T05:50:23Z
+4a43c31495b78bd04405443746bb7c7b09b7c5d61d412679314ed5ee71c8f906  /soglia/spikes/cgroup-bpf/bpf/soglia_spike.c
+4c3abcd3e39df33892e9d5ddfcef303317cf954a3124c9c712c04afefbc0cfe0  /soglia/spikes/cgroup-bpf/harness/src/bin/s1_attribution.rs
+18dcd951c27c729f4cccfaa58a97ae3493bc0860e818a3f8938981e3abb9634f  /soglia/spikes/cgroup-bpf/agent/src/main.rs
+b9773701a7bb623ab33c990531cc5f313fbbacfa578ae03b76be4b8782f9ce7a  /var/tmp/spike/bpf/soglia.o
+5303af1307438a6df5d4a19bebb5886a81ea377f9d754c985e42151a62b4f52d  /var/tmp/spike/target/release/s1_attribution
+c18c5f8388f7972d9e81f12d80052b5622e29b4fa9658af48e3cbf951160f749  /var/tmp/spike/target/aarch64-unknown-linux-musl/release/soglia-spike-agent
+/var/tmp/spike/bpf/soglia.o:                                                 ELF 64-bit LSB relocatable, eBPF, version 1 (SYSV), with debug_info, not stripped
+/var/tmp/spike/target/release/s1_attribution:                                ELF 64-bit LSB pie executable, ARM aarch64, version 1 (SYSV), dynamically linked, interpreter /lib/ld-linux-aarch64.so.1, BuildID[sha1]=0dcab5db3c8d46f0dc6c53a3abdd55b0f1dfd2fd, for GNU/Linux 3.7.0, not stripped
+/var/tmp/spike/target/aarch64-unknown-linux-musl/release/soglia-spike-agent: ELF 64-bit LSB executable, ARM aarch64, version 1 (SYSV), statically linked, BuildID[sha1]=4b4bb9565c2d70acbdc288b1582b9de94ffdca89, not stripped

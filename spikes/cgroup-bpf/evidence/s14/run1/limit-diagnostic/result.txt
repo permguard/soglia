@@ -1,0 +1,12 @@
+classification=FILE_DESCRIPTOR_PRESSURE
+requested_N=64
+complete_instances=44
+failing_instance_index=44
+failing_operation=EbpfLoader_load_file_map_creation
+authoritative_run_failing_map=soglia_cookie_a
+diagnostic_run_failing_map=soglia_meta
+diagnostic_errno=EMFILE
+soft_fd_limit=1024
+open_fd_count_before_failing_load=1016
+cleanup=PASS
+increase_stopped=true

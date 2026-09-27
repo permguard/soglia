@@ -1,0 +1,39 @@
+# S8 state immediately before helper loss
+UTC=2026-09-27T07:46:19Z
+main_alive=true
+enforcer_kill0=true
+enforcer_live=true
+sandbox_alive=true
+State Recv-Q Send-Q Local Address:Port  Peer Address:Port Process                                               
+ESTAB 0      0          127.0.0.1:36014    127.0.0.1:18089 users:(("curl",pid=50933,fd=6))                      
+ESTAB 0      0           11.0.0.1:34286     11.0.0.1:443   users:(("soglia",pid=50832,fd=23))                   
+ESTAB 0      0           11.0.0.1:443       11.0.0.1:34286 users:(("soglia-spike-ag",pid=50826,fd=4))           
+ESTAB 0      0       10.200.255.1:15001   10.201.0.1:43606 users:(("soglia",pid=50832,fd=22))                   
+ESTAB 0      0         10.201.0.0:47722   10.201.0.1:8080  users:(("soglia",pid=50832,fd=19))                   
+ESTAB 0      0          127.0.0.1:36002    127.0.0.1:18089 users:(("curl",pid=50932,fd=6))                      
+ESTAB 0      0          127.0.0.1:18089    127.0.0.1:36002 users:(("soglia",pid=50832,fd=16))                   
+ESTAB 0      0       192.168.5.15:22     192.168.5.2:46850 users:(("sshd",pid=1312,fd=4),("sshd",pid=1266,fd=4))
+ESTAB 0      0          127.0.0.1:36026    127.0.0.1:18089 users:(("curl",pid=50934,fd=6))                      
+ESTAB 0      0          127.0.0.1:18089    127.0.0.1:36014 users:(("soglia",pid=50832,fd=17))                   
+ESTAB 0      0         10.201.0.4:53436   10.201.0.5:8080  users:(("soglia",pid=50832,fd=21))                   
+ESTAB 0      0          127.0.0.1:18089    127.0.0.1:36026 users:(("soglia",pid=50832,fd=18))                   
+ESTAB 0      0         10.201.0.2:42296   10.201.0.3:8080  users:(("soglia",pid=50832,fd=20))                   
+Sep 27 09:46:16 lima-soglia-spike systemd[1]: Started soglia-spike-s8.service - /var/tmp/spike/target/release/soglia run -f /var/tmp/spike/s8/soglia.yaml.
+Sep 27 09:46:16 lima-soglia-spike soglia[50832]: 2026-09-27T07:46:16.697141Z  INFO privileges dropped event.name="startup.privileges_dropped" uid=990 gid=990
+Sep 27 09:46:16 lima-soglia-spike soglia[50832]: 2026-09-27T07:46:16.698131Z  INFO soglia is ready event.name="startup.ready" ingress=127.0.0.1:18089 egress=10.200.255.1:15001
+Sep 27 09:46:16 lima-soglia-spike soglia[50832]: 2026-09-27T07:46:16.866440Z  INFO execution admitted event.name="execution.admitted" execution_id=2feda1c68578d2b427cb59c3b5fddcb4 agent=probe slot=0
+Sep 27 09:46:16 lima-soglia-spike soglia[50832]: 2026-09-27T07:46:16.866587Z  INFO execution phase event.name="execution.phase" execution_id=2feda1c68578d2b427cb59c3b5fddcb4 phase=Creating
+Sep 27 09:46:16 lima-soglia-spike soglia[50832]: 2026-09-27T07:46:16.866949Z  INFO execution admitted event.name="execution.admitted" execution_id=ec195e029aebdf1dca308d8f967e459e agent=probe slot=1
+Sep 27 09:46:16 lima-soglia-spike soglia[50832]: 2026-09-27T07:46:16.866974Z  INFO execution phase event.name="execution.phase" execution_id=ec195e029aebdf1dca308d8f967e459e phase=Creating
+Sep 27 09:46:16 lima-soglia-spike soglia[50832]: 2026-09-27T07:46:16.869093Z  INFO execution admitted event.name="execution.admitted" execution_id=507dbdd02aca416b83ca8ea1f036f7c8 agent=probe slot=2
+Sep 27 09:46:16 lima-soglia-spike soglia[50832]: 2026-09-27T07:46:16.869100Z  INFO execution phase event.name="execution.phase" execution_id=507dbdd02aca416b83ca8ea1f036f7c8 phase=Creating
+Sep 27 09:46:16 lima-soglia-spike soglia[50832]: 2026-09-27T07:46:16.874966Z  INFO execution phase event.name="execution.phase" execution_id=2feda1c68578d2b427cb59c3b5fddcb4 phase=Starting
+Sep 27 09:46:16 lima-soglia-spike soglia[50832]: 2026-09-27T07:46:16.884826Z  INFO execution phase event.name="execution.phase" execution_id=ec195e029aebdf1dca308d8f967e459e phase=Starting
+Sep 27 09:46:16 lima-soglia-spike soglia[50832]: 2026-09-27T07:46:16.893481Z  INFO execution phase event.name="execution.phase" execution_id=507dbdd02aca416b83ca8ea1f036f7c8 phase=Starting
+Sep 27 09:46:16 lima-soglia-spike soglia[50832]: 2026-09-27T07:46:16.920155Z  INFO execution phase event.name="execution.phase" execution_id=2feda1c68578d2b427cb59c3b5fddcb4 phase=Ready
+Sep 27 09:46:16 lima-soglia-spike soglia[50832]: 2026-09-27T07:46:16.920165Z  INFO execution phase event.name="execution.phase" execution_id=2feda1c68578d2b427cb59c3b5fddcb4 phase=Running
+Sep 27 09:46:16 lima-soglia-spike soglia[50832]: 2026-09-27T07:46:16.932458Z  INFO execution phase event.name="execution.phase" execution_id=ec195e029aebdf1dca308d8f967e459e phase=Ready
+Sep 27 09:46:16 lima-soglia-spike soglia[50832]: 2026-09-27T07:46:16.932564Z  INFO execution phase event.name="execution.phase" execution_id=ec195e029aebdf1dca308d8f967e459e phase=Running
+Sep 27 09:46:16 lima-soglia-spike soglia[50832]: 2026-09-27T07:46:16.945260Z  INFO execution phase event.name="execution.phase" execution_id=507dbdd02aca416b83ca8ea1f036f7c8 phase=Ready
+Sep 27 09:46:16 lima-soglia-spike soglia[50832]: 2026-09-27T07:46:16.945271Z  INFO execution phase event.name="execution.phase" execution_id=507dbdd02aca416b83ca8ea1f036f7c8 phase=Running
+Sep 27 09:46:19 lima-soglia-spike soglia[50832]: 2026-09-27T07:46:19.426313Z  INFO egress request allowed event.name="egress.allowed" execution_id=2feda1c68578d2b427cb59c3b5fddcb4 method=CONNECT target=allowed.test:443 status=200

@@ -1,0 +1,6 @@
+N|status|complete_instances|programs|links|maps|pins|object_load_ms|local_policy_setup_ms|program_load_ms|attach_ms|pin_ms|setup_ms|bpf_teardown_ms|full_topology_teardown_ms|xlated_bytes|jit_bytes|program_memlock_bytes|map_memlock_bytes|attribution_checks|cleanup
+1|PASS|1|6|6|10|14|0.492|0.001|0.493|0.099|0.015|10.786|0.125|13.370|5736|4728|24576|1176080|1|PASS
+4|PASS|4|24|24|16|32|0.935|0.003|1.855|0.156|0.065|37.178|0.218|18.283|22944|18912|98304|1178480|2|PASS
+16|PASS|16|96|96|40|104|2.316|0.011|6.923|0.254|0.243|139.339|0.470|58.068|91776|75648|393216|1188080|3|PASS
+32|PASS|32|192|192|72|200|4.097|0.020|13.154|0.389|0.414|295.545|0.877|111.789|183552|151296|786432|1200880|3|PASS
+64|BOUNDED_LIMIT|44|derived:264|derived:264|not_snapshotted|derived:272|partial_not_totaled|partial_not_totaled|partial_not_totaled|partial_not_totaled|partial_not_totaled|not_completed|not_applicable|cleanup_only|not_snapshotted|not_snapshotted|not_snapshotted|not_snapshotted|not_run|PASS

@@ -1,0 +1,7 @@
+s13-a-old inode=27804
+s13-a-new inode=27846
+s13-b-old inode=27888
+s13-b-new inode=27930
+s13-c inode=27972
+s13-crash-old inode=28014
+s13-crash-new inode=28056

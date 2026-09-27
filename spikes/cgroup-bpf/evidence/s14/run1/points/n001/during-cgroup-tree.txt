@@ -1,0 +1,9 @@
+CgroupPath
+ID       AttachType      AttachFlags     Name           
+/sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions/s14-e000
+    2258     cgroup_inet_sock_create multi           soglia_sock_create                
+    2259     cgroup_inet4_connect multi           soglia_connect4                
+    2260     cgroup_inet6_connect multi           soglia_connect6                
+    2261     cgroup_udp4_sendmsg multi           soglia_sendmsg4                
+    2262     cgroup_udp6_sendmsg multi           soglia_sendmsg6                
+    2263     cgroup_sock_ops multi           soglia_sockops                 

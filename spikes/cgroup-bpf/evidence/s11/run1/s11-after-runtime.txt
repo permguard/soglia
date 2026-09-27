@@ -1,0 +1,14 @@
+# S11 after runc and runtime state
+UTC=2026-09-27T08:32:01Z
+runc_list_begin
+time="2026-09-27T10:32:01+02:00" level=error msg="open /run/runc: no such file or directory"
+runc_list_end
+runc_directory_begin
+runc_directory_end
+soglia_runtime_paths_begin
+f /run/systemd/generator/soglia.mount
+f /run/systemd/transient/soglia-spike-s0.service
+l /run/systemd/generator/local-fs.target.wants/soglia.mount
+l /run/systemd/units/invocation:soglia-spike-s0.service
+l /run/systemd/units/invocation:soglia.mount
+soglia_runtime_paths_end

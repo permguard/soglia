@@ -1,0 +1,12 @@
+[
+  {
+    "id": 2,
+    "name": "hid_jmp_table",
+    "type": "prog_array"
+  },
+  {
+    "id": 5,
+    "name": "lima_ticker_eve",
+    "type": "ringbuf"
+  }
+]

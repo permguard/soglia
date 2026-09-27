@@ -1,0 +1,58 @@
+test=S10
+execution_cgroup=/sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions/s10-e1
+execution_cgroup_inode=26145
+original_destination=10.200.255.1:15001
+rewritten_destination=10.201.0.2:16001
+phase_loaded name=control object=/var/tmp/spike/bpf/soglia-direct-control.o links=6
+actual_agent_pid=62320
+target_cgroup=/sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions/s10-e1
+target_cgroup_inode=26145
+expected_proc_cgroup_line=0::/system.slice/soglia-spike-s0.service/executions/s10-e1
+proc_exact_membership=true
+cgroup_procs_contains_agent=true
+agent_netns_inode=4026532344
+owned_netns_inode=4026532344
+netns_exact_membership=true
+control_diag=[1, 1, 6, 1, 1, 0, 0]
+control_counters=[0, 0, 0, 0, 0, 0, 0, 0, 0]
+control_ports=[39226, 39226, 15001, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+control_deny_entries=0
+control_tuple_entries=0
+control_cookie_entries=0
+control_event_count=0
+case_a_original_listener_accept=false
+case_a_rewritten_listener_accept=false
+case_b_rewritten_listener_accept=true
+case_b_rewritten_peer=10.201.0.1:40136
+case_b_rewritten_local=10.201.0.2:16001
+control_diag=[2, 2, 15, 2, 2, 1, 1]
+control_counters=[0, 0, 1, 0, 0, 0, 0, 0, 1]
+control_ports=[39226, 39226, 15001, 2168324096, 0, 33086, 16001, 0, 16001, 16001, 15001, 16001]
+control_deny_entries=0
+control_tuple_entries=0
+control_cookie_entries=0
+control_event_count=0
+case_b_original_listener_accept=false
+phase_loaded name=normal object=/var/tmp/spike/bpf/soglia-diag.o links=6
+agent_status=exit status: 0
+agent_stdout_begin
+{"cmd":"barrier /run/soglia-spike-s10-agent-a.ready /run/soglia-spike-s10-agent-a.go 30","ok":true,"detail":"released pid=62320"}
+{"cmd":"direct 10.200.255.1:15001","ok":false,"errno":-1,"error":"connection timed out"}
+{"cmd":"barrier /run/soglia-spike-s10-agent-b.ready /run/soglia-spike-s10-agent-b.go 30","ok":true,"detail":"released pid=62320"}
+{"cmd":"direct 10.200.255.1:15001","ok":true,"detail":"connected"}
+{"cmd":"barrier /run/soglia-spike-s10-agent-c.ready /run/soglia-spike-s10-agent-c.go 30","ok":true,"detail":"released pid=62320"}
+{"cmd":"direct 10.200.255.1:15001","ok":false,"errno":-1,"error":"connection timed out"}
+agent_stdout_end
+agent_stderr_begin
+agent_stderr_end
+normal_diag=[1, 1, 6, 1, 1, 0, 0]
+normal_counters=[0, 0, 0, 0, 0, 0, 0, 0, 0]
+normal_ports=[39226, 39226, 15001, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+normal_deny_entries=0
+normal_tuple_entries=0
+normal_cookie_entries=0
+normal_event_count=0
+normal_original_listener_accept=false
+normal_rewritten_listener_accept=false
+normal_composition_observed=child_saw_original_then_foreign_rewrite_observed
+S10_HARNESS_RESULT=PASS

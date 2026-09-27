@@ -1,0 +1,2 @@
+{"cmd":"barrier /run/soglia-spike-s7-after-loader-loss.ready /run/soglia-spike-s7-after-loader-loss.go 15","ok":true,"detail":"released pid=40538"}
+{"cmd":"direct 10.201.0.2:16001","ok":false,"errno":1,"error":"Operation not permitted (os error 1)"}

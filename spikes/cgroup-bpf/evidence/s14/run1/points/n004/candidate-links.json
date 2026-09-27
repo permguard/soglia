@@ -1,0 +1,170 @@
+[
+  {
+    "id": 470,
+    "type": "cgroup",
+    "prog_id": 2268,
+    "cgroup_id": 29007,
+    "attach_type": "cgroup_inet_sock_create"
+  },
+  {
+    "id": 471,
+    "type": "cgroup",
+    "prog_id": 2269,
+    "cgroup_id": 29007,
+    "attach_type": "cgroup_inet4_connect"
+  },
+  {
+    "id": 472,
+    "type": "cgroup",
+    "prog_id": 2270,
+    "cgroup_id": 29007,
+    "attach_type": "cgroup_inet6_connect"
+  },
+  {
+    "id": 473,
+    "type": "cgroup",
+    "prog_id": 2271,
+    "cgroup_id": 29007,
+    "attach_type": "cgroup_udp4_sendmsg"
+  },
+  {
+    "id": 474,
+    "type": "cgroup",
+    "prog_id": 2272,
+    "cgroup_id": 29007,
+    "attach_type": "cgroup_udp6_sendmsg"
+  },
+  {
+    "id": 475,
+    "type": "cgroup",
+    "prog_id": 2273,
+    "cgroup_id": 29007,
+    "attach_type": "cgroup_sock_ops"
+  },
+  {
+    "id": 476,
+    "type": "cgroup",
+    "prog_id": 2274,
+    "cgroup_id": 29049,
+    "attach_type": "cgroup_inet_sock_create"
+  },
+  {
+    "id": 477,
+    "type": "cgroup",
+    "prog_id": 2275,
+    "cgroup_id": 29049,
+    "attach_type": "cgroup_inet4_connect"
+  },
+  {
+    "id": 478,
+    "type": "cgroup",
+    "prog_id": 2276,
+    "cgroup_id": 29049,
+    "attach_type": "cgroup_inet6_connect"
+  },
+  {
+    "id": 479,
+    "type": "cgroup",
+    "prog_id": 2277,
+    "cgroup_id": 29049,
+    "attach_type": "cgroup_udp4_sendmsg"
+  },
+  {
+    "id": 480,
+    "type": "cgroup",
+    "prog_id": 2278,
+    "cgroup_id": 29049,
+    "attach_type": "cgroup_udp6_sendmsg"
+  },
+  {
+    "id": 481,
+    "type": "cgroup",
+    "prog_id": 2279,
+    "cgroup_id": 29049,
+    "attach_type": "cgroup_sock_ops"
+  },
+  {
+    "id": 482,
+    "type": "cgroup",
+    "prog_id": 2280,
+    "cgroup_id": 29091,
+    "attach_type": "cgroup_inet_sock_create"
+  },
+  {
+    "id": 483,
+    "type": "cgroup",
+    "prog_id": 2281,
+    "cgroup_id": 29091,
+    "attach_type": "cgroup_inet4_connect"
+  },
+  {
+    "id": 484,
+    "type": "cgroup",
+    "prog_id": 2282,
+    "cgroup_id": 29091,
+    "attach_type": "cgroup_inet6_connect"
+  },
+  {
+    "id": 485,
+    "type": "cgroup",
+    "prog_id": 2283,
+    "cgroup_id": 29091,
+    "attach_type": "cgroup_udp4_sendmsg"
+  },
+  {
+    "id": 486,
+    "type": "cgroup",
+    "prog_id": 2284,
+    "cgroup_id": 29091,
+    "attach_type": "cgroup_udp6_sendmsg"
+  },
+  {
+    "id": 487,
+    "type": "cgroup",
+    "prog_id": 2285,
+    "cgroup_id": 29091,
+    "attach_type": "cgroup_sock_ops"
+  },
+  {
+    "id": 488,
+    "type": "cgroup",
+    "prog_id": 2286,
+    "cgroup_id": 29133,
+    "attach_type": "cgroup_inet_sock_create"
+  },
+  {
+    "id": 489,
+    "type": "cgroup",
+    "prog_id": 2287,
+    "cgroup_id": 29133,
+    "attach_type": "cgroup_inet4_connect"
+  },
+  {
+    "id": 490,
+    "type": "cgroup",
+    "prog_id": 2288,
+    "cgroup_id": 29133,
+    "attach_type": "cgroup_inet6_connect"
+  },
+  {
+    "id": 491,
+    "type": "cgroup",
+    "prog_id": 2289,
+    "cgroup_id": 29133,
+    "attach_type": "cgroup_udp4_sendmsg"
+  },
+  {
+    "id": 492,
+    "type": "cgroup",
+    "prog_id": 2290,
+    "cgroup_id": 29133,
+    "attach_type": "cgroup_udp6_sendmsg"
+  },
+  {
+    "id": 493,
+    "type": "cgroup",
+    "prog_id": 2291,
+    "cgroup_id": 29133,
+    "attach_type": "cgroup_sock_ops"
+  }
+]

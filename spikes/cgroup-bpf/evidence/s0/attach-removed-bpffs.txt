@@ -1,0 +1,6 @@
+$ sudo ls -la /sys/fs/bpf
+total 0
+drwx-----T 2 root root 0 Sep 27 07:13 .
+drwxr-xr-x 9 root root 0 Sep 27 06:35 ..
+$ sudo find /sys/fs/bpf/soglia-spike -maxdepth 5 -ls
+/sys/fs/bpf/soglia-spike: ABSENT

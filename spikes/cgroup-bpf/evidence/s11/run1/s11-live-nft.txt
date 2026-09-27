@@ -1,0 +1,30 @@
+table ip nat {
+	chain LIMADNS {
+	}
+
+	chain PREROUTING {
+		type nat hook prerouting priority dstnat; policy accept;
+		counter packets 238 bytes 14253 jump LIMADNS
+	}
+
+	chain OUTPUT {
+		type nat hook output priority dstnat; policy accept;
+		counter packets 243 bytes 15119 jump LIMADNS
+	}
+}
+table inet soglia_spike_s1 {
+	chain input {
+		type filter hook input priority filter - 10; policy accept;
+		iifname "sgh-s1e1" ip saddr != 10.201.0.1 drop
+		iifname "sgh-s1e1" ct state invalid drop
+		iifname "sgh-s1e1" ct state new meta l4proto != tcp drop
+		iifname "sgh-s1e1" ct state new ip daddr != 10.200.255.1 drop
+		iifname "sgh-s1e1" ct state new tcp dport != 15001 drop
+	}
+
+	chain forward {
+		type filter hook forward priority filter - 10; policy accept;
+		iifname "sgh-s1e1" drop
+		oifname "sgh-s1e1" drop
+	}
+}

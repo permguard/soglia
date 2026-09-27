@@ -1,0 +1,10 @@
+# S12 loaded map contract
+UTC=2026-09-27T08:44:20Z
+map=soglia_tuples
+{"id":943,"type":"hash","name":"soglia_tuples","flags":0,"bytes_key":16,"bytes_value":64,"max_entries":8,"bytes_memlock":2784,"frozen":0,"btf_id":529}
+map=soglia_cookie_a
+{"id":950,"type":"hash","name":"soglia_cookie_a","flags":0,"bytes_key":8,"bytes_value":8,"max_entries":8,"bytes_memlock":2016,"frozen":0,"btf_id":529}
+map=soglia_sk_b
+{"id":942,"type":"sk_storage","name":"soglia_sk_b","flags":1,"bytes_key":4,"bytes_value":8,"max_entries":0,"bytes_memlock":576,"frozen":0,"btf_id":529}
+map=soglia_map_fail_diag
+{"id":938,"type":"array","name":"soglia_map_fail","flags":0,"bytes_key":4,"bytes_value":8,"max_entries":8,"bytes_memlock":448,"frozen":0,"btf_id":529}

@@ -1,0 +1,24 @@
+# S10 ancestor destination rewrite / final nft barrier
+UTC=2026-09-27T08:23:20Z
+original_destination=10.200.255.1:15001
+rewritten_destination=10.201.0.2:16001
+foreign_rewrite_id=1693
+foreign_rewrite_invocations=3
+foreign_rewrite_records=original 10.200.255.1:15001, rewritten=1
+case_a=child permissive; rewrite proven; nft post-rewrite counter increased from 0 to 2; neither listener accepted; connection did not establish
+case_b=same child and rewrite; only exact nft exposure added; counter increased to 3; rewritten listener accepted; original listener did not
+decisive_enforcer=nft output final-destination barrier
+normal_child_observed_port=15001
+normal_child_connect4_deny_counter=0
+normal_composition_order_observation=child observed original destination; foreign rewrite was observed afterward in this run
+ordering_basis=child diagnostic context plus foreign ring event chronology; no bpftool list-order inference
+normal_ruleset_structure_restored=true
+final_host_nft_structure_equals_baseline=true
+external_host_nft_counter_churn_ignored=true
+cleanup_program_set_equals_baseline=true
+cleanup_link_set_equals_baseline=true
+cleanup_map_set_equals_baseline=true
+cleanup_bpffs_equals_baseline=true
+production_code_modified_by_s10=false
+candidate_selected=false
+S10_RESULT=PASS

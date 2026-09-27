@@ -1,0 +1,35 @@
+# S0.5 — final S0 cleanup — 2026-09-27T07:36:56+0200 inside VM soglia-spike
+
+## before
+unit: active, MainPID 22563
+executions inode 13326; s0-probe inode 13368; s0-probe procs []; executions procs []
+direct on s0-probe []; effective []; direct on executions []
+
+## remove test cgroups
+$ rmdir /sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions/s0-probe
+ok
+$ rmdir /sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions
+ok
+
+## after (verified absence)
+absent: /sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions/s0-probe
+absent: /sys/fs/cgroup/system.slice/soglia-spike-s0.service/executions
+entries below delegated root: [runtime ]
+delegated root inode 12456, subtree_control [memory pids], procs []
+runtime procs [22563 22595 ]
+$ bpftool cgroup tree /sys/fs/cgroup/system.slice/soglia-spike-s0.service
+CgroupPath
+ID       AttachType      AttachFlags     Name           
+(end)
+$ ls -A /sys/fs/bpf
+[]
+soglia/foreign programs loaded: 0
+cgroup links: 0
+$ bpftool link show
+1: tracing  prog 2  
+	prog_type tracing  attach_type modify_return  
+	target_obj_id 1  target_btf_id 130765  
+2: perf_event  prog 18  
+	tracepoint sys_exit_bind  
+(end)
+unit: active, MainPID 22563, left running as the parent for the next preflight

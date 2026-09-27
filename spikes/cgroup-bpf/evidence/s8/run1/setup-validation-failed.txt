@@ -1,0 +1,10 @@
+# S8 setup/runner validation failure
+
+The runtime experiment itself reached its intended states, but this attempt is not used as the
+authoritative S8 run. The runner tested enforcer death with `kill -0`; Linux returns success for a
+zombie, so that observation timed out even though `/proc/<pid>/stat` already reported the killed
+helper as dead/zombie. An earlier cleanup helper had also disabled `errexit` globally, allowing the
+attempt to continue after that timeout.
+
+The raw evidence is preserved. Final cleanup passed. The valid rerun uses an explicit absent-or-
+zombie predicate and restores `errexit` after the initial cleanup.
