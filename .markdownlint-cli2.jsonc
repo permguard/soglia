@@ -1,0 +1,22 @@
+// Copyright (c) 2022 Nitro Agility S.r.l.
+// SPDX-License-Identifier: Apache-2.0
+//
+// What the Markdown in this repository is held to.
+//
+// Two deliberate departures from the defaults, and nothing else:
+//
+//   line-length  off. Prose is written one sentence per line and never wrapped to a column, so a
+//                diff shows the sentence that changed; a sentence too long to read is split into
+//                two sentences, not wrapped.
+//
+//   no-inline-html  off, and with it first-line-h1. The README opens with a licence header and a
+//                   centred image, which Markdown has no way of expressing and GitHub renders as
+//                   HTML — so the first line is a comment rather than a heading, on purpose.
+{
+  "config": {
+    "line-length": false,
+    "no-inline-html": false,
+    "first-line-heading": false
+  },
+  "globs": ["**/*.md", "!target"]
+}

@@ -1,0 +1,24 @@
+# Copyright (c) 2022 Nitro Agility S.r.l.
+# SPDX-License-Identifier: Apache-2.0
+
+[package]
+name = "soglia-proxy"
+description = "Soglia Runtime proxy: the ingress and egress paths of every Execution, and the egress destination policy."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+bytes.workspace = true
+http.workspace = true
+http-body-util.workspace = true
+hyper.workspace = true
+hyper-util.workspace = true
+soglia-core.workspace = true
+tokio.workspace = true
+tracing.workspace = true
+
+[lints]
+workspace = true

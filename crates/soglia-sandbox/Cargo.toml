@@ -1,0 +1,23 @@
+# Copyright (c) 2022 Nitro Agility S.r.l.
+# SPDX-License-Identifier: Apache-2.0
+
+[package]
+name = "soglia-sandbox"
+description = "Soglia Runtime sandbox helper: per-Execution cgroups, OCI bundles and runc lifecycle."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+rustix.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+soglia-core.workspace = true
+
+[dev-dependencies]
+soglia-enforcer.workspace = true
+
+[lints]
+workspace = true

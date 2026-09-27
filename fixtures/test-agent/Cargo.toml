@@ -1,0 +1,19 @@
+# Copyright (c) 2022 Nitro Agility S.r.l.
+# SPDX-License-Identifier: Apache-2.0
+
+[package]
+name = "soglia-test-agent"
+description = "The agent the Soglia Phase-0 acceptance suite runs inside an Execution."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish = false
+
+[[bin]]
+name = "soglia-test-agent"
+path = "src/main.rs"
+
+[lints]
+workspace = true

@@ -1,0 +1,7 @@
+# Copyright (c) 2022 Nitro Agility S.r.l.
+# SPDX-License-Identifier: Apache-2.0
+
+# A failing assertion in a test is the point of the test, so `unwrap` and `expect` are allowed there
+# and nowhere else.
+allow-unwrap-in-tests = true
+allow-expect-in-tests = true

@@ -1,0 +1,27 @@
+# Copyright (c) 2022 Nitro Agility S.r.l.
+# SPDX-License-Identifier: Apache-2.0
+
+[package]
+name = "soglia-supervisor"
+description = "Soglia Runtime Supervisor: the unprivileged coordinator of every Execution's lifecycle."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+bytes.workspace = true
+http-body-util.workspace = true
+http.workspace = true
+hyper-util.workspace = true
+hyper.workspace = true
+rustix.workspace = true
+serde.workspace = true
+soglia-core.workspace = true
+soglia-proxy.workspace = true
+tokio.workspace = true
+tracing.workspace = true
+
+[lints]
+workspace = true

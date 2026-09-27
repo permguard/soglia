@@ -1,0 +1,45 @@
+# Copyright (c) 2022 Nitro Agility S.r.l.
+# SPDX-License-Identifier: Apache-2.0
+
+# Supply-chain gates for the Soglia workspace.
+#
+# Turned on while the dependency tree is still small, so every later addition is reviewed one at a
+# time instead of arriving as a wall of findings.
+
+[graph]
+all-features = true
+
+# Soglia builds and runs only on Linux. Narrowing the targets keeps `cargo deny` from reporting on
+# dependencies that exist only for systems Soglia never compiles for.
+targets = [
+    { triple = "x86_64-unknown-linux-gnu" },
+    { triple = "aarch64-unknown-linux-gnu" },
+    { triple = "x86_64-unknown-linux-musl" },
+    { triple = "aarch64-unknown-linux-musl" },
+]
+
+[advisories]
+# A crate with a known advisory stops the build. A deliberate exception goes in `ignore` with the
+# advisory id and a reason, so the exception is reviewable instead of invisible.
+yanked = "deny"
+ignore = []
+
+[licenses]
+# Permissive licences only, and only the ones the tree actually uses: an allowance nobody matches is
+# an allowance nobody reviewed.
+allow = [
+    "Apache-2.0",
+    "MIT",
+    "Unicode-3.0",
+]
+confidence-threshold = 0.9
+
+[bans]
+multiple-versions = "warn"
+wildcards = "deny"
+deny = []
+
+[sources]
+unknown-registry = "deny"
+unknown-git = "deny"
+allow-registry = ["https://github.com/rust-lang/crates.io-index"]

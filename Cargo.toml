@@ -1,0 +1,77 @@
+# Copyright (c) 2022 Nitro Agility S.r.l.
+# SPDX-License-Identifier: Apache-2.0
+
+[package]
+name = "soglia"
+description = "Soglia Runtime: trusted execution for AI agents."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+
+# The product lives at the root and the libraries live under `crates/`. The binary is the composition
+# root: it is the only place that picks concrete implementations, and it is what enters the privileged
+# helper roles (`soglia __sandboxd`, `soglia __enforcer`) of the one executable.
+[[bin]]
+name = "soglia"
+path = "src/main.rs"
+
+[dependencies]
+clap.workspace = true
+rustix.workspace = true
+soglia-core.workspace = true
+soglia-enforcer.workspace = true
+soglia-proxy.workspace = true
+soglia-sandbox.workspace = true
+soglia-supervisor.workspace = true
+tokio.workspace = true
+tracing-subscriber.workspace = true
+tracing.workspace = true
+
+[lints]
+workspace = true
+
+[workspace]
+resolver = "3"
+members = ["crates/*", "fixtures/*"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.97"
+license = "Apache-2.0"
+repository = "https://github.com/permguard/soglia"
+
+[workspace.dependencies]
+soglia-core = { path = "crates/soglia-core", version = "0.1.0" }
+soglia-enforcer = { path = "crates/soglia-enforcer", version = "0.1.0" }
+soglia-proxy = { path = "crates/soglia-proxy", version = "0.1.0" }
+soglia-sandbox = { path = "crates/soglia-sandbox", version = "0.1.0" }
+soglia-supervisor = { path = "crates/soglia-supervisor", version = "0.1.0" }
+
+bytes = "1"
+clap = { version = "4", features = ["derive"] }
+http = "1"
+http-body-util = "0.1"
+hyper = { version = "1", features = ["client", "http1", "server"] }
+hyper-util = { version = "0.1", features = ["tokio"] }
+# Safe wrappers for the kernel operations Phase 0 needs: setns, prctl, credentials.
+rustix = { version = "1", features = ["fs", "process", "thread"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+# YAML for `soglia.yaml`; the maintained fork of serde_yaml that PIC-X uses too.
+serde_norway = "0.9"
+tokio = { version = "1", features = ["io-util", "macros", "net", "rt-multi-thread", "signal", "sync", "time"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", default-features = false, features = ["fmt", "std", "ansi"] }
+
+# First-party code carries no `unsafe`. Kernel operations go through safe wrappers; an operation that
+# cannot is a blocker to report, not a reason to add an `unsafe` block.
+[workspace.lints.rust]
+unsafe_code = "forbid"
+
+[workspace.lints.clippy]
+all = { level = "deny", priority = -1 }
+unwrap_used = "deny"
+expect_used = "deny"

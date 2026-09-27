@@ -1,0 +1,25 @@
+# Copyright (c) 2022 Nitro Agility S.r.l.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Soglia under systemd, with the cgroup subtree delegated to it.
+#
+# `Delegate=yes` gives the unit's cgroup to Soglia: it moves its own processes into a `runtime` leaf
+# and creates every Execution cgroup below `executions`, never a top-level cgroup that competes with
+# systemd. Soglia verifies the delegation and its controllers at startup and refuses to start
+# without them.
+
+[Unit]
+Description=Soglia Runtime
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/soglia run -f /etc/soglia/soglia.yaml
+Delegate=yes
+KillMode=mixed
+TimeoutStopSec=90
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

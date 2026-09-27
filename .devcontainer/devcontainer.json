@@ -1,0 +1,32 @@
+// Copyright (c) 2022 Nitro Agility S.r.l.
+// SPDX-License-Identifier: Apache-2.0
+//
+// The Linux development environment, opened in an editor.
+//
+// It is the image `dev/linux/run.sh` and the CI use, so the editor, the scripts and the pipeline
+// build and test against the same toolchain and the same tools. It runs privileged, with its own
+// cgroup namespace, and delegates `/sys/fs/cgroup/soglia` on every start: the privileged suite
+// (`task test:acceptance`) then runs in place, and rust-analyzer sees the whole Linux-only workspace.
+{
+  "name": "Soglia",
+  "build": {
+    "dockerfile": "../dev/linux/Dockerfile",
+    "context": "../dev/linux"
+  },
+  "runArgs": ["--privileged", "--cgroupns=private"],
+  "workspaceMount": "source=${localWorkspaceFolder},target=/work,type=bind",
+  "workspaceFolder": "/work",
+  "mounts": [
+    "source=soglia-cargo,target=/usr/local/cargo/registry,type=volume",
+    "source=soglia-target,target=/work/target,type=volume"
+  ],
+  "postStartCommand": "dev/linux/cgroup-init.sh true",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "rust-lang.rust-analyzer",
+        "tamasfe.even-better-toml"
+      ]
+    }
+  }
+}

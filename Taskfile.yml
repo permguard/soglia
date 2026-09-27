@@ -1,0 +1,130 @@
+# Copyright (c) 2022 Nitro Agility S.r.l.
+# SPDX-License-Identifier: Apache-2.0
+
+version: '3'
+
+# Tasks are kept in alphabetical order, so a reader scanning the file finds them in series.
+tasks:
+  build:
+    desc: Build every component.
+    summary: |
+      Build every component.
+
+      Examples:
+        task build
+        task build PKG=soglia-core
+        task build RELEASE=1
+
+      Parameters:
+        PKG      Build only this workspace crate. Default: the whole workspace.
+        RELEASE  Build with the release profile when set to any value. Default: unset.
+        ARGS     Extra flags appended verbatim to `cargo build`. Default: empty.
+    vars:
+      PKG: '{{.PKG | default ""}}'
+      RELEASE: '{{.RELEASE | default ""}}'
+      ARGS: '{{.ARGS | default ""}}'
+    cmds:
+      - >-
+        cargo build {{if .PKG}}-p {{.PKG}}{{else}}--workspace{{end}}
+        {{if .RELEASE}}--release{{end}} {{.ARGS}}
+
+  check:
+    desc: Run every check the pipeline runs.
+    summary: |
+      Run lint, the licence-header check, the supply-chain gates and the test suite, in that order.
+
+      Example:
+        task check
+    cmds:
+      - task: lint
+      - task: check:headers
+      - task: check:phase0-deps
+      - task: check:supply-chain
+      - task: test
+
+  check:headers:
+    desc: Check that every source file carries the licence header.
+    cmds:
+      - ./scripts/check-license-headers.sh
+
+  check:phase0-deps:
+    desc: Check that the binary links no PIC, gRPC, eBPF or TLS crate (T10).
+    cmds:
+      - ./scripts/check-phase0-dependencies.sh
+
+  check:supply-chain:
+    desc: Check advisories, licences, duplicate crates and sources with cargo-deny.
+    cmds:
+      - cargo deny check advisories licenses bans sources
+
+  dev:image:
+    desc: Build the Linux development and test image.
+    cmds:
+      - docker build -t soglia-dev:local dev/linux
+
+  fmt:
+    desc: Format the code.
+    cmds:
+      - cargo fmt --all
+
+  lint:
+    desc: Check formatting and run clippy with warnings denied.
+    cmds:
+      - cargo fmt --all -- --check
+      - cargo clippy --workspace --all-targets --locked -- -D warnings
+
+  test:
+    desc: Run the unprivileged test suite.
+    summary: |
+      Run the unprivileged test suite.
+
+      Examples:
+        task test
+        task test PKG=soglia-core
+        task test FILTER=ownership
+
+      Parameters:
+        PKG     Test only this workspace crate. Default: the whole workspace.
+        FILTER  Only run tests whose name contains this string. Default: all tests.
+        ARGS    Extra flags appended verbatim to `cargo test`. Default: empty.
+    vars:
+      PKG: '{{.PKG | default ""}}'
+      FILTER: '{{.FILTER | default ""}}'
+      ARGS: '{{.ARGS | default ""}}'
+    cmds:
+      - >-
+        cargo test {{if .PKG}}-p {{.PKG}}{{else}}--workspace{{end}} --locked {{.ARGS}}
+        {{.FILTER}}
+
+  test:acceptance:
+    desc: Run the privileged Phase-0 suite (T1-T10, H1-H4) in the Linux development environment.
+    summary: |
+      Run every privileged test — the network and sandbox backends against a real kernel, and the
+      Phase-0 acceptance suite against a running `soglia`. Inside the devcontainer it runs in place;
+      anywhere else it runs in a fresh privileged development container.
+
+      Example:
+        task dev:image
+        task test:acceptance
+    cmds:
+      - dev/linux/acceptance.sh
+
+  test:portable:
+    desc: Run the tests of the crates that build on any system (soglia-core, soglia-proxy).
+    summary: |
+      Lint and test the crates that are plain logic and build natively on macOS too. The other
+      crates build only on Linux: use the devcontainer or `dev/linux/run.sh` for them.
+
+      Examples:
+        task test:portable
+        task test:portable FILTER=hostname
+
+      Parameters:
+        FILTER  Only run tests whose name contains this string. Default: all tests.
+        ARGS    Extra flags appended verbatim to `cargo test`. Default: empty.
+    vars:
+      FILTER: '{{.FILTER | default ""}}'
+      ARGS: '{{.ARGS | default ""}}'
+    cmds:
+      - cargo clippy -p soglia-core -p soglia-proxy --all-targets --locked -- -D warnings
+      - cargo test -p soglia-core -p soglia-proxy --locked {{.ARGS}} {{.FILTER}}

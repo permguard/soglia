@@ -1,0 +1,74 @@
+# Copyright (c) 2022 Nitro Agility S.r.l.
+# SPDX-License-Identifier: Apache-2.0
+
+# The unprivileged gate: formatting, clippy, licence headers, tests and the supply chain.
+#
+# The privileged Phase-0 acceptance suite (T1-T10, H1-H4) needs a delegated cgroup subtree,
+# nftables, iproute2 and runc; it runs in its own job, inside the privileged development container.
+# The `portable` job keeps the promise that `soglia-core` and `soglia-proxy` build off Linux.
+
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  check:
+    name: lint, headers, tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - uses: dtolnay/rust-toolchain@6c977a6ca4077a0ceb28ffbe03f59d46e9ac8772 # master 2026-08; the toolchain is chosen by `toolchain:`, not by the ref
+        with:
+          toolchain: stable
+          components: clippy, rustfmt
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2
+      - name: formatting
+        run: cargo fmt --all -- --check
+      - name: clippy
+        run: cargo clippy --workspace --all-targets --locked -- -D warnings
+      - name: licence headers
+        run: ./scripts/check-license-headers.sh
+      - name: the binary links no later-phase crate (T10)
+        run: ./scripts/check-phase0-dependencies.sh
+      - name: tests
+        run: cargo test --workspace --locked
+
+  acceptance:
+    name: Phase-0 acceptance (T1-T10, H1-H4)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - name: development image
+        run: docker build -t soglia-dev:local dev/linux
+      - name: privileged suite
+        run: dev/linux/acceptance.sh
+
+  portable:
+    name: portable crates on macOS
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - uses: dtolnay/rust-toolchain@6c977a6ca4077a0ceb28ffbe03f59d46e9ac8772 # master 2026-08; the toolchain is chosen by `toolchain:`, not by the ref
+        with:
+          toolchain: stable
+          components: clippy
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2
+      - name: clippy
+        run: cargo clippy -p soglia-core -p soglia-proxy --all-targets --locked -- -D warnings
+      - name: tests
+        run: cargo test -p soglia-core -p soglia-proxy --locked
+
+  supply-chain:
+    name: advisories, licences, sources
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - uses: EmbarkStudios/cargo-deny-action@3c6349835b2b7b196a839186cb8b78e02f7b5f25 # v2
+        with:
+          command: check advisories licenses bans sources

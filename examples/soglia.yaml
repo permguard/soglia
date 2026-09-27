@@ -1,0 +1,29 @@
+# Copyright (c) 2022 Nitro Agility S.r.l.
+# SPDX-License-Identifier: Apache-2.0
+
+# A minimal Soglia Runtime configuration. Every field not written here takes its default; unknown
+# fields are refused, so a misspelt setting stops the runtime instead of being ignored.
+
+runtime:
+  # The unprivileged user the Supervisor, ingress and egress proxy run as after startup.
+  uid: 990
+  gid: 990
+  max_concurrency: 4
+  max_queue: 16
+
+ingress:
+  listen: 127.0.0.1:8088
+
+egress:
+  allow:
+    - host: api.example.com
+      ports: [443]
+
+agents:
+  echo:
+    # A read-only root filesystem holding the agent and the directories /proc, /dev, /sys and /tmp.
+    rootfs: /var/lib/soglia/rootfs/echo
+    command: ["/agent"]
+    env:
+      AGENT_PORT: "8080"
+    port: 8080
