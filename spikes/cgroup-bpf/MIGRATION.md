@@ -3,7 +3,7 @@
 
 # Historical-to-reproducible migration map
 
-The archive at `../cgroup-bpf-old/` is immutable reference evidence.
+The archive at `../cgroup-bpf-historical/` is immutable reference evidence.
 Copied BPF C and agent sources begin byte-identical to the archive; differences must be explicit in review.
 Old shell runners are not runtime dependencies.
 

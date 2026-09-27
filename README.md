@@ -15,25 +15,155 @@
 
 For an autonomous agent, Soglia is that boundary.
 
+## The missing security boundary
+
+Modern authorization can decide **who may do what**.
+
+PIC goes further: it proves **which causal execution the authority belongs to** and whether that authority may continue to the next step.
+
+But there is still one boundary left:
+
+**the code that actually exercises that authority.**
+
+Traditional workers and API servers execute many requests inside the same long-lived process. Credentials, globals, caches, connections and mutable state become ambient authority.
+
 ```text
-Agent
-  |
-  | intention / request
-  v
-========================
-         SOGLIA
-========================
-  | identity
-  | isolation
-  | network mediation
-  | policy enforcement
-  | fail-closed
-  v
-External effect
+request A --\
+            +--> same long-lived process
+request B --/        |
+                     +-- global state
+                     +-- credentials
+                     +-- connections
+                     `-- mutable context
 ```
 
-The agent may decide what it wants to do.
-Soglia controls the boundary between that decision and its real-world effects.
+At that point, security depends on every function always receiving, preserving and using the correct context.
+
+That is too weak for untrusted or probabilistic AI code.
+
+Soglia changes the unit of security from the **service** to the **execution occurrence**.
+
+```text
+one request
+    =
+one authority context
+    =
+one fresh isolated Execution
+```
+
+## Authority becomes physical
+
+```text
+                    PERMGUARD
+              Authority Continuity
+                     / PIC
+                       |
+                       v
+Caller --------> HTTP / gRPC ingress
+                       |
+                       v
+                Execution Context
+                       |
+                       v
+        +================================+
+        |             SOGLIA             |
+        |                                |
+        |      fresh Execution E123      |
+        |                                |
+        |   authority + input + labels   |
+        |              |                 |
+        |              v                 |
+        |          AI Agent              |
+        |       untrusted code           |
+        |              |                 |
+        |        HTTP / gRPC only        |
+        +--------------+-----------------+
+                       |
+                       v
+                Soglia Egress PEP
+                       |
+              +--------+--------+
+              |                 |
+              v                 v
+
+      PIC-aware boundary     Legacy boundary
+
+      PIC continuation       Credential Anchor
+              |                 |
+              v                 | materialize
+       Connector / next         | real credential
+       Soglia Execution         v
+              |          External service
+              v
+         Backend effect
+
+
+        response + IFC labels
+                 |
+                 v
+        Execution destroyed
+                 |
+                 v
+              Caller
+```
+
+**PIC controls authority flow.  
+IFC controls information flow.  
+Soglia controls execution and effect flow.**
+
+Inside the Execution there are no real backend credentials. The agent receives only authority material bound to that Execution.
+
+If the agent wants to affect the outside world, the effect must cross a Soglia boundary.
+
+For a PIC-aware destination, authority continues as PIC.
+
+For a legacy destination, the real credential is materialized **outside the Execution**, at the trusted mediation boundary.
+
+The agent never receives it.
+
+When the invocation ends, the Execution is destroyed.
+
+```text
+request A -> Execution E123 -> authority A -> destroy
+request B -> Execution E124 -> authority B -> destroy
+```
+
+There is no long-lived application process in which request B can accidentally reuse request A's authority.
+
+This is the key idea behind Soglia:
+
+> **Do not ask untrusted code to carry the security context correctly. Make the execution boundary carry it.**
+
+Soglia borrows the **per-invocation execution model popularized by serverless**, but uses it as a security primitive rather than only as a scaling abstraction.
+
+A traditional server keeps a process alive and feeds many requests through it.
+
+Soglia instead treats each invocation as a temporary security domain:
+
+```text
+traditional server
+
+request A --\
+request B ----> long-lived process ----> shared authority/state
+request C --/
+
+
+Soglia
+
+request A ----> fresh Execution A ----> destroy
+request B ----> fresh Execution B ----> destroy
+request C ----> fresh Execution C ----> destroy
+```
+
+The process is no longer the security unit.
+
+**The invocation is.**
+
+Permguard proves why authority may continue.
+
+Soglia makes that authority enforceable at the exact boundary where **intent becomes effect**.
+
+> **Target security model:** the sections above describe the intended end-state architecture. The implementation status and currently active features are listed below.
 
 Soglia is the runtime where AI agents run and act on the outside world under Permguard's control.
 Agents think and propose.
@@ -43,10 +173,10 @@ Soglia decides what may execute, isolates the code that executes it, and lets it
 
 Soglia works beside Permguard, and the two stay separate.
 
-| Layer     | What it is                                                                   |
-| --------- | ---------------------------------------------------------------------------- |
-| Permguard | Control Plane, Data Plane and Trust Plane: PIC, trust, policy and authority  |
-| Soglia    | The agent execution runtime: isolation, mediation, lifecycle and enforcement |
+| Layer | What it is |
+| --- | --- |
+| Permguard | Control Plane, Data Plane and Trust Plane: PIC, trust, policy and authority |
+| Soglia | The agent execution runtime: isolation, mediation, lifecycle and enforcement |
 
 Permguard decides and verifies authority.
 Soglia creates and confines the concrete Execution that must obey it.
@@ -58,14 +188,14 @@ One request creates one fresh, isolated Execution.
 
 ```text
 Caller
-  -> ingress proxy
-  -> Supervisor
-  -> fresh sandbox (namespaces, cgroup, read-only rootfs)
-  -> agent
-  -> egress proxy -> allowed destination
-  -> response buffered
-  -> Execution destroyed
-  -> response to Caller
+ -> ingress proxy
+ -> Supervisor
+ -> fresh sandbox (namespaces, cgroup, read-only rootfs)
+ -> agent
+ -> egress proxy -> allowed destination
+ -> response buffered
+ -> Execution destroyed
+ -> response to Caller
 ```
 
 The agent can reach the network only through the Soglia egress proxy.
@@ -89,14 +219,14 @@ Soglia runs only on Linux, and the `soglia` binary builds only for Linux.
 Only the portable crates, `soglia-core` and `soglia-proxy`, also build on macOS: they are plain logic, with no kernel dependency.
 Every other crate stops with an explicit error when built for another system.
 
-| Requirement                  | Why                                                  |
-| ---------------------------- | ---------------------------------------------------- |
-| Rust 1.97+                   | Build Soglia                                         |
-| cgroup v2, delegated subtree | Per-Execution resource limits and teardown           |
-| `nft` (nftables)             | Network policy for each Execution                    |
-| `ip` (iproute2)              | Network namespaces, veth pairs, addresses and routes |
-| `runc`                       | Start each Execution from an OCI bundle              |
-| Task or Make                 | Run the project workflows                            |
+| Requirement | Why |
+| --- | --- |
+| Rust 1.97+ | Build Soglia |
+| cgroup v2, delegated subtree | Per-Execution resource limits and teardown |
+| `nft` (nftables) | Network policy for each Execution |
+| `ip` (iproute2) | Network namespaces, veth pairs, addresses and routes |
+| `runc` | Start each Execution from an OCI bundle |
+| Task or Make | Run the project workflows |
 
 On macOS or Windows, build and test the rest inside the Linux development container described below.
 
@@ -124,10 +254,10 @@ task test:acceptance   # the privileged suite: T1-T10, H1-H4, and the backends o
 
 On macOS there are two ways to work.
 
-| Where                              | What runs                                                                 |
-| ---------------------------------- | ------------------------------------------------------------------------- |
-| Natively                           | `task test:portable`: lint and tests of `soglia-core` and `soglia-proxy`  |
-| In [.devcontainer/](.devcontainer) | Everything, with the editor and rust-analyzer running inside Linux        |
+| Where | What runs |
+| --- | --- |
+| Natively | `task test:portable`: lint and tests of `soglia-core` and `soglia-proxy` |
+| In [.devcontainer/](.devcontainer) | Everything, with the editor and rust-analyzer running inside Linux |
 
 The devcontainer is built from [dev/linux/Dockerfile](dev/linux/Dockerfile), the same image `dev/linux/run.sh` and the CI use.
 Outside an editor, `dev/linux/run.sh make check` runs the full gate in that image.

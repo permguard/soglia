@@ -5,9 +5,10 @@
 
 ## Scope
 
-This report covers the reproducible runner only. The historical spike and all of its evidence remain preserved at `../cgroup-bpf-old/`; its aggregate SHA-256 is `7150364722a56cab1c64809872d2fbf4a7747df7b36eb32925fcf30aa2e3ddbc`.
+This report covers the reproducible runner only. The historical spike and all of its evidence remain preserved at `../cgroup-bpf-historical/`; its aggregate SHA-256 is `7150364722a56cab1c64809872d2fbf4a7747df7b36eb32925fcf30aa2e3ddbc`.
 
-No new production behavior has been implemented, Candidate A/B/C/D has not been selected, and B1-B7 are out of scope.
+No new production behavior has been implemented.
+Candidate A was explicitly selected after the completed candidate review, and its production design and B1-B7 qualification gates are now documented in [PRODUCTION-DESIGN.md](PRODUCTION-DESIGN.md).
 
 ## Development qualification
 
@@ -232,27 +233,27 @@ Thus no executable or evidence input changed between replay #1 and replay #2.
 
 The historical baseline is exclusively the final evidence selected by the
 historical report. For each row below, the manifest is the sorted sequence of
-`SHA-256(file)  path`, with the path relative to `spikes/cgroup-bpf-old/`; the
+`SHA-256(file)  path`, with the path relative to `spikes/cgroup-bpf-historical/`; the
 reported value is the SHA-256 of those manifest bytes.
 
 | Test | Final historical evidence path | Files | Manifest SHA-256 |
 | --- | --- | ---: | --- |
-| S0 | [`evidence/s0`](../cgroup-bpf-old/evidence/s0/) | 60 | `6f77c7a351f418f3744763fd39d5a49be0a6c559dd5b72d54d18609cce951c53` |
-| S1 | [`evidence/s1/port-fixed`](../cgroup-bpf-old/evidence/s1/port-fixed/) | 28 | `ec70717246cbddd7dcc9678c3d79d41397d5c9f0244303e6cdcedbfa7ef4c0f5` |
-| S1b | [`evidence/s1b/race`](../cgroup-bpf-old/evidence/s1b/race/) | 29 | `be6b7fc82356a1031c556fdf53d5359ea32f0c419e7124d22a4fa6202a27d3c8` |
-| S2 | [`evidence/s2/run2`](../cgroup-bpf-old/evidence/s2/run2/) | 32 | `1dbcdc8a5a338cf389059d6b6857b93ef5aa6b0951c6100ac48149adaf24ed2e` |
-| S3 | [`evidence/s3`](../cgroup-bpf-old/evidence/s3/) | 88 | `f535a3ed03eaf7e138ed533d8bcca542b6e415f2f70bcde57b0109c0f1f7c255` |
-| S4 | [`evidence/s4/run2`](../cgroup-bpf-old/evidence/s4/run2/) | 43 | `be8b7ea0abfe7f8e1f1a859610dfd16bdbe04e5d914acfb26d675a7f90b2e065` |
-| S5 | [`evidence/s5/run3`](../cgroup-bpf-old/evidence/s5/run3/) | 15 | `de54a808fb7f634a98ab80e0d1bcd0fbc71b034c12b57819a9eb2d08eee0186a` |
-| S6 | [`evidence/s6`](../cgroup-bpf-old/evidence/s6/) | 13 | `d92bb86574bb0bdeeb22ecdf93587292e6ed56250575a8975f1407be059864cf` |
-| S7 | [`evidence/s7/run2`](../cgroup-bpf-old/evidence/s7/run2/) | 39 | `af995971d8660faf538893167f6828f4c6096448eef7fe02bf046bb9e6eef149` |
-| S8 | [`evidence/s8/after-fix-run6`](../cgroup-bpf-old/evidence/s8/after-fix-run6/) | 91 | `41ac538e58f711b9fd9ba38eed2c8e86aacd99fece59114312ad65972f5f26f2` |
-| S9 | [`evidence/s9/run4`](../cgroup-bpf-old/evidence/s9/run4/) | 62 | `2be1f9120a34264a43065e61fc68bd2326b7c0ec1b29f419e8e6059195d7b7c6` |
-| S10 | [`evidence/s10/run3`](../cgroup-bpf-old/evidence/s10/run3/) | 73 | `8fb3684aafd84ba7a3f52a6ee34da2066b9e5532fc9423c43195265a6d6c039e` |
-| S11 | [`evidence/s11/run1`](../cgroup-bpf-old/evidence/s11/run1/) | 104 | `3d53036452daf1688c0edf8cb851ef68d9b7d8c7b225e7a96cd94bd67de1f633` |
-| S12 | [`evidence/s12/run1`](../cgroup-bpf-old/evidence/s12/run1/) | 47 | `541c2b9ae353bacd85c293dbad6c496218169a73a259a3366118ca791142854a` |
-| S13 | [`evidence/s13/run2`](../cgroup-bpf-old/evidence/s13/run2/) | 118 | `5eb2a0195d46a1b7202942c2a619cf572a522200b2cdb712e542c4561db317aa` |
-| S14 | [`evidence/s14/run1`](../cgroup-bpf-old/evidence/s14/run1/) | 316 | `054c3e4fa19060805625de12ef93cbca624eea7fe0d2457df6025fe59fe7f715` |
+| S0 | [`evidence/s0`](../cgroup-bpf-historical/evidence/s0/) | 60 | `6f77c7a351f418f3744763fd39d5a49be0a6c559dd5b72d54d18609cce951c53` |
+| S1 | [`evidence/s1/port-fixed`](../cgroup-bpf-historical/evidence/s1/port-fixed/) | 28 | `ec70717246cbddd7dcc9678c3d79d41397d5c9f0244303e6cdcedbfa7ef4c0f5` |
+| S1b | [`evidence/s1b/race`](../cgroup-bpf-historical/evidence/s1b/race/) | 29 | `be6b7fc82356a1031c556fdf53d5359ea32f0c419e7124d22a4fa6202a27d3c8` |
+| S2 | [`evidence/s2/run2`](../cgroup-bpf-historical/evidence/s2/run2/) | 32 | `1dbcdc8a5a338cf389059d6b6857b93ef5aa6b0951c6100ac48149adaf24ed2e` |
+| S3 | [`evidence/s3`](../cgroup-bpf-historical/evidence/s3/) | 88 | `f535a3ed03eaf7e138ed533d8bcca542b6e415f2f70bcde57b0109c0f1f7c255` |
+| S4 | [`evidence/s4/run2`](../cgroup-bpf-historical/evidence/s4/run2/) | 43 | `be8b7ea0abfe7f8e1f1a859610dfd16bdbe04e5d914acfb26d675a7f90b2e065` |
+| S5 | [`evidence/s5/run3`](../cgroup-bpf-historical/evidence/s5/run3/) | 15 | `de54a808fb7f634a98ab80e0d1bcd0fbc71b034c12b57819a9eb2d08eee0186a` |
+| S6 | [`evidence/s6`](../cgroup-bpf-historical/evidence/s6/) | 13 | `d92bb86574bb0bdeeb22ecdf93587292e6ed56250575a8975f1407be059864cf` |
+| S7 | [`evidence/s7/run2`](../cgroup-bpf-historical/evidence/s7/run2/) | 39 | `af995971d8660faf538893167f6828f4c6096448eef7fe02bf046bb9e6eef149` |
+| S8 | [`evidence/s8/after-fix-run6`](../cgroup-bpf-historical/evidence/s8/after-fix-run6/) | 91 | `41ac538e58f711b9fd9ba38eed2c8e86aacd99fece59114312ad65972f5f26f2` |
+| S9 | [`evidence/s9/run4`](../cgroup-bpf-historical/evidence/s9/run4/) | 62 | `2be1f9120a34264a43065e61fc68bd2326b7c0ec1b29f419e8e6059195d7b7c6` |
+| S10 | [`evidence/s10/run3`](../cgroup-bpf-historical/evidence/s10/run3/) | 73 | `8fb3684aafd84ba7a3f52a6ee34da2066b9e5532fc9423c43195265a6d6c039e` |
+| S11 | [`evidence/s11/run1`](../cgroup-bpf-historical/evidence/s11/run1/) | 104 | `3d53036452daf1688c0edf8cb851ef68d9b7d8c7b225e7a96cd94bd67de1f633` |
+| S12 | [`evidence/s12/run1`](../cgroup-bpf-historical/evidence/s12/run1/) | 47 | `541c2b9ae353bacd85c293dbad6c496218169a73a259a3366118ca791142854a` |
+| S13 | [`evidence/s13/run2`](../cgroup-bpf-historical/evidence/s13/run2/) | 118 | `5eb2a0195d46a1b7202942c2a619cf572a522200b2cdb712e542c4561db317aa` |
+| S14 | [`evidence/s14/run1`](../cgroup-bpf-historical/evidence/s14/run1/) | 316 | `054c3e4fa19060805625de12ef93cbca624eea7fe0d2457df6025fe59fe7f715` |
 
 The union contains 1,158 unique files and has manifest SHA-256
 `2d160644d87d7c4b08c59b2777309c60b18e6626c59c1617843aa78c75eb24c4`.
@@ -339,5 +340,451 @@ dirty entries in those production paths. The later changes are spike runner,
 evidence migration and host orchestration only. Therefore the comparison finds
 no new production modification after the authorized S8 baseline.
 
-Candidate A/B/C/D remains unselected. This review does not start candidate
-review or B1-B7, and it makes no production change.
+Candidate A/B/C/D remained unselected at the end of that reproducibility
+review. That review did not start candidate review or B1-B7, and it made no
+production change.
+
+## Candidate review A/B/C/D
+
+Review date: 2026-09-27.
+
+Review status: `REVIEW_COMPLETE`. The evidence supports a non-binding technical
+recommendation; final candidate selection remains an explicit subsequent human
+decision.
+
+### Evidence basis and limits
+
+The authoritative basis is the final historical S0-S14 evidence selected in
+the provenance table above plus both final authoritative replay roots:
+
+- [`replay-1790525576624-5754`](evidence/replay/replay-1790525576624-5754/);
+- [`replay-1790525780260-5753`](evidence/replay/replay-1790525780260-5753/).
+
+Both replay summaries contain 16 PASS results and PASS cleanup, and their
+candidate-relevant observations reproduce the historical final results. The
+main raw historical references used below are:
+
+| Evidence | Raw source |
+| --- | --- |
+| S1 trusted chain | [`s1/port-fixed/s1-harness.txt`](../cgroup-bpf-historical/evidence/s1/port-fixed/s1-harness.txt) |
+| S1b delayed/missing publication | [`s1b/race/s1-harness.txt`](../cgroup-bpf-historical/evidence/s1b/race/s1-harness.txt) |
+| S2 concurrency | [`s2/run2/s2-harness.txt`](../cgroup-bpf-historical/evidence/s2/run2/s2-harness.txt) |
+| S3 lifecycle/reuse | [`s3/s3-summary.txt`](../cgroup-bpf-historical/evidence/s3/s3-summary.txt) |
+| S6 enforcement boundaries | [`s6-enforcement-layer-table.md`](../cgroup-bpf-historical/evidence/s6/s6-enforcement-layer-table.md) |
+| S7 loader loss | [`s7/run2/s7-summary.txt`](../cgroup-bpf-historical/evidence/s7/run2/s7-summary.txt) |
+| S8 Enforcer loss | [`s8/after-fix-run6/s8-summary.txt`](../cgroup-bpf-historical/evidence/s8/after-fix-run6/s8-summary.txt) |
+| S9/S10 foreign composition | [`s9/run4/s9-summary.txt`](../cgroup-bpf-historical/evidence/s9/run4/s9-summary.txt), [`s10/run3/s10-summary.txt`](../cgroup-bpf-historical/evidence/s10/run3/s10-summary.txt) |
+| S11 lifecycle cleanup | [`s11/run1/s11-summary.txt`](../cgroup-bpf-historical/evidence/s11/run1/s11-summary.txt) |
+| S12 exhaustion | [`s12/run1/s12-summary.txt`](../cgroup-bpf-historical/evidence/s12/run1/s12-summary.txt), [`s12-map-characterization.txt`](../cgroup-bpf-historical/evidence/s12/run1/s12-map-characterization.txt) |
+| S13 ownership/recovery | [`S13-CONTRACT.md`](S13-CONTRACT.md), [`s13-v2-result.txt`](../cgroup-bpf-historical/evidence/s13/run2/s13-v2-result.txt) |
+| S14 Candidate-C scaling | [`s14-scaling-matrix.txt`](../cgroup-bpf-historical/evidence/s14/run1/s14-scaling-matrix.txt), [`s14-resource-model.txt`](../cgroup-bpf-historical/evidence/s14/run1/s14-resource-model.txt), [`s14-result.txt`](../cgroup-bpf-historical/evidence/s14/run1/s14-result.txt) |
+
+Failed and diagnostic runs are negative evidence, not authoritative PASS input:
+
+- S1's [`SUBJECT_PLACEMENT_FAILURE`](../cgroup-bpf-historical/evidence/s1/diagnostic/s1-harness.txt)
+  proves that runtime configuration is not placement evidence; the later
+  [`ATTRIBUTION_LOGIC_FAILURE`](../cgroup-bpf-historical/evidence/s1/port-trace/s1-harness.txt)
+  exposes how a common tuple-encoding defect can defeat every candidate.
+- S8's preserved [`FAIL`](../cgroup-bpf-historical/evidence/s8/run4/s8-summary.txt)
+  proves that candidate correctness cannot compensate for delayed Enforcer-loss
+  detection. The authorized production fix and final regression are the
+  baseline.
+- S13's preserved [`FAIL`](../cgroup-bpf-historical/evidence/s13/run1/s13-result.txt)
+  proves that pins, names and metadata without a trusted ownership/ABI/
+  generation contract are unsafe. The final spike-only contract is evidence of
+  the required behavior, not a production implementation.
+- The failed/silent replay-runner attempts documented above are orchestration
+  evidence: durable phase state and provenance-based owned-resource cleanup are
+  mandatory. They do not distinguish A/B/C/D.
+
+All conclusions are limited to Ubuntu 24.04.4, Linux
+`6.8.0-134-generic`, aarch64 and the recorded Apache-2.0 programs. A successful
+feature probe is not treated as runtime correctness evidence.
+
+### Executive technical summary
+
+The tested architecture remains `Execution -> forward proxy -> external API`.
+cgroup-BPF supplies trusted attribution and early denial; nftables remains the
+final destination barrier. The Enforcer is not a traffic hop, IP/veth identity
+is only a cross-check, and missing or ambiguous attribution must deny.
+
+A, B and C were carried simultaneously in the final tuple evidence and each
+resolved to the current Execution in S1-S3. This proves their tested runtime
+chains, but not three production backends. D only produced a netns cookie: the
+trusted live `netns cookie -> Execution` owner mapping and its authorization
+lifecycle were never exercised.
+
+The main differentiators are therefore state ownership and operational shape:
+
+- A uses an explicit, bounded and observable cookie-to-cgroup hash. Its update
+  exhaustion was observed, and the surrounding missing-attribution path denied.
+- B binds the same trusted cgroup identity to the socket through `sk_storage`,
+  reducing explicit close cleanup but leaving allocation-pressure behavior and
+  capacity less observable and not deterministically exhausted by S12.
+- C removes the candidate-specific per-socket identity lookup by embedding one
+  identity in each Execution's object instance, at the measured cost of `6N`
+  programs, `6N` links, `8+2N` maps and `8+6N` pins. The present single-loader
+  process reached `EMFILE` while loading instance 45 with 1,016 open FDs.
+- D could reduce attribution to a namespace owner relation, but that security
+  relation is currently `NOT PROVEN`; distinct cookies are insufficient.
+
+### Candidate A dossier — socket cookie to cgroup identity
+
+**Mechanism and trust source.** At admitted `connect4`, the program reads the
+current cgroup ID and socket cookie and writes `cookie -> cgroup ID`. At
+`ACTIVE_ESTABLISHED`, `sockops` reads the same socket cookie, looks up the
+cgroup ID and publishes it with the accepted tuple. Resolve correlates that
+tuple to the live Execution. Trust ultimately comes from the kernel's current
+cgroup for a host-placed process; the cookie is the per-socket correlation key.
+
+**Evidence maturity.**
+
+- `PROVEN`: S1 published candidate-A cgroup 14646 from cookie 12347 and
+  resolved the correct Execution; both final replays reproduced a nonzero
+  cookie-to-current-cgroup record and correct Resolve.
+- `PROVEN`: S2 observed 132 unique cookies over four concurrent Executions,
+  zero attribution mismatch, zero cross-attribution and zero unexpected tuple
+  collision. S3 covered FIN, RST, process kill and source-port reuse across
+  fresh cgroup generations with zero stale/cross-generation attribution.
+- `PROVEN`: S5 showed that omitting `sockops` leaves the connect-time cookie but
+  no final tuple, identifying the required second half of the chain. S11
+  removed cookie/tuple state and all other owned resources.
+- `PARTIAL`: S12 filled the candidate-A cookie hash and tuple hash to 8/8; the
+  extra cookie update returned `-7`, the tuple update also failed, and Resolve
+  denied with no side effect. An isolated A-map-full case while tuple capacity
+  remains available was not run.
+- `NOT PROVEN`: production sizing/eviction policy, sustained hostile churn,
+  cookie reuse outside the tested lifecycle, and production restart integration.
+
+**State and lifecycle.** Candidate-specific state is one bounded hash entry per
+live admitted socket. It also depends on the common tuple map, policy state,
+six hooks and exact ownership metadata for any pins. `sockops` close deletes
+only the tuple whose stored cookie matches the closing socket and then deletes
+the cookie entry; Execution teardown removes remaining owned state. This was
+safe in the S2/S3/S11 cases. Missed callbacks and crash residue still require
+the S13 exact-record sweep/recreate rule; names or pin paths alone are not
+ownership proof.
+
+**Failure semantics.** Delayed/missing final tuple state denied in S1b, and
+combined cookie/tuple exhaustion denied in S12. S7 proves pinned early-deny
+enforcement survives loader loss, not that end-to-end proxy attribution remains
+operable without its userspace owner. S8 Enforcer-loss cancellation and S13
+incompatible/unknown-state refusal are surrounding lifecycle requirements, not
+properties supplied by A itself.
+
+**Kernel, licensing and composition.** A requires `connect4`, `sockops`, hash
+map operations, `bpf_get_current_cgroup_id`, `bpf_get_socket_cookie` and the
+state callback. These call sites loaded and executed under Apache-2.0 on the
+tested kernel. S9/S10 prove the combined child program can coexist with an
+ancestor foreign ALLOW/rewrite without bypassing child deny or nft's final
+barrier; they do not prove every possible foreign program or attach topology.
+
+**Cost and operations.** The normal spike bounds the candidate-A and common
+tuple hashes at 4,096 entries; S12 used 8 to prove exhaustion. No independent
+production A-only program/link/map/pin formula was measured. Relative to C, A
+can use a shared program/map topology, but adds explicit per-socket map
+insertion, deletion, sizing, diagnostics and stale-entry auditing. Its state is
+directly enumerable, which improves observability.
+
+**Residual risk.** The security-sensitive gaps are isolated A-only exhaustion,
+production ownership/recovery, long-duration cookie churn, deployment-specific
+map sizing and qualification outside the tested kernel/architecture.
+
+### Candidate B dossier — socket-local BPF storage
+
+**Mechanism and trust source.** At admitted `connect4`, the program obtains the
+socket and creates socket-local BPF storage containing the kernel current
+cgroup ID. `sockops` later reads that storage from the established socket and
+publishes it with the tuple. Trust comes from the current cgroup at connect
+time plus the kernel association of storage with that same socket.
+
+**Evidence maturity.**
+
+- `PROVEN`: S1-S3 published candidate B equal to the trusted current cgroup,
+  resolved the correct Execution, produced zero cross-attribution over S2's 132
+  sockets and no stale result in S3's FIN/RST/kill generations.
+- `PROVEN`: the `sk_storage` helper path loaded and ran under Apache-2.0. S11
+  returned attribution and BPF state to zero residue.
+- `PARTIAL`: the same common tuple publication, bounded Resolve, foreign
+  composition and lifecycle protections exercised B's value, but do not isolate
+  B from A/C because all three travelled in one evidence record.
+- `NOT PROVEN`: S12 observed zero `sk_storage` failures and documents no finite
+  `max_entries` knob; deterministic allocation-pressure failure and a B-only
+  missing-storage deny were not exercised.
+
+**State and lifecycle.** Candidate-specific identity is a `BPF_MAP_TYPE_SK_STORAGE`
+value associated with each socket; the map object and common tuple/policy state
+still need ownership. The spike does not call `bpf_sk_storage_delete`; socket
+lifetime owns that storage. This reduces explicit close deletion compared with
+A, while making capacity, enumeration and pressure behavior less explicit.
+S3/S11 support the tested lifecycle but do not prove all kernel allocation and
+reclamation behavior.
+
+**Failure semantics.** Source diagnostics treat failure to create/read storage
+as absent B evidence. Production Resolve would have to reject that absence.
+The common tuple-full path is proven fail closed; B-storage allocation failure
+itself is not. Loader-, Enforcer- and incompatible-pin behavior is inherited
+from S7/S8/S13 requirements in the same limited sense as A.
+
+**Kernel, licensing and composition.** B additionally requires
+`BPF_MAP_TYPE_SK_STORAGE`, a valid `ctx->sk` at connect time and
+`bpf_sk_storage_get` in both hook contexts. Verifier acceptance and runtime use
+were observed under Apache-2.0 only on the tested kernel. S9/S10 establish the
+same combined-program coexistence as A, not a standalone production B design.
+
+**Cost and operations.** There is one candidate-specific storage value per
+socket plus the common tuple state, but no evidence-backed finite capacity or
+standalone object formula. Explicit stale-entry deletion work is lower than A;
+capacity planning, failure injection and operational inspection are harder.
+
+**Residual risk.** Deterministic allocation-pressure behavior is the decisive
+candidate-specific unknown, followed by observability, production ownership,
+kernel-version semantics and sustained churn.
+
+### Candidate C dossier — one configured object instance per Execution
+
+**Mechanism and trust source.** The loader configures one object/program set
+per Execution with `exec_ident` embedded in read-only data, activates its local
+policy and attaches its six programs to that Execution's exact cgroup.
+`sockops` publishes the configured identity directly. Trust comes from the
+loader's binding of identity, object instance and cgroup attachment, so exact
+ownership and generation validation are security-critical.
+
+**Evidence maturity.**
+
+- `PROVEN`: C resolved correctly in S1-S3, including four concurrent
+  Executions and lifecycle/source-port reuse. S11 restored zero residue.
+- `PROVEN`: S14 independently sampled membership and attribution at N=1, 4,
+  16 and 32 with zero cross-attribution and exact resource counts.
+- `PROVEN`: N=64 did not complete in the current loader shape. It completed 44
+  instances and hit `EMFILE` during instance 45 with soft `RLIMIT_NOFILE=1024`,
+  1,016 open FDs and a measured increase of 23 FDs per completed instance.
+- `PARTIAL`: S13 proves a spike-only trusted ownership/ABI/generation contract
+  can sweep/recreate compatible state and refuse incompatible/unknown state,
+  but no production implementation exists.
+- `NOT PROVEN`: optimized/sharded/short-lived loader designs, N>=45 in a
+  production process, throughput, sustained churn and acceptable product
+  setup/teardown latency.
+
+**State and lifecycle.** The measured model is `6N` programs, `6N` links,
+`8+2N` maps and `8+6N` pins: eight shared pinned maps, two private maps and six
+link pins per Execution. Creation and teardown therefore scale with Execution
+count. S3, S11, S13 and S14 prove the tested create/close/kill/recovery/cleanup
+cases. Reusing prior authorization maps at readiness is explicitly forbidden by
+the S13 negative and final evidence.
+
+**Failure semantics.** C's configured identity has no candidate-specific
+dynamic insertion-capacity failure, but the common tuple map can still fill and
+must deny as in S12. Object loading can fail before admission, as S14 proves;
+readiness must remain withheld and partial resources must be removed. Pinned
+early denial survives loader death in S7, while S8 and S13 define the required
+userspace-loss and restart behavior.
+
+**Kernel, licensing and composition.** C uses the common six cgroup program
+types and helpers plus loader relocation/configuration; the actual object loaded
+and ran under Apache-2.0. S9/S10 are especially representative of C's direct
+child attachment shape and show coexistence with the tested ancestor ALLOW and
+rewrite. They do not establish arbitrary foreign ordering guarantees.
+
+**Cost and operations.** C has the simplest candidate-specific publication
+logic but the highest measured kernel-object, pin, attach/detach and loader-FD
+burden. The FD boundary is a property of the current Aya/loader lifetime and
+limit, not proof of intrinsic impossibility; no unmeasured optimization is
+credited in this review. Per-Execution identity is visually direct, while a
+large object inventory increases recovery and debugging work.
+
+**Residual risk.** Production loader/process architecture, acceptable
+concurrency and latency thresholds, multi-process coordination, production S13
+state management and portability remain open. If one process must hold at
+least 45 instances with the tested FD limit and lifetime, the current shape is
+established non-viable for that requirement.
+
+### Candidate D dossier — netns cookie with trusted owner mapping
+
+**Mechanism and intended trust source.** `sockops` publishes the socket's netns
+cookie. A privileged Enforcer that created and owns the network namespace would
+have to establish and maintain a trusted live `netns cookie -> Execution`
+mapping; Resolve would require that mapping before authorization. The intended
+trust source is kernel namespace identity bound to trusted host-side ownership,
+not the agent or its IP address.
+
+**Evidence maturity.**
+
+- `PROVEN`: `bpf_get_netns_cookie` loaded under Apache-2.0 in the tested
+  `sockops` and `sock_create` programs; S1-S3 recorded cookies, and S3 observed
+  distinct cookies for fresh namespace generations.
+- `PARTIAL`: the experimental netns probe shows how a privileged process can
+  learn a cookie from a socket it creates after entering an owned namespace.
+  This is a mechanism observation, not an authorization chain.
+- `NOT PROVEN`: no final test implemented or exercised the trusted live owner
+  map, used it to Resolve, rejected stale/reused owner state, characterized
+  map-full behavior or scaled the complete D chain. All final S1/S3 records
+  explicitly mark D as recorded only.
+
+**State and lifecycle.** A complete D design needs at least the common tuple
+state plus an owner map and trusted create/remove/recovery records for every
+owned namespace; the probe itself used a cookie-to-cookie observation map.
+Exact production maps, bounds, pins and object counts are unknown. Namespace
+creation, teardown, cookie reuse, delayed publication, Enforcer restart and
+stale owner removal are security-critical and untested as an authorization
+system.
+
+**Failure semantics.** The surrounding proxy can deny a missing tuple, but it
+has not been shown to deny every missing, stale or ambiguous D owner mapping.
+S8 makes autonomous owner invalidation on Enforcer loss mandatory, and S13
+makes unknown owner state non-authoritative, but neither validates D.
+
+**Kernel, licensing and composition.** Helper load/runtime observation is
+kernel-specific. S9/S10 show that the combined program can record a netns
+cookie while composing with the tested foreign hooks; they do not prove D's
+owner map or authorization. No resource/scaling conclusion for D is supported.
+
+**Cost and operations.** D might use one owner relation per live namespace
+rather than candidate-specific state per socket, but that is an unmeasured
+design inference. It adds a cross-layer live-owner relationship whose atomic
+creation, invalidation, recovery and observability have not been designed or
+tested. Crediting it with lower cost or risk would therefore be speculative.
+
+**Residual risk.** The complete trust chain, lifecycle/reuse safety, fail-closed
+owner-map failure, resource bounds, foreign composition under authorization and
+portability are all security-sensitive unknowns.
+
+### Evidence-backed comparison matrix
+
+`SUPPORTED`, `PARTIAL`, `BLOCKED` and `UNPROVEN` describe evidence maturity,
+not scores or rankings.
+
+| Criterion | A | B | C | D |
+| --- | --- | --- | --- | --- |
+| Trusted identity basis | Kernel current cgroup at connect; cookie correlates socket (`SUPPORTED`, S1) | Kernel current cgroup stored on the socket (`SUPPORTED`, S1) | Trusted loader binds configured identity to exact child cgroup (`SUPPORTED`, S1/S14) | Kernel netns cookie plus intended owner map; owner binding `UNPROVEN` |
+| Complete attribution chain | Correct cookie -> cgroup -> tuple -> Resolve (`SUPPORTED`, S1-S3) | Correct storage -> cgroup -> tuple -> Resolve (`SUPPORTED`, S1-S3) | Correct embedded identity -> tuple -> Resolve (`SUPPORTED`, S1-S3/S14) | Cookie recorded only; owner-map Resolve `BLOCKED` |
+| Concurrent safety | 132 sockets/four Executions, zero cross-attribution (`SUPPORTED`, S2) | Same carried B evidence (`SUPPORTED`, S2) | Same plus sampled N=32 (`SUPPORTED`, S2/S14) | Full chain `UNPROVEN` |
+| Stale/reuse safety | FIN/RST/kill/source-port reuse passed; long churn `PARTIAL` (S3) | Same; kernel storage reclamation beyond cases `PARTIAL` | Same plus generation contract; production recovery `PARTIAL` (S3/S13) | Owner teardown/reuse `UNPROVEN` |
+| Candidate-specific kernel state | Bounded cookie hash, one entry/live socket | `sk_storage`, one value/socket; capacity opaque | Per-Execution object plus two private maps | Owner map required; exact design unknown |
+| Per-Execution kernel objects | No evidence-backed A-only formula; shared topology possible | No evidence-backed B-only formula; shared topology possible | Exactly six programs, six links, two private maps and six link pins | `UNPROVEN` |
+| Map dependency | Cookie hash plus common tuple/policy | Socket storage plus common tuple/policy | Common tuple/policy; identity is configured, not dynamically inserted | Common tuple plus unimplemented owner map |
+| Pin/recovery complexity | Shared maps/links still need S13 contract (`PARTIAL`) | Same, including storage-map ownership (`PARTIAL`) | Highest measured inventory; S13 contract essential (`PARTIAL`) | Owner-state contract not designed (`UNPROVEN`) |
+| Missing/delayed state | Common Resolve denies; A-only absence not isolated (`PARTIAL`, S1b/S12) | Common Resolve denies; storage-allocation failure not exercised (`PARTIAL`) | Common Resolve denies; load failure prevents admission if readiness is correct (`PARTIAL`) | Owner-map absence/ambiguity not exercised (`UNPROVEN`) |
+| Map-full exposure | Cookie and tuple update failure observed together; denied (S12) | Deterministic `sk_storage` exhaustion unavailable/not observed | No candidate-identity insertion; common tuple full observed | Owner-map capacity unknown |
+| Loader-loss exposure | Pinned early deny survives; full attribution continuity not tested (S7) | Same | Same, with more per-Execution pinned objects | Full chain not present |
+| Enforcer-loss exposure | Candidate-independent pre-fix FAIL then bounded regression PASS (S8) | Same | Same | Especially affects owner-map liveness; not candidate-tested |
+| Kernel/API assumptions | Cookie and cgroup helpers, HASH, connect4/sockops callbacks | Adds `sk_storage` and socket availability in both contexts | Per-object configuration, six direct attachments, pinning | Adds netns-cookie semantics and trusted namespace-owner publication |
+| Apache-2.0 compatibility | Required actual path loaded/executed | Required actual path loaded/executed | Required actual path loaded/executed | Helper loaded/executed; complete D path absent |
+| Foreign-BPF coexistence | Combined child program passed tested ancestor ALLOW/rewrite (`PARTIAL`, S9/S10) | Same | Direct child shape most closely matches test (`SUPPORTED` for tested cases only) | Cookie observation only; authorization `UNPROVEN` |
+| Operational scaling | Per-socket map state; no standalone scale formula | Per-socket storage; capacity not characterized | Exact formulas; N=32 passed, current N=64 bounded at 44 | `UNPROVEN` |
+| Observability | High: enumerable cookie map and counters | Lower: socket-local allocation/capacity less explicit | High identity clarity; high inventory volume | Owner relation could be explicit, but no implementation |
+| Implementation complexity | Moderate BPF/map logic; moderate lifecycle burden | Compact data path; kernel-specific failure/inspection complexity | Simple attribution logic; high loader/lifecycle complexity | Incomplete security design; highest uncertainty |
+| Portability risk | Medium; cookie/callback semantics need matrix qualification | Medium-high; `sk_storage` semantics and pressure need qualification | Medium-high; loader/verifier/resource behavior and limits vary | High; cookie/owner semantics and full chain unqualified |
+| Remaining security-critical unknown | A-only exhaustion, sizing, long churn, production recovery | Allocation failure, capacity, observability, production recovery | Production scale/process model and state manager | Trusted owner map, authorization, lifecycle, failure and scale |
+
+### Evidence-readiness classification
+
+| Candidate | Classification | Exact reason |
+| --- | --- | --- |
+| A | `SUFFICIENTLY CHARACTERIZED FOR HUMAN DECISION` | Complete tested chain, concurrency/lifecycle evidence, explicit state and observed bounded-map failure. This is not production qualification; A-only exhaustion and production recovery remain requirements. |
+| B | `REQUIRES SPECIFIC ADDITIONAL EVIDENCE` | A deterministic `sk_storage` allocation-pressure failure with tuple capacity available must show that missing B evidence denies and leaves no stale authorization. |
+| C | `SUFFICIENTLY CHARACTERIZED FOR HUMAN DECISION` | Correctness and exact operational cost are known through N=32, and the present 45th-instance FD failure is characterized. The human must decide whether that object/FD/lifecycle model fits the product envelope. |
+| D | `REQUIRES SPECIFIC ADDITIONAL EVIDENCE` | The trusted live netns-cookie owner map, authorization lookup, teardown/reuse safety, missing/ambiguous-owner denial and resource bounds were never exercised. |
+
+No candidate is classified intrinsically non-viable. The current C loader shape
+is, however, established non-viable for a requirement of at least 45
+simultaneously retained instances under soft `RLIMIT_NOFILE=1024`; that does not
+prove Candidate C itself cannot be implemented differently.
+
+### Technical recommendation, not final selection
+
+The evidence-backed technical recommendation is **Candidate A as the starting
+direction for a production design**, subject to explicit human selection and
+the candidate-independent requirements below.
+
+The basis is narrow and factual: A has a complete exercised trust chain,
+concurrency and lifecycle evidence; its candidate-specific state is explicit,
+bounded and observable; its update failure was observed; and it avoids C's
+measured per-Execution multiplication of programs, links, pins and long-lived
+loader FDs. B does not yet have deterministic allocation-pressure evidence, and
+D lacks its core trusted owner mapping. C remains a viable, sufficiently
+characterized alternative when direct per-Execution identity is worth its
+known operational cost.
+
+This recommendation does not select A, authorize implementation, eliminate C,
+or claim that A is production-qualified. If the human decision requires B's
+socket-lifetime ownership benefits or D's namespace-owner model, the exact
+missing evidence above is material and must be obtained before choosing them.
+
+### Candidate-independent production requirements
+
+The completed evidence makes the following requirements independent of the
+candidate selected:
+
+1. Place and independently verify the actual live agent PID in the exact
+   attached Execution cgroup before releasing traffic.
+2. Validate all six direct/effective hooks and ancestor composition; keep BPF
+   as attribution/early deny rather than routing or proxy steering.
+3. Keep Resolve bounded and deny before application reads, DNS, outbound
+   effects or IP-derived authorization fallback.
+4. Keep nftables as the final destination barrier and preserve namespace/
+   topology confinement as a separate layer.
+5. Treat tuple representation and byte order as an explicit ABI with regression
+   evidence; the S1 diagnostic showed one port extraction defect breaks every
+   candidate.
+6. Make map update/allocation failure observable and fail closed; never repair
+   missing attribution from IP/veth identity.
+7. Detect Enforcer loss autonomously and cancel admission, agents, HTTP work,
+   DNS, outbound connections and tunnels before restart readiness.
+8. Persist exact root-owned ownership/schema/ABI/build/generation records;
+   validate kernel IDs and contracts, recreate compatible state empty, refuse
+   incompatible/unknown state and never delete by pathname prefix.
+9. Publish readiness only after recovery and verify zero residue across
+   processes, cgroups, runtime state, netns/veth/nft, BPF objects, pins,
+   attribution maps and ownership records.
+10. Budget programs, links, maps, pins, memlock/JIT and userspace FDs against
+    the supported concurrent-Execution envelope.
+11. Preserve Apache-2.0-compatible facilities. The two evaluated routes to
+    `CGRP_STORAGE` through task-BTF/cgroup-pointer access were GPL-restricted on
+    the tested kernel and are not available design assumptions.
+
+### Remaining unproven items
+
+- Production `CgroupBpfBackend` remains a refusing skeleton; its initialize,
+  prepare, freeze, destroy, recovery and readiness behavior is unimplemented.
+- B1-B7, full regression across both backends, T1-T9, H1-H4 and the T10 no-eBPF
+  build remain outside S0-S14.
+- No production upgrade/migration, multi-loader coordination, sustained hostile
+  churn, throughput or tail-latency envelope was qualified.
+- Candidate A's isolated supporting-map failure, B's storage allocation
+  failure, C beyond the measured current-process bound and D's complete owner
+  chain remain as described above.
+- Kernel, distro, configuration and architecture portability beyond the tested
+  Ubuntu/Linux 6.8 aarch64 environment is unproven.
+- S7 proves persistence of pinned kernel enforcement after loader death, not
+  uninterrupted end-to-end attribution service without a healthy userspace
+  owner.
+- S13 proves a spike-only recovery contract, not the production contract's
+  implementation or upgrade policy.
+
+### Questions reserved for the human decision
+
+1. Is Candidate A's explicit bounded per-socket map and cleanup obligation
+   preferable to B's kernel-owned storage with currently uncharacterized
+   allocation pressure?
+2. Does the product require the direct per-Execution identity isolation of C
+   strongly enough to accept its measured `6N` program/link and pin lifecycle,
+   and what simultaneous-Execution/FD envelope is mandatory?
+3. Is Candidate D still strategically important enough to justify obtaining
+   its missing trusted-owner evidence before selection, or should it remain a
+   deferred design?
+4. What supported kernel/distro/architecture matrix and resource ceilings must
+   the chosen candidate satisfy before B1-B7 and production qualification?
+5. Does the human reviewer accept the technical recommendation toward A, choose
+   another sufficiently characterized candidate, or require one of the exact
+   missing evidence items first?
+
+The candidate review itself made no final A/B/C/D selection, changed no architecture or production code, and stopped pending a separate explicit decision.
+
+## Post-review candidate decision
+
+On 2026-09-27, after approving the evidence-backed review above, the human reviewer explicitly selected **Candidate A** as the attribution mechanism for the first production `CgroupBpfBackend`.
+The production architecture, lifecycle, ownership/recovery rules, failure semantics and B1-B7 qualification gates are specified in [PRODUCTION-DESIGN.md](PRODUCTION-DESIGN.md).
+
+This records a design decision only.
+No production backend has been implemented or enabled, B1-B7 have not been executed, the existing backend default is unchanged and no implementation is authorized until the design receives separate review approval.

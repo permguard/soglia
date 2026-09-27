@@ -2664,7 +2664,7 @@
  D spikes/cgroup-bpf/run-s9.sh
  D spikes/cgroup-bpf/s13-state-manager.sh
  D spikes/cgroup-bpf/soglia-s0-delegation.sh
-?? spikes/cgroup-bpf-old/
+?? spikes/cgroup-bpf-historical/
 ?? spikes/cgroup-bpf/MIGRATION.md
 ?? spikes/cgroup-bpf/README.md
 ?? spikes/cgroup-bpf/SPEC.md

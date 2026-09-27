@@ -6,7 +6,7 @@
 This directory contains the second-generation Soglia cgroup-BPF qualification suite.
 It is experimental test machinery and is not part of the production runtime.
 
-The completed exploratory spike is preserved without modification in `../cgroup-bpf-old/`.
+The completed exploratory spike is preserved without modification in `../cgroup-bpf-historical/`.
 The new suite migrates its validated BPF and agent semantics while moving lifecycle control, assertions, evidence, ownership, cleanup and verdicts into one Rust runner.
 
 ## Execution modes
@@ -34,3 +34,6 @@ The host scripts create or start Lima, provision packages, build every artifact 
 Only the Rust runner classifies security results and verifies cleanup.
 
 See [SPEC.md](SPEC.md) for the normative suite contract and [MIGRATION.md](MIGRATION.md) for the old-to-new mapping.
+
+After reproducibility confirmation and candidate review, the human reviewer selected Candidate A for the first production design.
+See [PRODUCTION-DESIGN.md](PRODUCTION-DESIGN.md) for the design and the unexecuted B1-B7 qualification matrix.
