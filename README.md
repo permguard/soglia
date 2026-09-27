@@ -21,7 +21,7 @@ Soglia works beside Permguard, and the two stay separate.
 
 | Layer                  | What it is                                                                   |
 | ---------------------- | ---------------------------------------------------------------------------- |
-| Permguard Trust Fabric | Control Plane, Data Plane and Trust Plane: PIC, trust, policy and authority  |
+| Permguard              | Control Plane, Data Plane and Trust Plane: PIC, trust, policy and authority  |
 | Soglia Runtime         | The agent execution runtime: isolation, mediation, lifecycle and enforcement |
 
 Permguard decides and verifies authority.
@@ -53,7 +53,7 @@ Soglia is under development.
 The first version, Phase 0, proves the execution loop and the mediated network path end to end.
 It is not a production security release.
 
-Phase 0 deliberately leaves out PIC, virtual authority, Permguard Trust Fabric integration, information-flow control, the Credential Anchor, TLS interception, gRPC, Connectors and eBPF.
+Phase 0 deliberately leaves out PIC, virtual authority, Permguard integration, information-flow control, the Credential Anchor, TLS interception, gRPC, Connectors and eBPF.
 Their interfaces exist, and fail explicitly if they are called.
 
 Phase-0 `CONNECT` mediation authorizes the tunnel endpoint but does not provide L7 TLS identity enforcement.

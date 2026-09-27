@@ -34,6 +34,10 @@ jobs:
         run: cargo clippy --workspace --all-targets --locked -- -D warnings
       - name: licence headers
         run: ./scripts/check-license-headers.sh
+      - name: third-party notices match the dependency graph
+        run: ./scripts/third-party-notices.sh --check
+      - name: the Makefile and the Taskfile offer the same commands
+        run: ./scripts/check-build-systems.sh
       - name: the binary links no later-phase crate (T10)
         run: ./scripts/check-phase0-dependencies.sh
       - name: tests

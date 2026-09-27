@@ -9,8 +9,12 @@
 # Task names that carry a colon keep the same words with a dash here:
 #
 #   task check:headers       -> make check-headers
+#   task check:notices       -> make check-notices
 #   task check:phase0-deps   -> make check-phase0-deps
 #   task check:supply-chain  -> make check-supply-chain
+#   task check:systems       -> make check-systems
+#   task coverage:html       -> make coverage-html
+#   task coverage:lcov       -> make coverage-lcov
 #   task dev:image           -> make dev-image
 #   task test:acceptance     -> make test-acceptance
 #   task test:portable       -> make test-portable
@@ -23,22 +27,26 @@ PKG     ?=
 RELEASE ?=
 ARGS    ?=
 FILTER  ?=
+STALE   ?=
 
 scope   = $(if $(PKG),-p $(PKG),--workspace)
 profile = $(if $(RELEASE),--release)
 
-.PHONY: help build check check-headers check-phase0-deps check-supply-chain dev-image fmt lint test test-acceptance test-portable
+.PHONY: help build check check-headers check-notices check-phase0-deps check-supply-chain check-systems clean coverage coverage-html coverage-lcov dev-image fmt lint notices test test-acceptance test-portable
 
 help: ## List the targets.
-	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-20s %s\n", $$1, $$2}'
+	@grep -E '^[a-z0-9-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-20s %s\n", $$1, $$2}'
 
 build: ## Build every component.
 	cargo build $(scope) $(profile) $(ARGS)
 
-check: lint check-headers check-phase0-deps check-supply-chain test ## Run every check the pipeline runs.
+check: lint check-headers check-notices check-systems check-phase0-deps check-supply-chain test ## Run every check the pipeline runs.
 
 check-headers: ## Check that every source file carries the licence header.
 	./scripts/check-license-headers.sh
+
+check-notices: ## Check that THIRD_PARTY_NOTICES.md matches the dependency graph.
+	./scripts/third-party-notices.sh --check
 
 check-phase0-deps: ## Check that the binary links no PIC, gRPC, eBPF or TLS crate (T10).
 	./scripts/check-phase0-dependencies.sh
@@ -46,11 +54,38 @@ check-phase0-deps: ## Check that the binary links no PIC, gRPC, eBPF or TLS crat
 check-supply-chain: ## Check advisories, licences, duplicate crates and sources with cargo-deny.
 	cargo deny check advisories licenses bans sources
 
+check-systems: ## Check that the Makefile and the Taskfile offer the same commands.
+	./scripts/check-build-systems.sh
+
+clean: ## Remove build artifacts. STALE=7 removes only what nothing has touched for 7 days.
+	@set -euo pipefail; \
+	if [ -n "$(STALE)" ]; then \
+		if ! command -v cargo-sweep >/dev/null 2>&1; then \
+			echo "cargo-sweep is not installed: cargo install cargo-sweep" >&2; \
+			exit 1; \
+		fi; \
+		cargo sweep --time "$(STALE)"; \
+	else \
+		cargo clean; \
+	fi
+
+coverage: ## Measure test coverage and enforce the 60% per-crate line floor.
+	./scripts/check-coverage.sh
+
+coverage-html: ## Measure coverage and open the annotated-source HTML report.
+	cargo llvm-cov --workspace --html --open
+
+coverage-lcov: ## Write coverage as lcov.info, for editors and CI uploaders.
+	cargo llvm-cov --workspace --lcov --output-path lcov.info
+
 dev-image: ## Build the Linux development and test image.
 	docker build -t soglia-dev:local dev/linux
 
 fmt: ## Format the code.
 	cargo fmt --all
+
+notices: ## Regenerate THIRD_PARTY_NOTICES.md from the resolved dependency graph.
+	./scripts/third-party-notices.sh
 
 lint: ## Check formatting and run clippy with warnings denied.
 	cargo fmt --all -- --check

@@ -31,13 +31,16 @@ tasks:
   check:
     desc: Run every check the pipeline runs.
     summary: |
-      Run lint, the licence-header check, the supply-chain gates and the test suite, in that order.
+      Run lint, the structural checks (licence headers, third-party notices, build-system parity,
+      Phase-0 dependencies), the supply-chain gates and the test suite, in that order.
 
       Example:
         task check
     cmds:
       - task: lint
       - task: check:headers
+      - task: check:notices
+      - task: check:systems
       - task: check:phase0-deps
       - task: check:supply-chain
       - task: test
@@ -46,6 +49,11 @@ tasks:
     desc: Check that every source file carries the licence header.
     cmds:
       - ./scripts/check-license-headers.sh
+
+  check:notices:
+    desc: Check that THIRD_PARTY_NOTICES.md matches the dependency graph.
+    cmds:
+      - ./scripts/third-party-notices.sh --check
 
   check:phase0-deps:
     desc: Check that the binary links no PIC, gRPC, eBPF or TLS crate (T10).
@@ -57,6 +65,54 @@ tasks:
     cmds:
       - cargo deny check advisories licenses bans sources
 
+  check:systems:
+    desc: Check that the Makefile and the Taskfile offer the same commands.
+    cmds:
+      - ./scripts/check-build-systems.sh
+
+  clean:
+    desc: Remove build artifacts. STALE=7 removes only what nothing has touched for 7 days.
+    summary: |
+      Remove build artifacts.
+
+      Examples:
+        task clean
+        task clean STALE=7
+
+      Parameters:
+        STALE  Remove only what nothing has touched for this many days, with cargo-sweep.
+               Default: unset, which runs `cargo clean`.
+    vars:
+      STALE: '{{.STALE | default ""}}'
+    cmds:
+      - |
+        set -euo pipefail
+        if [ -n "{{.STALE}}" ]; then
+          if ! command -v cargo-sweep >/dev/null 2>&1; then
+            echo "cargo-sweep is not installed: cargo install cargo-sweep" >&2
+            exit 1
+          fi
+          # Keeps what a rebuild would otherwise redo, drops what only history is holding on to.
+          cargo sweep --time "{{.STALE}}"
+        else
+          cargo clean
+        fi
+
+  coverage:
+    desc: Measure test coverage and enforce the 60% per-crate line floor.
+    cmds:
+      - ./scripts/check-coverage.sh
+
+  coverage:html:
+    desc: Measure coverage and open the annotated-source HTML report.
+    cmds:
+      - cargo llvm-cov --workspace --html --open
+
+  coverage:lcov:
+    desc: Write coverage as lcov.info, for editors and CI uploaders.
+    cmds:
+      - cargo llvm-cov --workspace --lcov --output-path lcov.info
+
   dev:image:
     desc: Build the Linux development and test image.
     cmds:
@@ -66,6 +122,11 @@ tasks:
     desc: Format the code.
     cmds:
       - cargo fmt --all
+
+  notices:
+    desc: Regenerate THIRD_PARTY_NOTICES.md from the resolved dependency graph.
+    cmds:
+      - ./scripts/third-party-notices.sh
 
   lint:
     desc: Check formatting and run clippy with warnings denied.

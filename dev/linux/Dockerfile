@@ -18,6 +18,7 @@ RUN apt-get update \
         procps \
         runc \
         curl \
+        jq \
         musl-tools \
     && rm -rf /var/lib/apt/lists/*
 
@@ -40,9 +41,9 @@ RUN arch="$(dpkg --print-architecture)" \
     && rm /tmp/task.tar.gz \
     && task --version
 
-RUN rustup component add clippy rustfmt rust-src \
+RUN rustup component add clippy rustfmt rust-src llvm-tools-preview \
     && rustup target add "$(uname -m)-unknown-linux-musl" \
-    && cargo install --locked cargo-deny
+    && cargo install --locked cargo-deny cargo-llvm-cov
 
 # Tells `dev/linux/acceptance.sh` it is already inside the development environment.
 ENV SOGLIA_DEV_CONTAINER=1
