@@ -1,0 +1,23 @@
+{
+  "sequence": 7,
+  "executable": "/usr/bin/env",
+  "argv": [
+    "sh",
+    "-c",
+    "command -v \"$1\"",
+    "sh",
+    "git"
+  ],
+  "working_directory": "/",
+  "selected_environment": {
+    "LC_ALL": "C"
+  },
+  "wall_start_unix_ms": 1790525576774,
+  "monotonic_start_ns": 148126704,
+  "duration_ms": 22,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "preflight/commands/0007.stdout",
+  "stderr_file": "preflight/commands/0007.stderr"
+}

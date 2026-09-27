@@ -1,0 +1,4 @@
+MainPID=6091
+ControlGroup=/system.slice/soglia-spike-s1-57802605753.service
+Delegate=yes
+ActiveState=active

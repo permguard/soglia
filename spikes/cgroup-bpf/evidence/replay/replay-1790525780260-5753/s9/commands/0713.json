@@ -1,0 +1,21 @@
+{
+  "sequence": 713,
+  "executable": "bpftool",
+  "argv": [
+    "map",
+    "pin",
+    "id",
+    "367",
+    "/sys/fs/bpf/soglia-spike-runner/replay-1790525780260-5753/s9-foreign/foreign_trace"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525825639,
+  "monotonic_start_ns": 45376711658,
+  "duration_ms": 21,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s9/commands/0713.stdout",
+  "stderr_file": "s9/commands/0713.stderr"
+}

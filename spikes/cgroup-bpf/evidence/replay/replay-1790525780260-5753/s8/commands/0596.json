@@ -1,0 +1,20 @@
+{
+  "sequence": 596,
+  "executable": "ip",
+  "argv": [
+    "link",
+    "set",
+    "s8up5753",
+    "up"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525813739,
+  "monotonic_start_ns": 33476468418,
+  "duration_ms": 23,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s8/commands/0596.stdout",
+  "stderr_file": "s8/commands/0596.stderr"
+}

@@ -1,0 +1,2 @@
+32: s10p5576624: <BROADCAST,NOARP,UP,LOWER_UP> mtu 1500 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1000
+    link/ether 1e:b4:66:7c:e7:63 brd ff:ff:ff:ff:ff:ff

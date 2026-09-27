@@ -1,0 +1,2 @@
+97: s14p5753: <BROADCAST,NOARP,UP,LOWER_UP> mtu 1500 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1000
+    link/ether 26:0c:1a:4a:89:18 brd ff:ff:ff:ff:ff:ff

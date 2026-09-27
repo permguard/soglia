@@ -1,0 +1,17 @@
+{
+  "sequence": 3159,
+  "executable": "systemd-run",
+  "argv": [
+    "--version"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525696592,
+  "monotonic_start_ns": 119965708460,
+  "duration_ms": 25,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "final/environment/commands/3159.stdout",
+  "stderr_file": "final/environment/commands/3159.stderr"
+}

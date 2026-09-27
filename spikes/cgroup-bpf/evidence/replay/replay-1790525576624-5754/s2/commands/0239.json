@@ -1,0 +1,19 @@
+{
+  "sequence": 239,
+  "executable": "ip",
+  "argv": [
+    "netns",
+    "del",
+    "soglia-s2-e2"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525594361,
+  "monotonic_start_ns": 17735682250,
+  "duration_ms": 21,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s2/commands/0239.stdout",
+  "stderr_file": "s2/commands/0239.stderr"
+}

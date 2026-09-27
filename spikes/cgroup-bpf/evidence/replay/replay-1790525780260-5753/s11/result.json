@@ -1,0 +1,10 @@
+{
+  "test": "s11",
+  "authoritative": true,
+  "verdict": "PASS",
+  "invariant": "a representative attributed Execution lifecycle creates every owned resource class and trusted teardown leaves zero Soglia-owned residue",
+  "detail": "invariant and cleanup proven; EXTERNAL_CHURN: systemd sd_* program IDs changed [704, 705, 706, 707, 708, 709, 710, 711, 712, 713, 714, 715] -> [722, 723, 724, 725, 726, 727, 728, 729, 730, 731, 732, 733]; the complete stable sd_* object multiset excluding IDs, all non-systemd programs, links and maps are unchanged; all registered test-owned objects are absent",
+  "cleanup": "PASS",
+  "started_unix_ms": 1790525834629,
+  "duration_ms": 2118
+}

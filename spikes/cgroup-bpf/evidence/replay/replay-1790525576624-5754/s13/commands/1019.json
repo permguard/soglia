@@ -1,0 +1,21 @@
+{
+  "sequence": 1019,
+  "executable": "ip",
+  "argv": [
+    "link",
+    "add",
+    "s13p5576624",
+    "type",
+    "dummy"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525637911,
+  "monotonic_start_ns": 61285526676,
+  "duration_ms": 23,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s13/commands/1019.stdout",
+  "stderr_file": "s13/commands/1019.stderr"
+}

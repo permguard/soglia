@@ -1,0 +1,20 @@
+{
+  "sequence": 929,
+  "executable": "ip",
+  "argv": [
+    "link",
+    "show",
+    "dev",
+    "s11h5576624"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525633272,
+  "monotonic_start_ns": 56645764122,
+  "duration_ms": 24,
+  "exit_code": 1,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s11/commands/0929.stdout",
+  "stderr_file": "s11/commands/0929.stderr"
+}

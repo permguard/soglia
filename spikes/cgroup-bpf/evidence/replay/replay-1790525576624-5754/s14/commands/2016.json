@@ -1,0 +1,21 @@
+{
+  "sequence": 2016,
+  "executable": "ip",
+  "argv": [
+    "addr",
+    "add",
+    "10.202.0.62/30",
+    "dev",
+    "s145754h015"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525664822,
+  "monotonic_start_ns": 88196588771,
+  "duration_ms": 22,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s14/commands/2016.stdout",
+  "stderr_file": "s14/commands/2016.stderr"
+}

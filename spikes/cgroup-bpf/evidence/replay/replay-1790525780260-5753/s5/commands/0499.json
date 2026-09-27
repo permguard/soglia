@@ -1,0 +1,21 @@
+{
+  "sequence": 499,
+  "executable": "ip",
+  "argv": [
+    "addr",
+    "add",
+    "10.201.0.2/30",
+    "dev",
+    "s5h5780260"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525806227,
+  "monotonic_start_ns": 25964951776,
+  "duration_ms": 23,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s5/commands/0499.stdout",
+  "stderr_file": "s5/commands/0499.stderr"
+}

@@ -1,0 +1,10 @@
+{
+  "clean": true,
+  "links_absent": true,
+  "netns_absent": true,
+  "no_owned_cgroup_links": true,
+  "no_soglia_programs_or_maps": true,
+  "pin_root_absent": true,
+  "runtime_absent": true,
+  "targets_absent": true
+}

@@ -1,0 +1,26 @@
+{
+  "sequence": 319,
+  "executable": "ip",
+  "argv": [
+    "link",
+    "add",
+    "s3h5780260",
+    "type",
+    "veth",
+    "peer",
+    "name",
+    "eth0",
+    "netns",
+    "sg-s3-57802605753"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525799649,
+  "monotonic_start_ns": 19386401759,
+  "duration_ms": 20,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s3/generation-2/commands/0319.stdout",
+  "stderr_file": "s3/generation-2/commands/0319.stderr"
+}

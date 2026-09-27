@@ -1,0 +1,10 @@
+{
+  "test": "s8",
+  "authoritative": true,
+  "verdict": "PASS",
+  "invariant": "production Enforcer loss is detected autonomously and causes bounded fail-closed cancellation, trusted Execution termination, retained kernel confinement, and sweep-before-readiness restart",
+  "detail": "invariant and cleanup proven",
+  "cleanup": "PASS",
+  "started_unix_ms": 1790525813525,
+  "duration_ms": 11602
+}

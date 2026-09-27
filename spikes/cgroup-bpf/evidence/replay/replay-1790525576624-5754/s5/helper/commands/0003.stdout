@@ -1,0 +1,2 @@
+{"cmd":"barrier /run/soglia-spike-s5-sock-create-inet6-deny-agent.ready /run/soglia-spike-s5-sock-create-inet6-deny-agent.go 15","ok":true,"detail":"released pid=8138"}
+{"cmd":"sock inet6 stream","ok":false,"errno":1,"error":"Operation not permitted (os error 1)"}

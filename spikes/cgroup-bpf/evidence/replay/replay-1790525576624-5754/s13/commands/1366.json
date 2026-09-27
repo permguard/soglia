@@ -1,0 +1,21 @@
+{
+  "sequence": 1366,
+  "executable": "/var/tmp/soglia-spike-2/bin/s7-loader",
+  "argv": [
+    "/var/tmp/soglia-spike-2/bpf/soglia-diag.o",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s13-55766245754.service/executions/s13-crash-ready_record-old",
+    "/sys/fs/bpf/soglia-spike-runner/replay-1790525576624-5754/s13-managed/maps",
+    "/sys/fs/bpf/soglia-spike-runner/replay-1790525576624-5754/s13-managed/links",
+    "/run/soglia/cgroup-bpf-spike-replay17905255766245754/loader.ready"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525647023,
+  "monotonic_start_ns": 70397438360,
+  "duration_ms": 377,
+  "exit_code": null,
+  "signal": 9,
+  "timed_out": false,
+  "stdout_file": "s13/commands/1366.stdout",
+  "stderr_file": "s13/commands/1366.stderr"
+}

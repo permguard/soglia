@@ -1,0 +1,20 @@
+{
+  "sequence": 530,
+  "executable": "ip",
+  "argv": [
+    "link",
+    "show",
+    "dev",
+    "s5h5576624"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525608661,
+  "monotonic_start_ns": 32035395166,
+  "duration_ms": 24,
+  "exit_code": 1,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s5/commands/0530.stdout",
+  "stderr_file": "s5/commands/0530.stderr"
+}

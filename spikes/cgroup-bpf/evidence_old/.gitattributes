@@ -1,0 +1,7 @@
+# Copyright (c) 2022 Nitro Agility S.r.l.
+# SPDX-License-Identifier: Apache-2.0
+
+# Promoted replays are raw evidence, committed byte for byte: bpftool pads its columns and raw HTTP
+# headers end their lines with CRLF, so neither the whitespace check nor line-ending conversion
+# (as `core.autocrlf=input` would do) may touch them.
+authoritative/** -whitespace -text

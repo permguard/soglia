@@ -1,0 +1,2 @@
+35: s11h5780260@if2: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default qlen 1000
+    link/ether 2a:3d:6a:ce:fa:50 brd ff:ff:ff:ff:ff:ff link-netns sg-s11-57802605753

@@ -1,0 +1,1240 @@
+{
+  "execution_id": "s4-execution-generation-1",
+  "target_inode": 10494,
+  "nft_before": {
+    "nftables": [
+      {
+        "metainfo": {
+          "json_schema_version": 1,
+          "release_name": "Old Doc Yak #3",
+          "version": "1.0.9"
+        }
+      },
+      {
+        "table": {
+          "family": "inet",
+          "handle": 1,
+          "name": "soglia"
+        }
+      },
+      {
+        "chain": {
+          "family": "inet",
+          "handle": 1,
+          "hook": "input",
+          "name": "input",
+          "policy": "drop",
+          "prio": 0,
+          "table": "soglia",
+          "type": "filter"
+        }
+      },
+      {
+        "chain": {
+          "family": "inet",
+          "handle": 2,
+          "hook": "output",
+          "name": "output",
+          "policy": "drop",
+          "prio": 0,
+          "table": "soglia",
+          "type": "filter"
+        }
+      },
+      {
+        "chain": {
+          "family": "inet",
+          "handle": 3,
+          "hook": "forward",
+          "name": "forward",
+          "policy": "drop",
+          "prio": 0,
+          "table": "soglia",
+          "type": "filter"
+        }
+      },
+      {
+        "rule": {
+          "chain": "input",
+          "expr": [
+            {
+              "match": {
+                "left": {
+                  "meta": {
+                    "key": "iif"
+                  }
+                },
+                "op": "==",
+                "right": "lo"
+              }
+            },
+            {
+              "accept": null
+            }
+          ],
+          "family": "inet",
+          "handle": 4,
+          "table": "soglia"
+        }
+      },
+      {
+        "rule": {
+          "chain": "input",
+          "expr": [
+            {
+              "match": {
+                "left": {
+                  "ct": {
+                    "key": "state"
+                  }
+                },
+                "op": "in",
+                "right": [
+                  "established",
+                  "related"
+                ]
+              }
+            },
+            {
+              "accept": null
+            }
+          ],
+          "family": "inet",
+          "handle": 5,
+          "table": "soglia"
+        }
+      },
+      {
+        "rule": {
+          "chain": "output",
+          "expr": [
+            {
+              "match": {
+                "left": {
+                  "meta": {
+                    "key": "oif"
+                  }
+                },
+                "op": "==",
+                "right": "lo"
+              }
+            },
+            {
+              "accept": null
+            }
+          ],
+          "family": "inet",
+          "handle": 6,
+          "table": "soglia"
+        }
+      },
+      {
+        "rule": {
+          "chain": "output",
+          "expr": [
+            {
+              "match": {
+                "left": {
+                  "ct": {
+                    "key": "state"
+                  }
+                },
+                "op": "in",
+                "right": [
+                  "established",
+                  "related"
+                ]
+              }
+            },
+            {
+              "accept": null
+            }
+          ],
+          "family": "inet",
+          "handle": 7,
+          "table": "soglia"
+        }
+      },
+      {
+        "rule": {
+          "chain": "output",
+          "expr": [
+            {
+              "match": {
+                "left": {
+                  "payload": {
+                    "field": "daddr",
+                    "protocol": "ip"
+                  }
+                },
+                "op": "==",
+                "right": "10.200.255.1"
+              }
+            },
+            {
+              "match": {
+                "left": {
+                  "payload": {
+                    "field": "dport",
+                    "protocol": "tcp"
+                  }
+                },
+                "op": "==",
+                "right": 15001
+              }
+            },
+            {
+              "match": {
+                "left": {
+                  "ct": {
+                    "key": "state"
+                  }
+                },
+                "op": "in",
+                "right": "new"
+              }
+            },
+            {
+              "accept": null
+            }
+          ],
+          "family": "inet",
+          "handle": 8,
+          "table": "soglia"
+        }
+      }
+    ]
+  },
+  "nft_during": {
+    "nftables": [
+      {
+        "metainfo": {
+          "json_schema_version": 1,
+          "release_name": "Old Doc Yak #3",
+          "version": "1.0.9"
+        }
+      },
+      {
+        "table": {
+          "family": "inet",
+          "handle": 1,
+          "name": "soglia"
+        }
+      },
+      {
+        "chain": {
+          "family": "inet",
+          "handle": 1,
+          "hook": "input",
+          "name": "input",
+          "policy": "drop",
+          "prio": 0,
+          "table": "soglia",
+          "type": "filter"
+        }
+      },
+      {
+        "chain": {
+          "family": "inet",
+          "handle": 2,
+          "hook": "output",
+          "name": "output",
+          "policy": "drop",
+          "prio": 0,
+          "table": "soglia",
+          "type": "filter"
+        }
+      },
+      {
+        "chain": {
+          "family": "inet",
+          "handle": 3,
+          "hook": "forward",
+          "name": "forward",
+          "policy": "drop",
+          "prio": 0,
+          "table": "soglia",
+          "type": "filter"
+        }
+      },
+      {
+        "rule": {
+          "chain": "input",
+          "expr": [
+            {
+              "match": {
+                "left": {
+                  "meta": {
+                    "key": "iif"
+                  }
+                },
+                "op": "==",
+                "right": "lo"
+              }
+            },
+            {
+              "accept": null
+            }
+          ],
+          "family": "inet",
+          "handle": 4,
+          "table": "soglia"
+        }
+      },
+      {
+        "rule": {
+          "chain": "input",
+          "expr": [
+            {
+              "match": {
+                "left": {
+                  "ct": {
+                    "key": "state"
+                  }
+                },
+                "op": "in",
+                "right": [
+                  "established",
+                  "related"
+                ]
+              }
+            },
+            {
+              "accept": null
+            }
+          ],
+          "family": "inet",
+          "handle": 5,
+          "table": "soglia"
+        }
+      },
+      {
+        "rule": {
+          "chain": "output",
+          "expr": [
+            {
+              "match": {
+                "left": {
+                  "meta": {
+                    "key": "oif"
+                  }
+                },
+                "op": "==",
+                "right": "lo"
+              }
+            },
+            {
+              "accept": null
+            }
+          ],
+          "family": "inet",
+          "handle": 6,
+          "table": "soglia"
+        }
+      },
+      {
+        "rule": {
+          "chain": "output",
+          "expr": [
+            {
+              "match": {
+                "left": {
+                  "ct": {
+                    "key": "state"
+                  }
+                },
+                "op": "in",
+                "right": [
+                  "established",
+                  "related"
+                ]
+              }
+            },
+            {
+              "accept": null
+            }
+          ],
+          "family": "inet",
+          "handle": 7,
+          "table": "soglia"
+        }
+      },
+      {
+        "rule": {
+          "chain": "output",
+          "expr": [
+            {
+              "match": {
+                "left": {
+                  "payload": {
+                    "field": "daddr",
+                    "protocol": "ip"
+                  }
+                },
+                "op": "==",
+                "right": "10.200.255.1"
+              }
+            },
+            {
+              "match": {
+                "left": {
+                  "payload": {
+                    "field": "dport",
+                    "protocol": "tcp"
+                  }
+                },
+                "op": "==",
+                "right": 15001
+              }
+            },
+            {
+              "match": {
+                "left": {
+                  "ct": {
+                    "key": "state"
+                  }
+                },
+                "op": "in",
+                "right": "new"
+              }
+            },
+            {
+              "accept": null
+            }
+          ],
+          "family": "inet",
+          "handle": 8,
+          "table": "soglia"
+        }
+      },
+      {
+        "rule": {
+          "chain": "output",
+          "comment": "s4-direct-exposure",
+          "expr": [
+            {
+              "match": {
+                "left": {
+                  "payload": {
+                    "field": "daddr",
+                    "protocol": "ip"
+                  }
+                },
+                "op": "==",
+                "right": "10.201.0.2"
+              }
+            },
+            {
+              "match": {
+                "left": {
+                  "payload": {
+                    "field": "dport",
+                    "protocol": "tcp"
+                  }
+                },
+                "op": "==",
+                "right": 16001
+              }
+            },
+            {
+              "match": {
+                "left": {
+                  "ct": {
+                    "key": "state"
+                  }
+                },
+                "op": "in",
+                "right": "new"
+              }
+            },
+            {
+              "accept": null
+            }
+          ],
+          "family": "inet",
+          "handle": 9,
+          "table": "soglia"
+        }
+      }
+    ]
+  },
+  "nft_after": {
+    "nftables": [
+      {
+        "metainfo": {
+          "json_schema_version": 1,
+          "release_name": "Old Doc Yak #3",
+          "version": "1.0.9"
+        }
+      },
+      {
+        "table": {
+          "family": "inet",
+          "handle": 1,
+          "name": "soglia"
+        }
+      },
+      {
+        "chain": {
+          "family": "inet",
+          "handle": 1,
+          "hook": "input",
+          "name": "input",
+          "policy": "drop",
+          "prio": 0,
+          "table": "soglia",
+          "type": "filter"
+        }
+      },
+      {
+        "chain": {
+          "family": "inet",
+          "handle": 2,
+          "hook": "output",
+          "name": "output",
+          "policy": "drop",
+          "prio": 0,
+          "table": "soglia",
+          "type": "filter"
+        }
+      },
+      {
+        "chain": {
+          "family": "inet",
+          "handle": 3,
+          "hook": "forward",
+          "name": "forward",
+          "policy": "drop",
+          "prio": 0,
+          "table": "soglia",
+          "type": "filter"
+        }
+      },
+      {
+        "rule": {
+          "chain": "input",
+          "expr": [
+            {
+              "match": {
+                "left": {
+                  "meta": {
+                    "key": "iif"
+                  }
+                },
+                "op": "==",
+                "right": "lo"
+              }
+            },
+            {
+              "accept": null
+            }
+          ],
+          "family": "inet",
+          "handle": 4,
+          "table": "soglia"
+        }
+      },
+      {
+        "rule": {
+          "chain": "input",
+          "expr": [
+            {
+              "match": {
+                "left": {
+                  "ct": {
+                    "key": "state"
+                  }
+                },
+                "op": "in",
+                "right": [
+                  "established",
+                  "related"
+                ]
+              }
+            },
+            {
+              "accept": null
+            }
+          ],
+          "family": "inet",
+          "handle": 5,
+          "table": "soglia"
+        }
+      },
+      {
+        "rule": {
+          "chain": "output",
+          "expr": [
+            {
+              "match": {
+                "left": {
+                  "meta": {
+                    "key": "oif"
+                  }
+                },
+                "op": "==",
+                "right": "lo"
+              }
+            },
+            {
+              "accept": null
+            }
+          ],
+          "family": "inet",
+          "handle": 6,
+          "table": "soglia"
+        }
+      },
+      {
+        "rule": {
+          "chain": "output",
+          "expr": [
+            {
+              "match": {
+                "left": {
+                  "ct": {
+                    "key": "state"
+                  }
+                },
+                "op": "in",
+                "right": [
+                  "established",
+                  "related"
+                ]
+              }
+            },
+            {
+              "accept": null
+            }
+          ],
+          "family": "inet",
+          "handle": 7,
+          "table": "soglia"
+        }
+      },
+      {
+        "rule": {
+          "chain": "output",
+          "expr": [
+            {
+              "match": {
+                "left": {
+                  "payload": {
+                    "field": "daddr",
+                    "protocol": "ip"
+                  }
+                },
+                "op": "==",
+                "right": "10.200.255.1"
+              }
+            },
+            {
+              "match": {
+                "left": {
+                  "payload": {
+                    "field": "dport",
+                    "protocol": "tcp"
+                  }
+                },
+                "op": "==",
+                "right": 15001
+              }
+            },
+            {
+              "match": {
+                "left": {
+                  "ct": {
+                    "key": "state"
+                  }
+                },
+                "op": "in",
+                "right": "new"
+              }
+            },
+            {
+              "accept": null
+            }
+          ],
+          "family": "inet",
+          "handle": 8,
+          "table": "soglia"
+        }
+      }
+    ]
+  },
+  "nft_temporary_rule": "ip daddr 10.201.0.2 tcp dport 16001 ct state new accept comment s4-direct-exposure",
+  "nft_temporary_rule_handle": 9,
+  "nft_relaxation_demonstrated": true,
+  "nft_restoration_exact": true,
+  "normal_direct_membership": {
+    "trusted_pid": 7798,
+    "announced_host_pid": 7798,
+    "announced_agent_pid": 7798,
+    "expected_proc_cgroup": "0::/system.slice/soglia-spike-s4-55766245754.service/executions/s1-e1",
+    "proc_cgroup": "0::/system.slice/soglia-spike-s4-55766245754.service/executions/s1-e1",
+    "target_processes": "7798",
+    "target_inode": 10494,
+    "agent_netns_inode": 4026532347,
+    "owned_netns_inode": 4026532347,
+    "proven": true
+  },
+  "normal_direct_result": {
+    "exit_code": 0,
+    "signal": null,
+    "stdout": "{\"cmd\":\"barrier /run/soglia-spike-runner/replay-1790525576624-5754/s4/agent.ready /run/soglia-spike-runner/replay-1790525576624-5754/s4/agent.go 30\",\"ok\":true,\"detail\":\"released pid=7798\"}\n{\"cmd\":\"direct 10.201.0.2:16001\",\"ok\":false,\"errno\":-1,\"error\":\"connection timed out\"}\n",
+    "stderr": "",
+    "json": [
+      {
+        "cmd": "barrier /run/soglia-spike-runner/replay-1790525576624-5754/s4/agent.ready /run/soglia-spike-runner/replay-1790525576624-5754/s4/agent.go 30",
+        "detail": "released pid=7798",
+        "ok": true
+      },
+      {
+        "cmd": "direct 10.201.0.2:16001",
+        "errno": -1,
+        "error": "connection timed out",
+        "ok": false
+      }
+    ]
+  },
+  "normal_direct_listener_accepted": false,
+  "normal_proxy_membership": {
+    "trusted_pid": 7801,
+    "announced_host_pid": 7801,
+    "announced_agent_pid": 7801,
+    "expected_proc_cgroup": "0::/system.slice/soglia-spike-s4-55766245754.service/executions/s1-e1",
+    "proc_cgroup": "0::/system.slice/soglia-spike-s4-55766245754.service/executions/s1-e1",
+    "target_processes": "7801",
+    "target_inode": 10494,
+    "agent_netns_inode": 4026532347,
+    "owned_netns_inode": 4026532347,
+    "proven": true
+  },
+  "normal_proxy_result": {
+    "exit_code": 0,
+    "signal": null,
+    "stdout": "{\"cmd\":\"barrier /run/soglia-spike-runner/replay-1790525576624-5754/s4/agent.ready /run/soglia-spike-runner/replay-1790525576624-5754/s4/agent.go 30\",\"ok\":true,\"detail\":\"released pid=7801\"}\n{\"cmd\":\"proxy\",\"ok\":true,\"detail\":\"ATTRIBUTED s4-execution-generation-1\",\"i\":0,\"local\":\"10.201.0.1:34812\"}\n",
+    "stderr": "",
+    "json": [
+      {
+        "cmd": "barrier /run/soglia-spike-runner/replay-1790525576624-5754/s4/agent.ready /run/soglia-spike-runner/replay-1790525576624-5754/s4/agent.go 30",
+        "detail": "released pid=7801",
+        "ok": true
+      },
+      {
+        "cmd": "proxy",
+        "detail": "ATTRIBUTED s4-execution-generation-1",
+        "i": 0,
+        "local": "10.201.0.1:34812",
+        "ok": true
+      }
+    ]
+  },
+  "normal_proxy_peer": "10.201.0.1:34812",
+  "normal_proxy_tuple_visible_before_application_read": true,
+  "normal_proxy_application_line": "HELLO 0",
+  "normal_phase": {
+    "direct_attachments": [
+      {
+        "attach_btf_id": 0,
+        "attach_btf_name": "",
+        "attach_btf_obj_id": 0,
+        "attach_flags": "multi",
+        "attach_type": "cgroup_inet_sock_create",
+        "id": 380,
+        "name": "soglia_sock_create"
+      },
+      {
+        "attach_btf_id": 0,
+        "attach_btf_name": "",
+        "attach_btf_obj_id": 0,
+        "attach_flags": "multi",
+        "attach_type": "cgroup_inet4_connect",
+        "id": 381,
+        "name": "soglia_connect4"
+      },
+      {
+        "attach_btf_id": 0,
+        "attach_btf_name": "",
+        "attach_btf_obj_id": 0,
+        "attach_flags": "multi",
+        "attach_type": "cgroup_inet6_connect",
+        "id": 382,
+        "name": "soglia_connect6"
+      },
+      {
+        "attach_btf_id": 0,
+        "attach_btf_name": "",
+        "attach_btf_obj_id": 0,
+        "attach_flags": "multi",
+        "attach_type": "cgroup_udp4_sendmsg",
+        "id": 383,
+        "name": "soglia_sendmsg4"
+      },
+      {
+        "attach_btf_id": 0,
+        "attach_btf_name": "",
+        "attach_btf_obj_id": 0,
+        "attach_flags": "multi",
+        "attach_type": "cgroup_udp6_sendmsg",
+        "id": 384,
+        "name": "soglia_sendmsg6"
+      },
+      {
+        "attach_btf_id": 0,
+        "attach_btf_name": "",
+        "attach_btf_obj_id": 0,
+        "attach_flags": "multi",
+        "attach_type": "cgroup_sock_ops",
+        "id": 385,
+        "name": "soglia_sockops"
+      }
+    ],
+    "effective_attachments": [
+      {
+        "attach_btf_id": 0,
+        "attach_btf_name": "",
+        "attach_btf_obj_id": 0,
+        "attach_type": "cgroup_inet_sock_create",
+        "id": 380,
+        "name": "soglia_sock_create"
+      },
+      {
+        "attach_btf_id": 0,
+        "attach_btf_name": "",
+        "attach_btf_obj_id": 0,
+        "attach_type": "cgroup_inet4_connect",
+        "id": 381,
+        "name": "soglia_connect4"
+      },
+      {
+        "attach_btf_id": 0,
+        "attach_btf_name": "",
+        "attach_btf_obj_id": 0,
+        "attach_type": "cgroup_inet6_connect",
+        "id": 382,
+        "name": "soglia_connect6"
+      },
+      {
+        "attach_btf_id": 0,
+        "attach_btf_name": "",
+        "attach_btf_obj_id": 0,
+        "attach_type": "cgroup_udp4_sendmsg",
+        "id": 383,
+        "name": "soglia_sendmsg4"
+      },
+      {
+        "attach_btf_id": 0,
+        "attach_btf_name": "",
+        "attach_btf_obj_id": 0,
+        "attach_type": "cgroup_udp6_sendmsg",
+        "id": 384,
+        "name": "soglia_sendmsg6"
+      },
+      {
+        "attach_btf_id": 0,
+        "attach_btf_name": "",
+        "attach_btf_obj_id": 0,
+        "attach_type": "cgroup_sock_ops",
+        "id": 385,
+        "name": "soglia_sockops"
+      }
+    ],
+    "diagnostic_entries": [
+      2,
+      2,
+      15,
+      2,
+      2,
+      1,
+      1
+    ],
+    "counters": [
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1
+    ],
+    "deny_map": [],
+    "tuple_map": [],
+    "cookie_map": [],
+    "event_hex": [],
+    "event_kinds": [],
+    "event_reasons": []
+  },
+  "deny_membership": {
+    "trusted_pid": 7869,
+    "announced_host_pid": 7869,
+    "announced_agent_pid": 7869,
+    "expected_proc_cgroup": "0::/system.slice/soglia-spike-s4-55766245754.service/executions/s1-e1",
+    "proc_cgroup": "0::/system.slice/soglia-spike-s4-55766245754.service/executions/s1-e1",
+    "target_processes": "7869",
+    "target_inode": 10494,
+    "agent_netns_inode": 4026532347,
+    "owned_netns_inode": 4026532347,
+    "proven": true
+  },
+  "deny_result": {
+    "exit_code": 0,
+    "signal": null,
+    "stdout": "{\"cmd\":\"barrier /run/soglia-spike-runner/replay-1790525576624-5754/s4/agent.ready /run/soglia-spike-runner/replay-1790525576624-5754/s4/agent.go 30\",\"ok\":true,\"detail\":\"released pid=7869\"}\n{\"cmd\":\"direct 10.201.0.2:16001\",\"ok\":false,\"errno\":1,\"error\":\"Operation not permitted (os error 1)\"}\n",
+    "stderr": "",
+    "json": [
+      {
+        "cmd": "barrier /run/soglia-spike-runner/replay-1790525576624-5754/s4/agent.ready /run/soglia-spike-runner/replay-1790525576624-5754/s4/agent.go 30",
+        "detail": "released pid=7869",
+        "ok": true
+      },
+      {
+        "cmd": "direct 10.201.0.2:16001",
+        "errno": 1,
+        "error": "Operation not permitted (os error 1)",
+        "ok": false
+      }
+    ]
+  },
+  "deny_listener_accepted": false,
+  "deny_proxy_involvement": false,
+  "deny_phase": {
+    "direct_attachments": [
+      {
+        "attach_btf_id": 0,
+        "attach_btf_name": "",
+        "attach_btf_obj_id": 0,
+        "attach_flags": "multi",
+        "attach_type": "cgroup_inet_sock_create",
+        "id": 386,
+        "name": "soglia_sock_create"
+      },
+      {
+        "attach_btf_id": 0,
+        "attach_btf_name": "",
+        "attach_btf_obj_id": 0,
+        "attach_flags": "multi",
+        "attach_type": "cgroup_inet4_connect",
+        "id": 387,
+        "name": "soglia_connect4"
+      },
+      {
+        "attach_btf_id": 0,
+        "attach_btf_name": "",
+        "attach_btf_obj_id": 0,
+        "attach_flags": "multi",
+        "attach_type": "cgroup_inet6_connect",
+        "id": 388,
+        "name": "soglia_connect6"
+      },
+      {
+        "attach_btf_id": 0,
+        "attach_btf_name": "",
+        "attach_btf_obj_id": 0,
+        "attach_flags": "multi",
+        "attach_type": "cgroup_udp4_sendmsg",
+        "id": 389,
+        "name": "soglia_sendmsg4"
+      },
+      {
+        "attach_btf_id": 0,
+        "attach_btf_name": "",
+        "attach_btf_obj_id": 0,
+        "attach_flags": "multi",
+        "attach_type": "cgroup_udp6_sendmsg",
+        "id": 390,
+        "name": "soglia_sendmsg6"
+      },
+      {
+        "attach_btf_id": 0,
+        "attach_btf_name": "",
+        "attach_btf_obj_id": 0,
+        "attach_flags": "multi",
+        "attach_type": "cgroup_sock_ops",
+        "id": 391,
+        "name": "soglia_sockops"
+      }
+    ],
+    "effective_attachments": [
+      {
+        "attach_btf_id": 0,
+        "attach_btf_name": "",
+        "attach_btf_obj_id": 0,
+        "attach_type": "cgroup_inet_sock_create",
+        "id": 386,
+        "name": "soglia_sock_create"
+      },
+      {
+        "attach_btf_id": 0,
+        "attach_btf_name": "",
+        "attach_btf_obj_id": 0,
+        "attach_type": "cgroup_inet4_connect",
+        "id": 387,
+        "name": "soglia_connect4"
+      },
+      {
+        "attach_btf_id": 0,
+        "attach_btf_name": "",
+        "attach_btf_obj_id": 0,
+        "attach_type": "cgroup_inet6_connect",
+        "id": 388,
+        "name": "soglia_connect6"
+      },
+      {
+        "attach_btf_id": 0,
+        "attach_btf_name": "",
+        "attach_btf_obj_id": 0,
+        "attach_type": "cgroup_udp4_sendmsg",
+        "id": 389,
+        "name": "soglia_sendmsg4"
+      },
+      {
+        "attach_btf_id": 0,
+        "attach_btf_name": "",
+        "attach_btf_obj_id": 0,
+        "attach_type": "cgroup_udp6_sendmsg",
+        "id": 390,
+        "name": "soglia_sendmsg6"
+      },
+      {
+        "attach_btf_id": 0,
+        "attach_btf_name": "",
+        "attach_btf_obj_id": 0,
+        "attach_type": "cgroup_sock_ops",
+        "id": 391,
+        "name": "soglia_sockops"
+      }
+    ],
+    "diagnostic_entries": [
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "counters": [
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0
+    ],
+    "deny_map": [
+      {
+        "formatted": {
+          "key": 10494,
+          "value": 1
+        },
+        "key": [
+          "0xfe",
+          "0x28",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "value": [
+          "0x01",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00"
+        ]
+      }
+    ],
+    "tuple_map": [],
+    "cookie_map": [],
+    "event_hex": [
+      "0100000003000000fe280000000000006e1000000000000002000000010000000ac90002813e00005a21f4e314000000"
+    ],
+    "event_kinds": [
+      1
+    ],
+    "event_reasons": [
+      3
+    ]
+  },
+  "exposure_membership": {
+    "trusted_pid": 7922,
+    "announced_host_pid": 7922,
+    "announced_agent_pid": 7922,
+    "expected_proc_cgroup": "0::/system.slice/soglia-spike-s4-55766245754.service/executions/s1-e1",
+    "proc_cgroup": "0::/system.slice/soglia-spike-s4-55766245754.service/executions/s1-e1",
+    "target_processes": "7922",
+    "target_inode": 10494,
+    "agent_netns_inode": 4026532347,
+    "owned_netns_inode": 4026532347,
+    "proven": true
+  },
+  "exposure_result": {
+    "exit_code": 0,
+    "signal": null,
+    "stdout": "{\"cmd\":\"barrier /run/soglia-spike-runner/replay-1790525576624-5754/s4/agent.ready /run/soglia-spike-runner/replay-1790525576624-5754/s4/agent.go 30\",\"ok\":true,\"detail\":\"released pid=7922\"}\n{\"cmd\":\"direct 10.201.0.2:16001\",\"ok\":true,\"detail\":\"connected\"}\n",
+    "stderr": "",
+    "json": [
+      {
+        "cmd": "barrier /run/soglia-spike-runner/replay-1790525576624-5754/s4/agent.ready /run/soglia-spike-runner/replay-1790525576624-5754/s4/agent.go 30",
+        "detail": "released pid=7922",
+        "ok": true
+      },
+      {
+        "cmd": "direct 10.201.0.2:16001",
+        "detail": "connected",
+        "ok": true
+      }
+    ]
+  },
+  "exposure_listener_accepted": true,
+  "exposure_peer": "10.201.0.1:41644",
+  "exposure_proxy_involvement": false,
+  "exposure_phase": {
+    "direct_attachments": [
+      {
+        "attach_btf_id": 0,
+        "attach_btf_name": "",
+        "attach_btf_obj_id": 0,
+        "attach_flags": "multi",
+        "attach_type": "cgroup_inet_sock_create",
+        "id": 392,
+        "name": "soglia_sock_create"
+      },
+      {
+        "attach_btf_id": 0,
+        "attach_btf_name": "",
+        "attach_btf_obj_id": 0,
+        "attach_flags": "multi",
+        "attach_type": "cgroup_inet4_connect",
+        "id": 393,
+        "name": "soglia_connect4"
+      },
+      {
+        "attach_btf_id": 0,
+        "attach_btf_name": "",
+        "attach_btf_obj_id": 0,
+        "attach_flags": "multi",
+        "attach_type": "cgroup_inet6_connect",
+        "id": 394,
+        "name": "soglia_connect6"
+      },
+      {
+        "attach_btf_id": 0,
+        "attach_btf_name": "",
+        "attach_btf_obj_id": 0,
+        "attach_flags": "multi",
+        "attach_type": "cgroup_udp4_sendmsg",
+        "id": 395,
+        "name": "soglia_sendmsg4"
+      },
+      {
+        "attach_btf_id": 0,
+        "attach_btf_name": "",
+        "attach_btf_obj_id": 0,
+        "attach_flags": "multi",
+        "attach_type": "cgroup_udp6_sendmsg",
+        "id": 396,
+        "name": "soglia_sendmsg6"
+      },
+      {
+        "attach_btf_id": 0,
+        "attach_btf_name": "",
+        "attach_btf_obj_id": 0,
+        "attach_flags": "multi",
+        "attach_type": "cgroup_sock_ops",
+        "id": 397,
+        "name": "soglia_sockops"
+      }
+    ],
+    "effective_attachments": [
+      {
+        "attach_btf_id": 0,
+        "attach_btf_name": "",
+        "attach_btf_obj_id": 0,
+        "attach_type": "cgroup_inet_sock_create",
+        "id": 392,
+        "name": "soglia_sock_create"
+      },
+      {
+        "attach_btf_id": 0,
+        "attach_btf_name": "",
+        "attach_btf_obj_id": 0,
+        "attach_type": "cgroup_inet4_connect",
+        "id": 393,
+        "name": "soglia_connect4"
+      },
+      {
+        "attach_btf_id": 0,
+        "attach_btf_name": "",
+        "attach_btf_obj_id": 0,
+        "attach_type": "cgroup_inet6_connect",
+        "id": 394,
+        "name": "soglia_connect6"
+      },
+      {
+        "attach_btf_id": 0,
+        "attach_btf_name": "",
+        "attach_btf_obj_id": 0,
+        "attach_type": "cgroup_udp4_sendmsg",
+        "id": 395,
+        "name": "soglia_sendmsg4"
+      },
+      {
+        "attach_btf_id": 0,
+        "attach_btf_name": "",
+        "attach_btf_obj_id": 0,
+        "attach_type": "cgroup_udp6_sendmsg",
+        "id": 396,
+        "name": "soglia_sendmsg6"
+      },
+      {
+        "attach_btf_id": 0,
+        "attach_btf_name": "",
+        "attach_btf_obj_id": 0,
+        "attach_type": "cgroup_sock_ops",
+        "id": 397,
+        "name": "soglia_sockops"
+      }
+    ],
+    "diagnostic_entries": [
+      1,
+      1,
+      9,
+      1,
+      1,
+      1,
+      1
+    ],
+    "counters": [
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1
+    ],
+    "deny_map": [],
+    "tuple_map": [],
+    "cookie_map": [],
+    "event_hex": [],
+    "event_kinds": [],
+    "event_reasons": []
+  },
+  "namespace_constraints_retained": true,
+  "host_constraints_retained": true,
+  "foreign": null
+}

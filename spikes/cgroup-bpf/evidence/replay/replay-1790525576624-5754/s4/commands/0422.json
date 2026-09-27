@@ -1,0 +1,19 @@
+{
+  "sequence": 422,
+  "executable": "ip",
+  "argv": [
+    "netns",
+    "add",
+    "sg-s4-55766245754"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525599281,
+  "monotonic_start_ns": 22654749998,
+  "duration_ms": 23,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s4/commands/0422.stdout",
+  "stderr_file": "s4/commands/0422.stderr"
+}

@@ -1,0 +1,26 @@
+{
+  "sequence": 1970,
+  "executable": "ip",
+  "argv": [
+    "link",
+    "add",
+    "s145754h010",
+    "type",
+    "veth",
+    "peer",
+    "name",
+    "eth0",
+    "netns",
+    "sg14-5754-32-010"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525663561,
+  "monotonic_start_ns": 86934927389,
+  "duration_ms": 23,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s14/commands/1970.stdout",
+  "stderr_file": "s14/commands/1970.stderr"
+}

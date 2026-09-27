@@ -1,0 +1,19 @@
+{
+  "sequence": 1494,
+  "executable": "nft",
+  "argv": [
+    "-j",
+    "list",
+    "ruleset"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525650423,
+  "monotonic_start_ns": 73796981459,
+  "duration_ms": 23,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s14/commands/1494.stdout",
+  "stderr_file": "s14/commands/1494.stderr"
+}

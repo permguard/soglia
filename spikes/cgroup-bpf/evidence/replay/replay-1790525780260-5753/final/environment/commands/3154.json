@@ -1,0 +1,17 @@
+{
+  "sequence": 3154,
+  "executable": "git",
+  "argv": [
+    "--version"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525900383,
+  "monotonic_start_ns": 120121329042,
+  "duration_ms": 22,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "final/environment/commands/3154.stdout",
+  "stderr_file": "final/environment/commands/3154.stderr"
+}

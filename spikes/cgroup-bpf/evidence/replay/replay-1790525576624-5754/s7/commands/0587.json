@@ -1,0 +1,20 @@
+{
+  "sequence": 587,
+  "executable": "ip",
+  "argv": [
+    "link",
+    "show",
+    "dev",
+    "s7p5576624"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525610302,
+  "monotonic_start_ns": 33676025008,
+  "duration_ms": 22,
+  "exit_code": 1,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s7/commands/0587.stdout",
+  "stderr_file": "s7/commands/0587.stderr"
+}

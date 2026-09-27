@@ -1,0 +1,25 @@
+{
+  "sequence": 92,
+  "executable": "bash",
+  "argv": [
+    "-c",
+    "set -euo pipefail\nprintf '%s\\n' \"$$\" > \"$1\"\nkill -STOP \"$$\"\nexec ip netns exec \"$2\" \"$3\" \"barrier $4 $5 15\" \"$6\"",
+    "s5-host-launcher",
+    "/run/soglia-spike-s5-sockops-omitted-host.ready",
+    "sg-s5-55766245754",
+    "/var/tmp/soglia-spike-2/bin/soglia-spike-agent",
+    "/run/soglia-spike-s5-sockops-omitted-agent.ready",
+    "/run/soglia-spike-s5-sockops-omitted-agent.go",
+    "proxy 1"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525605917,
+  "monotonic_start_ns": 2526476078,
+  "duration_ms": 2098,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s5/helper/commands/0092.stdout",
+  "stderr_file": "s5/helper/commands/0092.stderr"
+}

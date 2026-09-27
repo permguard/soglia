@@ -1,0 +1,27 @@
+{
+  "sequence": 2875,
+  "executable": "ip",
+  "argv": [
+    "netns",
+    "exec",
+    "sg14-5753-64-057",
+    "ip",
+    "route",
+    "add",
+    "10.200.255.1/32",
+    "via",
+    "10.202.0.230",
+    "dev",
+    "eth0"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525892317,
+  "monotonic_start_ns": 112055313939,
+  "duration_ms": 23,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s14/commands/2875.stdout",
+  "stderr_file": "s14/commands/2875.stderr"
+}

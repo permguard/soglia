@@ -1,0 +1,20 @@
+{
+  "sequence": 135,
+  "executable": "ip",
+  "argv": [
+    "link",
+    "set",
+    "s1bp5780260",
+    "up"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525790374,
+  "monotonic_start_ns": 10111724571,
+  "duration_ms": 23,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s1b/commands/0135.stdout",
+  "stderr_file": "s1b/commands/0135.stderr"
+}

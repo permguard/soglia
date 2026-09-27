@@ -1,0 +1,22 @@
+{
+  "sequence": 583,
+  "executable": "systemctl",
+  "argv": [
+    "show",
+    "soglia-spike-s7-55766245754.service",
+    "-p",
+    "LoadState",
+    "-p",
+    "ActiveState"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525610199,
+  "monotonic_start_ns": 33572939304,
+  "duration_ms": 22,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s7/commands/0583.stdout",
+  "stderr_file": "s7/commands/0583.stderr"
+}

@@ -1,0 +1,20 @@
+{
+  "sequence": 2254,
+  "executable": "ip",
+  "argv": [
+    "link",
+    "show",
+    "dev",
+    "s145753h025"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525875103,
+  "monotonic_start_ns": 94840692017,
+  "duration_ms": 21,
+  "exit_code": 1,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s14/commands/2254.stdout",
+  "stderr_file": "s14/commands/2254.stderr"
+}

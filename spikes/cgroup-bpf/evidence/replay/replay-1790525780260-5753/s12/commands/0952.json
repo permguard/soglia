@@ -1,0 +1,27 @@
+{
+  "sequence": 952,
+  "executable": "ip",
+  "argv": [
+    "netns",
+    "exec",
+    "sg-s12-57802605753",
+    "ip",
+    "route",
+    "add",
+    "10.200.255.1/32",
+    "via",
+    "10.201.0.2",
+    "dev",
+    "eth0"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525837136,
+  "monotonic_start_ns": 56873505814,
+  "duration_ms": 21,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s12/commands/0952.stdout",
+  "stderr_file": "s12/commands/0952.stderr"
+}

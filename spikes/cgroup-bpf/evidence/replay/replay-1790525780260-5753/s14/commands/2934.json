@@ -1,0 +1,19 @@
+{
+  "sequence": 2934,
+  "executable": "ip",
+  "argv": [
+    "netns",
+    "del",
+    "sg14-5753-64-062"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525894393,
+  "monotonic_start_ns": 114130553067,
+  "duration_ms": 22,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s14/commands/2934.stdout",
+  "stderr_file": "s14/commands/2934.stderr"
+}

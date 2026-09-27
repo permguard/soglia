@@ -1,0 +1,21 @@
+{
+  "sequence": 1243,
+  "executable": "bpftool",
+  "argv": [
+    "-j",
+    "map",
+    "show",
+    "pinned",
+    "/sys/fs/bpf/soglia-spike-runner/replay-1790525576624-5754/s13-managed/maps/soglia_events"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525643806,
+  "monotonic_start_ns": 67179742432,
+  "duration_ms": 23,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s13/commands/1243.stdout",
+  "stderr_file": "s13/commands/1243.stderr"
+}

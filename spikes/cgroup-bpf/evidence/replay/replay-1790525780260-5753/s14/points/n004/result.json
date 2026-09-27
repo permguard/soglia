@@ -1,0 +1,273 @@
+{
+  "requested": 4,
+  "status": "PASS",
+  "complete_instances": 4,
+  "loader": {
+    "count": 4,
+    "preparation_ns": 37962832,
+    "totals": {
+      "object_load_ns": 896624,
+      "policy_setup_ns": 2415,
+      "program_load_ns": 1750880,
+      "attach_ns": 129060,
+      "pin_ns": 55739
+    },
+    "instances": [
+      {
+        "index": 0,
+        "ident": 14004000,
+        "cgroup": "/sys/fs/cgroup/system.slice/soglia-spike-s14-57802605753.service/executions/s14-e000",
+        "fd_before": 4,
+        "fd_after": 27,
+        "timings": {
+          "object_load_ns": 544315,
+          "policy_setup_ns": 875,
+          "program_load_ns": 430920,
+          "attach_ns": 101813,
+          "pin_ns": 11665
+        }
+      },
+      {
+        "index": 1,
+        "ident": 14004001,
+        "cgroup": "/sys/fs/cgroup/system.slice/soglia-spike-s14-57802605753.service/executions/s14-e001",
+        "fd_before": 27,
+        "fd_after": 50,
+        "timings": {
+          "object_load_ns": 124101,
+          "policy_setup_ns": 666,
+          "program_load_ns": 439377,
+          "attach_ns": 8875,
+          "pin_ns": 12247
+        }
+      },
+      {
+        "index": 2,
+        "ident": 14004002,
+        "cgroup": "/sys/fs/cgroup/system.slice/soglia-spike-s14-57802605753.service/executions/s14-e002",
+        "fd_before": 50,
+        "fd_after": 73,
+        "timings": {
+          "object_load_ns": 114937,
+          "policy_setup_ns": 458,
+          "program_load_ns": 482534,
+          "attach_ns": 10038,
+          "pin_ns": 20495
+        }
+      },
+      {
+        "index": 3,
+        "ident": 14004003,
+        "cgroup": "/sys/fs/cgroup/system.slice/soglia-spike-s14-57802605753.service/executions/s14-e003",
+        "fd_before": 73,
+        "fd_after": 96,
+        "timings": {
+          "object_load_ns": 113271,
+          "policy_setup_ns": 416,
+          "program_load_ns": 398049,
+          "attach_ns": 8334,
+          "pin_ns": 11332
+        }
+      }
+    ]
+  },
+  "limit": null,
+  "resources": {
+    "programs": 24,
+    "links": 24,
+    "maps": 16,
+    "pins": 32,
+    "program_ids": [
+      913,
+      914,
+      915,
+      916,
+      917,
+      918,
+      919,
+      920,
+      921,
+      922,
+      923,
+      924,
+      925,
+      926,
+      927,
+      928,
+      929,
+      930,
+      931,
+      932,
+      933,
+      934,
+      935,
+      936
+    ],
+    "link_ids": [
+      276,
+      277,
+      278,
+      279,
+      280,
+      281,
+      282,
+      283,
+      284,
+      285,
+      286,
+      287,
+      288,
+      289,
+      290,
+      291,
+      292,
+      293,
+      294,
+      295,
+      296,
+      297,
+      298,
+      299
+    ],
+    "map_ids": [
+      625,
+      626,
+      627,
+      628,
+      629,
+      630,
+      631,
+      632,
+      633,
+      634,
+      635,
+      636,
+      637,
+      638,
+      639,
+      640
+    ],
+    "program_bytes_xlated": 22944,
+    "program_bytes_jited": 18912,
+    "program_bytes_memlock": 98304,
+    "map_bytes_memlock": 1178480,
+    "map_names": {
+      ".rodata": 4,
+      "policy_local": 4,
+      "soglia_cookie_a": 1,
+      "soglia_counters": 1,
+      "soglia_denies": 1,
+      "soglia_events": 1,
+      "soglia_meta": 1,
+      "soglia_policy": 1,
+      "soglia_sk_b": 1,
+      "soglia_tuples": 1
+    },
+    "program_names": {
+      "soglia_connect4": 4,
+      "soglia_connect6": 4,
+      "soglia_sendmsg4": 4,
+      "soglia_sendmsg6": 4,
+      "soglia_sock_create": 4,
+      "soglia_sockops": 4
+    }
+  },
+  "memberships": [
+    {
+      "index": 0,
+      "trusted_pid": 13931,
+      "host_pid": 13931,
+      "agent_pid": 13931,
+      "cgroup": "/sys/fs/cgroup/system.slice/soglia-spike-s14-57802605753.service/executions/s14-e000",
+      "cgroup_inode": 19354,
+      "proc_cgroup": "0::/system.slice/soglia-spike-s14-57802605753.service/executions/s14-e000",
+      "cgroup_procs": "13931",
+      "process_netns_inode": 4026532347,
+      "owned_netns_inode": 4026532347,
+      "proven": true
+    },
+    {
+      "index": 3,
+      "trusted_pid": 13934,
+      "host_pid": 13934,
+      "agent_pid": 13934,
+      "cgroup": "/sys/fs/cgroup/system.slice/soglia-spike-s14-57802605753.service/executions/s14-e003",
+      "cgroup_inode": 19480,
+      "proc_cgroup": "0::/system.slice/soglia-spike-s14-57802605753.service/executions/s14-e003",
+      "cgroup_procs": "13934",
+      "process_netns_inode": 4026532540,
+      "owned_netns_inode": 4026532540,
+      "proven": true
+    }
+  ],
+  "attributions": [
+    {
+      "origin_index": 3,
+      "execution_id": "s14-n4-execution-003-generation-1",
+      "expected_ident": 14004003,
+      "accepted_peer": "10.202.0.13:40000",
+      "accepted_local": "10.200.255.1:15001",
+      "tuple_key_hex": "0aca000d0ac8ff01409c0000993a0000",
+      "tuple_evidence": [
+        151,
+        19480,
+        19480,
+        14004003,
+        6,
+        142290600191,
+        19480,
+        2570715136
+      ],
+      "resolved_index": 3,
+      "application_bytes_before_resolve": 0,
+      "dns_before_resolve": 0,
+      "outbound_before_resolve": 0,
+      "ip_fallback_authorization": false,
+      "resolve_latency_ns": 2749,
+      "application_line_after_resolve": "HELLO 0",
+      "agent_exit_code": 0,
+      "agent_signal": null,
+      "correct": true
+    },
+    {
+      "origin_index": 0,
+      "execution_id": "s14-n4-execution-000-generation-1",
+      "expected_ident": 14004000,
+      "accepted_peer": "10.202.0.1:40000",
+      "accepted_local": "10.200.255.1:15001",
+      "tuple_key_hex": "0aca00010ac8ff01409c0000993a0000",
+      "tuple_evidence": [
+        4174,
+        19354,
+        19354,
+        14004000,
+        8199,
+        142294504957,
+        19354,
+        2570715136
+      ],
+      "resolved_index": 0,
+      "application_bytes_before_resolve": 0,
+      "dns_before_resolve": 0,
+      "outbound_before_resolve": 0,
+      "ip_fallback_authorization": false,
+      "resolve_latency_ns": 1333,
+      "application_line_after_resolve": "HELLO 0",
+      "agent_exit_code": 0,
+      "agent_signal": null,
+      "correct": true
+    }
+  ],
+  "direct_and_effective_six": true,
+  "teardown_ns": 389892593,
+  "cleanup_equal": true,
+  "cleanup": {
+    "cgroups_absent": true,
+    "clean": true,
+    "count": 4,
+    "netns_absent": true,
+    "pin_root_absent": true,
+    "proxy_absent": true,
+    "veths_absent": true
+  }
+}

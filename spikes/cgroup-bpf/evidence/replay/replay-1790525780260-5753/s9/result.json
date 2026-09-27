@@ -1,0 +1,10 @@
+{
+  "test": "s9",
+  "authoritative": true,
+  "verdict": "PASS",
+  "invariant": "foreign ancestor ALLOW plus child Soglia DENY remains fail-closed, while the same path establishes with the child permissive control",
+  "detail": "invariant and cleanup proven; EXTERNAL_CHURN: systemd sd_* program IDs changed [608, 609, 610, 611, 612, 613, 614, 615, 616, 617, 618, 619] -> [647, 648, 649, 650, 651, 652, 653, 654, 655, 656, 657, 658]; the complete stable sd_* object multiset excluding IDs, all non-systemd programs, links and maps are unchanged; all registered test-owned objects are absent",
+  "cleanup": "PASS",
+  "started_unix_ms": 1790525825134,
+  "duration_ms": 3953
+}

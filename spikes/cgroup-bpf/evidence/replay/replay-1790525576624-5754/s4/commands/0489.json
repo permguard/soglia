@@ -1,0 +1,20 @@
+{
+  "sequence": 489,
+  "executable": "ip",
+  "argv": [
+    "link",
+    "show",
+    "dev",
+    "s4p5576624"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525602710,
+  "monotonic_start_ns": 26084698709,
+  "duration_ms": 21,
+  "exit_code": 1,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s4/commands/0489.stdout",
+  "stderr_file": "s4/commands/0489.stderr"
+}

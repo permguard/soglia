@@ -1,0 +1,19 @@
+{
+  "sequence": 402,
+  "executable": "ip",
+  "argv": [
+    "netns",
+    "del",
+    "sg-s3-55766245754"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525598732,
+  "monotonic_start_ns": 22106455723,
+  "duration_ms": 22,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s3/generation-3/commands/0402.stdout",
+  "stderr_file": "s3/generation-3/commands/0402.stderr"
+}

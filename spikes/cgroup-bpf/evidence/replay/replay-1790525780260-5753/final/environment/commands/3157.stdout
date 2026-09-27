@@ -1,0 +1,4 @@
+runc version 1.3.4-0ubuntu1~24.04.1
+spec: 1.2.1
+go: go1.24.4
+libseccomp: 2.5.5

@@ -1,0 +1,24 @@
+{
+  "sequence": 324,
+  "executable": "ip",
+  "argv": [
+    "netns",
+    "exec",
+    "sg-s3-55766245754",
+    "ip",
+    "link",
+    "set",
+    "eth0",
+    "up"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525596619,
+  "monotonic_start_ns": 19993359248,
+  "duration_ms": 23,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s3/generation-2/commands/0324.stdout",
+  "stderr_file": "s3/generation-2/commands/0324.stderr"
+}

@@ -1,0 +1,398 @@
+{
+  "loader_pid": 8981,
+  "loader_exit_code": null,
+  "loader_signal": 9,
+  "loader_proc_absent": true,
+  "before_loss_direct": [
+    {
+      "attach_btf_id": 0,
+      "attach_btf_name": "",
+      "attach_btf_obj_id": 0,
+      "attach_flags": "multi",
+      "attach_type": "cgroup_inet_sock_create",
+      "id": 533,
+      "name": "soglia_sock_create"
+    },
+    {
+      "attach_btf_id": 0,
+      "attach_btf_name": "",
+      "attach_btf_obj_id": 0,
+      "attach_flags": "multi",
+      "attach_type": "cgroup_inet4_connect",
+      "id": 534,
+      "name": "soglia_connect4"
+    },
+    {
+      "attach_btf_id": 0,
+      "attach_btf_name": "",
+      "attach_btf_obj_id": 0,
+      "attach_flags": "multi",
+      "attach_type": "cgroup_inet6_connect",
+      "id": 535,
+      "name": "soglia_connect6"
+    },
+    {
+      "attach_btf_id": 0,
+      "attach_btf_name": "",
+      "attach_btf_obj_id": 0,
+      "attach_flags": "multi",
+      "attach_type": "cgroup_udp4_sendmsg",
+      "id": 536,
+      "name": "soglia_sendmsg4"
+    },
+    {
+      "attach_btf_id": 0,
+      "attach_btf_name": "",
+      "attach_btf_obj_id": 0,
+      "attach_flags": "multi",
+      "attach_type": "cgroup_udp6_sendmsg",
+      "id": 537,
+      "name": "soglia_sendmsg6"
+    },
+    {
+      "attach_btf_id": 0,
+      "attach_btf_name": "",
+      "attach_btf_obj_id": 0,
+      "attach_flags": "multi",
+      "attach_type": "cgroup_sock_ops",
+      "id": 538,
+      "name": "soglia_sockops"
+    }
+  ],
+  "before_loss_effective": [
+    {
+      "attach_btf_id": 0,
+      "attach_btf_name": "",
+      "attach_btf_obj_id": 0,
+      "attach_type": "cgroup_inet_sock_create",
+      "id": 533,
+      "name": "soglia_sock_create"
+    },
+    {
+      "attach_btf_id": 0,
+      "attach_btf_name": "",
+      "attach_btf_obj_id": 0,
+      "attach_type": "cgroup_inet4_connect",
+      "id": 534,
+      "name": "soglia_connect4"
+    },
+    {
+      "attach_btf_id": 0,
+      "attach_btf_name": "",
+      "attach_btf_obj_id": 0,
+      "attach_type": "cgroup_inet6_connect",
+      "id": 535,
+      "name": "soglia_connect6"
+    },
+    {
+      "attach_btf_id": 0,
+      "attach_btf_name": "",
+      "attach_btf_obj_id": 0,
+      "attach_type": "cgroup_udp4_sendmsg",
+      "id": 536,
+      "name": "soglia_sendmsg4"
+    },
+    {
+      "attach_btf_id": 0,
+      "attach_btf_name": "",
+      "attach_btf_obj_id": 0,
+      "attach_type": "cgroup_udp6_sendmsg",
+      "id": 537,
+      "name": "soglia_sendmsg6"
+    },
+    {
+      "attach_btf_id": 0,
+      "attach_btf_name": "",
+      "attach_btf_obj_id": 0,
+      "attach_type": "cgroup_sock_ops",
+      "id": 538,
+      "name": "soglia_sockops"
+    }
+  ],
+  "after_loss_direct": [
+    {
+      "attach_btf_id": 0,
+      "attach_btf_name": "",
+      "attach_btf_obj_id": 0,
+      "attach_flags": "multi",
+      "attach_type": "cgroup_inet_sock_create",
+      "id": 533,
+      "name": "soglia_sock_create"
+    },
+    {
+      "attach_btf_id": 0,
+      "attach_btf_name": "",
+      "attach_btf_obj_id": 0,
+      "attach_flags": "multi",
+      "attach_type": "cgroup_inet4_connect",
+      "id": 534,
+      "name": "soglia_connect4"
+    },
+    {
+      "attach_btf_id": 0,
+      "attach_btf_name": "",
+      "attach_btf_obj_id": 0,
+      "attach_flags": "multi",
+      "attach_type": "cgroup_inet6_connect",
+      "id": 535,
+      "name": "soglia_connect6"
+    },
+    {
+      "attach_btf_id": 0,
+      "attach_btf_name": "",
+      "attach_btf_obj_id": 0,
+      "attach_flags": "multi",
+      "attach_type": "cgroup_udp4_sendmsg",
+      "id": 536,
+      "name": "soglia_sendmsg4"
+    },
+    {
+      "attach_btf_id": 0,
+      "attach_btf_name": "",
+      "attach_btf_obj_id": 0,
+      "attach_flags": "multi",
+      "attach_type": "cgroup_udp6_sendmsg",
+      "id": 537,
+      "name": "soglia_sendmsg6"
+    },
+    {
+      "attach_btf_id": 0,
+      "attach_btf_name": "",
+      "attach_btf_obj_id": 0,
+      "attach_flags": "multi",
+      "attach_type": "cgroup_sock_ops",
+      "id": 538,
+      "name": "soglia_sockops"
+    }
+  ],
+  "after_loss_effective": [
+    {
+      "attach_btf_id": 0,
+      "attach_btf_name": "",
+      "attach_btf_obj_id": 0,
+      "attach_type": "cgroup_inet_sock_create",
+      "id": 533,
+      "name": "soglia_sock_create"
+    },
+    {
+      "attach_btf_id": 0,
+      "attach_btf_name": "",
+      "attach_btf_obj_id": 0,
+      "attach_type": "cgroup_inet4_connect",
+      "id": 534,
+      "name": "soglia_connect4"
+    },
+    {
+      "attach_btf_id": 0,
+      "attach_btf_name": "",
+      "attach_btf_obj_id": 0,
+      "attach_type": "cgroup_inet6_connect",
+      "id": 535,
+      "name": "soglia_connect6"
+    },
+    {
+      "attach_btf_id": 0,
+      "attach_btf_name": "",
+      "attach_btf_obj_id": 0,
+      "attach_type": "cgroup_udp4_sendmsg",
+      "id": 536,
+      "name": "soglia_sendmsg4"
+    },
+    {
+      "attach_btf_id": 0,
+      "attach_btf_name": "",
+      "attach_btf_obj_id": 0,
+      "attach_type": "cgroup_udp6_sendmsg",
+      "id": 537,
+      "name": "soglia_sendmsg6"
+    },
+    {
+      "attach_btf_id": 0,
+      "attach_btf_name": "",
+      "attach_btf_obj_id": 0,
+      "attach_type": "cgroup_sock_ops",
+      "id": 538,
+      "name": "soglia_sockops"
+    }
+  ],
+  "link_pin_count_before": 6,
+  "link_pin_count_after": 6,
+  "map_pin_count_before": 10,
+  "map_pin_count_after": 10,
+  "pin_set_preserved": true,
+  "deny_after_loader_loss": {
+    "membership": {
+      "pid": 9004,
+      "target_inode": 11982,
+      "proc_cgroup": "0::/system.slice/soglia-spike-s7-57802605753.service/executions/s1-e1",
+      "target_processes": "9004",
+      "agent_netns_inode": 4026532347,
+      "owned_netns_inode": 4026532347,
+      "proven": true
+    },
+    "agent_exit_code": 0,
+    "agent_signal": null,
+    "agent_json": [
+      {
+        "cmd": "barrier /run/soglia-spike-runner/replay-1790525780260-5753/s7/agent.ready /run/soglia-spike-runner/replay-1790525780260-5753/s7/agent.go 30",
+        "detail": "released pid=9004",
+        "ok": true
+      },
+      {
+        "cmd": "direct 10.201.0.2:16001",
+        "errno": 1,
+        "error": "Operation not permitted (os error 1)",
+        "ok": false
+      }
+    ],
+    "listener_accepted": false,
+    "accepted_peer": ""
+  },
+  "diagnostic_entries_after_deny": [
+    1,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "counters_after_deny": [
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0
+  ],
+  "deny_entries_after_deny": 1,
+  "after_connect4_unpin_direct": [
+    {
+      "attach_btf_id": 0,
+      "attach_btf_name": "",
+      "attach_btf_obj_id": 0,
+      "attach_flags": "multi",
+      "attach_type": "cgroup_inet_sock_create",
+      "id": 533,
+      "name": "soglia_sock_create"
+    },
+    {
+      "attach_btf_id": 0,
+      "attach_btf_name": "",
+      "attach_btf_obj_id": 0,
+      "attach_flags": "multi",
+      "attach_type": "cgroup_inet6_connect",
+      "id": 535,
+      "name": "soglia_connect6"
+    },
+    {
+      "attach_btf_id": 0,
+      "attach_btf_name": "",
+      "attach_btf_obj_id": 0,
+      "attach_flags": "multi",
+      "attach_type": "cgroup_udp4_sendmsg",
+      "id": 536,
+      "name": "soglia_sendmsg4"
+    },
+    {
+      "attach_btf_id": 0,
+      "attach_btf_name": "",
+      "attach_btf_obj_id": 0,
+      "attach_flags": "multi",
+      "attach_type": "cgroup_udp6_sendmsg",
+      "id": 537,
+      "name": "soglia_sendmsg6"
+    },
+    {
+      "attach_btf_id": 0,
+      "attach_btf_name": "",
+      "attach_btf_obj_id": 0,
+      "attach_flags": "multi",
+      "attach_type": "cgroup_sock_ops",
+      "id": 538,
+      "name": "soglia_sockops"
+    }
+  ],
+  "after_connect4_unpin_effective": [
+    {
+      "attach_btf_id": 0,
+      "attach_btf_name": "",
+      "attach_btf_obj_id": 0,
+      "attach_type": "cgroup_inet_sock_create",
+      "id": 533,
+      "name": "soglia_sock_create"
+    },
+    {
+      "attach_btf_id": 0,
+      "attach_btf_name": "",
+      "attach_btf_obj_id": 0,
+      "attach_type": "cgroup_inet6_connect",
+      "id": 535,
+      "name": "soglia_connect6"
+    },
+    {
+      "attach_btf_id": 0,
+      "attach_btf_name": "",
+      "attach_btf_obj_id": 0,
+      "attach_type": "cgroup_udp4_sendmsg",
+      "id": 536,
+      "name": "soglia_sendmsg4"
+    },
+    {
+      "attach_btf_id": 0,
+      "attach_btf_name": "",
+      "attach_btf_obj_id": 0,
+      "attach_type": "cgroup_udp6_sendmsg",
+      "id": 537,
+      "name": "soglia_sendmsg6"
+    },
+    {
+      "attach_btf_id": 0,
+      "attach_btf_name": "",
+      "attach_btf_obj_id": 0,
+      "attach_type": "cgroup_sock_ops",
+      "id": 538,
+      "name": "soglia_sockops"
+    }
+  ],
+  "path_after_connect4_unpin": {
+    "membership": {
+      "pid": 9032,
+      "target_inode": 11982,
+      "proc_cgroup": "0::/system.slice/soglia-spike-s7-57802605753.service/executions/s1-e1",
+      "target_processes": "9032",
+      "agent_netns_inode": 4026532347,
+      "owned_netns_inode": 4026532347,
+      "proven": true
+    },
+    "agent_exit_code": 0,
+    "agent_signal": null,
+    "agent_json": [
+      {
+        "cmd": "barrier /run/soglia-spike-runner/replay-1790525780260-5753/s7/agent.ready /run/soglia-spike-runner/replay-1790525780260-5753/s7/agent.go 30",
+        "detail": "released pid=9032",
+        "ok": true
+      },
+      {
+        "cmd": "direct 10.201.0.2:16001",
+        "detail": "connected",
+        "ok": true
+      }
+    ],
+    "listener_accepted": true,
+    "accepted_peer": "10.201.0.1:57474"
+  },
+  "lost_userspace_functionality": [
+    "loader-owned unpinned file descriptors",
+    "ring-event consumption",
+    "policy management",
+    "automatic unpin and cleanup"
+  ],
+  "retained_kernel_functionality": [
+    "execution of pinned programs",
+    "retained and writable pinned maps"
+  ]
+}

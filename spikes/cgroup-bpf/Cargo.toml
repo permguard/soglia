@@ -1,14 +1,9 @@
 # Copyright (c) 2022 Nitro Agility S.r.l.
 # SPDX-License-Identifier: Apache-2.0
 
-# The Phase-1 cgroup-BPF spike. EXPERIMENTAL: not part of the product.
-#
-# Its own workspace and lock file, excluded from the product workspace, so nothing here reaches the
-# Phase-0 dependency graph. It reuses the product's crates by path to rebuild the real topology.
-
 [workspace]
 resolver = "3"
-members = ["harness", "agent"]
+members = ["agent", "runner"]
 
 [workspace.package]
 version = "0.0.0"
@@ -19,3 +14,8 @@ publish = false
 
 [workspace.lints.rust]
 unsafe_code = "forbid"
+
+[workspace.lints.clippy]
+pedantic = { level = "warn", priority = -1 }
+unwrap_used = "deny"
+expect_used = "deny"

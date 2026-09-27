@@ -1,0 +1,21 @@
+{
+  "sequence": 3317,
+  "executable": "bpftool",
+  "argv": [
+    "-j",
+    "link",
+    "show",
+    "id",
+    "67"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525904851,
+  "monotonic_start_ns": 124588769056,
+  "duration_ms": 22,
+  "exit_code": 254,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "final/cleanup/commands/3317.stdout",
+  "stderr_file": "final/cleanup/commands/3317.stderr"
+}

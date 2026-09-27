@@ -1,0 +1,2 @@
+11: s23578026@if2: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default qlen 1000
+    link/ether aa:4d:25:a7:c7:cd brd ff:ff:ff:ff:ff:ff link-netns soglia-s2-e3

@@ -1,0 +1,17 @@
+{
+  "sequence": 18,
+  "executable": "runc",
+  "argv": [
+    "--version"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525780674,
+  "monotonic_start_ns": 411967544,
+  "duration_ms": 20,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "preflight/commands/0018.stdout",
+  "stderr_file": "preflight/commands/0018.stderr"
+}

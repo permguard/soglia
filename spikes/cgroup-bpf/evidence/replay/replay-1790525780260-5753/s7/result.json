@@ -1,0 +1,10 @@
+{
+  "test": "s7",
+  "authoritative": true,
+  "verdict": "PASS",
+  "invariant": "pinned links and maps preserve kernel enforcement after abrupt loader loss, while removing only the connect4 pin detaches that gate and exposes the controlled path",
+  "detail": "invariant and cleanup proven; EXTERNAL_CHURN: systemd sd_* program IDs changed [511, 512, 513, 514, 515, 516, 517, 518, 519, 520, 521, 522] -> [539, 540, 541, 542, 543, 544, 545, 546, 547, 548, 549, 550]; the complete stable sd_* object multiset excluding IDs, all non-systemd programs, links and maps are unchanged; all registered test-owned objects are absent",
+  "cleanup": "PASS",
+  "started_unix_ms": 1790525812082,
+  "duration_ms": 1438
+}

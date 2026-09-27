@@ -1,0 +1,2 @@
+{"cmd":"barrier /run/soglia-spike-s5-sock-create-inet6-control-agent.ready /run/soglia-spike-s5-sock-create-inet6-control-agent.go 15","ok":true,"detail":"released pid=8175"}
+{"cmd":"sock inet6 stream","ok":true,"detail":"created"}

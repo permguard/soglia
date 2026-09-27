@@ -1,0 +1,20 @@
+{
+  "sequence": 229,
+  "executable": "nft",
+  "argv": [
+    "list",
+    "table",
+    "inet",
+    "sg_s2_57802605"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525797216,
+  "monotonic_start_ns": 16953645155,
+  "duration_ms": 21,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s2/commands/0229.stdout",
+  "stderr_file": "s2/commands/0229.stderr"
+}

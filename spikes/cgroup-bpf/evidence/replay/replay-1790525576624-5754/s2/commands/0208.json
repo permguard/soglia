@@ -1,0 +1,27 @@
+{
+  "sequence": 208,
+  "executable": "ip",
+  "argv": [
+    "netns",
+    "exec",
+    "soglia-s2-e2",
+    "ip",
+    "route",
+    "add",
+    "10.200.255.1/32",
+    "via",
+    "10.201.0.10",
+    "dev",
+    "eth0"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525591197,
+  "monotonic_start_ns": 14571102738,
+  "duration_ms": 21,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s2/commands/0208.stdout",
+  "stderr_file": "s2/commands/0208.stderr"
+}

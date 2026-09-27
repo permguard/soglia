@@ -1,0 +1,21 @@
+{
+  "sequence": 542,
+  "executable": "ip",
+  "argv": [
+    "link",
+    "add",
+    "s7p5576624",
+    "type",
+    "dummy"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525608990,
+  "monotonic_start_ns": 32364643001,
+  "duration_ms": 21,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s7/commands/0542.stdout",
+  "stderr_file": "s7/commands/0542.stderr"
+}

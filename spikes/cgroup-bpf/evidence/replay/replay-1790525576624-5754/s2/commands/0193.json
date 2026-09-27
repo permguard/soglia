@@ -1,0 +1,26 @@
+{
+  "sequence": 193,
+  "executable": "ip",
+  "argv": [
+    "link",
+    "add",
+    "s21557662",
+    "type",
+    "veth",
+    "peer",
+    "name",
+    "eth0",
+    "netns",
+    "soglia-s2-e1"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525590822,
+  "monotonic_start_ns": 14196463494,
+  "duration_ms": 20,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s2/commands/0193.stdout",
+  "stderr_file": "s2/commands/0193.stderr"
+}

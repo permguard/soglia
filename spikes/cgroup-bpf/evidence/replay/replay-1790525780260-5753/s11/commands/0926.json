@@ -1,0 +1,22 @@
+{
+  "sequence": 926,
+  "executable": "systemctl",
+  "argv": [
+    "show",
+    "soglia-spike-s11-57802605753.service",
+    "-p",
+    "LoadState",
+    "-p",
+    "ActiveState"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525836432,
+  "monotonic_start_ns": 56170100268,
+  "duration_ms": 23,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s11/commands/0926.stdout",
+  "stderr_file": "s11/commands/0926.stderr"
+}

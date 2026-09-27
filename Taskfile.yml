@@ -134,6 +134,93 @@ tasks:
       - cargo fmt --all -- --check
       - cargo clippy --workspace --all-targets --locked -- -D warnings
 
+  spike:delete-vms:
+    interactive: true
+    desc: Stop and delete every soglia-spike* Lima VM (asks first; YES=1 skips the question).
+    summary: |
+      Stop and delete the old spike VM, the development VM and every replay VM: every Lima VM
+      whose name starts with `soglia-spike`, and nothing else. Evidence lives in the repository
+      on the host, so it survives. Deleting a VM cannot be undone.
+
+      Examples:
+        task spike:delete-vms
+        task spike:delete-vms YES=1
+    vars:
+      YES: '{{.YES | default ""}}'
+    cmds:
+      - ./spikes/cgroup-bpf/host/delete-vms.sh {{if .YES}}--yes{{end}}
+
+  spike:doctor:
+    interactive: true
+    desc: Check the cgroup-BPF spike environment on the development VM (created if missing).
+    summary: |
+      Create or start the development VM `soglia-spike-dev`, provision it, build the spike inside
+      Linux, and run the runner's `doctor` checks. Runs from macOS; needs limactl and jq.
+      Lima's prompts are answered automatically; INTERACTIVE=1 shows them instead.
+
+      Examples:
+        task spike:doctor
+        task spike:doctor INTERACTIVE=1
+    vars:
+      INTERACTIVE: '{{.INTERACTIVE | default "0"}}'
+    env:
+      SOGLIA_SPIKE_INTERACTIVE: '{{.INTERACTIVE}}'
+    cmds:
+      - ./spikes/cgroup-bpf/host/run-dev.sh doctor
+
+  spike:replay:
+    interactive: true
+    desc: Run the authoritative S0-S14 replay on two newly created VMs, one after the other.
+    summary: |
+      Create two fresh VMs (`soglia-spike-replay-<id>-r1` and `-r2`), provision and build each, and
+      run the whole suite on both. Stops at the first non-PASS result. The VMs are left in place;
+      list them with `task spike:vms` and remove them with `limactl delete <name>`.
+      Evidence goes to spikes/cgroup-bpf/evidence/replay/, which git ignores.
+      Lima's prompts are answered automatically; INTERACTIVE=1 shows them instead.
+
+      Examples:
+        task spike:replay
+        task spike:replay INTERACTIVE=1
+    vars:
+      INTERACTIVE: '{{.INTERACTIVE | default "0"}}'
+    env:
+      SOGLIA_SPIKE_INTERACTIVE: '{{.INTERACTIVE}}'
+    cmds:
+      - ./spikes/cgroup-bpf/host/run-fresh.sh
+
+  spike:run:
+    interactive: true
+    desc: Run spike tests diagnostically on the development VM (default ONLY=s0).
+    summary: |
+      Run one test (`ONLY`) or every test from one onwards (`FROM`) on `soglia-spike-dev`.
+      Diagnostic runs are recorded as `authoritative: false`; use `task spike:replay` for the
+      authoritative run.
+
+      Examples:
+        task spike:run
+        task spike:run ONLY=s1
+        task spike:run FROM=s8
+
+      Parameters:
+        ONLY         Run only this test. Default: s0.
+        FROM         Run from this test to the end; takes precedence over ONLY. Default: unset.
+        INTERACTIVE  1 shows Lima's prompts instead of answering them. Default: 0.
+    vars:
+      ONLY: '{{.ONLY | default "s0"}}'
+      FROM: '{{.FROM | default ""}}'
+      INTERACTIVE: '{{.INTERACTIVE | default "0"}}'
+    env:
+      SOGLIA_SPIKE_INTERACTIVE: '{{.INTERACTIVE}}'
+    cmds:
+      - >-
+        ./spikes/cgroup-bpf/host/run-dev.sh run
+        {{if .FROM}}--from {{.FROM}}{{else}}--only {{.ONLY}}{{end}}
+
+  spike:vms:
+    desc: List the Lima VMs of the cgroup-BPF spike.
+    cmds:
+      - limactl list | awk 'NR == 1 || /soglia-spike/'
+
   test:
     desc: Run the unprivileged test suite.
     summary: |

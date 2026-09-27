@@ -1,0 +1,19 @@
+{
+  "sequence": 276,
+  "executable": "bpftool",
+  "argv": [
+    "-j",
+    "prog",
+    "show"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525798481,
+  "monotonic_start_ns": 18218664523,
+  "duration_ms": 23,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s3/generation-1/commands/0276.stdout",
+  "stderr_file": "s3/generation-1/commands/0276.stderr"
+}

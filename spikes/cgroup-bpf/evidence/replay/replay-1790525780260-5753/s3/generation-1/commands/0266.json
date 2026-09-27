@@ -1,0 +1,19 @@
+{
+  "sequence": 266,
+  "executable": "ip",
+  "argv": [
+    "netns",
+    "add",
+    "sg-s3-57802605753"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525798210,
+  "monotonic_start_ns": 17948290273,
+  "duration_ms": 23,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s3/generation-1/commands/0266.stdout",
+  "stderr_file": "s3/generation-1/commands/0266.stderr"
+}

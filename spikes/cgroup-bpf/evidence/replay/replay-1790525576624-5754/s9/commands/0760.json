@@ -1,0 +1,20 @@
+{
+  "sequence": 760,
+  "executable": "nft",
+  "argv": [
+    "delete",
+    "table",
+    "inet",
+    "sg_s9_55766245"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525625411,
+  "monotonic_start_ns": 48784764427,
+  "duration_ms": 22,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s9/commands/0760.stdout",
+  "stderr_file": "s9/commands/0760.stderr"
+}

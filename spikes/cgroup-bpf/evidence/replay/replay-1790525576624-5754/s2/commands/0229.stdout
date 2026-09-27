@@ -1,0 +1,37 @@
+table inet sg_s2_55766245 {
+	chain input {
+		type filter hook input priority filter - 10; policy accept;
+		iifname "s20557662" ip saddr != 10.201.0.1 drop
+		iifname "s20557662" ct state invalid drop
+		iifname "s20557662" ct state new meta l4proto != tcp drop
+		iifname "s20557662" ct state new ip daddr != 10.200.255.1 drop
+		iifname "s20557662" ct state new tcp dport != 15001 drop
+		iifname "s21557662" ip saddr != 10.201.0.5 drop
+		iifname "s21557662" ct state invalid drop
+		iifname "s21557662" ct state new meta l4proto != tcp drop
+		iifname "s21557662" ct state new ip daddr != 10.200.255.1 drop
+		iifname "s21557662" ct state new tcp dport != 15001 drop
+		iifname "s22557662" ip saddr != 10.201.0.9 drop
+		iifname "s22557662" ct state invalid drop
+		iifname "s22557662" ct state new meta l4proto != tcp drop
+		iifname "s22557662" ct state new ip daddr != 10.200.255.1 drop
+		iifname "s22557662" ct state new tcp dport != 15001 drop
+		iifname "s23557662" ip saddr != 10.201.0.13 drop
+		iifname "s23557662" ct state invalid drop
+		iifname "s23557662" ct state new meta l4proto != tcp drop
+		iifname "s23557662" ct state new ip daddr != 10.200.255.1 drop
+		iifname "s23557662" ct state new tcp dport != 15001 drop
+	}
+
+	chain forward {
+		type filter hook forward priority filter - 10; policy accept;
+		iifname "s20557662" drop
+		oifname "s20557662" drop
+		iifname "s21557662" drop
+		oifname "s21557662" drop
+		iifname "s22557662" drop
+		oifname "s22557662" drop
+		iifname "s23557662" drop
+		oifname "s23557662" drop
+	}
+}

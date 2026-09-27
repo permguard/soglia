@@ -1,0 +1,26 @@
+{
+  "sequence": 423,
+  "executable": "ip",
+  "argv": [
+    "link",
+    "add",
+    "s4h5576624",
+    "type",
+    "veth",
+    "peer",
+    "name",
+    "eth0",
+    "netns",
+    "sg-s4-55766245754"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525599307,
+  "monotonic_start_ns": 22680796570,
+  "duration_ms": 22,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s4/commands/0423.stdout",
+  "stderr_file": "s4/commands/0423.stderr"
+}

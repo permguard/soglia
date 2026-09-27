@@ -1,0 +1,2 @@
+18: s4p5780260: <BROADCAST,NOARP,UP,LOWER_UP> mtu 1500 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1000
+    link/ether 0e:92:c0:5d:8f:e4 brd ff:ff:ff:ff:ff:ff

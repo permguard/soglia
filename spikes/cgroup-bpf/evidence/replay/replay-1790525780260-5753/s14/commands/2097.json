@@ -1,0 +1,21 @@
+{
+  "sequence": 2097,
+  "executable": "ip",
+  "argv": [
+    "addr",
+    "add",
+    "10.202.0.98/30",
+    "dev",
+    "s145753h024"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525870513,
+  "monotonic_start_ns": 90250629742,
+  "duration_ms": 23,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s14/commands/2097.stdout",
+  "stderr_file": "s14/commands/2097.stderr"
+}

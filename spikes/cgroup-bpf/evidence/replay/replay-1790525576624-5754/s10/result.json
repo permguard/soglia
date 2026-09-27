@@ -1,0 +1,10 @@
+{
+  "test": "s10",
+  "authoritative": true,
+  "verdict": "PASS",
+  "invariant": "an empirically proven ancestor destination rewrite cannot bypass the normal nft final-destination barrier, while one exact nft exposure causally opens the same rewritten path",
+  "detail": "invariant and cleanup proven; EXTERNAL_CHURN: systemd sd_* program IDs changed [659, 660, 661, 662, 663, 664, 665, 666, 667, 668, 669, 670] -> [692, 693, 694, 695, 696, 697, 698, 699, 700, 701, 702, 703]; the complete stable sd_* object multiset excluding IDs, all non-systemd programs, links and maps are unchanged; all registered test-owned objects are absent",
+  "cleanup": "PASS",
+  "started_unix_ms": 1790525625882,
+  "duration_ms": 5499
+}

@@ -1,0 +1,19 @@
+{
+  "sequence": 136,
+  "executable": "ip",
+  "argv": [
+    "netns",
+    "add",
+    "sg-s1b-57802605753"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525790400,
+  "monotonic_start_ns": 10137548493,
+  "duration_ms": 20,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s1b/commands/0136.stdout",
+  "stderr_file": "s1b/commands/0136.stderr"
+}

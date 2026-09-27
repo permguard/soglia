@@ -1,0 +1,2 @@
+{"cmd":"barrier /run/soglia-spike-s5-sendmsg4-deny-agent.ready /run/soglia-spike-s5-sendmsg4-deny-agent.go 15","ok":true,"detail":"released pid=8291"}
+{"cmd":"udp4 10.201.0.2:16003","ok":false,"errno":1,"error":"Operation not permitted (os error 1)"}

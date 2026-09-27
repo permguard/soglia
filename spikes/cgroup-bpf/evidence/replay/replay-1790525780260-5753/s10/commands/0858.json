@@ -1,0 +1,22 @@
+{
+  "sequence": 858,
+  "executable": "systemctl",
+  "argv": [
+    "show",
+    "soglia-spike-s10-57802605753.service",
+    "-p",
+    "LoadState",
+    "-p",
+    "ActiveState"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525834489,
+  "monotonic_start_ns": 54226742573,
+  "duration_ms": 22,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s10/commands/0858.stdout",
+  "stderr_file": "s10/commands/0858.stderr"
+}

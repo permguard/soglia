@@ -1,0 +1,2 @@
+{"cmd":"barrier /run/soglia-spike-s5-connect4-omitted-control-agent.ready /run/soglia-spike-s5-connect4-omitted-control-agent.go 15","ok":true,"detail":"released pid=8479"}
+{"cmd":"direct 10.201.0.2:16001","ok":true,"detail":"connected"}

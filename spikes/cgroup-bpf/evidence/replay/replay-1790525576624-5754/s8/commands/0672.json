@@ -1,0 +1,22 @@
+{
+  "sequence": 672,
+  "executable": "journalctl",
+  "argv": [
+    "--unit",
+    "soglia-spike-s8-5754.service",
+    "--since",
+    "@1790525620",
+    "--no-pager",
+    "--output=cat"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525621140,
+  "monotonic_start_ns": 44513722966,
+  "duration_ms": 21,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s8/commands/0672.stdout",
+  "stderr_file": "s8/commands/0672.stderr"
+}

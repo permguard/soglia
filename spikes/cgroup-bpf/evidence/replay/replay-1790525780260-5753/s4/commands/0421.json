@@ -1,0 +1,20 @@
+{
+  "sequence": 421,
+  "executable": "ip",
+  "argv": [
+    "link",
+    "set",
+    "s4p5780260",
+    "up"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525802439,
+  "monotonic_start_ns": 22176460600,
+  "duration_ms": 22,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s4/commands/0421.stdout",
+  "stderr_file": "s4/commands/0421.stderr"
+}

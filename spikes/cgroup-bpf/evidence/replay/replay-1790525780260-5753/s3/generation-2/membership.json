@@ -1,0 +1,13 @@
+{
+  "agent_netns_inode": 4026532347,
+  "agent_proc_cgroup": "0::/system.slice/soglia-spike-s3-57802605753.service/executions/s1-e1",
+  "agent_target_processes": "7399",
+  "announced_agent_pid": 7399,
+  "announced_host_pid": 7399,
+  "expected_proc_cgroup": "0::/system.slice/soglia-spike-s3-57802605753.service/executions/s1-e1",
+  "host_proc_cgroup": "0::/system.slice/soglia-spike-s3-57802605753.service/executions/s1-e1",
+  "host_target_processes": "7399",
+  "owned_netns_inode": 4026532347,
+  "proven": true,
+  "trusted_pid": 7399
+}

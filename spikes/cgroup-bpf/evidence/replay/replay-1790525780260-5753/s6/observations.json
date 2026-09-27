@@ -1,0 +1,167 @@
+{
+  "runtime_mutations": 0,
+  "candidate_selected": false,
+  "production_code_modified": false,
+  "sources": [
+    {
+      "test": "s1",
+      "path": "s1/observations.json",
+      "sha256": "90b4f15465bce7bf09ae50390b38fe74f4869284b6bb1448adaa8665f672e4d2"
+    },
+    {
+      "test": "s1b",
+      "path": "s1b/observations.json",
+      "sha256": "66a9b44b3f4d4f0db792294a2259a7158f47758c0b96f10ab8fbbbb2ac335121"
+    },
+    {
+      "test": "s2",
+      "path": "s2/observations.json",
+      "sha256": "b3e74f02522f468c2e1bde62ec2dd3feb69f6f81e0a3cde1752a0f03660a9e88"
+    },
+    {
+      "test": "s3",
+      "path": "s3/observations.json",
+      "sha256": "a37e50d824f9c835a759ddd63c6f1e6998cc1997237e0defc06db3b83dacff41"
+    },
+    {
+      "test": "s4",
+      "path": "s4/observations.json",
+      "sha256": "36642341db0756d8112134959b05f27b48c3056592ffae27768ea40fc28f4c70"
+    },
+    {
+      "test": "s5",
+      "path": "s5/observations.json",
+      "sha256": "cf163cd26cac6ab0f32cb168e7572b71ee4017bf2f053c0dd2adf970dda3d7c9"
+    }
+  ],
+  "rows": [
+    {
+      "property": "Live process belongs to the current Execution",
+      "primary_observed_enforcement": "trusted launcher/runtime placement into the delegated cgroup",
+      "other_observed_constraint": "owned netns entry checked independently by inode",
+      "negative_or_isolation_evidence": "live PID, /proc cgroup, cgroup.procs and netns inode agree",
+      "source_tests": [
+        "s1",
+        "s2"
+      ],
+      "proven": true
+    },
+    {
+      "property": "IPv6 stream socket creation is rejected early",
+      "primary_observed_enforcement": "cgroup-BPF sock_create",
+      "other_observed_constraint": "connect6 remains an independent later gate",
+      "negative_or_isolation_evidence": "relaxing only IPv6 stream creation makes socket creation succeed",
+      "source_tests": [
+        "s5"
+      ],
+      "proven": true
+    },
+    {
+      "property": "Direct IPv4 TCP is rejected early",
+      "primary_observed_enforcement": "cgroup-BPF connect4",
+      "other_observed_constraint": "namespace nft output policy remains the final destination barrier",
+      "negative_or_isolation_evidence": "exact nft relaxation still denies with BPF; omitting only connect4 exposes the listener",
+      "source_tests": [
+        "s4",
+        "s5"
+      ],
+      "proven": true
+    },
+    {
+      "property": "IPv6 TCP connect is rejected",
+      "primary_observed_enforcement": "cgroup-BPF connect6",
+      "other_observed_constraint": "sock_create is the earlier independent gate",
+      "negative_or_isolation_evidence": "with creation relaxed, omitting only connect6 exposes the IPv6 listener",
+      "source_tests": [
+        "s5"
+      ],
+      "proven": true
+    },
+    {
+      "property": "IPv4 UDP emission is rejected",
+      "primary_observed_enforcement": "cgroup-BPF sendmsg4",
+      "other_observed_constraint": "sock_create and namespace nft are separate gates",
+      "negative_or_isolation_evidence": "with datagram creation relaxed, omitting only sendmsg4 delivers the datagram",
+      "source_tests": [
+        "s5"
+      ],
+      "proven": true
+    },
+    {
+      "property": "IPv6 UDP emission is rejected",
+      "primary_observed_enforcement": "cgroup-BPF sendmsg6",
+      "other_observed_constraint": "sock_create and namespace nft are separate gates",
+      "negative_or_isolation_evidence": "with datagram creation relaxed, omitting only sendmsg6 delivers the datagram",
+      "source_tests": [
+        "s5"
+      ],
+      "proven": true
+    },
+    {
+      "property": "Only the proxy destination is reachable normally",
+      "primary_observed_enforcement": "namespace nft output chain",
+      "other_observed_constraint": "connect4 is earlier IPv4 defense; route/forward policy constrains topology",
+      "negative_or_isolation_evidence": "BPF-permissive normal control is blocked until one exact nft exception is added",
+      "source_tests": [
+        "s4"
+      ],
+      "proven": true
+    },
+    {
+      "property": "Candidate A/B state is captured for admitted IPv4 proxy connect",
+      "primary_observed_enforcement": "cgroup-BPF connect4",
+      "other_observed_constraint": "sockops later consumes it",
+      "negative_or_isolation_evidence": "sockops omission retains one cookie but publishes no final tuple",
+      "source_tests": [
+        "s5"
+      ],
+      "proven": true
+    },
+    {
+      "property": "Accepted tuple becomes resolvable",
+      "primary_observed_enforcement": "cgroup-BPF sockops publishes; proxy correlates",
+      "other_observed_constraint": "IP remains a cross-check only",
+      "negative_or_isolation_evidence": "omitting only sockops leaves established TCP without tuple publication",
+      "source_tests": [
+        "s1",
+        "s5"
+      ],
+      "proven": true
+    },
+    {
+      "property": "Missing/delayed attribution does not authorize",
+      "primary_observed_enforcement": "proxy bounded Resolve",
+      "other_observed_constraint": "BPF maps provide evidence but do not authorize",
+      "negative_or_isolation_evidence": "missing publication times out without read, DNS, effect or IP fallback",
+      "source_tests": [
+        "s1b",
+        "s5"
+      ],
+      "proven": true
+    },
+    {
+      "property": "Concurrent sockets are not cross-attributed",
+      "primary_observed_enforcement": "per-socket/per-instance evidence plus proxy tuple correlation",
+      "other_observed_constraint": "source IP is not authorization",
+      "negative_or_isolation_evidence": "132 sockets across four Executions produce zero cross-attribution",
+      "source_tests": [
+        "s2"
+      ],
+      "proven": true
+    },
+    {
+      "property": "Old lifecycle state does not authorize a new generation",
+      "primary_observed_enforcement": "sockops close cleanup plus runner-owned Execution teardown",
+      "other_observed_constraint": "map teardown removes remaining test state",
+      "negative_or_isolation_evidence": "FIN/RST reuse and SIGKILL generations show zero cross-generation attribution/residue",
+      "source_tests": [
+        "s3",
+        "s5"
+      ],
+      "proven": true
+    }
+  ],
+  "reserved_s7_loader_loss_established": false,
+  "reserved_s8_helper_death_established": false,
+  "reserved_s9_s10_foreign_order_established": false
+}

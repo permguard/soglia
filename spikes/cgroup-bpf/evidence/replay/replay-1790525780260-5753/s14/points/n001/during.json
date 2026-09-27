@@ -1,0 +1,846 @@
+{
+  "programs": [
+    {
+      "btf_id": 6,
+      "bytes_jited": 216,
+      "bytes_memlock": 4096,
+      "bytes_xlated": 56,
+      "gpl_compatible": true,
+      "id": 2,
+      "jited": true,
+      "loaded_at": 1790525714,
+      "map_ids": [
+        2
+      ],
+      "name": "hid_tail_call",
+      "orphaned": false,
+      "tag": "7cc47bbf07148bfe",
+      "type": "tracing",
+      "uid": 0
+    },
+    {
+      "bytes_jited": 200,
+      "bytes_memlock": 4096,
+      "bytes_xlated": 104,
+      "gpl_compatible": false,
+      "id": 97,
+      "jited": true,
+      "loaded_at": 1790525721,
+      "map_ids": [
+        5
+      ],
+      "name": "lima_ticker",
+      "orphaned": false,
+      "tag": "9a053c44bd4ba5b2",
+      "type": "tracepoint",
+      "uid": 0
+    },
+    {
+      "bytes_jited": 224,
+      "bytes_memlock": 4096,
+      "bytes_xlated": 184,
+      "gpl_compatible": true,
+      "id": 887,
+      "jited": true,
+      "loaded_at": 1790525853,
+      "name": "sd_devices",
+      "orphaned": false,
+      "tag": "fba67f14acbaee05",
+      "type": "cgroup_device",
+      "uid": 0
+    },
+    {
+      "bytes_jited": 496,
+      "bytes_memlock": 4096,
+      "bytes_xlated": 504,
+      "gpl_compatible": true,
+      "id": 888,
+      "jited": true,
+      "loaded_at": 1790525853,
+      "name": "sd_devices",
+      "orphaned": false,
+      "tag": "134b8a301991f6b7",
+      "type": "cgroup_device",
+      "uid": 0
+    },
+    {
+      "bytes_jited": 144,
+      "bytes_memlock": 4096,
+      "bytes_xlated": 64,
+      "gpl_compatible": true,
+      "id": 889,
+      "jited": true,
+      "loaded_at": 1790525853,
+      "name": "sd_fw_egress",
+      "orphaned": false,
+      "tag": "6deef7357e7b4530",
+      "type": "cgroup_skb",
+      "uid": 0
+    },
+    {
+      "bytes_jited": 144,
+      "bytes_memlock": 4096,
+      "bytes_xlated": 64,
+      "gpl_compatible": true,
+      "id": 890,
+      "jited": true,
+      "loaded_at": 1790525853,
+      "name": "sd_fw_ingress",
+      "orphaned": false,
+      "tag": "6deef7357e7b4530",
+      "type": "cgroup_skb",
+      "uid": 0
+    },
+    {
+      "bytes_jited": 496,
+      "bytes_memlock": 4096,
+      "bytes_xlated": 504,
+      "gpl_compatible": true,
+      "id": 891,
+      "jited": true,
+      "loaded_at": 1790525853,
+      "name": "sd_devices",
+      "orphaned": false,
+      "tag": "134b8a301991f6b7",
+      "type": "cgroup_device",
+      "uid": 0
+    },
+    {
+      "bytes_jited": 432,
+      "bytes_memlock": 4096,
+      "bytes_xlated": 416,
+      "gpl_compatible": true,
+      "id": 892,
+      "jited": true,
+      "loaded_at": 1790525853,
+      "name": "sd_devices",
+      "orphaned": false,
+      "tag": "ee0e253c78993a24",
+      "type": "cgroup_device",
+      "uid": 0
+    },
+    {
+      "bytes_jited": 472,
+      "bytes_memlock": 4096,
+      "bytes_xlated": 464,
+      "gpl_compatible": true,
+      "id": 893,
+      "jited": true,
+      "loaded_at": 1790525853,
+      "name": "sd_devices",
+      "orphaned": false,
+      "tag": "654d7024997e7811",
+      "type": "cgroup_device",
+      "uid": 0
+    },
+    {
+      "bytes_jited": 680,
+      "bytes_memlock": 4096,
+      "bytes_xlated": 744,
+      "gpl_compatible": true,
+      "id": 894,
+      "jited": true,
+      "loaded_at": 1790525853,
+      "name": "sd_devices",
+      "orphaned": false,
+      "tag": "384856681694f215",
+      "type": "cgroup_device",
+      "uid": 0
+    },
+    {
+      "bytes_jited": 144,
+      "bytes_memlock": 4096,
+      "bytes_xlated": 64,
+      "gpl_compatible": true,
+      "id": 895,
+      "jited": true,
+      "loaded_at": 1790525853,
+      "name": "sd_fw_egress",
+      "orphaned": false,
+      "tag": "6deef7357e7b4530",
+      "type": "cgroup_skb",
+      "uid": 0
+    },
+    {
+      "bytes_jited": 144,
+      "bytes_memlock": 4096,
+      "bytes_xlated": 64,
+      "gpl_compatible": true,
+      "id": 896,
+      "jited": true,
+      "loaded_at": 1790525853,
+      "name": "sd_fw_ingress",
+      "orphaned": false,
+      "tag": "6deef7357e7b4530",
+      "type": "cgroup_skb",
+      "uid": 0
+    },
+    {
+      "bytes_jited": 144,
+      "bytes_memlock": 4096,
+      "bytes_xlated": 64,
+      "gpl_compatible": true,
+      "id": 897,
+      "jited": true,
+      "loaded_at": 1790525853,
+      "name": "sd_fw_egress",
+      "orphaned": false,
+      "tag": "6deef7357e7b4530",
+      "type": "cgroup_skb",
+      "uid": 0
+    },
+    {
+      "bytes_jited": 144,
+      "bytes_memlock": 4096,
+      "bytes_xlated": 64,
+      "gpl_compatible": true,
+      "id": 898,
+      "jited": true,
+      "loaded_at": 1790525853,
+      "name": "sd_fw_ingress",
+      "orphaned": false,
+      "tag": "6deef7357e7b4530",
+      "type": "cgroup_skb",
+      "uid": 0
+    },
+    {
+      "btf_id": 310,
+      "bytes_jited": 576,
+      "bytes_memlock": 4096,
+      "bytes_xlated": 664,
+      "gpl_compatible": false,
+      "id": 903,
+      "jited": true,
+      "loaded_at": 1790525854,
+      "map_ids": [
+        620,
+        615,
+        614
+      ],
+      "name": "soglia_sock_create",
+      "orphaned": false,
+      "tag": "eea5a9c277a546d6",
+      "type": "cgroup_sock",
+      "uid": 0
+    },
+    {
+      "btf_id": 310,
+      "bytes_jited": 1016,
+      "bytes_memlock": 4096,
+      "bytes_xlated": 1288,
+      "gpl_compatible": false,
+      "id": 904,
+      "jited": true,
+      "loaded_at": 1790525854,
+      "map_ids": [
+        612,
+        613,
+        621,
+        620,
+        615,
+        614,
+        616,
+        618
+      ],
+      "name": "soglia_connect4",
+      "orphaned": false,
+      "tag": "df9c3439be853b4d",
+      "type": "cgroup_sock_addr",
+      "uid": 0
+    },
+    {
+      "btf_id": 310,
+      "bytes_jited": 600,
+      "bytes_memlock": 4096,
+      "bytes_xlated": 688,
+      "gpl_compatible": false,
+      "id": 905,
+      "jited": true,
+      "loaded_at": 1790525854,
+      "map_ids": [
+        620,
+        615,
+        614
+      ],
+      "name": "soglia_connect6",
+      "orphaned": false,
+      "tag": "c6994d7cab0ffa99",
+      "type": "cgroup_sock_addr",
+      "uid": 0
+    },
+    {
+      "btf_id": 310,
+      "bytes_jited": 608,
+      "bytes_memlock": 4096,
+      "bytes_xlated": 704,
+      "gpl_compatible": false,
+      "id": 906,
+      "jited": true,
+      "loaded_at": 1790525854,
+      "map_ids": [
+        620,
+        615,
+        614
+      ],
+      "name": "soglia_sendmsg4",
+      "orphaned": false,
+      "tag": "4675fb08d3b3d5fa",
+      "type": "cgroup_sock_addr",
+      "uid": 0
+    },
+    {
+      "btf_id": 310,
+      "bytes_jited": 600,
+      "bytes_memlock": 4096,
+      "bytes_xlated": 688,
+      "gpl_compatible": false,
+      "id": 907,
+      "jited": true,
+      "loaded_at": 1790525854,
+      "map_ids": [
+        620,
+        615,
+        614
+      ],
+      "name": "soglia_sendmsg6",
+      "orphaned": false,
+      "tag": "523bec458d754f5d",
+      "type": "cgroup_sock_addr",
+      "uid": 0
+    },
+    {
+      "btf_id": 310,
+      "bytes_jited": 1328,
+      "bytes_memlock": 4096,
+      "bytes_xlated": 1704,
+      "gpl_compatible": false,
+      "id": 908,
+      "jited": true,
+      "loaded_at": 1790525854,
+      "map_ids": [
+        612,
+        616,
+        618,
+        617,
+        620,
+        614
+      ],
+      "name": "soglia_sockops",
+      "orphaned": false,
+      "tag": "9bedb3719e62dd8b",
+      "type": "sock_ops",
+      "uid": 0
+    }
+  ],
+  "links": [
+    {
+      "attach_type": "modify_return",
+      "id": 1,
+      "prog_id": 2,
+      "prog_type": "tracing",
+      "target_btf_id": 130765,
+      "target_obj_id": 1,
+      "type": "tracing"
+    },
+    {
+      "id": 2,
+      "prog_id": 97,
+      "tracepoint": "sys_exit_bind",
+      "type": "perf_event"
+    },
+    {
+      "attach_type": "cgroup_inet_sock_create",
+      "cgroup_id": 19312,
+      "id": 270,
+      "prog_id": 903,
+      "type": "cgroup"
+    },
+    {
+      "attach_type": "cgroup_inet4_connect",
+      "cgroup_id": 19312,
+      "id": 271,
+      "prog_id": 904,
+      "type": "cgroup"
+    },
+    {
+      "attach_type": "cgroup_inet6_connect",
+      "cgroup_id": 19312,
+      "id": 272,
+      "prog_id": 905,
+      "type": "cgroup"
+    },
+    {
+      "attach_type": "cgroup_udp4_sendmsg",
+      "cgroup_id": 19312,
+      "id": 273,
+      "prog_id": 906,
+      "type": "cgroup"
+    },
+    {
+      "attach_type": "cgroup_udp6_sendmsg",
+      "cgroup_id": 19312,
+      "id": 274,
+      "prog_id": 907,
+      "type": "cgroup"
+    },
+    {
+      "attach_type": "cgroup_sock_ops",
+      "cgroup_id": 19312,
+      "id": 275,
+      "prog_id": 908,
+      "type": "cgroup"
+    }
+  ],
+  "maps": [
+    {
+      "bytes_key": 4,
+      "bytes_memlock": 8576,
+      "bytes_value": 4,
+      "flags": 0,
+      "frozen": 0,
+      "id": 2,
+      "max_entries": 1024,
+      "name": "hid_jmp_table",
+      "owner_jited": true,
+      "owner_prog_type": "tracing",
+      "type": "prog_array"
+    },
+    {
+      "bytes_key": 0,
+      "bytes_memlock": 1065368,
+      "bytes_value": 0,
+      "flags": 0,
+      "frozen": 0,
+      "id": 5,
+      "max_entries": 1048576,
+      "name": "lima_ticker_eve",
+      "type": "ringbuf"
+    },
+    {
+      "bytes_key": 4,
+      "bytes_memlock": 408,
+      "bytes_value": 24,
+      "flags": 128,
+      "frozen": 1,
+      "id": 612,
+      "max_entries": 1,
+      "name": ".rodata",
+      "type": "array"
+    },
+    {
+      "btf_id": 310,
+      "bytes_key": 4,
+      "bytes_memlock": 392,
+      "bytes_value": 8,
+      "flags": 0,
+      "frozen": 0,
+      "id": 613,
+      "max_entries": 1,
+      "name": "policy_local",
+      "type": "array"
+    },
+    {
+      "bytes_key": 0,
+      "bytes_memlock": 78488,
+      "bytes_value": 0,
+      "flags": 0,
+      "frozen": 0,
+      "id": 614,
+      "max_entries": 65536,
+      "name": "soglia_events",
+      "type": "ringbuf"
+    },
+    {
+      "btf_id": 310,
+      "bytes_key": 8,
+      "bytes_memlock": 83296,
+      "bytes_value": 8,
+      "flags": 0,
+      "frozen": 0,
+      "id": 615,
+      "max_entries": 1024,
+      "name": "soglia_denies",
+      "type": "hash"
+    },
+    {
+      "btf_id": 310,
+      "bytes_key": 8,
+      "bytes_memlock": 329056,
+      "bytes_value": 8,
+      "flags": 0,
+      "frozen": 0,
+      "id": 616,
+      "max_entries": 4096,
+      "name": "soglia_cookie_a",
+      "type": "hash"
+    },
+    {
+      "btf_id": 310,
+      "bytes_key": 16,
+      "bytes_memlock": 591456,
+      "bytes_value": 64,
+      "flags": 0,
+      "frozen": 0,
+      "id": 617,
+      "max_entries": 4096,
+      "name": "soglia_tuples",
+      "type": "hash"
+    },
+    {
+      "btf_id": 310,
+      "bytes_key": 4,
+      "bytes_memlock": 576,
+      "bytes_value": 8,
+      "flags": 1,
+      "frozen": 0,
+      "id": 618,
+      "max_entries": 0,
+      "name": "soglia_sk_b",
+      "type": "sk_storage"
+    },
+    {
+      "btf_id": 310,
+      "bytes_key": 4,
+      "bytes_memlock": 432,
+      "bytes_value": 48,
+      "flags": 0,
+      "frozen": 0,
+      "id": 619,
+      "max_entries": 1,
+      "name": "soglia_meta",
+      "type": "array"
+    },
+    {
+      "btf_id": 310,
+      "bytes_key": 4,
+      "bytes_memlock": 456,
+      "bytes_value": 8,
+      "flags": 0,
+      "frozen": 0,
+      "id": 620,
+      "max_entries": 9,
+      "name": "soglia_counters",
+      "type": "array"
+    },
+    {
+      "btf_id": 310,
+      "bytes_key": 8,
+      "bytes_memlock": 91520,
+      "bytes_value": 16,
+      "flags": 0,
+      "frozen": 0,
+      "id": 621,
+      "max_entries": 1024,
+      "name": "soglia_policy",
+      "type": "hash"
+    }
+  ],
+  "bpffs": [
+    "/sys/fs/bpf/soglia-spike-runner",
+    "/sys/fs/bpf/soglia-spike-runner/replay-1790525780260-5753",
+    "/sys/fs/bpf/soglia-spike-runner/replay-1790525780260-5753/s14",
+    "/sys/fs/bpf/soglia-spike-runner/replay-1790525780260-5753/s14/n001",
+    "/sys/fs/bpf/soglia-spike-runner/replay-1790525780260-5753/s14/n001/links",
+    "/sys/fs/bpf/soglia-spike-runner/replay-1790525780260-5753/s14/n001/links/e000",
+    "/sys/fs/bpf/soglia-spike-runner/replay-1790525780260-5753/s14/n001/maps"
+  ],
+  "cgroups": [
+    "/sys/fs/cgroup/system.slice/soglia-spike-s14-57802605753.service/executions",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s14-57802605753.service/executions/s14-e000",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s14-57802605753.service/runtime"
+  ],
+  "netns": [
+    {
+      "id": 0,
+      "name": "sg14-5753-1-000"
+    }
+  ],
+  "interfaces": [
+    {
+      "address": "00:00:00:00:00:00",
+      "allmulti": 0,
+      "broadcast": "00:00:00:00:00:00",
+      "flags": [
+        "LOOPBACK",
+        "UP",
+        "LOWER_UP"
+      ],
+      "gro_max_size": 65536,
+      "group": "default",
+      "gso_max_segs": 65535,
+      "gso_max_size": 65536,
+      "ifindex": 1,
+      "ifname": "lo",
+      "inet6_addr_gen_mode": "eui64",
+      "link_type": "loopback",
+      "linkmode": "DEFAULT",
+      "max_mtu": 0,
+      "min_mtu": 0,
+      "mtu": 65536,
+      "num_rx_queues": 1,
+      "num_tx_queues": 1,
+      "operstate": "UNKNOWN",
+      "promiscuity": 0,
+      "qdisc": "noqueue",
+      "tso_max_segs": 65535,
+      "tso_max_size": 524280,
+      "txqlen": 1000
+    },
+    {
+      "address": "52:55:55:fc:32:d4",
+      "allmulti": 0,
+      "broadcast": "ff:ff:ff:ff:ff:ff",
+      "flags": [
+        "BROADCAST",
+        "MULTICAST",
+        "UP",
+        "LOWER_UP"
+      ],
+      "gro_max_size": 65536,
+      "group": "default",
+      "gso_max_segs": 65535,
+      "gso_max_size": 65536,
+      "ifindex": 2,
+      "ifname": "eth0",
+      "inet6_addr_gen_mode": "eui64",
+      "link_type": "ether",
+      "linkmode": "DEFAULT",
+      "max_mtu": 1500,
+      "min_mtu": 68,
+      "mtu": 1500,
+      "num_rx_queues": 1,
+      "num_tx_queues": 1,
+      "operstate": "UP",
+      "parentbus": "virtio",
+      "parentdev": "virtio0",
+      "promiscuity": 0,
+      "qdisc": "fq_codel",
+      "tso_max_segs": 65535,
+      "tso_max_size": 65536,
+      "txqlen": 1000
+    },
+    {
+      "address": "26:0c:1a:4a:89:18",
+      "allmulti": 0,
+      "broadcast": "ff:ff:ff:ff:ff:ff",
+      "flags": [
+        "BROADCAST",
+        "NOARP",
+        "UP",
+        "LOWER_UP"
+      ],
+      "gro_max_size": 65536,
+      "group": "default",
+      "gso_max_segs": 65535,
+      "gso_max_size": 65536,
+      "ifindex": 40,
+      "ifname": "s14p5753",
+      "inet6_addr_gen_mode": "eui64",
+      "link_type": "ether",
+      "linkinfo": {
+        "info_kind": "dummy"
+      },
+      "linkmode": "DEFAULT",
+      "max_mtu": 0,
+      "min_mtu": 0,
+      "mtu": 1500,
+      "num_rx_queues": 1,
+      "num_tx_queues": 1,
+      "operstate": "UNKNOWN",
+      "promiscuity": 0,
+      "qdisc": "noqueue",
+      "tso_max_segs": 65535,
+      "tso_max_size": 65536,
+      "txqlen": 1000
+    },
+    {
+      "address": "6a:4b:f0:fe:f2:76",
+      "allmulti": 0,
+      "broadcast": "ff:ff:ff:ff:ff:ff",
+      "flags": [
+        "BROADCAST",
+        "MULTICAST",
+        "UP",
+        "LOWER_UP"
+      ],
+      "gro_max_size": 65536,
+      "group": "default",
+      "gso_max_segs": 65535,
+      "gso_max_size": 65536,
+      "ifindex": 41,
+      "ifname": "s145753h000",
+      "inet6_addr_gen_mode": "eui64",
+      "link_index": 2,
+      "link_netnsid": 0,
+      "link_type": "ether",
+      "linkinfo": {
+        "info_kind": "veth"
+      },
+      "linkmode": "DEFAULT",
+      "max_mtu": 65535,
+      "min_mtu": 68,
+      "mtu": 1500,
+      "num_rx_queues": 4,
+      "num_tx_queues": 4,
+      "operstate": "UP",
+      "promiscuity": 0,
+      "qdisc": "noqueue",
+      "tso_max_segs": 65535,
+      "tso_max_size": 524280,
+      "txqlen": 1000
+    }
+  ],
+  "nft": {
+    "nftables": [
+      {
+        "metainfo": {
+          "json_schema_version": 1,
+          "release_name": "Old Doc Yak #3",
+          "version": "1.0.9"
+        }
+      },
+      {
+        "table": {
+          "family": "ip",
+          "handle": 1,
+          "name": "nat"
+        }
+      },
+      {
+        "chain": {
+          "family": "ip",
+          "handle": 1,
+          "name": "LIMADNS",
+          "table": "nat"
+        }
+      },
+      {
+        "chain": {
+          "family": "ip",
+          "handle": 2,
+          "hook": "prerouting",
+          "name": "PREROUTING",
+          "policy": "accept",
+          "prio": -100,
+          "table": "nat",
+          "type": "nat"
+        }
+      },
+      {
+        "chain": {
+          "family": "ip",
+          "handle": 4,
+          "hook": "output",
+          "name": "OUTPUT",
+          "policy": "accept",
+          "prio": -100,
+          "table": "nat",
+          "type": "nat"
+        }
+      },
+      {
+        "rule": {
+          "chain": "PREROUTING",
+          "expr": [
+            {
+              "counter": {
+                "bytes": 13413,
+                "packets": 224
+              }
+            },
+            {
+              "jump": {
+                "target": "LIMADNS"
+              }
+            }
+          ],
+          "family": "ip",
+          "handle": 3,
+          "table": "nat"
+        }
+      },
+      {
+        "rule": {
+          "chain": "OUTPUT",
+          "expr": [
+            {
+              "counter": {
+                "bytes": 3224,
+                "packets": 50
+              }
+            },
+            {
+              "jump": {
+                "target": "LIMADNS"
+              }
+            }
+          ],
+          "family": "ip",
+          "handle": 5,
+          "table": "nat"
+        }
+      }
+    ]
+  },
+  "owned_processes": [
+    "13527 /var/tmp/soglia-spike-2/bin/soglia-spike-runner _delegation-helper --ready /run/soglia-spike-runner/replay-1790525780260-5753/s14/delegation.json ",
+    "13622 /var/tmp/soglia-spike-2/bin/s14-loader /var/tmp/soglia-spike-2/bpf/soglia.o /sys/fs/cgroup/system.slice/soglia-spike-s14-57802605753.service/executions /sys/fs/bpf/soglia-spike-runner/replay-1790525780260-5753/s14/n001/maps /sys/fs/bpf/soglia-spike-runner/replay-1790525780260-5753/s14/n001/links 1 /run/soglia-spike-runner/replay-1790525780260-5753/s14/n001/loader-ready.json /run/soglia-spike-runner/replay-1790525780260-5753/s14/n001/loader-finish /run/soglia-spike-runner/replay-1790525780260-5753/s14/n001/loader-done.json /run/soglia-spike-runner/replay-1790525780260-5753/s14/n001/loader-failure.json "
+  ],
+  "meminfo": {
+    "Active": 420020,
+    "Active(anon)": 137356,
+    "Active(file)": 282664,
+    "AnonHugePages": 0,
+    "AnonPages": 155088,
+    "Bounce": 0,
+    "Buffers": 56232,
+    "Cached": 3084540,
+    "CmaFree": 29696,
+    "CmaTotal": 32768,
+    "CommitLimit": 4056200,
+    "Committed_AS": 550088,
+    "Dirty": 420,
+    "FileHugePages": 0,
+    "FilePmdMapped": 0,
+    "HardwareCorrupted": 0,
+    "HugePages_Free": 0,
+    "HugePages_Rsvd": 0,
+    "HugePages_Surp": 0,
+    "HugePages_Total": 0,
+    "Hugepagesize": 2048,
+    "Hugetlb": 0,
+    "Inactive": 2849620,
+    "Inactive(anon)": 0,
+    "Inactive(file)": 2849620,
+    "KReclaimable": 183548,
+    "KernelStack": 2840,
+    "Mapped": 72780,
+    "MemAvailable": 7561456,
+    "MemFree": 4448644,
+    "MemTotal": 8112404,
+    "Mlocked": 26220,
+    "NFS_Unstable": 0,
+    "PageTables": 3388,
+    "Percpu": 1920,
+    "SReclaimable": 183548,
+    "SUnreclaim": 76848,
+    "SecPageTables": 0,
+    "ShadowCallStack": 756,
+    "Shmem": 1052,
+    "ShmemHugePages": 0,
+    "ShmemPmdMapped": 0,
+    "Slab": 260396,
+    "SwapCached": 0,
+    "SwapFree": 0,
+    "SwapTotal": 0,
+    "Unevictable": 26220,
+    "VmallocChunk": 0,
+    "VmallocTotal": 133141626880,
+    "VmallocUsed": 12956,
+    "Writeback": 0,
+    "WritebackTmp": 0,
+    "Zswap": 0,
+    "Zswapped": 0
+  },
+  "limits": "Limit                     Soft Limit           Hard Limit           Units     \nMax cpu time              unlimited            unlimited            seconds   \nMax file size             unlimited            unlimited            bytes     \nMax data size             unlimited            unlimited            bytes     \nMax stack size            8388608              unlimited            bytes     \nMax core file size        0                    0                    bytes     \nMax resident set          unlimited            unlimited            bytes     \nMax processes             31401                31401                processes \nMax open files            1024                 1048576              files     \nMax locked memory         1038385152           1038385152           bytes     \nMax address space         unlimited            unlimited            bytes     \nMax file locks            unlimited            unlimited            locks     \nMax pending signals       31401                31401                signals   \nMax msgqueue size         819200               819200               bytes     \nMax nice priority         0                    0                    \nMax realtime priority     0                    0                    \nMax realtime timeout      unlimited            unlimited            us        \n"
+}

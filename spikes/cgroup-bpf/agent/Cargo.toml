@@ -3,7 +3,7 @@
 
 [package]
 name = "soglia-spike-agent"
-description = "The agent the Phase-1 spike runs inside Executions. EXPERIMENTAL."
+description = "Agent stimulus for the reproducible cgroup-BPF spike. EXPERIMENTAL."
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true

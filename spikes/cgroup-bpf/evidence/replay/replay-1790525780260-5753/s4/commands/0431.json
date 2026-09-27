@@ -1,0 +1,18 @@
+{
+  "sequence": 431,
+  "executable": "nft",
+  "argv": [
+    "-f",
+    "/run/soglia-spike-runner/replay-1790525780260-5753/s4/host.nft"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525802691,
+  "monotonic_start_ns": 22428406842,
+  "duration_ms": 21,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s4/commands/0431.stdout",
+  "stderr_file": "s4/commands/0431.stderr"
+}

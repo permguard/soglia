@@ -1,0 +1,2 @@
+{"cmd":"barrier /run/soglia-spike-s5-sendmsg4-omitted-control-agent.ready /run/soglia-spike-s5-sendmsg4-omitted-control-agent.go 15","ok":true,"detail":"released pid=8329"}
+{"cmd":"udp4 10.201.0.2:16003","ok":true,"detail":"sent"}

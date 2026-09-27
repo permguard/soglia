@@ -1,0 +1,24 @@
+{
+  "sequence": 2099,
+  "executable": "ip",
+  "argv": [
+    "netns",
+    "exec",
+    "sg14-5754-32-024",
+    "ip",
+    "link",
+    "set",
+    "lo",
+    "up"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525667078,
+  "monotonic_start_ns": 90452165105,
+  "duration_ms": 24,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s14/commands/2099.stdout",
+  "stderr_file": "s14/commands/2099.stderr"
+}

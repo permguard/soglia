@@ -1,0 +1,19 @@
+{
+  "sequence": 497,
+  "executable": "ip",
+  "argv": [
+    "netns",
+    "add",
+    "sg-s5-55766245754"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525602946,
+  "monotonic_start_ns": 26320530939,
+  "duration_ms": 23,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s5/commands/0497.stdout",
+  "stderr_file": "s5/commands/0497.stderr"
+}

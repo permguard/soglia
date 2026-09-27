@@ -1,0 +1,19 @@
+{
+  "sequence": 579,
+  "executable": "bpftool",
+  "argv": [
+    "-j",
+    "prog",
+    "show"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525813291,
+  "monotonic_start_ns": 33028760320,
+  "duration_ms": 21,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s7/commands/0579.stdout",
+  "stderr_file": "s7/commands/0579.stderr"
+}

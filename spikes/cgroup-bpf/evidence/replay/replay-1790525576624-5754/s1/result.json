@@ -1,0 +1,10 @@
+{
+  "test": "s1",
+  "authoritative": true,
+  "verdict": "PASS",
+  "invariant": "trusted Execution placement -> BPF attribution -> accepted tuple -> bounded Resolve -> correct Execution",
+  "detail": "invariant and cleanup proven; EXTERNAL_CHURN: systemd sd_* program IDs changed [162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173] -> [184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195]; the complete stable sd_* object multiset excluding IDs, all non-systemd programs, links and maps are unchanged; all registered test-owned objects are absent",
+  "cleanup": "PASS",
+  "started_unix_ms": 1790525585676,
+  "duration_ms": 1403
+}

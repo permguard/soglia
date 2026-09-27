@@ -1,0 +1,23 @@
+{
+  "sequence": 734,
+  "executable": "ip",
+  "argv": [
+    "netns",
+    "exec",
+    "sg-s9-55766245754",
+    "nft",
+    "-j",
+    "list",
+    "ruleset"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525624644,
+  "monotonic_start_ns": 48018009918,
+  "duration_ms": 23,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s9/commands/0734.stdout",
+  "stderr_file": "s9/commands/0734.stderr"
+}

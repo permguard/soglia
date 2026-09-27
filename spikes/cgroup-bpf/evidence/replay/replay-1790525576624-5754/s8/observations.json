@@ -1,0 +1,155 @@
+{
+  "production_behavior_modified_by_test": false,
+  "unit": "soglia-spike-s8-5754.service",
+  "unit_inode": 12312,
+  "runtime_pid": 9154,
+  "sandbox_pid": 9155,
+  "enforcer_pid": 9156,
+  "enforcer_parent_pid": 9154,
+  "helper_relationship_proven": true,
+  "executions": [
+    {
+      "execution_tag": "a533fd1b73",
+      "cgroup_path": "/sys/fs/cgroup/system.slice/soglia-spike-s8-5754.service/executions/a533fd1b73",
+      "cgroup_inode": 13828,
+      "cgroup_processes": [
+        9241
+      ],
+      "proc_cgroups": {
+        "9241": "0::/system.slice/soglia-spike-s8-5754.service/executions/a533fd1b73\n"
+      },
+      "netns_name": "soglia-a533fd1b73",
+      "named_netns_inode": 4026532356,
+      "process_netns_inodes": {
+        "9241": 4026532356
+      },
+      "namespace_nft": "table inet soglia { # handle 1\n\tchain input { # handle 1\n\t\ttype filter hook input priority filter; policy drop;\n\t\tiif \"lo\" accept # handle 4\n\t\tct state established,related accept # handle 5\n\t\tip saddr 10.201.0.0 ip daddr 10.201.0.1 tcp dport 8080 ct state new accept # handle 6\n\t}\n\n\tchain output { # handle 2\n\t\ttype filter hook output priority filter; policy drop;\n\t\toif \"lo\" accept # handle 7\n\t\tct state established,related accept # handle 8\n\t\tip daddr 10.200.255.1 tcp dport 15001 ct state new accept # handle 9\n\t}\n\n\tchain forward { # handle 3\n\t\ttype filter hook forward priority filter; policy drop;\n\t}\n}\n",
+      "proven": true
+    },
+    {
+      "execution_tag": "b1c2aee344",
+      "cgroup_path": "/sys/fs/cgroup/system.slice/soglia-spike-s8-5754.service/executions/b1c2aee344",
+      "cgroup_inode": 14014,
+      "cgroup_processes": [
+        9320
+      ],
+      "proc_cgroups": {
+        "9320": "0::/system.slice/soglia-spike-s8-5754.service/executions/b1c2aee344\n"
+      },
+      "netns_name": "soglia-b1c2aee344",
+      "named_netns_inode": 4026532485,
+      "process_netns_inodes": {
+        "9320": 4026532485
+      },
+      "namespace_nft": "table inet soglia { # handle 1\n\tchain input { # handle 1\n\t\ttype filter hook input priority filter; policy drop;\n\t\tiif \"lo\" accept # handle 4\n\t\tct state established,related accept # handle 5\n\t\tip saddr 10.201.0.4 ip daddr 10.201.0.5 tcp dport 8080 ct state new accept # handle 6\n\t}\n\n\tchain output { # handle 2\n\t\ttype filter hook output priority filter; policy drop;\n\t\toif \"lo\" accept # handle 7\n\t\tct state established,related accept # handle 8\n\t\tip daddr 10.200.255.1 tcp dport 15001 ct state new accept # handle 9\n\t}\n\n\tchain forward { # handle 3\n\t\ttype filter hook forward priority filter; policy drop;\n\t}\n}\n",
+      "proven": true
+    },
+    {
+      "execution_tag": "e6f42810ef",
+      "cgroup_path": "/sys/fs/cgroup/system.slice/soglia-spike-s8-5754.service/executions/e6f42810ef",
+      "cgroup_inode": 13921,
+      "cgroup_processes": [
+        9288
+      ],
+      "proc_cgroups": {
+        "9288": "0::/system.slice/soglia-spike-s8-5754.service/executions/e6f42810ef\n"
+      },
+      "netns_name": "soglia-e6f42810ef",
+      "named_netns_inode": 4026532419,
+      "process_netns_inodes": {
+        "9288": 4026532419
+      },
+      "namespace_nft": "table inet soglia { # handle 1\n\tchain input { # handle 1\n\t\ttype filter hook input priority filter; policy drop;\n\t\tiif \"lo\" accept # handle 4\n\t\tct state established,related accept # handle 5\n\t\tip saddr 10.201.0.2 ip daddr 10.201.0.3 tcp dport 8080 ct state new accept # handle 6\n\t}\n\n\tchain output { # handle 2\n\t\ttype filter hook output priority filter; policy drop;\n\t\toif \"lo\" accept # handle 7\n\t\tct state established,related accept # handle 8\n\t\tip daddr 10.200.255.1 tcp dport 15001 ct state new accept # handle 9\n\t}\n\n\tchain forward { # handle 3\n\t\ttype filter hook forward priority filter; policy drop;\n\t}\n}\n",
+      "proven": true
+    }
+  ],
+  "pre_loss_443_established": true,
+  "kill_signal": 9,
+  "enforcer_stopped": true,
+  "helper_loss_event": "\u001b[2m2026-09-27T16:13:33.559845Z\u001b[0m \u001b[31mERROR\u001b[0m a privileged helper is gone; the runtime stops fail-closed \u001b[3mevent.name\u001b[0m\u001b[2m=\u001b[0m\"runtime.helper_lost\" \u001b[3mhelper\u001b[0m\u001b[2m=\u001b[0m\"enforcer\" \u001b[3mreason\u001b[0m\u001b[2m=\u001b[0mchild exited from signal 9",
+  "autonomous_detection": true,
+  "detection_required_enforcer_rpc": false,
+  "detection_upper_bound_ms": 45,
+  "ingress_close_upper_bound_ms": 45,
+  "agents_gone_upper_bound_ms": 87,
+  "tunnel_close_upper_bound_ms": 119,
+  "runtime_exit_upper_bound_ms": 119,
+  "post_detection_admission": {
+    "exit_code": 7,
+    "signal": null,
+    "timed_out": false,
+    "stdout": "",
+    "stderr": "curl: (7) Failed to connect to 127.0.0.1 port 18089 after 0 ms: Couldn't connect to server\n"
+  },
+  "existing_tunnel": {
+    "exit_code": 52,
+    "signal": null,
+    "timed_out": false,
+    "stdout": "\nS8_HTTP_STATUS=000\n",
+    "stderr": "curl: (52) Empty reply from server\n"
+  },
+  "delayed_outbound": {
+    "exit_code": 52,
+    "signal": null,
+    "timed_out": false,
+    "stdout": "\nS8_HTTP_STATUS=000\n",
+    "stderr": "curl: (52) Empty reply from server\n"
+  },
+  "existing_http": {
+    "exit_code": 52,
+    "signal": null,
+    "timed_out": false,
+    "stdout": "\nS8_HTTP_STATUS=000\n",
+    "stderr": "curl: (52) Empty reply from server\n"
+  },
+  "upstream_443": {
+    "exit_code": 0,
+    "signal": null,
+    "timed_out": false,
+    "stdout": "{\"cmd\":\"listen4-pulse-hold 11.0.0.1:443 20\",\"ok\":false,\"errno\":-1,\"error\":\"failed to fill whole buffer\"}\n",
+    "stderr": ""
+  },
+  "upstream_444": {
+    "exit_code": null,
+    "signal": 9,
+    "timed_out": true,
+    "stdout": "",
+    "stderr": ""
+  },
+  "application_pulse_after_loss": false,
+  "outbound_444_after_loss": false,
+  "admitted_before": 3,
+  "admitted_after": 3,
+  "allowed_before": 1,
+  "allowed_after": 1,
+  "agents_absent": true,
+  "ingress_closed": true,
+  "tunnel_closed": true,
+  "retained_host_nft": "table inet soglia_host { # handle 12\n\tset exec_src { # handle 5\n\t\ttype ifname . ipv4_addr\n\t\telements = { \"sgh-a533fd1b73\" . 10.201.0.1,\n\t\t\t     \"sgh-e6f42810ef\" . 10.201.0.3,\n\t\t\t     \"sgh-b1c2aee344\" . 10.201.0.5 }\n\t}\n\n\tset exec_ingress { # handle 6\n\t\ttype ipv4_addr . inet_service\n\t\telements = { 10.201.0.1 . 8080,\n\t\t\t     10.201.0.3 . 8080,\n\t\t\t     10.201.0.5 . 8080 }\n\t}\n\n\tchain prerouting { # handle 1\n\t\ttype filter hook prerouting priority raw; policy accept;\n\t\tiifname \"sgh-*\" meta nfproto ipv6 drop # handle 7\n\t\tiifname \"sgh-*\" iifname . ip saddr != @exec_src drop # handle 8\n\t}\n\n\tchain input { # handle 2\n\t\ttype filter hook input priority filter - 10; policy accept;\n\t\tiifname \"sgh-*\" ct state invalid drop # handle 9\n\t\tiifname \"sgh-*\" ct state new meta l4proto != tcp drop # handle 10\n\t\tiifname \"sgh-*\" ct state new ip daddr != 10.200.255.1 drop # handle 11\n\t\tiifname \"sgh-*\" ct state new tcp dport != 15001 drop # handle 12\n\t\tiifname != \"sgh-*\" ip daddr 10.200.255.1 drop # handle 13\n\t}\n\n\tchain forward { # handle 3\n\t\ttype filter hook forward priority filter - 10; policy accept;\n\t\tiifname \"sgh-*\" drop # handle 14\n\t\toifname \"sgh-*\" drop # handle 15\n\t}\n\n\tchain output { # handle 4\n\t\ttype filter hook output priority filter - 10; policy accept;\n\t\toifname \"sgh-*\" meta nfproto ipv6 drop # handle 16\n\t\toifname \"sgh-*\" ct state invalid drop # handle 17\n\t\toifname \"sgh-*\" ct state new meta l4proto != tcp drop # handle 18\n\t\toifname \"sgh-*\" ct state new meta skuid != 990 drop # handle 19\n\t\toifname \"sgh-*\" ct state new ip daddr . tcp dport != @exec_ingress drop # handle 20\n\t}\n}\n",
+  "bpf_links_after_loss": [
+    {
+      "attach_type": "modify_return",
+      "id": 1,
+      "prog_id": 2,
+      "prog_type": "tracing",
+      "target_btf_id": 130765,
+      "target_obj_id": 1,
+      "type": "tracing"
+    },
+    {
+      "id": 2,
+      "prog_id": 97,
+      "tracepoint": "sys_exit_bind",
+      "type": "perf_event"
+    }
+  ],
+  "restart_main_pid": 9543,
+  "restart_sweep_line": 1,
+  "restart_ready_line": 8,
+  "restart_sweep_before_ready": true,
+  "restart_execution_count": 0,
+  "restart_live_agent_count": 0,
+  "restart_test_netns_count": 0,
+  "restart_runc_containers": [],
+  "restart_journal": "Started soglia-spike-s8-5754.service - /var/tmp/soglia-spike-2/bin/soglia run --file /var/tmp/soglia-spike-2/runtime/replay-1790525576624-5754/s8/soglia.yaml.\n\u001b[2m2026-09-27T16:13:41.050262Z\u001b[0m \u001b[32m INFO\u001b[0m a resource left by a previous run was removed \u001b[3mevent.name\u001b[0m\u001b[2m=\u001b[0m\"startup.swept\" \u001b[3mhelper\u001b[0m\u001b[2m=\u001b[0m\"sandboxd\" \u001b[3mresource\u001b[0m\u001b[2m=\u001b[0msandbox of Execution b1c2aee344fa0bac498b42e18889b8c4\n\u001b[2m2026-09-27T16:13:41.050279Z\u001b[0m \u001b[32m INFO\u001b[0m a resource left by a previous run was removed \u001b[3mevent.name\u001b[0m\u001b[2m=\u001b[0m\"startup.swept\" \u001b[3mhelper\u001b[0m\u001b[2m=\u001b[0m\"sandboxd\" \u001b[3mresource\u001b[0m\u001b[2m=\u001b[0msandbox of Execution e6f42810ef0676586dcf136c5e442489\n\u001b[2m2026-09-27T16:13:41.050281Z\u001b[0m \u001b[32m INFO\u001b[0m a resource left by a previous run was removed \u001b[3mevent.name\u001b[0m\u001b[2m=\u001b[0m\"startup.swept\" \u001b[3mhelper\u001b[0m\u001b[2m=\u001b[0m\"sandboxd\" \u001b[3mresource\u001b[0m\u001b[2m=\u001b[0msandbox of Execution a533fd1b733f422850ec45d91fd1e150\n\u001b[2m2026-09-27T16:13:41.104467Z\u001b[0m \u001b[32m INFO\u001b[0m a resource left by a previous run was removed \u001b[3mevent.name\u001b[0m\u001b[2m=\u001b[0m\"startup.swept\" \u001b[3mhelper\u001b[0m\u001b[2m=\u001b[0m\"enforcer\" \u001b[3mresource\u001b[0m\u001b[2m=\u001b[0mnetwork of Execution a533fd1b733f422850ec45d91fd1e150\n\u001b[2m2026-09-27T16:13:41.104475Z\u001b[0m \u001b[32m INFO\u001b[0m a resource left by a previous run was removed \u001b[3mevent.name\u001b[0m\u001b[2m=\u001b[0m\"startup.swept\" \u001b[3mhelper\u001b[0m\u001b[2m=\u001b[0m\"enforcer\" \u001b[3mresource\u001b[0m\u001b[2m=\u001b[0mnetwork of Execution b1c2aee344fa0bac498b42e18889b8c4\n\u001b[2m2026-09-27T16:13:41.104477Z\u001b[0m \u001b[32m INFO\u001b[0m a resource left by a previous run was removed \u001b[3mevent.name\u001b[0m\u001b[2m=\u001b[0m\"startup.swept\" \u001b[3mhelper\u001b[0m\u001b[2m=\u001b[0m\"enforcer\" \u001b[3mresource\u001b[0m\u001b[2m=\u001b[0mnetwork of Execution e6f42810ef0676586dcf136c5e442489\n\u001b[2m2026-09-27T16:13:41.104514Z\u001b[0m \u001b[32m INFO\u001b[0m privileges dropped \u001b[3mevent.name\u001b[0m\u001b[2m=\u001b[0m\"startup.privileges_dropped\" \u001b[3muid\u001b[0m\u001b[2m=\u001b[0m990 \u001b[3mgid\u001b[0m\u001b[2m=\u001b[0m990\n\u001b[2m2026-09-27T16:13:41.104875Z\u001b[0m \u001b[32m INFO\u001b[0m soglia is ready \u001b[3mevent.name\u001b[0m\u001b[2m=\u001b[0m\"startup.ready\" \u001b[3mingress\u001b[0m\u001b[2m=\u001b[0m127.0.0.1:18089 \u001b[3megress\u001b[0m\u001b[2m=\u001b[0m10.200.255.1:15001\n"
+}

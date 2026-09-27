@@ -1,0 +1,12 @@
+# Copyright (c) 2022 Nitro Agility S.r.l.
+# SPDX-License-Identifier: Apache-2.0
+
+# Replays are local by default: every development, diagnostic or failed run lands in replay/ and
+# stays out of git.
+replay/*
+!replay/.gitkeep
+
+# An authoritative replay worth keeping is promoted by copying its directory, unchanged, to
+# authoritative/<run-id>/. Everything there is tracked, including the logs the repository-wide
+# `*.log` rule would otherwise ignore.
+!authoritative/**

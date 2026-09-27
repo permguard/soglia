@@ -1,0 +1,10 @@
+{
+  "test": "s4",
+  "authoritative": true,
+  "verdict": "PASS",
+  "invariant": "with only the exact nft destination barrier relaxed, cgroup/connect4 prevents direct IPv4 establishment and the no-deny control exposes the same path",
+  "detail": "invariant and cleanup proven; EXTERNAL_CHURN: systemd sd_* program IDs changed [368, 369, 370, 371, 372, 373, 374, 375, 376, 377, 378, 379] -> [398, 399, 400, 401, 402, 403, 404, 405, 406, 407, 408, 409]; the complete stable sd_* object multiset excluding IDs, all non-systemd programs, links and maps are unchanged; all registered test-owned objects are absent",
+  "cleanup": "PASS",
+  "started_unix_ms": 1790525599103,
+  "duration_ms": 3634
+}

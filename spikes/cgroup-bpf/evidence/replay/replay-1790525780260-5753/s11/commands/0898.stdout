@@ -1,0 +1,2 @@
+{"cmd":"barrier /run/soglia-spike-runner/replay-1790525780260-5753/s11/agent.ready /run/soglia-spike-runner/replay-1790525780260-5753/s11/agent.go 30","ok":true,"detail":"released pid=10683"}
+{"cmd":"proxy","ok":true,"detail":"ATTRIBUTED s11-execution-generation-1","i":0,"local":"10.201.0.1:37478"}

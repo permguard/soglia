@@ -1,0 +1,20 @@
+{
+  "sequence": 3081,
+  "executable": "ip",
+  "argv": [
+    "link",
+    "show",
+    "dev",
+    "s145753h019"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525898323,
+  "monotonic_start_ns": 118060499871,
+  "duration_ms": 25,
+  "exit_code": 1,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s14/commands/3081.stdout",
+  "stderr_file": "s14/commands/3081.stderr"
+}

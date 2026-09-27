@@ -1,0 +1,10 @@
+{
+  "test": "s6",
+  "authoritative": true,
+  "verdict": "PASS",
+  "invariant": "the enforcement-layer table is derived only from structured S1-S5 evidence and distinguishes primary enforcement, defense-in-depth, topology and unestablished later properties",
+  "detail": "invariant and cleanup proven",
+  "cleanup": "PASS",
+  "started_unix_ms": 1790525608720,
+  "duration_ms": 160
+}

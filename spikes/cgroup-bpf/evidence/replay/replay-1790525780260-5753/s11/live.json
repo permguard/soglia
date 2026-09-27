@@ -1,0 +1,1382 @@
+{
+  "owned_cgroups": [
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/cgroup.controllers",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/cgroup.events",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/cgroup.freeze",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/cgroup.kill",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/cgroup.max.depth",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/cgroup.max.descendants",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/cgroup.pressure",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/cgroup.procs",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/cgroup.stat",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/cgroup.subtree_control",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/cgroup.threads",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/cgroup.type",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/cpu.idle",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/cpu.max",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/cpu.max.burst",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/cpu.pressure",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/cpu.stat",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/cpu.stat.local",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/cpu.uclamp.max",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/cpu.uclamp.min",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/cpu.weight",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/cpu.weight.nice",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/cpuset.cpus",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/cpuset.cpus.effective",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/cpuset.cpus.exclusive",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/cpuset.cpus.exclusive.effective",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/cpuset.cpus.partition",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/cpuset.mems",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/cpuset.mems.effective",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/executions",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/executions/cgroup.controllers",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/executions/cgroup.events",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/executions/cgroup.freeze",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/executions/cgroup.kill",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/executions/cgroup.max.depth",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/executions/cgroup.max.descendants",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/executions/cgroup.pressure",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/executions/cgroup.procs",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/executions/cgroup.stat",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/executions/cgroup.subtree_control",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/executions/cgroup.threads",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/executions/cgroup.type",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/executions/cpu.pressure",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/executions/cpu.stat",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/executions/cpu.stat.local",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/executions/io.pressure",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/executions/memory.current",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/executions/memory.events",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/executions/memory.events.local",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/executions/memory.high",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/executions/memory.low",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/executions/memory.max",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/executions/memory.min",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/executions/memory.numa_stat",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/executions/memory.oom.group",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/executions/memory.peak",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/executions/memory.pressure",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/executions/memory.reclaim",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/executions/memory.stat",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/executions/memory.swap.current",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/executions/memory.swap.events",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/executions/memory.swap.high",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/executions/memory.swap.max",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/executions/memory.swap.peak",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/executions/memory.zswap.current",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/executions/memory.zswap.max",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/executions/memory.zswap.writeback",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/executions/pids.current",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/executions/pids.events",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/executions/pids.max",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/executions/pids.peak",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/executions/s1-e1",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/executions/s1-e1/cgroup.controllers",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/executions/s1-e1/cgroup.events",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/executions/s1-e1/cgroup.freeze",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/executions/s1-e1/cgroup.kill",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/executions/s1-e1/cgroup.max.depth",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/executions/s1-e1/cgroup.max.descendants",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/executions/s1-e1/cgroup.pressure",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/executions/s1-e1/cgroup.procs",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/executions/s1-e1/cgroup.stat",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/executions/s1-e1/cgroup.subtree_control",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/executions/s1-e1/cgroup.threads",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/executions/s1-e1/cgroup.type",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/executions/s1-e1/cpu.pressure",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/executions/s1-e1/cpu.stat",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/executions/s1-e1/cpu.stat.local",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/executions/s1-e1/io.pressure",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/executions/s1-e1/memory.current",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/executions/s1-e1/memory.events",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/executions/s1-e1/memory.events.local",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/executions/s1-e1/memory.high",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/executions/s1-e1/memory.low",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/executions/s1-e1/memory.max",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/executions/s1-e1/memory.min",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/executions/s1-e1/memory.numa_stat",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/executions/s1-e1/memory.oom.group",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/executions/s1-e1/memory.peak",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/executions/s1-e1/memory.pressure",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/executions/s1-e1/memory.reclaim",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/executions/s1-e1/memory.stat",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/executions/s1-e1/memory.swap.current",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/executions/s1-e1/memory.swap.events",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/executions/s1-e1/memory.swap.high",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/executions/s1-e1/memory.swap.max",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/executions/s1-e1/memory.swap.peak",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/executions/s1-e1/memory.zswap.current",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/executions/s1-e1/memory.zswap.max",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/executions/s1-e1/memory.zswap.writeback",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/executions/s1-e1/pids.current",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/executions/s1-e1/pids.events",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/executions/s1-e1/pids.max",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/executions/s1-e1/pids.peak",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/hugetlb.1GB.current",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/hugetlb.1GB.events",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/hugetlb.1GB.events.local",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/hugetlb.1GB.max",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/hugetlb.1GB.numa_stat",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/hugetlb.1GB.rsvd.current",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/hugetlb.1GB.rsvd.max",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/hugetlb.2MB.current",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/hugetlb.2MB.events",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/hugetlb.2MB.events.local",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/hugetlb.2MB.max",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/hugetlb.2MB.numa_stat",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/hugetlb.2MB.rsvd.current",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/hugetlb.2MB.rsvd.max",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/hugetlb.32MB.current",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/hugetlb.32MB.events",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/hugetlb.32MB.events.local",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/hugetlb.32MB.max",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/hugetlb.32MB.numa_stat",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/hugetlb.32MB.rsvd.current",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/hugetlb.32MB.rsvd.max",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/hugetlb.64KB.current",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/hugetlb.64KB.events",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/hugetlb.64KB.events.local",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/hugetlb.64KB.max",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/hugetlb.64KB.numa_stat",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/hugetlb.64KB.rsvd.current",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/hugetlb.64KB.rsvd.max",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/io.max",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/io.pressure",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/io.prio.class",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/io.stat",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/io.weight",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/memory.current",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/memory.events",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/memory.events.local",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/memory.high",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/memory.low",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/memory.max",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/memory.min",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/memory.numa_stat",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/memory.oom.group",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/memory.peak",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/memory.pressure",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/memory.reclaim",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/memory.stat",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/memory.swap.current",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/memory.swap.events",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/memory.swap.high",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/memory.swap.max",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/memory.swap.peak",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/memory.zswap.current",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/memory.zswap.max",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/memory.zswap.writeback",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/misc.current",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/misc.events",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/misc.max",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/pids.current",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/pids.events",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/pids.max",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/pids.peak",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/rdma.current",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/rdma.max",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/runtime",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/runtime/cgroup.controllers",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/runtime/cgroup.events",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/runtime/cgroup.freeze",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/runtime/cgroup.kill",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/runtime/cgroup.max.depth",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/runtime/cgroup.max.descendants",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/runtime/cgroup.pressure",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/runtime/cgroup.procs",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/runtime/cgroup.stat",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/runtime/cgroup.subtree_control",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/runtime/cgroup.threads",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/runtime/cgroup.type",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/runtime/cpu.pressure",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/runtime/cpu.stat",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/runtime/cpu.stat.local",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/runtime/io.pressure",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/runtime/memory.current",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/runtime/memory.events",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/runtime/memory.events.local",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/runtime/memory.high",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/runtime/memory.low",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/runtime/memory.max",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/runtime/memory.min",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/runtime/memory.numa_stat",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/runtime/memory.oom.group",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/runtime/memory.peak",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/runtime/memory.pressure",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/runtime/memory.reclaim",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/runtime/memory.stat",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/runtime/memory.swap.current",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/runtime/memory.swap.events",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/runtime/memory.swap.high",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/runtime/memory.swap.max",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/runtime/memory.swap.peak",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/runtime/memory.zswap.current",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/runtime/memory.zswap.max",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/runtime/memory.zswap.writeback",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/runtime/pids.current",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/runtime/pids.events",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/runtime/pids.max",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s11-57802605753.service/runtime/pids.peak"
+  ],
+  "owned_processes": [
+    "10565 /var/tmp/soglia-spike-2/bin/soglia-spike-runner _delegation-helper --ready /run/soglia-spike-runner/replay-1790525780260-5753/s11/delegation.json "
+  ],
+  "runc_containers": [],
+  "netns": "sg-s11-57802605753 (id: 0)\n",
+  "links": [
+    {
+      "address": "00:00:00:00:00:00",
+      "allmulti": 0,
+      "broadcast": "00:00:00:00:00:00",
+      "flags": [
+        "LOOPBACK",
+        "UP",
+        "LOWER_UP"
+      ],
+      "gro_max_size": 65536,
+      "group": "default",
+      "gso_max_segs": 65535,
+      "gso_max_size": 65536,
+      "ifindex": 1,
+      "ifname": "lo",
+      "inet6_addr_gen_mode": "eui64",
+      "link_type": "loopback",
+      "linkmode": "DEFAULT",
+      "max_mtu": 0,
+      "min_mtu": 0,
+      "mtu": 65536,
+      "num_rx_queues": 1,
+      "num_tx_queues": 1,
+      "operstate": "UNKNOWN",
+      "promiscuity": 0,
+      "qdisc": "noqueue",
+      "tso_max_segs": 65535,
+      "tso_max_size": 524280,
+      "txqlen": 1000
+    },
+    {
+      "address": "52:55:55:fc:32:d4",
+      "allmulti": 0,
+      "broadcast": "ff:ff:ff:ff:ff:ff",
+      "flags": [
+        "BROADCAST",
+        "MULTICAST",
+        "UP",
+        "LOWER_UP"
+      ],
+      "gro_max_size": 65536,
+      "group": "default",
+      "gso_max_segs": 65535,
+      "gso_max_size": 65536,
+      "ifindex": 2,
+      "ifname": "eth0",
+      "inet6_addr_gen_mode": "eui64",
+      "link_type": "ether",
+      "linkmode": "DEFAULT",
+      "max_mtu": 1500,
+      "min_mtu": 68,
+      "mtu": 1500,
+      "num_rx_queues": 1,
+      "num_tx_queues": 1,
+      "operstate": "UP",
+      "parentbus": "virtio",
+      "parentdev": "virtio0",
+      "promiscuity": 0,
+      "qdisc": "fq_codel",
+      "tso_max_segs": 65535,
+      "tso_max_size": 65536,
+      "txqlen": 1000
+    },
+    {
+      "address": "76:54:d6:52:87:ef",
+      "allmulti": 0,
+      "broadcast": "ff:ff:ff:ff:ff:ff",
+      "flags": [
+        "BROADCAST",
+        "NOARP",
+        "UP",
+        "LOWER_UP"
+      ],
+      "gro_max_size": 65536,
+      "group": "default",
+      "gso_max_segs": 65535,
+      "gso_max_size": 65536,
+      "ifindex": 34,
+      "ifname": "s11p5780260",
+      "inet6_addr_gen_mode": "eui64",
+      "link_type": "ether",
+      "linkinfo": {
+        "info_kind": "dummy"
+      },
+      "linkmode": "DEFAULT",
+      "max_mtu": 0,
+      "min_mtu": 0,
+      "mtu": 1500,
+      "num_rx_queues": 1,
+      "num_tx_queues": 1,
+      "operstate": "UNKNOWN",
+      "promiscuity": 0,
+      "qdisc": "noqueue",
+      "tso_max_segs": 65535,
+      "tso_max_size": 65536,
+      "txqlen": 1000
+    },
+    {
+      "address": "2a:3d:6a:ce:fa:50",
+      "allmulti": 0,
+      "broadcast": "ff:ff:ff:ff:ff:ff",
+      "flags": [
+        "BROADCAST",
+        "MULTICAST",
+        "UP",
+        "LOWER_UP"
+      ],
+      "gro_max_size": 65536,
+      "group": "default",
+      "gso_max_segs": 65535,
+      "gso_max_size": 65536,
+      "ifindex": 35,
+      "ifname": "s11h5780260",
+      "inet6_addr_gen_mode": "eui64",
+      "link_index": 2,
+      "link_netnsid": 0,
+      "link_type": "ether",
+      "linkinfo": {
+        "info_kind": "veth"
+      },
+      "linkmode": "DEFAULT",
+      "max_mtu": 65535,
+      "min_mtu": 68,
+      "mtu": 1500,
+      "num_rx_queues": 4,
+      "num_tx_queues": 4,
+      "operstate": "UP",
+      "promiscuity": 0,
+      "qdisc": "noqueue",
+      "tso_max_segs": 65535,
+      "tso_max_size": 524280,
+      "txqlen": 1000
+    }
+  ],
+  "nft": {
+    "nftables": [
+      {
+        "metainfo": {
+          "json_schema_version": 1,
+          "release_name": "Old Doc Yak #3",
+          "version": "1.0.9"
+        }
+      },
+      {
+        "table": {
+          "family": "ip",
+          "handle": 1,
+          "name": "nat"
+        }
+      },
+      {
+        "chain": {
+          "family": "ip",
+          "handle": 1,
+          "name": "LIMADNS",
+          "table": "nat"
+        }
+      },
+      {
+        "chain": {
+          "family": "ip",
+          "handle": 2,
+          "hook": "prerouting",
+          "name": "PREROUTING",
+          "policy": "accept",
+          "prio": -100,
+          "table": "nat",
+          "type": "nat"
+        }
+      },
+      {
+        "chain": {
+          "family": "ip",
+          "handle": 4,
+          "hook": "output",
+          "name": "OUTPUT",
+          "policy": "accept",
+          "prio": -100,
+          "table": "nat",
+          "type": "nat"
+        }
+      },
+      {
+        "rule": {
+          "chain": "PREROUTING",
+          "expr": [
+            {
+              "counter": {
+                "bytes": 12753,
+                "packets": 213
+              }
+            },
+            {
+              "jump": {
+                "target": "LIMADNS"
+              }
+            }
+          ],
+          "family": "ip",
+          "handle": 3,
+          "table": "nat"
+        }
+      },
+      {
+        "rule": {
+          "chain": "OUTPUT",
+          "expr": [
+            {
+              "counter": {
+                "bytes": 3148,
+                "packets": 49
+              }
+            },
+            {
+              "jump": {
+                "target": "LIMADNS"
+              }
+            }
+          ],
+          "family": "ip",
+          "handle": 5,
+          "table": "nat"
+        }
+      },
+      {
+        "table": {
+          "family": "inet",
+          "handle": 16,
+          "name": "sg_s11_57802605"
+        }
+      },
+      {
+        "chain": {
+          "family": "inet",
+          "handle": 1,
+          "hook": "input",
+          "name": "input",
+          "policy": "accept",
+          "prio": -10,
+          "table": "sg_s11_57802605",
+          "type": "filter"
+        }
+      },
+      {
+        "chain": {
+          "family": "inet",
+          "handle": 2,
+          "hook": "forward",
+          "name": "forward",
+          "policy": "accept",
+          "prio": -10,
+          "table": "sg_s11_57802605",
+          "type": "filter"
+        }
+      },
+      {
+        "rule": {
+          "chain": "input",
+          "expr": [
+            {
+              "match": {
+                "left": {
+                  "meta": {
+                    "key": "iifname"
+                  }
+                },
+                "op": "==",
+                "right": "s11h5780260"
+              }
+            },
+            {
+              "match": {
+                "left": {
+                  "payload": {
+                    "field": "saddr",
+                    "protocol": "ip"
+                  }
+                },
+                "op": "!=",
+                "right": "10.201.0.1"
+              }
+            },
+            {
+              "drop": null
+            }
+          ],
+          "family": "inet",
+          "handle": 3,
+          "table": "sg_s11_57802605"
+        }
+      },
+      {
+        "rule": {
+          "chain": "input",
+          "expr": [
+            {
+              "match": {
+                "left": {
+                  "meta": {
+                    "key": "iifname"
+                  }
+                },
+                "op": "==",
+                "right": "s11h5780260"
+              }
+            },
+            {
+              "match": {
+                "left": {
+                  "ct": {
+                    "key": "state"
+                  }
+                },
+                "op": "in",
+                "right": "invalid"
+              }
+            },
+            {
+              "drop": null
+            }
+          ],
+          "family": "inet",
+          "handle": 4,
+          "table": "sg_s11_57802605"
+        }
+      },
+      {
+        "rule": {
+          "chain": "input",
+          "expr": [
+            {
+              "match": {
+                "left": {
+                  "meta": {
+                    "key": "iifname"
+                  }
+                },
+                "op": "==",
+                "right": "s11h5780260"
+              }
+            },
+            {
+              "match": {
+                "left": {
+                  "ct": {
+                    "key": "state"
+                  }
+                },
+                "op": "in",
+                "right": "new"
+              }
+            },
+            {
+              "match": {
+                "left": {
+                  "meta": {
+                    "key": "l4proto"
+                  }
+                },
+                "op": "!=",
+                "right": "tcp"
+              }
+            },
+            {
+              "drop": null
+            }
+          ],
+          "family": "inet",
+          "handle": 5,
+          "table": "sg_s11_57802605"
+        }
+      },
+      {
+        "rule": {
+          "chain": "input",
+          "expr": [
+            {
+              "match": {
+                "left": {
+                  "meta": {
+                    "key": "iifname"
+                  }
+                },
+                "op": "==",
+                "right": "s11h5780260"
+              }
+            },
+            {
+              "match": {
+                "left": {
+                  "ct": {
+                    "key": "state"
+                  }
+                },
+                "op": "in",
+                "right": "new"
+              }
+            },
+            {
+              "match": {
+                "left": {
+                  "payload": {
+                    "field": "daddr",
+                    "protocol": "ip"
+                  }
+                },
+                "op": "!=",
+                "right": "10.200.255.1"
+              }
+            },
+            {
+              "drop": null
+            }
+          ],
+          "family": "inet",
+          "handle": 6,
+          "table": "sg_s11_57802605"
+        }
+      },
+      {
+        "rule": {
+          "chain": "input",
+          "expr": [
+            {
+              "match": {
+                "left": {
+                  "meta": {
+                    "key": "iifname"
+                  }
+                },
+                "op": "==",
+                "right": "s11h5780260"
+              }
+            },
+            {
+              "match": {
+                "left": {
+                  "ct": {
+                    "key": "state"
+                  }
+                },
+                "op": "in",
+                "right": "new"
+              }
+            },
+            {
+              "match": {
+                "left": {
+                  "payload": {
+                    "field": "dport",
+                    "protocol": "tcp"
+                  }
+                },
+                "op": "!=",
+                "right": 15001
+              }
+            },
+            {
+              "drop": null
+            }
+          ],
+          "family": "inet",
+          "handle": 7,
+          "table": "sg_s11_57802605"
+        }
+      },
+      {
+        "rule": {
+          "chain": "forward",
+          "expr": [
+            {
+              "match": {
+                "left": {
+                  "meta": {
+                    "key": "iifname"
+                  }
+                },
+                "op": "==",
+                "right": "s11h5780260"
+              }
+            },
+            {
+              "drop": null
+            }
+          ],
+          "family": "inet",
+          "handle": 8,
+          "table": "sg_s11_57802605"
+        }
+      },
+      {
+        "rule": {
+          "chain": "forward",
+          "expr": [
+            {
+              "match": {
+                "left": {
+                  "meta": {
+                    "key": "oifname"
+                  }
+                },
+                "op": "==",
+                "right": "s11h5780260"
+              }
+            },
+            {
+              "drop": null
+            }
+          ],
+          "family": "inet",
+          "handle": 9,
+          "table": "sg_s11_57802605"
+        }
+      }
+    ]
+  },
+  "bpffs_paths": [
+    "/sys/fs/bpf/soglia-spike-runner",
+    "/sys/fs/bpf/soglia-spike-runner/replay-1790525780260-5753",
+    "/sys/fs/bpf/soglia-spike-runner/replay-1790525780260-5753/s11",
+    "/sys/fs/bpf/soglia-spike-runner/replay-1790525780260-5753/s11/links",
+    "/sys/fs/bpf/soglia-spike-runner/replay-1790525780260-5753/s11/links/connect4",
+    "/sys/fs/bpf/soglia-spike-runner/replay-1790525780260-5753/s11/links/connect6",
+    "/sys/fs/bpf/soglia-spike-runner/replay-1790525780260-5753/s11/links/sendmsg4",
+    "/sys/fs/bpf/soglia-spike-runner/replay-1790525780260-5753/s11/links/sendmsg6",
+    "/sys/fs/bpf/soglia-spike-runner/replay-1790525780260-5753/s11/links/sock_create",
+    "/sys/fs/bpf/soglia-spike-runner/replay-1790525780260-5753/s11/links/sock_ops",
+    "/sys/fs/bpf/soglia-spike-runner/replay-1790525780260-5753/s11/maps",
+    "/sys/fs/bpf/soglia-spike-runner/replay-1790525780260-5753/s11/maps/soglia_cookie_a",
+    "/sys/fs/bpf/soglia-spike-runner/replay-1790525780260-5753/s11/maps/soglia_counters",
+    "/sys/fs/bpf/soglia-spike-runner/replay-1790525780260-5753/s11/maps/soglia_denies",
+    "/sys/fs/bpf/soglia-spike-runner/replay-1790525780260-5753/s11/maps/soglia_diag_entries",
+    "/sys/fs/bpf/soglia-spike-runner/replay-1790525780260-5753/s11/maps/soglia_events",
+    "/sys/fs/bpf/soglia-spike-runner/replay-1790525780260-5753/s11/maps/soglia_meta",
+    "/sys/fs/bpf/soglia-spike-runner/replay-1790525780260-5753/s11/maps/soglia_policy",
+    "/sys/fs/bpf/soglia-spike-runner/replay-1790525780260-5753/s11/maps/soglia_port_diag",
+    "/sys/fs/bpf/soglia-spike-runner/replay-1790525780260-5753/s11/maps/soglia_sk_b",
+    "/sys/fs/bpf/soglia-spike-runner/replay-1790525780260-5753/s11/maps/soglia_tuples"
+  ],
+  "bpf_programs": [
+    {
+      "btf_id": 6,
+      "bytes_jited": 216,
+      "bytes_memlock": 4096,
+      "bytes_xlated": 56,
+      "gpl_compatible": true,
+      "id": 2,
+      "jited": true,
+      "loaded_at": 1790525714,
+      "map_ids": [
+        2
+      ],
+      "name": "hid_tail_call",
+      "orphaned": false,
+      "tag": "7cc47bbf07148bfe",
+      "type": "tracing",
+      "uid": 0
+    },
+    {
+      "bytes_jited": 200,
+      "bytes_memlock": 4096,
+      "bytes_xlated": 104,
+      "gpl_compatible": false,
+      "id": 97,
+      "jited": true,
+      "loaded_at": 1790525721,
+      "map_ids": [
+        5
+      ],
+      "name": "lima_ticker",
+      "orphaned": false,
+      "tag": "9a053c44bd4ba5b2",
+      "type": "tracepoint",
+      "uid": 0
+    },
+    {
+      "bytes_jited": 224,
+      "bytes_memlock": 4096,
+      "bytes_xlated": 184,
+      "gpl_compatible": true,
+      "id": 704,
+      "jited": true,
+      "loaded_at": 1790525834,
+      "name": "sd_devices",
+      "orphaned": false,
+      "tag": "fba67f14acbaee05",
+      "type": "cgroup_device",
+      "uid": 0
+    },
+    {
+      "bytes_jited": 496,
+      "bytes_memlock": 4096,
+      "bytes_xlated": 504,
+      "gpl_compatible": true,
+      "id": 705,
+      "jited": true,
+      "loaded_at": 1790525834,
+      "name": "sd_devices",
+      "orphaned": false,
+      "tag": "134b8a301991f6b7",
+      "type": "cgroup_device",
+      "uid": 0
+    },
+    {
+      "bytes_jited": 144,
+      "bytes_memlock": 4096,
+      "bytes_xlated": 64,
+      "gpl_compatible": true,
+      "id": 706,
+      "jited": true,
+      "loaded_at": 1790525834,
+      "name": "sd_fw_egress",
+      "orphaned": false,
+      "tag": "6deef7357e7b4530",
+      "type": "cgroup_skb",
+      "uid": 0
+    },
+    {
+      "bytes_jited": 144,
+      "bytes_memlock": 4096,
+      "bytes_xlated": 64,
+      "gpl_compatible": true,
+      "id": 707,
+      "jited": true,
+      "loaded_at": 1790525834,
+      "name": "sd_fw_ingress",
+      "orphaned": false,
+      "tag": "6deef7357e7b4530",
+      "type": "cgroup_skb",
+      "uid": 0
+    },
+    {
+      "bytes_jited": 496,
+      "bytes_memlock": 4096,
+      "bytes_xlated": 504,
+      "gpl_compatible": true,
+      "id": 708,
+      "jited": true,
+      "loaded_at": 1790525834,
+      "name": "sd_devices",
+      "orphaned": false,
+      "tag": "134b8a301991f6b7",
+      "type": "cgroup_device",
+      "uid": 0
+    },
+    {
+      "bytes_jited": 432,
+      "bytes_memlock": 4096,
+      "bytes_xlated": 416,
+      "gpl_compatible": true,
+      "id": 709,
+      "jited": true,
+      "loaded_at": 1790525834,
+      "name": "sd_devices",
+      "orphaned": false,
+      "tag": "ee0e253c78993a24",
+      "type": "cgroup_device",
+      "uid": 0
+    },
+    {
+      "bytes_jited": 472,
+      "bytes_memlock": 4096,
+      "bytes_xlated": 464,
+      "gpl_compatible": true,
+      "id": 710,
+      "jited": true,
+      "loaded_at": 1790525834,
+      "name": "sd_devices",
+      "orphaned": false,
+      "tag": "654d7024997e7811",
+      "type": "cgroup_device",
+      "uid": 0
+    },
+    {
+      "bytes_jited": 680,
+      "bytes_memlock": 4096,
+      "bytes_xlated": 744,
+      "gpl_compatible": true,
+      "id": 711,
+      "jited": true,
+      "loaded_at": 1790525834,
+      "name": "sd_devices",
+      "orphaned": false,
+      "tag": "384856681694f215",
+      "type": "cgroup_device",
+      "uid": 0
+    },
+    {
+      "bytes_jited": 144,
+      "bytes_memlock": 4096,
+      "bytes_xlated": 64,
+      "gpl_compatible": true,
+      "id": 712,
+      "jited": true,
+      "loaded_at": 1790525834,
+      "name": "sd_fw_egress",
+      "orphaned": false,
+      "tag": "6deef7357e7b4530",
+      "type": "cgroup_skb",
+      "uid": 0
+    },
+    {
+      "bytes_jited": 144,
+      "bytes_memlock": 4096,
+      "bytes_xlated": 64,
+      "gpl_compatible": true,
+      "id": 713,
+      "jited": true,
+      "loaded_at": 1790525834,
+      "name": "sd_fw_ingress",
+      "orphaned": false,
+      "tag": "6deef7357e7b4530",
+      "type": "cgroup_skb",
+      "uid": 0
+    },
+    {
+      "bytes_jited": 144,
+      "bytes_memlock": 4096,
+      "bytes_xlated": 64,
+      "gpl_compatible": true,
+      "id": 714,
+      "jited": true,
+      "loaded_at": 1790525834,
+      "name": "sd_fw_egress",
+      "orphaned": false,
+      "tag": "6deef7357e7b4530",
+      "type": "cgroup_skb",
+      "uid": 0
+    },
+    {
+      "bytes_jited": 144,
+      "bytes_memlock": 4096,
+      "bytes_xlated": 64,
+      "gpl_compatible": true,
+      "id": 715,
+      "jited": true,
+      "loaded_at": 1790525834,
+      "name": "sd_fw_ingress",
+      "orphaned": false,
+      "tag": "6deef7357e7b4530",
+      "type": "cgroup_skb",
+      "uid": 0
+    },
+    {
+      "btf_id": 218,
+      "bytes_jited": 656,
+      "bytes_memlock": 4096,
+      "bytes_xlated": 800,
+      "gpl_compatible": false,
+      "id": 716,
+      "jited": true,
+      "loaded_at": 1790525835,
+      "map_ids": [
+        440,
+        445,
+        437,
+        442
+      ],
+      "name": "soglia_sock_create",
+      "orphaned": false,
+      "tag": "89a3c9ecc9fb7ac8",
+      "type": "cgroup_sock",
+      "uid": 0
+    },
+    {
+      "btf_id": 218,
+      "bytes_jited": 1416,
+      "bytes_memlock": 4096,
+      "bytes_xlated": 1960,
+      "gpl_compatible": false,
+      "id": 717,
+      "jited": true,
+      "loaded_at": 1790525835,
+      "map_ids": [
+        440,
+        436,
+        443,
+        444,
+        438,
+        445,
+        437,
+        442,
+        446,
+        439
+      ],
+      "name": "soglia_connect4",
+      "orphaned": false,
+      "tag": "6d29a837a2cdfe6a",
+      "type": "cgroup_sock_addr",
+      "uid": 0
+    },
+    {
+      "btf_id": 218,
+      "bytes_jited": 600,
+      "bytes_memlock": 4096,
+      "bytes_xlated": 688,
+      "gpl_compatible": false,
+      "id": 718,
+      "jited": true,
+      "loaded_at": 1790525835,
+      "map_ids": [
+        445,
+        437,
+        442
+      ],
+      "name": "soglia_connect6",
+      "orphaned": false,
+      "tag": "c6994d7cab0ffa99",
+      "type": "cgroup_sock_addr",
+      "uid": 0
+    },
+    {
+      "btf_id": 218,
+      "bytes_jited": 608,
+      "bytes_memlock": 4096,
+      "bytes_xlated": 704,
+      "gpl_compatible": false,
+      "id": 719,
+      "jited": true,
+      "loaded_at": 1790525835,
+      "map_ids": [
+        445,
+        437,
+        442
+      ],
+      "name": "soglia_sendmsg4",
+      "orphaned": false,
+      "tag": "4675fb08d3b3d5fa",
+      "type": "cgroup_sock_addr",
+      "uid": 0
+    },
+    {
+      "btf_id": 218,
+      "bytes_jited": 600,
+      "bytes_memlock": 4096,
+      "bytes_xlated": 688,
+      "gpl_compatible": false,
+      "id": 720,
+      "jited": true,
+      "loaded_at": 1790525835,
+      "map_ids": [
+        445,
+        437,
+        442
+      ],
+      "name": "soglia_sendmsg6",
+      "orphaned": false,
+      "tag": "523bec458d754f5d",
+      "type": "cgroup_sock_addr",
+      "uid": 0
+    },
+    {
+      "btf_id": 218,
+      "bytes_jited": 2320,
+      "bytes_memlock": 4096,
+      "bytes_xlated": 3368,
+      "gpl_compatible": false,
+      "id": 721,
+      "jited": true,
+      "loaded_at": 1790525835,
+      "map_ids": [
+        440,
+        436,
+        443,
+        446,
+        439,
+        447,
+        445,
+        442
+      ],
+      "name": "soglia_sockops",
+      "orphaned": false,
+      "tag": "a431745e221a8fbd",
+      "type": "sock_ops",
+      "uid": 0
+    }
+  ],
+  "bpf_links": [
+    {
+      "attach_type": "modify_return",
+      "id": 1,
+      "prog_id": 2,
+      "prog_type": "tracing",
+      "target_btf_id": 130765,
+      "target_obj_id": 1,
+      "type": "tracing"
+    },
+    {
+      "id": 2,
+      "prog_id": 97,
+      "tracepoint": "sys_exit_bind",
+      "type": "perf_event"
+    },
+    {
+      "attach_type": "cgroup_inet_sock_create",
+      "cgroup_id": 16651,
+      "id": 198,
+      "prog_id": 716,
+      "type": "cgroup"
+    },
+    {
+      "attach_type": "cgroup_inet4_connect",
+      "cgroup_id": 16651,
+      "id": 199,
+      "prog_id": 717,
+      "type": "cgroup"
+    },
+    {
+      "attach_type": "cgroup_inet6_connect",
+      "cgroup_id": 16651,
+      "id": 200,
+      "prog_id": 718,
+      "type": "cgroup"
+    },
+    {
+      "attach_type": "cgroup_udp4_sendmsg",
+      "cgroup_id": 16651,
+      "id": 201,
+      "prog_id": 719,
+      "type": "cgroup"
+    },
+    {
+      "attach_type": "cgroup_udp6_sendmsg",
+      "cgroup_id": 16651,
+      "id": 202,
+      "prog_id": 720,
+      "type": "cgroup"
+    },
+    {
+      "attach_type": "cgroup_sock_ops",
+      "cgroup_id": 16651,
+      "id": 203,
+      "prog_id": 721,
+      "type": "cgroup"
+    }
+  ],
+  "bpf_maps": [
+    {
+      "bytes_key": 4,
+      "bytes_memlock": 8576,
+      "bytes_value": 4,
+      "flags": 0,
+      "frozen": 0,
+      "id": 2,
+      "max_entries": 1024,
+      "name": "hid_jmp_table",
+      "owner_jited": true,
+      "owner_prog_type": "tracing",
+      "type": "prog_array"
+    },
+    {
+      "bytes_key": 0,
+      "bytes_memlock": 1065368,
+      "bytes_value": 0,
+      "flags": 0,
+      "frozen": 0,
+      "id": 5,
+      "max_entries": 1048576,
+      "name": "lima_ticker_eve",
+      "type": "ringbuf"
+    },
+    {
+      "btf_id": 218,
+      "bytes_key": 4,
+      "bytes_memlock": 480,
+      "bytes_value": 4,
+      "flags": 0,
+      "frozen": 0,
+      "id": 436,
+      "max_entries": 12,
+      "name": "soglia_port_dia",
+      "type": "array"
+    },
+    {
+      "btf_id": 218,
+      "bytes_key": 8,
+      "bytes_memlock": 83296,
+      "bytes_value": 8,
+      "flags": 0,
+      "frozen": 0,
+      "id": 437,
+      "max_entries": 1024,
+      "name": "soglia_denies",
+      "type": "hash"
+    },
+    {
+      "btf_id": 218,
+      "bytes_key": 8,
+      "bytes_memlock": 91520,
+      "bytes_value": 16,
+      "flags": 0,
+      "frozen": 0,
+      "id": 438,
+      "max_entries": 1024,
+      "name": "soglia_policy",
+      "type": "hash"
+    },
+    {
+      "btf_id": 218,
+      "bytes_key": 4,
+      "bytes_memlock": 576,
+      "bytes_value": 8,
+      "flags": 1,
+      "frozen": 0,
+      "id": 439,
+      "max_entries": 0,
+      "name": "soglia_sk_b",
+      "type": "sk_storage"
+    },
+    {
+      "btf_id": 218,
+      "bytes_key": 4,
+      "bytes_memlock": 440,
+      "bytes_value": 8,
+      "flags": 0,
+      "frozen": 0,
+      "id": 440,
+      "max_entries": 7,
+      "name": "soglia_diag_ent",
+      "type": "array"
+    },
+    {
+      "btf_id": 218,
+      "bytes_key": 4,
+      "bytes_memlock": 432,
+      "bytes_value": 48,
+      "flags": 0,
+      "frozen": 0,
+      "id": 441,
+      "max_entries": 1,
+      "name": "soglia_meta",
+      "type": "array"
+    },
+    {
+      "bytes_key": 0,
+      "bytes_memlock": 78488,
+      "bytes_value": 0,
+      "flags": 0,
+      "frozen": 0,
+      "id": 442,
+      "max_entries": 65536,
+      "name": "soglia_events",
+      "type": "ringbuf"
+    },
+    {
+      "bytes_key": 4,
+      "bytes_memlock": 408,
+      "bytes_value": 24,
+      "flags": 128,
+      "frozen": 1,
+      "id": 443,
+      "max_entries": 1,
+      "name": ".rodata",
+      "type": "array"
+    },
+    {
+      "btf_id": 218,
+      "bytes_key": 4,
+      "bytes_memlock": 392,
+      "bytes_value": 8,
+      "flags": 0,
+      "frozen": 0,
+      "id": 444,
+      "max_entries": 1,
+      "name": "policy_local",
+      "type": "array"
+    },
+    {
+      "btf_id": 218,
+      "bytes_key": 4,
+      "bytes_memlock": 456,
+      "bytes_value": 8,
+      "flags": 0,
+      "frozen": 0,
+      "id": 445,
+      "max_entries": 9,
+      "name": "soglia_counters",
+      "type": "array"
+    },
+    {
+      "btf_id": 218,
+      "bytes_key": 8,
+      "bytes_memlock": 329056,
+      "bytes_value": 8,
+      "flags": 0,
+      "frozen": 0,
+      "id": 446,
+      "max_entries": 4096,
+      "name": "soglia_cookie_a",
+      "type": "hash"
+    },
+    {
+      "btf_id": 218,
+      "bytes_key": 16,
+      "bytes_memlock": 591456,
+      "bytes_value": 64,
+      "flags": 0,
+      "frozen": 0,
+      "id": 447,
+      "max_entries": 4096,
+      "name": "soglia_tuples",
+      "type": "hash"
+    }
+  ],
+  "runtime_paths": [
+    "/run/soglia-spike-runner/replay-1790525780260-5753",
+    "/run/soglia-spike-runner/replay-1790525780260-5753/s11",
+    "/run/soglia-spike-runner/replay-1790525780260-5753/s11/agent-host.ready",
+    "/run/soglia-spike-runner/replay-1790525780260-5753/s11/agent.go",
+    "/run/soglia-spike-runner/replay-1790525780260-5753/s11/agent.ready",
+    "/run/soglia-spike-runner/replay-1790525780260-5753/s11/delegation.json",
+    "/run/soglia-spike-runner/replay-1790525780260-5753/s11/host.nft",
+    "/run/soglia-spike-runner/replay-1790525780260-5753/s11/netns.nft"
+  ],
+  "owned_program_ids": [
+    716,
+    717,
+    718,
+    719,
+    720,
+    721
+  ],
+  "owned_map_ids": [
+    436,
+    437,
+    438,
+    439,
+    440,
+    441,
+    442,
+    444,
+    445,
+    446,
+    447
+  ],
+  "owned_link_ids": [
+    198,
+    199,
+    200,
+    201,
+    202,
+    203
+  ],
+  "owned_netns": [
+    "sg-s11-57802605753"
+  ],
+  "owned_interfaces": [
+    "s11p5780260",
+    "s11h5780260"
+  ],
+  "owned_nft_tables": [
+    "sg_s11_57802605"
+  ]
+}

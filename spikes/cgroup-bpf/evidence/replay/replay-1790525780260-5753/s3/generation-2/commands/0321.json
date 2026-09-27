@@ -1,0 +1,20 @@
+{
+  "sequence": 321,
+  "executable": "ip",
+  "argv": [
+    "link",
+    "set",
+    "s3h5780260",
+    "up"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525799699,
+  "monotonic_start_ns": 19436588386,
+  "duration_ms": 25,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s3/generation-2/commands/0321.stdout",
+  "stderr_file": "s3/generation-2/commands/0321.stderr"
+}

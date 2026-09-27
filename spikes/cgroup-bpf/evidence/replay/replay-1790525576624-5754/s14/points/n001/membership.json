@@ -1,0 +1,15 @@
+[
+  {
+    "index": 0,
+    "trusted_pid": 13664,
+    "host_pid": 13664,
+    "agent_pid": 13664,
+    "cgroup": "/sys/fs/cgroup/system.slice/soglia-spike-s14-55766245754.service/executions/s14-e000",
+    "cgroup_inode": 18973,
+    "proc_cgroup": "0::/system.slice/soglia-spike-s14-55766245754.service/executions/s14-e000",
+    "cgroup_procs": "13664",
+    "process_netns_inode": 4026532347,
+    "owned_netns_inode": 4026532347,
+    "proven": true
+  }
+]

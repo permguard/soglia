@@ -1,0 +1,26 @@
+{
+  "sequence": 279,
+  "executable": "systemctl",
+  "argv": [
+    "show",
+    "soglia-spike-s3-57802605753.service",
+    "-p",
+    "ActiveState",
+    "-p",
+    "Delegate",
+    "-p",
+    "ControlGroup",
+    "-p",
+    "MainPID"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525798574,
+  "monotonic_start_ns": 18311425515,
+  "duration_ms": 23,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s3/generation-1/commands/0279.stdout",
+  "stderr_file": "s3/generation-1/commands/0279.stderr"
+}

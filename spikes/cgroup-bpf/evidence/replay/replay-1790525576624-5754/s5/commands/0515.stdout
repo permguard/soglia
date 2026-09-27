@@ -1,0 +1,14 @@
+table inet sg_s5_55766245 {
+	chain input {
+		type filter hook input priority filter - 10; policy accept;
+		iifname "s5h5576624" ip saddr != 10.201.0.1 drop
+		iifname "s5h5576624" ip6 saddr != fd00:201::1 drop
+		iifname "s5h5576624" ct state invalid drop
+	}
+
+	chain forward {
+		type filter hook forward priority filter - 10; policy accept;
+		iifname "s5h5576624" drop
+		oifname "s5h5576624" drop
+	}
+}

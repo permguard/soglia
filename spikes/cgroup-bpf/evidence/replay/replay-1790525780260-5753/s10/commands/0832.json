@@ -1,0 +1,19 @@
+{
+  "sequence": 832,
+  "executable": "bpftool",
+  "argv": [
+    "-j",
+    "link",
+    "show"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525832204,
+  "monotonic_start_ns": 51942365744,
+  "duration_ms": 21,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s10/commands/0832.stdout",
+  "stderr_file": "s10/commands/0832.stderr"
+}

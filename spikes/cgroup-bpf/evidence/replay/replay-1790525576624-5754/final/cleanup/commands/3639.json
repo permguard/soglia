@@ -1,0 +1,20 @@
+{
+  "sequence": 3639,
+  "executable": "systemctl",
+  "argv": [
+    "show",
+    "soglia-spike-s14-55766245754.service",
+    "--property=LoadState",
+    "--value"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525709463,
+  "monotonic_start_ns": 132837173553,
+  "duration_ms": 24,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "final/cleanup/commands/3639.stdout",
+  "stderr_file": "final/cleanup/commands/3639.stderr"
+}

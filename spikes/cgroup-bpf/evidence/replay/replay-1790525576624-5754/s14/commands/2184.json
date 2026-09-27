@@ -1,0 +1,20 @@
+{
+  "sequence": 2184,
+  "executable": "bpftool",
+  "argv": [
+    "-j",
+    "cgroup",
+    "show",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s14-55766245754.service/executions/s14-e005"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525669639,
+  "monotonic_start_ns": 93013338725,
+  "duration_ms": 22,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s14/commands/2184.stdout",
+  "stderr_file": "s14/commands/2184.stderr"
+}

@@ -1,0 +1,26 @@
+{
+  "sequence": 946,
+  "executable": "ip",
+  "argv": [
+    "link",
+    "add",
+    "s12h5780260",
+    "type",
+    "veth",
+    "peer",
+    "name",
+    "eth0",
+    "netns",
+    "sg-s12-57802605753"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525836977,
+  "monotonic_start_ns": 56715189335,
+  "duration_ms": 21,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s12/commands/0946.stdout",
+  "stderr_file": "s12/commands/0946.stderr"
+}

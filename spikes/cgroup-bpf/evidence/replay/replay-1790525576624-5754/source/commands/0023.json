@@ -1,0 +1,18 @@
+{
+  "sequence": 23,
+  "executable": "git",
+  "argv": [
+    "status",
+    "--short"
+  ],
+  "working_directory": "/soglia",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525577159,
+  "monotonic_start_ns": 532880418,
+  "duration_ms": 368,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "source/commands/0023.stdout",
+  "stderr_file": "source/commands/0023.stderr"
+}

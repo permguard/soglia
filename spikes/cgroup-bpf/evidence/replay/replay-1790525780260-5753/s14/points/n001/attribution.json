@@ -1,0 +1,30 @@
+[
+  {
+    "origin_index": 0,
+    "execution_id": "s14-n1-execution-000-generation-1",
+    "expected_ident": 14001000,
+    "accepted_peer": "10.202.0.1:40000",
+    "accepted_local": "10.200.255.1:15001",
+    "tuple_key_hex": "0aca00010ac8ff01409c0000993a0000",
+    "tuple_evidence": [
+      12376,
+      19312,
+      19312,
+      14001000,
+      12295,
+      140242666230,
+      19312,
+      2570715136
+    ],
+    "resolved_index": 0,
+    "application_bytes_before_resolve": 0,
+    "dns_before_resolve": 0,
+    "outbound_before_resolve": 0,
+    "ip_fallback_authorization": false,
+    "resolve_latency_ns": 2208,
+    "application_line_after_resolve": "HELLO 0",
+    "agent_exit_code": 0,
+    "agent_signal": null,
+    "correct": true
+  }
+]

@@ -1,0 +1,858 @@
+[
+  {
+    "sequence": 1,
+    "owner": "s0",
+    "provenance": "S0 private runtime",
+    "registered_unix_ms": 1790525787457,
+    "cleaned": true,
+    "resource": {
+      "kind": "directory",
+      "path": "/run/soglia-spike-runner/replay-1790525780260-5753/s0"
+    }
+  },
+  {
+    "sequence": 2,
+    "owner": "s0",
+    "provenance": "systemd-run Delegate=yes",
+    "registered_unix_ms": 1790525787480,
+    "cleaned": true,
+    "resource": {
+      "kind": "systemd_unit",
+      "name": "soglia-spike-5780260-5753.service"
+    }
+  },
+  {
+    "sequence": 3,
+    "owner": "s0",
+    "provenance": "delegation helper",
+    "registered_unix_ms": 1790525787481,
+    "cleaned": true,
+    "resource": {
+      "kind": "cgroup",
+      "path": "/sys/fs/cgroup/system.slice/soglia-spike-5780260-5753.service",
+      "inode": 5664
+    }
+  },
+  {
+    "sequence": 4,
+    "owner": "s0",
+    "provenance": "S0 executions parent",
+    "registered_unix_ms": 1790525787481,
+    "cleaned": true,
+    "resource": {
+      "kind": "cgroup",
+      "path": "/sys/fs/cgroup/system.slice/soglia-spike-5780260-5753.service/executions",
+      "inode": 5766
+    }
+  },
+  {
+    "sequence": 5,
+    "owner": "s0",
+    "provenance": "S0 attach target",
+    "registered_unix_ms": 1790525787482,
+    "cleaned": true,
+    "resource": {
+      "kind": "cgroup",
+      "path": "/sys/fs/cgroup/system.slice/soglia-spike-5780260-5753.service/executions/s0-probe",
+      "inode": 5808
+    }
+  },
+  {
+    "sequence": 6,
+    "owner": "s0",
+    "provenance": "six-hooks loader child",
+    "registered_unix_ms": 1790525787657,
+    "cleaned": true,
+    "resource": {
+      "kind": "process",
+      "pid": 5872
+    }
+  },
+  {
+    "sequence": 7,
+    "owner": "s0",
+    "provenance": "six-hooks loader pin",
+    "registered_unix_ms": 1790525787678,
+    "cleaned": true,
+    "resource": {
+      "kind": "bpf_pin",
+      "path": "/sys/fs/bpf/soglia-spike-runner/replay-1790525780260-5753/s0/six-hooks/links/connect4"
+    }
+  },
+  {
+    "sequence": 8,
+    "owner": "s0",
+    "provenance": "six-hooks loader pin",
+    "registered_unix_ms": 1790525787678,
+    "cleaned": true,
+    "resource": {
+      "kind": "bpf_pin",
+      "path": "/sys/fs/bpf/soglia-spike-runner/replay-1790525780260-5753/s0/six-hooks/links/connect6"
+    }
+  },
+  {
+    "sequence": 9,
+    "owner": "s0",
+    "provenance": "six-hooks loader pin",
+    "registered_unix_ms": 1790525787679,
+    "cleaned": true,
+    "resource": {
+      "kind": "bpf_pin",
+      "path": "/sys/fs/bpf/soglia-spike-runner/replay-1790525780260-5753/s0/six-hooks/links/sendmsg4"
+    }
+  },
+  {
+    "sequence": 10,
+    "owner": "s0",
+    "provenance": "six-hooks loader pin",
+    "registered_unix_ms": 1790525787680,
+    "cleaned": true,
+    "resource": {
+      "kind": "bpf_pin",
+      "path": "/sys/fs/bpf/soglia-spike-runner/replay-1790525780260-5753/s0/six-hooks/links/sendmsg6"
+    }
+  },
+  {
+    "sequence": 11,
+    "owner": "s0",
+    "provenance": "six-hooks loader pin",
+    "registered_unix_ms": 1790525787680,
+    "cleaned": true,
+    "resource": {
+      "kind": "bpf_pin",
+      "path": "/sys/fs/bpf/soglia-spike-runner/replay-1790525780260-5753/s0/six-hooks/links/sock_create"
+    }
+  },
+  {
+    "sequence": 12,
+    "owner": "s0",
+    "provenance": "six-hooks loader pin",
+    "registered_unix_ms": 1790525787681,
+    "cleaned": true,
+    "resource": {
+      "kind": "bpf_pin",
+      "path": "/sys/fs/bpf/soglia-spike-runner/replay-1790525780260-5753/s0/six-hooks/links/sock_ops"
+    }
+  },
+  {
+    "sequence": 13,
+    "owner": "s0",
+    "provenance": "six-hooks loader pin",
+    "registered_unix_ms": 1790525787681,
+    "cleaned": true,
+    "resource": {
+      "kind": "bpf_pin",
+      "path": "/sys/fs/bpf/soglia-spike-runner/replay-1790525780260-5753/s0/six-hooks/maps/soglia_cookie_a"
+    }
+  },
+  {
+    "sequence": 14,
+    "owner": "s0",
+    "provenance": "six-hooks loader pin",
+    "registered_unix_ms": 1790525787682,
+    "cleaned": true,
+    "resource": {
+      "kind": "bpf_pin",
+      "path": "/sys/fs/bpf/soglia-spike-runner/replay-1790525780260-5753/s0/six-hooks/maps/soglia_counters"
+    }
+  },
+  {
+    "sequence": 15,
+    "owner": "s0",
+    "provenance": "six-hooks loader pin",
+    "registered_unix_ms": 1790525787682,
+    "cleaned": true,
+    "resource": {
+      "kind": "bpf_pin",
+      "path": "/sys/fs/bpf/soglia-spike-runner/replay-1790525780260-5753/s0/six-hooks/maps/soglia_denies"
+    }
+  },
+  {
+    "sequence": 16,
+    "owner": "s0",
+    "provenance": "six-hooks loader pin",
+    "registered_unix_ms": 1790525787683,
+    "cleaned": true,
+    "resource": {
+      "kind": "bpf_pin",
+      "path": "/sys/fs/bpf/soglia-spike-runner/replay-1790525780260-5753/s0/six-hooks/maps/soglia_events"
+    }
+  },
+  {
+    "sequence": 17,
+    "owner": "s0",
+    "provenance": "six-hooks loader pin",
+    "registered_unix_ms": 1790525787683,
+    "cleaned": true,
+    "resource": {
+      "kind": "bpf_pin",
+      "path": "/sys/fs/bpf/soglia-spike-runner/replay-1790525780260-5753/s0/six-hooks/maps/soglia_meta"
+    }
+  },
+  {
+    "sequence": 18,
+    "owner": "s0",
+    "provenance": "six-hooks loader pin",
+    "registered_unix_ms": 1790525787684,
+    "cleaned": true,
+    "resource": {
+      "kind": "bpf_pin",
+      "path": "/sys/fs/bpf/soglia-spike-runner/replay-1790525780260-5753/s0/six-hooks/maps/soglia_policy"
+    }
+  },
+  {
+    "sequence": 19,
+    "owner": "s0",
+    "provenance": "six-hooks loader pin",
+    "registered_unix_ms": 1790525787684,
+    "cleaned": true,
+    "resource": {
+      "kind": "bpf_pin",
+      "path": "/sys/fs/bpf/soglia-spike-runner/replay-1790525780260-5753/s0/six-hooks/maps/soglia_sk_b"
+    }
+  },
+  {
+    "sequence": 20,
+    "owner": "s0",
+    "provenance": "six-hooks loader pin",
+    "registered_unix_ms": 1790525787685,
+    "cleaned": true,
+    "resource": {
+      "kind": "bpf_pin",
+      "path": "/sys/fs/bpf/soglia-spike-runner/replay-1790525780260-5753/s0/six-hooks/maps/soglia_tuples"
+    }
+  },
+  {
+    "sequence": 21,
+    "owner": "s0",
+    "provenance": "foreign exclusive program pin",
+    "registered_unix_ms": 1790525788043,
+    "cleaned": true,
+    "resource": {
+      "kind": "bpf_pin",
+      "path": "/sys/fs/bpf/soglia-spike-runner/replay-1790525780260-5753/s0/foreign-exclusive/foreign_allow"
+    }
+  },
+  {
+    "sequence": 22,
+    "owner": "s0",
+    "provenance": "foreign exclusive program pin",
+    "registered_unix_ms": 1790525788043,
+    "cleaned": true,
+    "resource": {
+      "kind": "bpf_pin",
+      "path": "/sys/fs/bpf/soglia-spike-runner/replay-1790525780260-5753/s0/foreign-exclusive/foreign_rewrite"
+    }
+  },
+  {
+    "sequence": 23,
+    "owner": "s0",
+    "provenance": "ancestor exclusive child loader",
+    "registered_unix_ms": 1790525788067,
+    "cleaned": true,
+    "resource": {
+      "kind": "process",
+      "pid": 5950
+    }
+  },
+  {
+    "sequence": 24,
+    "owner": "s0",
+    "provenance": "foreign multi program pin",
+    "registered_unix_ms": 1790525788325,
+    "cleaned": true,
+    "resource": {
+      "kind": "bpf_pin",
+      "path": "/sys/fs/bpf/soglia-spike-runner/replay-1790525780260-5753/s0/foreign-multi/foreign_allow"
+    }
+  },
+  {
+    "sequence": 25,
+    "owner": "s0",
+    "provenance": "foreign multi program pin",
+    "registered_unix_ms": 1790525788326,
+    "cleaned": true,
+    "resource": {
+      "kind": "bpf_pin",
+      "path": "/sys/fs/bpf/soglia-spike-runner/replay-1790525780260-5753/s0/foreign-multi/foreign_rewrite"
+    }
+  },
+  {
+    "sequence": 26,
+    "owner": "s0",
+    "provenance": "ancestor multi child loader",
+    "registered_unix_ms": 1790525788351,
+    "cleaned": true,
+    "resource": {
+      "kind": "process",
+      "pid": 6008
+    }
+  },
+  {
+    "sequence": 27,
+    "owner": "s1",
+    "provenance": "S1 runtime directory",
+    "registered_unix_ms": 1790525788855,
+    "cleaned": true,
+    "resource": {
+      "kind": "directory",
+      "path": "/run/soglia-spike-runner/replay-1790525780260-5753/s1"
+    }
+  },
+  {
+    "sequence": 28,
+    "owner": "s1",
+    "provenance": "S1 systemd delegation",
+    "registered_unix_ms": 1790525788879,
+    "cleaned": true,
+    "resource": {
+      "kind": "systemd_unit",
+      "name": "soglia-spike-s1-57802605753.service"
+    }
+  },
+  {
+    "sequence": 29,
+    "owner": "s1",
+    "provenance": "S1 delegated root",
+    "registered_unix_ms": 1790525788880,
+    "cleaned": true,
+    "resource": {
+      "kind": "cgroup",
+      "path": "/sys/fs/cgroup/system.slice/soglia-spike-s1-57802605753.service",
+      "inode": 6336
+    }
+  },
+  {
+    "sequence": 30,
+    "owner": "s1",
+    "provenance": "S1 executions cgroup",
+    "registered_unix_ms": 1790525788881,
+    "cleaned": true,
+    "resource": {
+      "kind": "cgroup",
+      "path": "/sys/fs/cgroup/system.slice/soglia-spike-s1-57802605753.service/executions",
+      "inode": 6438
+    }
+  },
+  {
+    "sequence": 31,
+    "owner": "s1",
+    "provenance": "S1 target cgroup",
+    "registered_unix_ms": 1790525788881,
+    "cleaned": true,
+    "resource": {
+      "kind": "cgroup",
+      "path": "/sys/fs/cgroup/system.slice/soglia-spike-s1-57802605753.service/executions/s1-e1",
+      "inode": 6480
+    }
+  },
+  {
+    "sequence": 32,
+    "owner": "s1",
+    "provenance": "S1 owned netns",
+    "registered_unix_ms": 1790525789225,
+    "cleaned": true,
+    "resource": {
+      "kind": "netns",
+      "name": "sg-s1-57802605753"
+    }
+  },
+  {
+    "sequence": 33,
+    "owner": "s1",
+    "provenance": "S1 owned interface",
+    "registered_unix_ms": 1790525789225,
+    "cleaned": true,
+    "resource": {
+      "kind": "interface",
+      "name": "s1h5780260"
+    }
+  },
+  {
+    "sequence": 34,
+    "owner": "s1",
+    "provenance": "S1 owned interface",
+    "registered_unix_ms": 1790525789226,
+    "cleaned": true,
+    "resource": {
+      "kind": "interface",
+      "name": "s1p5780260"
+    }
+  },
+  {
+    "sequence": 35,
+    "owner": "s1",
+    "provenance": "S1 host nft table",
+    "registered_unix_ms": 1790525789273,
+    "cleaned": true,
+    "resource": {
+      "kind": "nft_object",
+      "family": "inet",
+      "table": "sg_s1_57802605",
+      "object": "table"
+    }
+  },
+  {
+    "sequence": 36,
+    "owner": "s1",
+    "provenance": "S1 BPF pin",
+    "registered_unix_ms": 1790525789284,
+    "cleaned": true,
+    "resource": {
+      "kind": "bpf_pin",
+      "path": "/sys/fs/bpf/soglia-spike-runner/replay-1790525780260-5753/s1/links/connect4"
+    }
+  },
+  {
+    "sequence": 37,
+    "owner": "s1",
+    "provenance": "S1 BPF pin",
+    "registered_unix_ms": 1790525789284,
+    "cleaned": true,
+    "resource": {
+      "kind": "bpf_pin",
+      "path": "/sys/fs/bpf/soglia-spike-runner/replay-1790525780260-5753/s1/links/connect6"
+    }
+  },
+  {
+    "sequence": 38,
+    "owner": "s1",
+    "provenance": "S1 BPF pin",
+    "registered_unix_ms": 1790525789285,
+    "cleaned": true,
+    "resource": {
+      "kind": "bpf_pin",
+      "path": "/sys/fs/bpf/soglia-spike-runner/replay-1790525780260-5753/s1/links/sendmsg4"
+    }
+  },
+  {
+    "sequence": 39,
+    "owner": "s1",
+    "provenance": "S1 BPF pin",
+    "registered_unix_ms": 1790525789285,
+    "cleaned": true,
+    "resource": {
+      "kind": "bpf_pin",
+      "path": "/sys/fs/bpf/soglia-spike-runner/replay-1790525780260-5753/s1/links/sendmsg6"
+    }
+  },
+  {
+    "sequence": 40,
+    "owner": "s1",
+    "provenance": "S1 BPF pin",
+    "registered_unix_ms": 1790525789286,
+    "cleaned": true,
+    "resource": {
+      "kind": "bpf_pin",
+      "path": "/sys/fs/bpf/soglia-spike-runner/replay-1790525780260-5753/s1/links/sock_create"
+    }
+  },
+  {
+    "sequence": 41,
+    "owner": "s1",
+    "provenance": "S1 BPF pin",
+    "registered_unix_ms": 1790525789286,
+    "cleaned": true,
+    "resource": {
+      "kind": "bpf_pin",
+      "path": "/sys/fs/bpf/soglia-spike-runner/replay-1790525780260-5753/s1/links/sock_ops"
+    }
+  },
+  {
+    "sequence": 42,
+    "owner": "s1",
+    "provenance": "S1 BPF pin",
+    "registered_unix_ms": 1790525789287,
+    "cleaned": true,
+    "resource": {
+      "kind": "bpf_pin",
+      "path": "/sys/fs/bpf/soglia-spike-runner/replay-1790525780260-5753/s1/maps/soglia_cookie_a"
+    }
+  },
+  {
+    "sequence": 43,
+    "owner": "s1",
+    "provenance": "S1 BPF pin",
+    "registered_unix_ms": 1790525789287,
+    "cleaned": true,
+    "resource": {
+      "kind": "bpf_pin",
+      "path": "/sys/fs/bpf/soglia-spike-runner/replay-1790525780260-5753/s1/maps/soglia_counters"
+    }
+  },
+  {
+    "sequence": 44,
+    "owner": "s1",
+    "provenance": "S1 BPF pin",
+    "registered_unix_ms": 1790525789288,
+    "cleaned": true,
+    "resource": {
+      "kind": "bpf_pin",
+      "path": "/sys/fs/bpf/soglia-spike-runner/replay-1790525780260-5753/s1/maps/soglia_denies"
+    }
+  },
+  {
+    "sequence": 45,
+    "owner": "s1",
+    "provenance": "S1 BPF pin",
+    "registered_unix_ms": 1790525789288,
+    "cleaned": true,
+    "resource": {
+      "kind": "bpf_pin",
+      "path": "/sys/fs/bpf/soglia-spike-runner/replay-1790525780260-5753/s1/maps/soglia_diag_entries"
+    }
+  },
+  {
+    "sequence": 46,
+    "owner": "s1",
+    "provenance": "S1 BPF pin",
+    "registered_unix_ms": 1790525789289,
+    "cleaned": true,
+    "resource": {
+      "kind": "bpf_pin",
+      "path": "/sys/fs/bpf/soglia-spike-runner/replay-1790525780260-5753/s1/maps/soglia_events"
+    }
+  },
+  {
+    "sequence": 47,
+    "owner": "s1",
+    "provenance": "S1 BPF pin",
+    "registered_unix_ms": 1790525789289,
+    "cleaned": true,
+    "resource": {
+      "kind": "bpf_pin",
+      "path": "/sys/fs/bpf/soglia-spike-runner/replay-1790525780260-5753/s1/maps/soglia_meta"
+    }
+  },
+  {
+    "sequence": 48,
+    "owner": "s1",
+    "provenance": "S1 BPF pin",
+    "registered_unix_ms": 1790525789290,
+    "cleaned": true,
+    "resource": {
+      "kind": "bpf_pin",
+      "path": "/sys/fs/bpf/soglia-spike-runner/replay-1790525780260-5753/s1/maps/soglia_policy"
+    }
+  },
+  {
+    "sequence": 49,
+    "owner": "s1",
+    "provenance": "S1 BPF pin",
+    "registered_unix_ms": 1790525789290,
+    "cleaned": true,
+    "resource": {
+      "kind": "bpf_pin",
+      "path": "/sys/fs/bpf/soglia-spike-runner/replay-1790525780260-5753/s1/maps/soglia_port_diag"
+    }
+  },
+  {
+    "sequence": 50,
+    "owner": "s1",
+    "provenance": "S1 BPF pin",
+    "registered_unix_ms": 1790525789291,
+    "cleaned": true,
+    "resource": {
+      "kind": "bpf_pin",
+      "path": "/sys/fs/bpf/soglia-spike-runner/replay-1790525780260-5753/s1/maps/soglia_sk_b"
+    }
+  },
+  {
+    "sequence": 51,
+    "owner": "s1",
+    "provenance": "S1 BPF pin",
+    "registered_unix_ms": 1790525789291,
+    "cleaned": true,
+    "resource": {
+      "kind": "bpf_pin",
+      "path": "/sys/fs/bpf/soglia-spike-runner/replay-1790525780260-5753/s1/maps/soglia_tuples"
+    }
+  },
+  {
+    "sequence": 52,
+    "owner": "s1",
+    "provenance": "S1 BPF program soglia_sock_create",
+    "registered_unix_ms": 1790525789363,
+    "cleaned": true,
+    "resource": {
+      "kind": "bpf_object",
+      "id": 178,
+      "object_kind": "prog"
+    }
+  },
+  {
+    "sequence": 53,
+    "owner": "s1",
+    "provenance": "S1 BPF program soglia_connect4",
+    "registered_unix_ms": 1790525789363,
+    "cleaned": true,
+    "resource": {
+      "kind": "bpf_object",
+      "id": 179,
+      "object_kind": "prog"
+    }
+  },
+  {
+    "sequence": 54,
+    "owner": "s1",
+    "provenance": "S1 BPF program soglia_connect6",
+    "registered_unix_ms": 1790525789364,
+    "cleaned": true,
+    "resource": {
+      "kind": "bpf_object",
+      "id": 180,
+      "object_kind": "prog"
+    }
+  },
+  {
+    "sequence": 55,
+    "owner": "s1",
+    "provenance": "S1 BPF program soglia_sendmsg4",
+    "registered_unix_ms": 1790525789364,
+    "cleaned": true,
+    "resource": {
+      "kind": "bpf_object",
+      "id": 181,
+      "object_kind": "prog"
+    }
+  },
+  {
+    "sequence": 56,
+    "owner": "s1",
+    "provenance": "S1 BPF program soglia_sendmsg6",
+    "registered_unix_ms": 1790525789365,
+    "cleaned": true,
+    "resource": {
+      "kind": "bpf_object",
+      "id": 182,
+      "object_kind": "prog"
+    }
+  },
+  {
+    "sequence": 57,
+    "owner": "s1",
+    "provenance": "S1 BPF program soglia_sockops",
+    "registered_unix_ms": 1790525789365,
+    "cleaned": true,
+    "resource": {
+      "kind": "bpf_object",
+      "id": 183,
+      "object_kind": "prog"
+    }
+  },
+  {
+    "sequence": 58,
+    "owner": "s1",
+    "provenance": "S1 BPF cgroup link",
+    "registered_unix_ms": 1790525789366,
+    "cleaned": true,
+    "resource": {
+      "kind": "bpf_object",
+      "id": 11,
+      "object_kind": "link"
+    }
+  },
+  {
+    "sequence": 59,
+    "owner": "s1",
+    "provenance": "S1 BPF cgroup link",
+    "registered_unix_ms": 1790525789366,
+    "cleaned": true,
+    "resource": {
+      "kind": "bpf_object",
+      "id": 12,
+      "object_kind": "link"
+    }
+  },
+  {
+    "sequence": 60,
+    "owner": "s1",
+    "provenance": "S1 BPF cgroup link",
+    "registered_unix_ms": 1790525789367,
+    "cleaned": true,
+    "resource": {
+      "kind": "bpf_object",
+      "id": 13,
+      "object_kind": "link"
+    }
+  },
+  {
+    "sequence": 61,
+    "owner": "s1",
+    "provenance": "S1 BPF cgroup link",
+    "registered_unix_ms": 1790525789367,
+    "cleaned": true,
+    "resource": {
+      "kind": "bpf_object",
+      "id": 14,
+      "object_kind": "link"
+    }
+  },
+  {
+    "sequence": 62,
+    "owner": "s1",
+    "provenance": "S1 BPF cgroup link",
+    "registered_unix_ms": 1790525789368,
+    "cleaned": true,
+    "resource": {
+      "kind": "bpf_object",
+      "id": 15,
+      "object_kind": "link"
+    }
+  },
+  {
+    "sequence": 63,
+    "owner": "s1",
+    "provenance": "S1 BPF cgroup link",
+    "registered_unix_ms": 1790525789368,
+    "cleaned": true,
+    "resource": {
+      "kind": "bpf_object",
+      "id": 16,
+      "object_kind": "link"
+    }
+  },
+  {
+    "sequence": 64,
+    "owner": "s1",
+    "provenance": "S1 BPF map soglia_events",
+    "registered_unix_ms": 1790525789369,
+    "cleaned": true,
+    "resource": {
+      "kind": "bpf_object",
+      "id": 58,
+      "object_kind": "map"
+    }
+  },
+  {
+    "sequence": 65,
+    "owner": "s1",
+    "provenance": "S1 BPF map soglia_cookie_a",
+    "registered_unix_ms": 1790525789369,
+    "cleaned": true,
+    "resource": {
+      "kind": "bpf_object",
+      "id": 59,
+      "object_kind": "map"
+    }
+  },
+  {
+    "sequence": 66,
+    "owner": "s1",
+    "provenance": "S1 BPF map policy_local",
+    "registered_unix_ms": 1790525789370,
+    "cleaned": true,
+    "resource": {
+      "kind": "bpf_object",
+      "id": 60,
+      "object_kind": "map"
+    }
+  },
+  {
+    "sequence": 67,
+    "owner": "s1",
+    "provenance": "S1 BPF map .rodata",
+    "registered_unix_ms": 1790525789370,
+    "cleaned": true,
+    "resource": {
+      "kind": "bpf_object",
+      "id": 61,
+      "object_kind": "map"
+    }
+  },
+  {
+    "sequence": 68,
+    "owner": "s1",
+    "provenance": "S1 BPF map soglia_sk_b",
+    "registered_unix_ms": 1790525789371,
+    "cleaned": true,
+    "resource": {
+      "kind": "bpf_object",
+      "id": 62,
+      "object_kind": "map"
+    }
+  },
+  {
+    "sequence": 69,
+    "owner": "s1",
+    "provenance": "S1 BPF map soglia_policy",
+    "registered_unix_ms": 1790525789371,
+    "cleaned": true,
+    "resource": {
+      "kind": "bpf_object",
+      "id": 63,
+      "object_kind": "map"
+    }
+  },
+  {
+    "sequence": 70,
+    "owner": "s1",
+    "provenance": "S1 BPF map soglia_port_dia",
+    "registered_unix_ms": 1790525789372,
+    "cleaned": true,
+    "resource": {
+      "kind": "bpf_object",
+      "id": 65,
+      "object_kind": "map"
+    }
+  },
+  {
+    "sequence": 71,
+    "owner": "s1",
+    "provenance": "S1 BPF map soglia_counters",
+    "registered_unix_ms": 1790525789372,
+    "cleaned": true,
+    "resource": {
+      "kind": "bpf_object",
+      "id": 66,
+      "object_kind": "map"
+    }
+  },
+  {
+    "sequence": 72,
+    "owner": "s1",
+    "provenance": "S1 BPF map soglia_tuples",
+    "registered_unix_ms": 1790525789373,
+    "cleaned": true,
+    "resource": {
+      "kind": "bpf_object",
+      "id": 67,
+      "object_kind": "map"
+    }
+  },
+  {
+    "sequence": 73,
+    "owner": "s1",
+    "provenance": "S1 BPF map soglia_diag_ent",
+    "registered_unix_ms": 1790525789374,
+    "cleaned": true,
+    "resource": {
+      "kind": "bpf_object",
+      "id": 68,
+      "object_kind": "map"
+    }
+  },
+  {
+    "sequence": 74,
+    "owner": "s1",
+    "provenance": "S1 BPF map soglia_denies",
+    "registered_unix_ms": 1790525789374,
+    "cleaned": true,
+    "resource": {
+      "kind": "bpf_object",
+      "id": 69,
+      "object_kind": "map"
+    }
+  },
+  {
+    "sequence": 75,
+    "owner": "s1",
+    "provenance": "S1 trusted agent lifecycle",
+    "registered_unix_ms": 1790525789565,
+    "cleaned": true,
+    "resource": {
+      "kind": "process",
+      "pid": 6215
+    }
+  }
+]

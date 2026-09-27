@@ -1,0 +1,2 @@
+{"cmd":"barrier /run/soglia-spike-runner/replay-1790525576624-5754/s4/agent.ready /run/soglia-spike-runner/replay-1790525576624-5754/s4/agent.go 30","ok":true,"detail":"released pid=7922"}
+{"cmd":"direct 10.201.0.2:16001","ok":true,"detail":"connected"}

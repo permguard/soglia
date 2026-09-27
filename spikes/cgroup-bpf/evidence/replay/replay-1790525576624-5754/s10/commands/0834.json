@@ -1,0 +1,29 @@
+{
+  "sequence": 834,
+  "executable": "/var/tmp/soglia-spike-2/bin/soglia-spike-runner",
+  "argv": [
+    "_agent-launcher",
+    "--netns",
+    "/run/netns/sg-s10-55766245754",
+    "--agent",
+    "/var/tmp/soglia-spike-2/bin/soglia-spike-agent",
+    "--host-ready",
+    "/run/soglia-spike-runner/replay-1790525576624-5754/s10/agent-host.ready",
+    "--agent-ready",
+    "/run/soglia-spike-runner/replay-1790525576624-5754/s10/agent.ready",
+    "--agent-go",
+    "/run/soglia-spike-runner/replay-1790525576624-5754/s10/agent.go",
+    "--operation",
+    "direct 10.200.255.1:15001"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525629065,
+  "monotonic_start_ns": 52439633251,
+  "duration_ms": 1529,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s10/commands/0834.stdout",
+  "stderr_file": "s10/commands/0834.stderr"
+}

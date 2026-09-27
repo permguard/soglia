@@ -1,0 +1,20 @@
+{
+  "sequence": 671,
+  "executable": "systemctl",
+  "argv": [
+    "show",
+    "--property=MainPID",
+    "--value",
+    "soglia-spike-s8-5754.service"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525621111,
+  "monotonic_start_ns": 44484777693,
+  "duration_ms": 26,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s8/commands/0671.stdout",
+  "stderr_file": "s8/commands/0671.stderr"
+}

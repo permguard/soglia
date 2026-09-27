@@ -1,0 +1,9 @@
+table inet soglia {
+	chain output { # handle 2
+		type filter hook output priority filter; policy drop;
+		oif "lo" accept # handle 6
+		ct state established,related accept # handle 7
+		ip daddr 10.200.255.1 tcp dport 15001 ct state new accept # handle 8
+		ip daddr 10.201.0.2 tcp dport 16001 ct state new accept comment "s4-direct-exposure" # handle 9
+	}
+}

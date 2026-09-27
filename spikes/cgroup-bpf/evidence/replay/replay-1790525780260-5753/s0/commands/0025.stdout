@@ -1,0 +1,6 @@
+MainPID=5838
+ControlGroup=/system.slice/soglia-spike-5780260-5753.service
+Delegate=yes
+DelegateControllers=cpu cpuset io memory pids
+ActiveState=active
+SubState=running

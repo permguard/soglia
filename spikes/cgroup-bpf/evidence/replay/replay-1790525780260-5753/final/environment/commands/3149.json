@@ -1,0 +1,23 @@
+{
+  "sequence": 3149,
+  "executable": "/usr/bin/env",
+  "argv": [
+    "sh",
+    "-c",
+    "command -v \"$1\"",
+    "sh",
+    "runc"
+  ],
+  "working_directory": "/",
+  "selected_environment": {
+    "LC_ALL": "C"
+  },
+  "wall_start_unix_ms": 1790525900251,
+  "monotonic_start_ns": 119988900351,
+  "duration_ms": 22,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "final/environment/commands/3149.stdout",
+  "stderr_file": "final/environment/commands/3149.stderr"
+}

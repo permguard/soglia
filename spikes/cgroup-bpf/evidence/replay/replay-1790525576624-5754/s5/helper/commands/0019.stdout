@@ -1,0 +1,2 @@
+{"cmd":"barrier /run/soglia-spike-s5-connect6-deny-agent.ready /run/soglia-spike-s5-connect6-deny-agent.go 15","ok":true,"detail":"released pid=8215"}
+{"cmd":"tcp6 [fd00:201::2]:16002","ok":false,"errno":1,"error":"Operation not permitted (os error 1)"}

@@ -1,0 +1,21 @@
+{
+  "sequence": 652,
+  "executable": "ss",
+  "argv": [
+    "--no-header",
+    "--numeric",
+    "--tcp",
+    "state",
+    "established"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525613093,
+  "monotonic_start_ns": 36467411620,
+  "duration_ms": 24,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s8/commands/0652.stdout",
+  "stderr_file": "s8/commands/0652.stderr"
+}

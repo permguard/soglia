@@ -1,0 +1,20 @@
+{
+  "sequence": 332,
+  "executable": "bpftool",
+  "argv": [
+    "-j",
+    "cgroup",
+    "show",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s3-55766245754.service/executions/s1-e1"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525596869,
+  "monotonic_start_ns": 20242853133,
+  "duration_ms": 21,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s3/generation-2/commands/0332.stdout",
+  "stderr_file": "s3/generation-2/commands/0332.stderr"
+}

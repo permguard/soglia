@@ -1,0 +1,17 @@
+{
+  "sequence": 597,
+  "executable": "/var/tmp/soglia-spike-2/bin/soglia-spike-agent",
+  "argv": [
+    "listen4-pulse-hold 11.0.0.1:443 20"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525813765,
+  "monotonic_start_ns": 33502418856,
+  "duration_ms": 10008,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s8/commands/0597.stdout",
+  "stderr_file": "s8/commands/0597.stderr"
+}

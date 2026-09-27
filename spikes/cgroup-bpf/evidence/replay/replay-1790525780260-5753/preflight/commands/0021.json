@@ -1,0 +1,20 @@
+{
+  "sequence": 21,
+  "executable": "df",
+  "argv": [
+    "-Pk",
+    "/var/tmp/soglia-spike-2"
+  ],
+  "working_directory": "/",
+  "selected_environment": {
+    "LC_ALL": "C"
+  },
+  "wall_start_unix_ms": 1790525780747,
+  "monotonic_start_ns": 484739024,
+  "duration_ms": 20,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "preflight/commands/0021.stdout",
+  "stderr_file": "preflight/commands/0021.stderr"
+}

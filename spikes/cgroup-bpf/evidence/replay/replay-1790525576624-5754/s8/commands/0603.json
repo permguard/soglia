@@ -1,0 +1,28 @@
+{
+  "sequence": 603,
+  "executable": "curl",
+  "argv": [
+    "--max-time",
+    "55",
+    "--silent",
+    "--show-error",
+    "--include",
+    "--write-out",
+    "\nS8_HTTP_STATUS=%{http_code}\n",
+    "--request",
+    "POST",
+    "--data-binary",
+    "delayed-tunnel 6500 allowed.test:444 25",
+    "http://127.0.0.1:18089/v1/execute/probe"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525610884,
+  "monotonic_start_ns": 34258206676,
+  "duration_ms": 9700,
+  "exit_code": 52,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s8/commands/0603.stdout",
+  "stderr_file": "s8/commands/0603.stderr"
+}

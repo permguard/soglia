@@ -1,0 +1,20 @@
+{
+  "sequence": 2008,
+  "executable": "ip",
+  "argv": [
+    "link",
+    "set",
+    "s145754h014",
+    "up"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525664609,
+  "monotonic_start_ns": 87982906228,
+  "duration_ms": 21,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s14/commands/2008.stdout",
+  "stderr_file": "s14/commands/2008.stderr"
+}

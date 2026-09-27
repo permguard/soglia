@@ -1,0 +1,22 @@
+{
+  "sequence": 758,
+  "executable": "bpftool",
+  "argv": [
+    "cgroup",
+    "detach",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s9-57802605753.service/executions",
+    "cgroup_inet4_connect",
+    "pinned",
+    "/sys/fs/bpf/soglia-spike-runner/replay-1790525780260-5753/s9-foreign/foreign_allow"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525828565,
+  "monotonic_start_ns": 48303306408,
+  "duration_ms": 21,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s9/commands/0758.stdout",
+  "stderr_file": "s9/commands/0758.stderr"
+}

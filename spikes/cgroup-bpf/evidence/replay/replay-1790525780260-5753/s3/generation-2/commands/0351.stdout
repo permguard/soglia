@@ -1,0 +1,2 @@
+14: s3p5780260: <BROADCAST,NOARP,UP,LOWER_UP> mtu 1500 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1000
+    link/ether 1e:fa:23:82:bf:2e brd ff:ff:ff:ff:ff:ff

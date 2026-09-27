@@ -1,0 +1,23 @@
+{
+  "sequence": 608,
+  "executable": "ip",
+  "argv": [
+    "netns",
+    "exec",
+    "soglia-e6f42810ef",
+    "nft",
+    "--handle",
+    "list",
+    "ruleset"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525611003,
+  "monotonic_start_ns": 34377105260,
+  "duration_ms": 23,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s8/commands/0608.stdout",
+  "stderr_file": "s8/commands/0608.stderr"
+}

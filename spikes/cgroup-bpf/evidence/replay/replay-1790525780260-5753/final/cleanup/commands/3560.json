@@ -1,0 +1,21 @@
+{
+  "sequence": 3560,
+  "executable": "nft",
+  "argv": [
+    "-j",
+    "list",
+    "table",
+    "inet",
+    "sg_s11_57802605"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525911683,
+  "monotonic_start_ns": 131420851715,
+  "duration_ms": 25,
+  "exit_code": 1,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "final/cleanup/commands/3560.stdout",
+  "stderr_file": "final/cleanup/commands/3560.stderr"
+}

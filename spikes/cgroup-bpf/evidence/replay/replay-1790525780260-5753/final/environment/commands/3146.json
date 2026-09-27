@@ -1,0 +1,23 @@
+{
+  "sequence": 3146,
+  "executable": "/usr/bin/env",
+  "argv": [
+    "sh",
+    "-c",
+    "command -v \"$1\"",
+    "sh",
+    "git"
+  ],
+  "working_directory": "/",
+  "selected_environment": {
+    "LC_ALL": "C"
+  },
+  "wall_start_unix_ms": 1790525900170,
+  "monotonic_start_ns": 119908078360,
+  "duration_ms": 23,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "final/environment/commands/3146.stdout",
+  "stderr_file": "final/environment/commands/3146.stderr"
+}

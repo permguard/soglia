@@ -1,0 +1,26 @@
+{
+  "sequence": 97,
+  "executable": "systemctl",
+  "argv": [
+    "show",
+    "soglia-spike-s1-55766245754.service",
+    "-p",
+    "ActiveState",
+    "-p",
+    "Delegate",
+    "-p",
+    "ControlGroup",
+    "-p",
+    "MainPID"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525586204,
+  "monotonic_start_ns": 9577850759,
+  "duration_ms": 20,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s1/commands/0097.stdout",
+  "stderr_file": "s1/commands/0097.stderr"
+}

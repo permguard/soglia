@@ -1,0 +1,1551 @@
+{
+  "programs": [
+    {
+      "btf_id": 6,
+      "bytes_jited": 216,
+      "bytes_memlock": 4096,
+      "bytes_xlated": 56,
+      "gpl_compatible": true,
+      "id": 2,
+      "jited": true,
+      "loaded_at": 1790525512,
+      "map_ids": [
+        2
+      ],
+      "name": "hid_tail_call",
+      "orphaned": false,
+      "tag": "7cc47bbf07148bfe",
+      "type": "tracing",
+      "uid": 0
+    },
+    {
+      "bytes_jited": 200,
+      "bytes_memlock": 4096,
+      "bytes_xlated": 104,
+      "gpl_compatible": false,
+      "id": 97,
+      "jited": true,
+      "loaded_at": 1790525518,
+      "map_ids": [
+        5
+      ],
+      "name": "lima_ticker",
+      "orphaned": false,
+      "tag": "922e3290de6422b1",
+      "type": "tracepoint",
+      "uid": 0
+    },
+    {
+      "bytes_jited": 496,
+      "bytes_memlock": 4096,
+      "bytes_xlated": 504,
+      "gpl_compatible": true,
+      "id": 887,
+      "jited": true,
+      "loaded_at": 1790525650,
+      "name": "sd_devices",
+      "orphaned": false,
+      "tag": "134b8a301991f6b7",
+      "type": "cgroup_device",
+      "uid": 0
+    },
+    {
+      "bytes_jited": 144,
+      "bytes_memlock": 4096,
+      "bytes_xlated": 64,
+      "gpl_compatible": true,
+      "id": 888,
+      "jited": true,
+      "loaded_at": 1790525650,
+      "name": "sd_fw_egress",
+      "orphaned": false,
+      "tag": "6deef7357e7b4530",
+      "type": "cgroup_skb",
+      "uid": 0
+    },
+    {
+      "bytes_jited": 144,
+      "bytes_memlock": 4096,
+      "bytes_xlated": 64,
+      "gpl_compatible": true,
+      "id": 889,
+      "jited": true,
+      "loaded_at": 1790525650,
+      "name": "sd_fw_ingress",
+      "orphaned": false,
+      "tag": "6deef7357e7b4530",
+      "type": "cgroup_skb",
+      "uid": 0
+    },
+    {
+      "bytes_jited": 224,
+      "bytes_memlock": 4096,
+      "bytes_xlated": 184,
+      "gpl_compatible": true,
+      "id": 890,
+      "jited": true,
+      "loaded_at": 1790525650,
+      "name": "sd_devices",
+      "orphaned": false,
+      "tag": "fba67f14acbaee05",
+      "type": "cgroup_device",
+      "uid": 0
+    },
+    {
+      "bytes_jited": 144,
+      "bytes_memlock": 4096,
+      "bytes_xlated": 64,
+      "gpl_compatible": true,
+      "id": 891,
+      "jited": true,
+      "loaded_at": 1790525650,
+      "name": "sd_fw_egress",
+      "orphaned": false,
+      "tag": "6deef7357e7b4530",
+      "type": "cgroup_skb",
+      "uid": 0
+    },
+    {
+      "bytes_jited": 144,
+      "bytes_memlock": 4096,
+      "bytes_xlated": 64,
+      "gpl_compatible": true,
+      "id": 892,
+      "jited": true,
+      "loaded_at": 1790525650,
+      "name": "sd_fw_ingress",
+      "orphaned": false,
+      "tag": "6deef7357e7b4530",
+      "type": "cgroup_skb",
+      "uid": 0
+    },
+    {
+      "bytes_jited": 432,
+      "bytes_memlock": 4096,
+      "bytes_xlated": 416,
+      "gpl_compatible": true,
+      "id": 893,
+      "jited": true,
+      "loaded_at": 1790525650,
+      "name": "sd_devices",
+      "orphaned": false,
+      "tag": "ee0e253c78993a24",
+      "type": "cgroup_device",
+      "uid": 0
+    },
+    {
+      "bytes_jited": 496,
+      "bytes_memlock": 4096,
+      "bytes_xlated": 504,
+      "gpl_compatible": true,
+      "id": 894,
+      "jited": true,
+      "loaded_at": 1790525650,
+      "name": "sd_devices",
+      "orphaned": false,
+      "tag": "134b8a301991f6b7",
+      "type": "cgroup_device",
+      "uid": 0
+    },
+    {
+      "bytes_jited": 472,
+      "bytes_memlock": 4096,
+      "bytes_xlated": 464,
+      "gpl_compatible": true,
+      "id": 895,
+      "jited": true,
+      "loaded_at": 1790525650,
+      "name": "sd_devices",
+      "orphaned": false,
+      "tag": "654d7024997e7811",
+      "type": "cgroup_device",
+      "uid": 0
+    },
+    {
+      "bytes_jited": 680,
+      "bytes_memlock": 4096,
+      "bytes_xlated": 744,
+      "gpl_compatible": true,
+      "id": 896,
+      "jited": true,
+      "loaded_at": 1790525650,
+      "name": "sd_devices",
+      "orphaned": false,
+      "tag": "384856681694f215",
+      "type": "cgroup_device",
+      "uid": 0
+    },
+    {
+      "bytes_jited": 144,
+      "bytes_memlock": 4096,
+      "bytes_xlated": 64,
+      "gpl_compatible": true,
+      "id": 897,
+      "jited": true,
+      "loaded_at": 1790525650,
+      "name": "sd_fw_egress",
+      "orphaned": false,
+      "tag": "6deef7357e7b4530",
+      "type": "cgroup_skb",
+      "uid": 0
+    },
+    {
+      "bytes_jited": 144,
+      "bytes_memlock": 4096,
+      "bytes_xlated": 64,
+      "gpl_compatible": true,
+      "id": 898,
+      "jited": true,
+      "loaded_at": 1790525650,
+      "name": "sd_fw_ingress",
+      "orphaned": false,
+      "tag": "6deef7357e7b4530",
+      "type": "cgroup_skb",
+      "uid": 0
+    },
+    {
+      "btf_id": 319,
+      "bytes_jited": 576,
+      "bytes_memlock": 4096,
+      "bytes_xlated": 664,
+      "gpl_compatible": false,
+      "id": 913,
+      "jited": true,
+      "loaded_at": 1790525652,
+      "map_ids": [
+        633,
+        627,
+        632
+      ],
+      "name": "soglia_sock_create",
+      "orphaned": false,
+      "tag": "eea5a9c277a546d6",
+      "type": "cgroup_sock",
+      "uid": 0
+    },
+    {
+      "btf_id": 319,
+      "bytes_jited": 1016,
+      "bytes_memlock": 4096,
+      "bytes_xlated": 1288,
+      "gpl_compatible": false,
+      "id": 914,
+      "jited": true,
+      "loaded_at": 1790525652,
+      "map_ids": [
+        628,
+        626,
+        630,
+        633,
+        627,
+        632,
+        634,
+        631
+      ],
+      "name": "soglia_connect4",
+      "orphaned": false,
+      "tag": "df9c3439be853b4d",
+      "type": "cgroup_sock_addr",
+      "uid": 0
+    },
+    {
+      "btf_id": 319,
+      "bytes_jited": 600,
+      "bytes_memlock": 4096,
+      "bytes_xlated": 688,
+      "gpl_compatible": false,
+      "id": 915,
+      "jited": true,
+      "loaded_at": 1790525652,
+      "map_ids": [
+        633,
+        627,
+        632
+      ],
+      "name": "soglia_connect6",
+      "orphaned": false,
+      "tag": "c6994d7cab0ffa99",
+      "type": "cgroup_sock_addr",
+      "uid": 0
+    },
+    {
+      "btf_id": 319,
+      "bytes_jited": 608,
+      "bytes_memlock": 4096,
+      "bytes_xlated": 704,
+      "gpl_compatible": false,
+      "id": 916,
+      "jited": true,
+      "loaded_at": 1790525652,
+      "map_ids": [
+        633,
+        627,
+        632
+      ],
+      "name": "soglia_sendmsg4",
+      "orphaned": false,
+      "tag": "4675fb08d3b3d5fa",
+      "type": "cgroup_sock_addr",
+      "uid": 0
+    },
+    {
+      "btf_id": 319,
+      "bytes_jited": 600,
+      "bytes_memlock": 4096,
+      "bytes_xlated": 688,
+      "gpl_compatible": false,
+      "id": 917,
+      "jited": true,
+      "loaded_at": 1790525652,
+      "map_ids": [
+        633,
+        627,
+        632
+      ],
+      "name": "soglia_sendmsg6",
+      "orphaned": false,
+      "tag": "523bec458d754f5d",
+      "type": "cgroup_sock_addr",
+      "uid": 0
+    },
+    {
+      "btf_id": 319,
+      "bytes_jited": 1328,
+      "bytes_memlock": 4096,
+      "bytes_xlated": 1704,
+      "gpl_compatible": false,
+      "id": 918,
+      "jited": true,
+      "loaded_at": 1790525652,
+      "map_ids": [
+        628,
+        634,
+        631,
+        629,
+        633,
+        632
+      ],
+      "name": "soglia_sockops",
+      "orphaned": false,
+      "tag": "9bedb3719e62dd8b",
+      "type": "sock_ops",
+      "uid": 0
+    },
+    {
+      "btf_id": 320,
+      "bytes_jited": 576,
+      "bytes_memlock": 4096,
+      "bytes_xlated": 664,
+      "gpl_compatible": false,
+      "id": 919,
+      "jited": true,
+      "loaded_at": 1790525652,
+      "map_ids": [
+        633,
+        627,
+        632
+      ],
+      "name": "soglia_sock_create",
+      "orphaned": false,
+      "tag": "eea5a9c277a546d6",
+      "type": "cgroup_sock",
+      "uid": 0
+    },
+    {
+      "btf_id": 320,
+      "bytes_jited": 1016,
+      "bytes_memlock": 4096,
+      "bytes_xlated": 1288,
+      "gpl_compatible": false,
+      "id": 920,
+      "jited": true,
+      "loaded_at": 1790525652,
+      "map_ids": [
+        636,
+        635,
+        630,
+        633,
+        627,
+        632,
+        634,
+        631
+      ],
+      "name": "soglia_connect4",
+      "orphaned": false,
+      "tag": "df9c3439be853b4d",
+      "type": "cgroup_sock_addr",
+      "uid": 0
+    },
+    {
+      "btf_id": 320,
+      "bytes_jited": 600,
+      "bytes_memlock": 4096,
+      "bytes_xlated": 688,
+      "gpl_compatible": false,
+      "id": 921,
+      "jited": true,
+      "loaded_at": 1790525652,
+      "map_ids": [
+        633,
+        627,
+        632
+      ],
+      "name": "soglia_connect6",
+      "orphaned": false,
+      "tag": "c6994d7cab0ffa99",
+      "type": "cgroup_sock_addr",
+      "uid": 0
+    },
+    {
+      "btf_id": 320,
+      "bytes_jited": 608,
+      "bytes_memlock": 4096,
+      "bytes_xlated": 704,
+      "gpl_compatible": false,
+      "id": 922,
+      "jited": true,
+      "loaded_at": 1790525652,
+      "map_ids": [
+        633,
+        627,
+        632
+      ],
+      "name": "soglia_sendmsg4",
+      "orphaned": false,
+      "tag": "4675fb08d3b3d5fa",
+      "type": "cgroup_sock_addr",
+      "uid": 0
+    },
+    {
+      "btf_id": 320,
+      "bytes_jited": 600,
+      "bytes_memlock": 4096,
+      "bytes_xlated": 688,
+      "gpl_compatible": false,
+      "id": 923,
+      "jited": true,
+      "loaded_at": 1790525652,
+      "map_ids": [
+        633,
+        627,
+        632
+      ],
+      "name": "soglia_sendmsg6",
+      "orphaned": false,
+      "tag": "523bec458d754f5d",
+      "type": "cgroup_sock_addr",
+      "uid": 0
+    },
+    {
+      "btf_id": 320,
+      "bytes_jited": 1328,
+      "bytes_memlock": 4096,
+      "bytes_xlated": 1704,
+      "gpl_compatible": false,
+      "id": 924,
+      "jited": true,
+      "loaded_at": 1790525652,
+      "map_ids": [
+        636,
+        634,
+        631,
+        629,
+        633,
+        632
+      ],
+      "name": "soglia_sockops",
+      "orphaned": false,
+      "tag": "9bedb3719e62dd8b",
+      "type": "sock_ops",
+      "uid": 0
+    },
+    {
+      "btf_id": 321,
+      "bytes_jited": 576,
+      "bytes_memlock": 4096,
+      "bytes_xlated": 664,
+      "gpl_compatible": false,
+      "id": 925,
+      "jited": true,
+      "loaded_at": 1790525652,
+      "map_ids": [
+        633,
+        627,
+        632
+      ],
+      "name": "soglia_sock_create",
+      "orphaned": false,
+      "tag": "eea5a9c277a546d6",
+      "type": "cgroup_sock",
+      "uid": 0
+    },
+    {
+      "btf_id": 321,
+      "bytes_jited": 1016,
+      "bytes_memlock": 4096,
+      "bytes_xlated": 1288,
+      "gpl_compatible": false,
+      "id": 926,
+      "jited": true,
+      "loaded_at": 1790525652,
+      "map_ids": [
+        638,
+        637,
+        630,
+        633,
+        627,
+        632,
+        634,
+        631
+      ],
+      "name": "soglia_connect4",
+      "orphaned": false,
+      "tag": "df9c3439be853b4d",
+      "type": "cgroup_sock_addr",
+      "uid": 0
+    },
+    {
+      "btf_id": 321,
+      "bytes_jited": 600,
+      "bytes_memlock": 4096,
+      "bytes_xlated": 688,
+      "gpl_compatible": false,
+      "id": 927,
+      "jited": true,
+      "loaded_at": 1790525652,
+      "map_ids": [
+        633,
+        627,
+        632
+      ],
+      "name": "soglia_connect6",
+      "orphaned": false,
+      "tag": "c6994d7cab0ffa99",
+      "type": "cgroup_sock_addr",
+      "uid": 0
+    },
+    {
+      "btf_id": 321,
+      "bytes_jited": 608,
+      "bytes_memlock": 4096,
+      "bytes_xlated": 704,
+      "gpl_compatible": false,
+      "id": 928,
+      "jited": true,
+      "loaded_at": 1790525652,
+      "map_ids": [
+        633,
+        627,
+        632
+      ],
+      "name": "soglia_sendmsg4",
+      "orphaned": false,
+      "tag": "4675fb08d3b3d5fa",
+      "type": "cgroup_sock_addr",
+      "uid": 0
+    },
+    {
+      "btf_id": 321,
+      "bytes_jited": 600,
+      "bytes_memlock": 4096,
+      "bytes_xlated": 688,
+      "gpl_compatible": false,
+      "id": 929,
+      "jited": true,
+      "loaded_at": 1790525652,
+      "map_ids": [
+        633,
+        627,
+        632
+      ],
+      "name": "soglia_sendmsg6",
+      "orphaned": false,
+      "tag": "523bec458d754f5d",
+      "type": "cgroup_sock_addr",
+      "uid": 0
+    },
+    {
+      "btf_id": 321,
+      "bytes_jited": 1328,
+      "bytes_memlock": 4096,
+      "bytes_xlated": 1704,
+      "gpl_compatible": false,
+      "id": 930,
+      "jited": true,
+      "loaded_at": 1790525652,
+      "map_ids": [
+        638,
+        634,
+        631,
+        629,
+        633,
+        632
+      ],
+      "name": "soglia_sockops",
+      "orphaned": false,
+      "tag": "9bedb3719e62dd8b",
+      "type": "sock_ops",
+      "uid": 0
+    },
+    {
+      "btf_id": 322,
+      "bytes_jited": 576,
+      "bytes_memlock": 4096,
+      "bytes_xlated": 664,
+      "gpl_compatible": false,
+      "id": 931,
+      "jited": true,
+      "loaded_at": 1790525652,
+      "map_ids": [
+        633,
+        627,
+        632
+      ],
+      "name": "soglia_sock_create",
+      "orphaned": false,
+      "tag": "eea5a9c277a546d6",
+      "type": "cgroup_sock",
+      "uid": 0
+    },
+    {
+      "btf_id": 322,
+      "bytes_jited": 1016,
+      "bytes_memlock": 4096,
+      "bytes_xlated": 1288,
+      "gpl_compatible": false,
+      "id": 932,
+      "jited": true,
+      "loaded_at": 1790525652,
+      "map_ids": [
+        639,
+        640,
+        630,
+        633,
+        627,
+        632,
+        634,
+        631
+      ],
+      "name": "soglia_connect4",
+      "orphaned": false,
+      "tag": "df9c3439be853b4d",
+      "type": "cgroup_sock_addr",
+      "uid": 0
+    },
+    {
+      "btf_id": 322,
+      "bytes_jited": 600,
+      "bytes_memlock": 4096,
+      "bytes_xlated": 688,
+      "gpl_compatible": false,
+      "id": 933,
+      "jited": true,
+      "loaded_at": 1790525652,
+      "map_ids": [
+        633,
+        627,
+        632
+      ],
+      "name": "soglia_connect6",
+      "orphaned": false,
+      "tag": "c6994d7cab0ffa99",
+      "type": "cgroup_sock_addr",
+      "uid": 0
+    },
+    {
+      "btf_id": 322,
+      "bytes_jited": 608,
+      "bytes_memlock": 4096,
+      "bytes_xlated": 704,
+      "gpl_compatible": false,
+      "id": 934,
+      "jited": true,
+      "loaded_at": 1790525652,
+      "map_ids": [
+        633,
+        627,
+        632
+      ],
+      "name": "soglia_sendmsg4",
+      "orphaned": false,
+      "tag": "4675fb08d3b3d5fa",
+      "type": "cgroup_sock_addr",
+      "uid": 0
+    },
+    {
+      "btf_id": 322,
+      "bytes_jited": 600,
+      "bytes_memlock": 4096,
+      "bytes_xlated": 688,
+      "gpl_compatible": false,
+      "id": 935,
+      "jited": true,
+      "loaded_at": 1790525652,
+      "map_ids": [
+        633,
+        627,
+        632
+      ],
+      "name": "soglia_sendmsg6",
+      "orphaned": false,
+      "tag": "523bec458d754f5d",
+      "type": "cgroup_sock_addr",
+      "uid": 0
+    },
+    {
+      "btf_id": 322,
+      "bytes_jited": 1328,
+      "bytes_memlock": 4096,
+      "bytes_xlated": 1704,
+      "gpl_compatible": false,
+      "id": 936,
+      "jited": true,
+      "loaded_at": 1790525652,
+      "map_ids": [
+        639,
+        634,
+        631,
+        629,
+        633,
+        632
+      ],
+      "name": "soglia_sockops",
+      "orphaned": false,
+      "tag": "9bedb3719e62dd8b",
+      "type": "sock_ops",
+      "uid": 0
+    }
+  ],
+  "links": [
+    {
+      "attach_type": "modify_return",
+      "id": 1,
+      "prog_id": 2,
+      "prog_type": "tracing",
+      "target_btf_id": 130765,
+      "target_obj_id": 1,
+      "type": "tracing"
+    },
+    {
+      "id": 2,
+      "prog_id": 97,
+      "tracepoint": "sys_exit_bind",
+      "type": "perf_event"
+    },
+    {
+      "attach_type": "cgroup_inet_sock_create",
+      "cgroup_id": 19015,
+      "id": 276,
+      "prog_id": 913,
+      "type": "cgroup"
+    },
+    {
+      "attach_type": "cgroup_inet4_connect",
+      "cgroup_id": 19015,
+      "id": 277,
+      "prog_id": 914,
+      "type": "cgroup"
+    },
+    {
+      "attach_type": "cgroup_inet6_connect",
+      "cgroup_id": 19015,
+      "id": 278,
+      "prog_id": 915,
+      "type": "cgroup"
+    },
+    {
+      "attach_type": "cgroup_udp4_sendmsg",
+      "cgroup_id": 19015,
+      "id": 279,
+      "prog_id": 916,
+      "type": "cgroup"
+    },
+    {
+      "attach_type": "cgroup_udp6_sendmsg",
+      "cgroup_id": 19015,
+      "id": 280,
+      "prog_id": 917,
+      "type": "cgroup"
+    },
+    {
+      "attach_type": "cgroup_sock_ops",
+      "cgroup_id": 19015,
+      "id": 281,
+      "prog_id": 918,
+      "type": "cgroup"
+    },
+    {
+      "attach_type": "cgroup_inet_sock_create",
+      "cgroup_id": 19057,
+      "id": 282,
+      "prog_id": 919,
+      "type": "cgroup"
+    },
+    {
+      "attach_type": "cgroup_inet4_connect",
+      "cgroup_id": 19057,
+      "id": 283,
+      "prog_id": 920,
+      "type": "cgroup"
+    },
+    {
+      "attach_type": "cgroup_inet6_connect",
+      "cgroup_id": 19057,
+      "id": 284,
+      "prog_id": 921,
+      "type": "cgroup"
+    },
+    {
+      "attach_type": "cgroup_udp4_sendmsg",
+      "cgroup_id": 19057,
+      "id": 285,
+      "prog_id": 922,
+      "type": "cgroup"
+    },
+    {
+      "attach_type": "cgroup_udp6_sendmsg",
+      "cgroup_id": 19057,
+      "id": 286,
+      "prog_id": 923,
+      "type": "cgroup"
+    },
+    {
+      "attach_type": "cgroup_sock_ops",
+      "cgroup_id": 19057,
+      "id": 287,
+      "prog_id": 924,
+      "type": "cgroup"
+    },
+    {
+      "attach_type": "cgroup_inet_sock_create",
+      "cgroup_id": 19099,
+      "id": 288,
+      "prog_id": 925,
+      "type": "cgroup"
+    },
+    {
+      "attach_type": "cgroup_inet4_connect",
+      "cgroup_id": 19099,
+      "id": 289,
+      "prog_id": 926,
+      "type": "cgroup"
+    },
+    {
+      "attach_type": "cgroup_inet6_connect",
+      "cgroup_id": 19099,
+      "id": 290,
+      "prog_id": 927,
+      "type": "cgroup"
+    },
+    {
+      "attach_type": "cgroup_udp4_sendmsg",
+      "cgroup_id": 19099,
+      "id": 291,
+      "prog_id": 928,
+      "type": "cgroup"
+    },
+    {
+      "attach_type": "cgroup_udp6_sendmsg",
+      "cgroup_id": 19099,
+      "id": 292,
+      "prog_id": 929,
+      "type": "cgroup"
+    },
+    {
+      "attach_type": "cgroup_sock_ops",
+      "cgroup_id": 19099,
+      "id": 293,
+      "prog_id": 930,
+      "type": "cgroup"
+    },
+    {
+      "attach_type": "cgroup_inet_sock_create",
+      "cgroup_id": 19141,
+      "id": 294,
+      "prog_id": 931,
+      "type": "cgroup"
+    },
+    {
+      "attach_type": "cgroup_inet4_connect",
+      "cgroup_id": 19141,
+      "id": 295,
+      "prog_id": 932,
+      "type": "cgroup"
+    },
+    {
+      "attach_type": "cgroup_inet6_connect",
+      "cgroup_id": 19141,
+      "id": 296,
+      "prog_id": 933,
+      "type": "cgroup"
+    },
+    {
+      "attach_type": "cgroup_udp4_sendmsg",
+      "cgroup_id": 19141,
+      "id": 297,
+      "prog_id": 934,
+      "type": "cgroup"
+    },
+    {
+      "attach_type": "cgroup_udp6_sendmsg",
+      "cgroup_id": 19141,
+      "id": 298,
+      "prog_id": 935,
+      "type": "cgroup"
+    },
+    {
+      "attach_type": "cgroup_sock_ops",
+      "cgroup_id": 19141,
+      "id": 299,
+      "prog_id": 936,
+      "type": "cgroup"
+    }
+  ],
+  "maps": [
+    {
+      "bytes_key": 4,
+      "bytes_memlock": 8576,
+      "bytes_value": 4,
+      "flags": 0,
+      "frozen": 0,
+      "id": 2,
+      "max_entries": 1024,
+      "name": "hid_jmp_table",
+      "owner_jited": true,
+      "owner_prog_type": "tracing",
+      "type": "prog_array"
+    },
+    {
+      "bytes_key": 0,
+      "bytes_memlock": 1065368,
+      "bytes_value": 0,
+      "flags": 0,
+      "frozen": 0,
+      "id": 5,
+      "max_entries": 1048576,
+      "name": "lima_ticker_eve",
+      "type": "ringbuf"
+    },
+    {
+      "btf_id": 319,
+      "bytes_key": 4,
+      "bytes_memlock": 432,
+      "bytes_value": 48,
+      "flags": 0,
+      "frozen": 0,
+      "id": 625,
+      "max_entries": 1,
+      "name": "soglia_meta",
+      "type": "array"
+    },
+    {
+      "btf_id": 319,
+      "bytes_key": 4,
+      "bytes_memlock": 392,
+      "bytes_value": 8,
+      "flags": 0,
+      "frozen": 0,
+      "id": 626,
+      "max_entries": 1,
+      "name": "policy_local",
+      "type": "array"
+    },
+    {
+      "btf_id": 319,
+      "bytes_key": 8,
+      "bytes_memlock": 83296,
+      "bytes_value": 8,
+      "flags": 0,
+      "frozen": 0,
+      "id": 627,
+      "max_entries": 1024,
+      "name": "soglia_denies",
+      "type": "hash"
+    },
+    {
+      "bytes_key": 4,
+      "bytes_memlock": 408,
+      "bytes_value": 24,
+      "flags": 128,
+      "frozen": 1,
+      "id": 628,
+      "max_entries": 1,
+      "name": ".rodata",
+      "type": "array"
+    },
+    {
+      "btf_id": 319,
+      "bytes_key": 16,
+      "bytes_memlock": 591456,
+      "bytes_value": 64,
+      "flags": 0,
+      "frozen": 0,
+      "id": 629,
+      "max_entries": 4096,
+      "name": "soglia_tuples",
+      "type": "hash"
+    },
+    {
+      "btf_id": 319,
+      "bytes_key": 8,
+      "bytes_memlock": 91520,
+      "bytes_value": 16,
+      "flags": 0,
+      "frozen": 0,
+      "id": 630,
+      "max_entries": 1024,
+      "name": "soglia_policy",
+      "type": "hash"
+    },
+    {
+      "btf_id": 319,
+      "bytes_key": 4,
+      "bytes_memlock": 576,
+      "bytes_value": 8,
+      "flags": 1,
+      "frozen": 0,
+      "id": 631,
+      "max_entries": 0,
+      "name": "soglia_sk_b",
+      "type": "sk_storage"
+    },
+    {
+      "bytes_key": 0,
+      "bytes_memlock": 78488,
+      "bytes_value": 0,
+      "flags": 0,
+      "frozen": 0,
+      "id": 632,
+      "max_entries": 65536,
+      "name": "soglia_events",
+      "type": "ringbuf"
+    },
+    {
+      "btf_id": 319,
+      "bytes_key": 4,
+      "bytes_memlock": 456,
+      "bytes_value": 8,
+      "flags": 0,
+      "frozen": 0,
+      "id": 633,
+      "max_entries": 9,
+      "name": "soglia_counters",
+      "type": "array"
+    },
+    {
+      "btf_id": 319,
+      "bytes_key": 8,
+      "bytes_memlock": 329056,
+      "bytes_value": 8,
+      "flags": 0,
+      "frozen": 0,
+      "id": 634,
+      "max_entries": 4096,
+      "name": "soglia_cookie_a",
+      "type": "hash"
+    },
+    {
+      "btf_id": 320,
+      "bytes_key": 4,
+      "bytes_memlock": 392,
+      "bytes_value": 8,
+      "flags": 0,
+      "frozen": 0,
+      "id": 635,
+      "max_entries": 1,
+      "name": "policy_local",
+      "type": "array"
+    },
+    {
+      "bytes_key": 4,
+      "bytes_memlock": 408,
+      "bytes_value": 24,
+      "flags": 128,
+      "frozen": 1,
+      "id": 636,
+      "max_entries": 1,
+      "name": ".rodata",
+      "type": "array"
+    },
+    {
+      "btf_id": 321,
+      "bytes_key": 4,
+      "bytes_memlock": 392,
+      "bytes_value": 8,
+      "flags": 0,
+      "frozen": 0,
+      "id": 637,
+      "max_entries": 1,
+      "name": "policy_local",
+      "type": "array"
+    },
+    {
+      "bytes_key": 4,
+      "bytes_memlock": 408,
+      "bytes_value": 24,
+      "flags": 128,
+      "frozen": 1,
+      "id": 638,
+      "max_entries": 1,
+      "name": ".rodata",
+      "type": "array"
+    },
+    {
+      "bytes_key": 4,
+      "bytes_memlock": 408,
+      "bytes_value": 24,
+      "flags": 128,
+      "frozen": 1,
+      "id": 639,
+      "max_entries": 1,
+      "name": ".rodata",
+      "type": "array"
+    },
+    {
+      "btf_id": 322,
+      "bytes_key": 4,
+      "bytes_memlock": 392,
+      "bytes_value": 8,
+      "flags": 0,
+      "frozen": 0,
+      "id": 640,
+      "max_entries": 1,
+      "name": "policy_local",
+      "type": "array"
+    }
+  ],
+  "bpffs": [
+    "/sys/fs/bpf/soglia-spike-runner",
+    "/sys/fs/bpf/soglia-spike-runner/replay-1790525576624-5754",
+    "/sys/fs/bpf/soglia-spike-runner/replay-1790525576624-5754/s14",
+    "/sys/fs/bpf/soglia-spike-runner/replay-1790525576624-5754/s14/n004",
+    "/sys/fs/bpf/soglia-spike-runner/replay-1790525576624-5754/s14/n004/links",
+    "/sys/fs/bpf/soglia-spike-runner/replay-1790525576624-5754/s14/n004/links/e000",
+    "/sys/fs/bpf/soglia-spike-runner/replay-1790525576624-5754/s14/n004/links/e001",
+    "/sys/fs/bpf/soglia-spike-runner/replay-1790525576624-5754/s14/n004/links/e002",
+    "/sys/fs/bpf/soglia-spike-runner/replay-1790525576624-5754/s14/n004/links/e003",
+    "/sys/fs/bpf/soglia-spike-runner/replay-1790525576624-5754/s14/n004/maps"
+  ],
+  "cgroups": [
+    "/sys/fs/cgroup/system.slice/soglia-spike-s14-55766245754.service/executions",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s14-55766245754.service/executions/s14-e000",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s14-55766245754.service/executions/s14-e001",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s14-55766245754.service/executions/s14-e002",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s14-55766245754.service/executions/s14-e003",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s14-55766245754.service/runtime"
+  ],
+  "netns": [
+    {
+      "id": 3,
+      "name": "sg14-5754-4-003"
+    },
+    {
+      "id": 2,
+      "name": "sg14-5754-4-002"
+    },
+    {
+      "id": 1,
+      "name": "sg14-5754-4-001"
+    },
+    {
+      "id": 0,
+      "name": "sg14-5754-4-000"
+    }
+  ],
+  "interfaces": [
+    {
+      "address": "00:00:00:00:00:00",
+      "allmulti": 0,
+      "broadcast": "00:00:00:00:00:00",
+      "flags": [
+        "LOOPBACK",
+        "UP",
+        "LOWER_UP"
+      ],
+      "gro_max_size": 65536,
+      "group": "default",
+      "gso_max_segs": 65535,
+      "gso_max_size": 65536,
+      "ifindex": 1,
+      "ifname": "lo",
+      "inet6_addr_gen_mode": "eui64",
+      "link_type": "loopback",
+      "linkmode": "DEFAULT",
+      "max_mtu": 0,
+      "min_mtu": 0,
+      "mtu": 65536,
+      "num_rx_queues": 1,
+      "num_tx_queues": 1,
+      "operstate": "UNKNOWN",
+      "promiscuity": 0,
+      "qdisc": "noqueue",
+      "tso_max_segs": 65535,
+      "tso_max_size": 524280,
+      "txqlen": 1000
+    },
+    {
+      "address": "52:55:55:9f:db:38",
+      "allmulti": 0,
+      "broadcast": "ff:ff:ff:ff:ff:ff",
+      "flags": [
+        "BROADCAST",
+        "MULTICAST",
+        "UP",
+        "LOWER_UP"
+      ],
+      "gro_max_size": 65536,
+      "group": "default",
+      "gso_max_segs": 65535,
+      "gso_max_size": 65536,
+      "ifindex": 2,
+      "ifname": "eth0",
+      "inet6_addr_gen_mode": "eui64",
+      "link_type": "ether",
+      "linkmode": "DEFAULT",
+      "max_mtu": 1500,
+      "min_mtu": 68,
+      "mtu": 1500,
+      "num_rx_queues": 1,
+      "num_tx_queues": 1,
+      "operstate": "UP",
+      "parentbus": "virtio",
+      "parentdev": "virtio0",
+      "promiscuity": 0,
+      "qdisc": "fq_codel",
+      "tso_max_segs": 65535,
+      "tso_max_size": 65536,
+      "txqlen": 1000
+    },
+    {
+      "address": "66:ae:18:56:87:24",
+      "allmulti": 0,
+      "broadcast": "ff:ff:ff:ff:ff:ff",
+      "flags": [
+        "BROADCAST",
+        "NOARP",
+        "UP",
+        "LOWER_UP"
+      ],
+      "gro_max_size": 65536,
+      "group": "default",
+      "gso_max_segs": 65535,
+      "gso_max_size": 65536,
+      "ifindex": 42,
+      "ifname": "s14p5754",
+      "inet6_addr_gen_mode": "eui64",
+      "link_type": "ether",
+      "linkinfo": {
+        "info_kind": "dummy"
+      },
+      "linkmode": "DEFAULT",
+      "max_mtu": 0,
+      "min_mtu": 0,
+      "mtu": 1500,
+      "num_rx_queues": 1,
+      "num_tx_queues": 1,
+      "operstate": "UNKNOWN",
+      "promiscuity": 0,
+      "qdisc": "noqueue",
+      "tso_max_segs": 65535,
+      "tso_max_size": 65536,
+      "txqlen": 1000
+    },
+    {
+      "address": "0e:19:7a:54:1b:8b",
+      "allmulti": 0,
+      "broadcast": "ff:ff:ff:ff:ff:ff",
+      "flags": [
+        "BROADCAST",
+        "MULTICAST",
+        "UP",
+        "LOWER_UP"
+      ],
+      "gro_max_size": 65536,
+      "group": "default",
+      "gso_max_segs": 65535,
+      "gso_max_size": 65536,
+      "ifindex": 43,
+      "ifname": "s145754h000",
+      "inet6_addr_gen_mode": "eui64",
+      "link_index": 2,
+      "link_netnsid": 0,
+      "link_type": "ether",
+      "linkinfo": {
+        "info_kind": "veth"
+      },
+      "linkmode": "DEFAULT",
+      "max_mtu": 65535,
+      "min_mtu": 68,
+      "mtu": 1500,
+      "num_rx_queues": 4,
+      "num_tx_queues": 4,
+      "operstate": "UP",
+      "promiscuity": 0,
+      "qdisc": "noqueue",
+      "tso_max_segs": 65535,
+      "tso_max_size": 524280,
+      "txqlen": 1000
+    },
+    {
+      "address": "d2:7f:e0:4e:20:9b",
+      "allmulti": 0,
+      "broadcast": "ff:ff:ff:ff:ff:ff",
+      "flags": [
+        "BROADCAST",
+        "MULTICAST",
+        "UP",
+        "LOWER_UP"
+      ],
+      "gro_max_size": 65536,
+      "group": "default",
+      "gso_max_segs": 65535,
+      "gso_max_size": 65536,
+      "ifindex": 44,
+      "ifname": "s145754h001",
+      "inet6_addr_gen_mode": "eui64",
+      "link_index": 2,
+      "link_netnsid": 1,
+      "link_type": "ether",
+      "linkinfo": {
+        "info_kind": "veth"
+      },
+      "linkmode": "DEFAULT",
+      "max_mtu": 65535,
+      "min_mtu": 68,
+      "mtu": 1500,
+      "num_rx_queues": 4,
+      "num_tx_queues": 4,
+      "operstate": "UP",
+      "promiscuity": 0,
+      "qdisc": "noqueue",
+      "tso_max_segs": 65535,
+      "tso_max_size": 524280,
+      "txqlen": 1000
+    },
+    {
+      "address": "06:5e:69:d1:79:ad",
+      "allmulti": 0,
+      "broadcast": "ff:ff:ff:ff:ff:ff",
+      "flags": [
+        "BROADCAST",
+        "MULTICAST",
+        "UP",
+        "LOWER_UP"
+      ],
+      "gro_max_size": 65536,
+      "group": "default",
+      "gso_max_segs": 65535,
+      "gso_max_size": 65536,
+      "ifindex": 45,
+      "ifname": "s145754h002",
+      "inet6_addr_gen_mode": "eui64",
+      "link_index": 2,
+      "link_netnsid": 2,
+      "link_type": "ether",
+      "linkinfo": {
+        "info_kind": "veth"
+      },
+      "linkmode": "DEFAULT",
+      "max_mtu": 65535,
+      "min_mtu": 68,
+      "mtu": 1500,
+      "num_rx_queues": 4,
+      "num_tx_queues": 4,
+      "operstate": "UP",
+      "promiscuity": 0,
+      "qdisc": "noqueue",
+      "tso_max_segs": 65535,
+      "tso_max_size": 524280,
+      "txqlen": 1000
+    },
+    {
+      "address": "4e:50:c1:4e:b9:09",
+      "allmulti": 0,
+      "broadcast": "ff:ff:ff:ff:ff:ff",
+      "flags": [
+        "BROADCAST",
+        "MULTICAST",
+        "UP",
+        "LOWER_UP"
+      ],
+      "gro_max_size": 65536,
+      "group": "default",
+      "gso_max_segs": 65535,
+      "gso_max_size": 65536,
+      "ifindex": 46,
+      "ifname": "s145754h003",
+      "inet6_addr_gen_mode": "eui64",
+      "link_index": 2,
+      "link_netnsid": 3,
+      "link_type": "ether",
+      "linkinfo": {
+        "info_kind": "veth"
+      },
+      "linkmode": "DEFAULT",
+      "max_mtu": 65535,
+      "min_mtu": 68,
+      "mtu": 1500,
+      "num_rx_queues": 4,
+      "num_tx_queues": 4,
+      "operstate": "UP",
+      "promiscuity": 0,
+      "qdisc": "noqueue",
+      "tso_max_segs": 65535,
+      "tso_max_size": 524280,
+      "txqlen": 1000
+    }
+  ],
+  "nft": {
+    "nftables": [
+      {
+        "metainfo": {
+          "json_schema_version": 1,
+          "release_name": "Old Doc Yak #3",
+          "version": "1.0.9"
+        }
+      },
+      {
+        "table": {
+          "family": "ip",
+          "handle": 1,
+          "name": "nat"
+        }
+      },
+      {
+        "chain": {
+          "family": "ip",
+          "handle": 1,
+          "name": "LIMADNS",
+          "table": "nat"
+        }
+      },
+      {
+        "chain": {
+          "family": "ip",
+          "handle": 2,
+          "hook": "prerouting",
+          "name": "PREROUTING",
+          "policy": "accept",
+          "prio": -100,
+          "table": "nat",
+          "type": "nat"
+        }
+      },
+      {
+        "chain": {
+          "family": "ip",
+          "handle": 4,
+          "hook": "output",
+          "name": "OUTPUT",
+          "policy": "accept",
+          "prio": -100,
+          "table": "nat",
+          "type": "nat"
+        }
+      },
+      {
+        "rule": {
+          "chain": "PREROUTING",
+          "expr": [
+            {
+              "counter": {
+                "bytes": 13413,
+                "packets": 224
+              }
+            },
+            {
+              "jump": {
+                "target": "LIMADNS"
+              }
+            }
+          ],
+          "family": "ip",
+          "handle": 3,
+          "table": "nat"
+        }
+      },
+      {
+        "rule": {
+          "chain": "OUTPUT",
+          "expr": [
+            {
+              "counter": {
+                "bytes": 3144,
+                "packets": 48
+              }
+            },
+            {
+              "jump": {
+                "target": "LIMADNS"
+              }
+            }
+          ],
+          "family": "ip",
+          "handle": 5,
+          "table": "nat"
+        }
+      }
+    ]
+  },
+  "owned_processes": [
+    "13532 /var/tmp/soglia-spike-2/bin/soglia-spike-runner _delegation-helper --ready /run/soglia-spike-runner/replay-1790525576624-5754/s14/delegation.json ",
+    "13869 /var/tmp/soglia-spike-2/bin/s14-loader /var/tmp/soglia-spike-2/bpf/soglia.o /sys/fs/cgroup/system.slice/soglia-spike-s14-55766245754.service/executions /sys/fs/bpf/soglia-spike-runner/replay-1790525576624-5754/s14/n004/maps /sys/fs/bpf/soglia-spike-runner/replay-1790525576624-5754/s14/n004/links 4 /run/soglia-spike-runner/replay-1790525576624-5754/s14/n004/loader-ready.json /run/soglia-spike-runner/replay-1790525576624-5754/s14/n004/loader-finish /run/soglia-spike-runner/replay-1790525576624-5754/s14/n004/loader-done.json /run/soglia-spike-runner/replay-1790525576624-5754/s14/n004/loader-failure.json "
+  ],
+  "meminfo": {
+    "Active": 424708,
+    "Active(anon)": 138020,
+    "Active(file)": 286688,
+    "AnonHugePages": 0,
+    "AnonPages": 155728,
+    "Bounce": 0,
+    "Buffers": 55964,
+    "Cached": 3087468,
+    "CmaFree": 29696,
+    "CmaTotal": 32768,
+    "CommitLimit": 4056204,
+    "Committed_AS": 557520,
+    "Dirty": 248,
+    "FileHugePages": 0,
+    "FilePmdMapped": 0,
+    "HardwareCorrupted": 0,
+    "HugePages_Free": 0,
+    "HugePages_Rsvd": 0,
+    "HugePages_Surp": 0,
+    "HugePages_Total": 0,
+    "Hugepagesize": 2048,
+    "Hugetlb": 0,
+    "Inactive": 2848232,
+    "Inactive(anon)": 0,
+    "Inactive(file)": 2848232,
+    "KReclaimable": 183592,
+    "KernelStack": 2848,
+    "Mapped": 73536,
+    "MemAvailable": 7550732,
+    "MemFree": 4435468,
+    "MemTotal": 8112408,
+    "Mlocked": 26220,
+    "NFS_Unstable": 0,
+    "PageTables": 3392,
+    "Percpu": 1904,
+    "SReclaimable": 183592,
+    "SUnreclaim": 76968,
+    "SecPageTables": 0,
+    "ShadowCallStack": 732,
+    "Shmem": 1076,
+    "ShmemHugePages": 0,
+    "ShmemPmdMapped": 0,
+    "Slab": 260560,
+    "SwapCached": 0,
+    "SwapFree": 0,
+    "SwapTotal": 0,
+    "Unevictable": 26220,
+    "VmallocChunk": 0,
+    "VmallocTotal": 133141626880,
+    "VmallocUsed": 13140,
+    "Writeback": 0,
+    "WritebackTmp": 0,
+    "Zswap": 0,
+    "Zswapped": 0
+  },
+  "limits": "Limit                     Soft Limit           Hard Limit           Units     \nMax cpu time              unlimited            unlimited            seconds   \nMax file size             unlimited            unlimited            bytes     \nMax data size             unlimited            unlimited            bytes     \nMax stack size            8388608              unlimited            bytes     \nMax core file size        0                    0                    bytes     \nMax resident set          unlimited            unlimited            bytes     \nMax processes             31401                31401                processes \nMax open files            1024                 1048576              files     \nMax locked memory         1038385152           1038385152           bytes     \nMax address space         unlimited            unlimited            bytes     \nMax file locks            unlimited            unlimited            locks     \nMax pending signals       31401                31401                signals   \nMax msgqueue size         819200               819200               bytes     \nMax nice priority         0                    0                    \nMax realtime priority     0                    0                    \nMax realtime timeout      unlimited            unlimited            us        \n"
+}

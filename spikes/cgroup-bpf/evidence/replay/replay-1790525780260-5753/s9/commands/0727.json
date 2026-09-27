@@ -1,0 +1,21 @@
+{
+  "sequence": 727,
+  "executable": "bpftool",
+  "argv": [
+    "-j",
+    "map",
+    "dump",
+    "pinned",
+    "/sys/fs/bpf/soglia-spike-runner/replay-1790525780260-5753/s9/maps/soglia_tuples"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525827602,
+  "monotonic_start_ns": 47340349115,
+  "duration_ms": 21,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s9/commands/0727.stdout",
+  "stderr_file": "s9/commands/0727.stderr"
+}

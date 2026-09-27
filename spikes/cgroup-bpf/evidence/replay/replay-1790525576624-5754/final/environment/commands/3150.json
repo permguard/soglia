@@ -1,0 +1,23 @@
+{
+  "sequence": 3150,
+  "executable": "/usr/bin/env",
+  "argv": [
+    "sh",
+    "-c",
+    "command -v \"$1\"",
+    "sh",
+    "systemctl"
+  ],
+  "working_directory": "/",
+  "selected_environment": {
+    "LC_ALL": "C"
+  },
+  "wall_start_unix_ms": 1790525696350,
+  "monotonic_start_ns": 119724141146,
+  "duration_ms": 23,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "final/environment/commands/3150.stdout",
+  "stderr_file": "final/environment/commands/3150.stderr"
+}

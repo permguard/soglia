@@ -1,0 +1,21 @@
+{
+  "sequence": 1876,
+  "executable": "ip",
+  "argv": [
+    "link",
+    "add",
+    "s14p5753",
+    "type",
+    "dummy"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525864440,
+  "monotonic_start_ns": 84178304733,
+  "duration_ms": 23,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s14/commands/1876.stdout",
+  "stderr_file": "s14/commands/1876.stderr"
+}

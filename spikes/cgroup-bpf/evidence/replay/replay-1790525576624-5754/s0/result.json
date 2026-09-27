@@ -1,0 +1,10 @@
+{
+  "test": "s0",
+  "authoritative": true,
+  "verdict": "PASS",
+  "invariant": "required cgroup/BPF environment, six link attaches, ancestor composition and zero owned residue",
+  "detail": "invariant and cleanup proven",
+  "cleanup": "PASS",
+  "started_unix_ms": 1790525584301,
+  "duration_ms": 1370
+}

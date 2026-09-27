@@ -1,0 +1,2 @@
+{"cmd":"barrier /run/soglia-spike-runner/replay-1790525576624-5754/s14/n016/e000.agent-ready /run/soglia-spike-runner/replay-1790525576624-5754/s14/n016/e000.go 30","ok":true,"detail":"released pid=14723"}
+{"cmd":"proxy-fixed","ok":true,"detail":"ATTRIBUTED s14-n16-execution-000-generation-1","i":0,"source_port":40000,"local":"10.202.0.1:40000"}

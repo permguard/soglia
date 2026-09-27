@@ -1,0 +1,30 @@
+{
+  "generation": 3,
+  "execution_id": "s3-execution-generation-3",
+  "candidate_c_identity": 3001003,
+  "target_inode": 9840,
+  "netns_cookie": 4099,
+  "source_port": 34808,
+  "proxy_peer": "10.201.0.1:34808",
+  "resolved_execution": "s3-execution-generation-3",
+  "tuple_evidence": [
+    4204,
+    9840,
+    9840,
+    3001003,
+    4099,
+    86513724962,
+    9840,
+    2570715136
+  ],
+  "live_membership_proven": true,
+  "direct_attachment_count": 6,
+  "effective_attachment_count": 6,
+  "application_line_after_resolve": "HELLO 0",
+  "close_mode": "SIGKILL",
+  "agent_exit_code": null,
+  "agent_signal": 9,
+  "cookie_state_empty_before": true,
+  "tuple_state_empty_before": true,
+  "phase_cleanup_proven": true
+}

@@ -1,0 +1,34 @@
+{"cmd":"barrier /run/soglia-spike-s2-e0-agent.ready /run/soglia-spike-s2-e0-agent.go 30","ok":true,"detail":"released pid=6769"}
+{"cmd":"proxy-fixed","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)","i":32,"source_port":40032,"local":""}
+{"cmd":"proxy-fixed","ok":true,"detail":"ATTRIBUTED s2-execution-e0-generation-1","i":0,"source_port":40000,"local":"10.201.0.1:40000"}
+{"cmd":"proxy-fixed","ok":true,"detail":"ATTRIBUTED s2-execution-e0-generation-1","i":1,"source_port":40001,"local":"10.201.0.1:40001"}
+{"cmd":"proxy-fixed","ok":true,"detail":"ATTRIBUTED s2-execution-e0-generation-1","i":2,"source_port":40002,"local":"10.201.0.1:40002"}
+{"cmd":"proxy-fixed","ok":true,"detail":"ATTRIBUTED s2-execution-e0-generation-1","i":4,"source_port":40004,"local":"10.201.0.1:40004"}
+{"cmd":"proxy-fixed","ok":true,"detail":"ATTRIBUTED s2-execution-e0-generation-1","i":6,"source_port":40006,"local":"10.201.0.1:40006"}
+{"cmd":"proxy-fixed","ok":true,"detail":"ATTRIBUTED s2-execution-e0-generation-1","i":3,"source_port":40003,"local":"10.201.0.1:40003"}
+{"cmd":"proxy-fixed","ok":true,"detail":"ATTRIBUTED s2-execution-e0-generation-1","i":5,"source_port":40005,"local":"10.201.0.1:40005"}
+{"cmd":"proxy-fixed","ok":true,"detail":"ATTRIBUTED s2-execution-e0-generation-1","i":9,"source_port":40009,"local":"10.201.0.1:40009"}
+{"cmd":"proxy-fixed","ok":true,"detail":"ATTRIBUTED s2-execution-e0-generation-1","i":8,"source_port":40008,"local":"10.201.0.1:40008"}
+{"cmd":"proxy-fixed","ok":true,"detail":"ATTRIBUTED s2-execution-e0-generation-1","i":7,"source_port":40007,"local":"10.201.0.1:40007"}
+{"cmd":"proxy-fixed","ok":true,"detail":"ATTRIBUTED s2-execution-e0-generation-1","i":10,"source_port":40010,"local":"10.201.0.1:40010"}
+{"cmd":"proxy-fixed","ok":true,"detail":"ATTRIBUTED s2-execution-e0-generation-1","i":12,"source_port":40012,"local":"10.201.0.1:40012"}
+{"cmd":"proxy-fixed","ok":true,"detail":"ATTRIBUTED s2-execution-e0-generation-1","i":11,"source_port":40011,"local":"10.201.0.1:40011"}
+{"cmd":"proxy-fixed","ok":true,"detail":"ATTRIBUTED s2-execution-e0-generation-1","i":13,"source_port":40013,"local":"10.201.0.1:40013"}
+{"cmd":"proxy-fixed","ok":true,"detail":"ATTRIBUTED s2-execution-e0-generation-1","i":15,"source_port":40015,"local":"10.201.0.1:40015"}
+{"cmd":"proxy-fixed","ok":true,"detail":"ATTRIBUTED s2-execution-e0-generation-1","i":17,"source_port":40017,"local":"10.201.0.1:40017"}
+{"cmd":"proxy-fixed","ok":true,"detail":"ATTRIBUTED s2-execution-e0-generation-1","i":19,"source_port":40019,"local":"10.201.0.1:40019"}
+{"cmd":"proxy-fixed","ok":true,"detail":"ATTRIBUTED s2-execution-e0-generation-1","i":21,"source_port":40021,"local":"10.201.0.1:40021"}
+{"cmd":"proxy-fixed","ok":true,"detail":"ATTRIBUTED s2-execution-e0-generation-1","i":22,"source_port":40022,"local":"10.201.0.1:40022"}
+{"cmd":"proxy-fixed","ok":true,"detail":"ATTRIBUTED s2-execution-e0-generation-1","i":23,"source_port":40023,"local":"10.201.0.1:40023"}
+{"cmd":"proxy-fixed","ok":true,"detail":"ATTRIBUTED s2-execution-e0-generation-1","i":26,"source_port":40026,"local":"10.201.0.1:40026"}
+{"cmd":"proxy-fixed","ok":true,"detail":"ATTRIBUTED s2-execution-e0-generation-1","i":14,"source_port":40014,"local":"10.201.0.1:40014"}
+{"cmd":"proxy-fixed","ok":true,"detail":"ATTRIBUTED s2-execution-e0-generation-1","i":28,"source_port":40028,"local":"10.201.0.1:40028"}
+{"cmd":"proxy-fixed","ok":true,"detail":"ATTRIBUTED s2-execution-e0-generation-1","i":25,"source_port":40025,"local":"10.201.0.1:40025"}
+{"cmd":"proxy-fixed","ok":true,"detail":"ATTRIBUTED s2-execution-e0-generation-1","i":29,"source_port":40029,"local":"10.201.0.1:40029"}
+{"cmd":"proxy-fixed","ok":true,"detail":"ATTRIBUTED s2-execution-e0-generation-1","i":18,"source_port":40018,"local":"10.201.0.1:40018"}
+{"cmd":"proxy-fixed","ok":true,"detail":"ATTRIBUTED s2-execution-e0-generation-1","i":27,"source_port":40027,"local":"10.201.0.1:40027"}
+{"cmd":"proxy-fixed","ok":true,"detail":"ATTRIBUTED s2-execution-e0-generation-1","i":16,"source_port":40016,"local":"10.201.0.1:40016"}
+{"cmd":"proxy-fixed","ok":true,"detail":"ATTRIBUTED s2-execution-e0-generation-1","i":24,"source_port":40024,"local":"10.201.0.1:40024"}
+{"cmd":"proxy-fixed","ok":true,"detail":"ATTRIBUTED s2-execution-e0-generation-1","i":30,"source_port":40030,"local":"10.201.0.1:40030"}
+{"cmd":"proxy-fixed","ok":true,"detail":"ATTRIBUTED s2-execution-e0-generation-1","i":31,"source_port":40031,"local":"10.201.0.1:40031"}
+{"cmd":"proxy-fixed","ok":true,"detail":"ATTRIBUTED s2-execution-e0-generation-1","i":20,"source_port":40020,"local":"10.201.0.1:40020"}

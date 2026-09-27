@@ -1,0 +1,21 @@
+{
+  "sequence": 368,
+  "executable": "ip",
+  "argv": [
+    "addr",
+    "add",
+    "10.200.255.1/32",
+    "dev",
+    "s3p5576624"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525597822,
+  "monotonic_start_ns": 21195804864,
+  "duration_ms": 22,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s3/generation-3/commands/0368.stdout",
+  "stderr_file": "s3/generation-3/commands/0368.stderr"
+}

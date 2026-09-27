@@ -1,0 +1,21 @@
+{
+  "sequence": 667,
+  "executable": "nft",
+  "argv": [
+    "--handle",
+    "list",
+    "table",
+    "inet",
+    "soglia_host"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525823810,
+  "monotonic_start_ns": 43547879205,
+  "duration_ms": 21,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s8/commands/0667.stdout",
+  "stderr_file": "s8/commands/0667.stderr"
+}

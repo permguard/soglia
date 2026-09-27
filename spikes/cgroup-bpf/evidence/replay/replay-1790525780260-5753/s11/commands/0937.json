@@ -1,0 +1,18 @@
+{
+  "sequence": 937,
+  "executable": "ip",
+  "argv": [
+    "netns",
+    "list"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525836718,
+  "monotonic_start_ns": 56455859510,
+  "duration_ms": 23,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s11/commands/0937.stdout",
+  "stderr_file": "s11/commands/0937.stderr"
+}

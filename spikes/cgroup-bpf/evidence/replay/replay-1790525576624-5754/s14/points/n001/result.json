@@ -1,0 +1,148 @@
+{
+  "requested": 1,
+  "status": "PASS",
+  "complete_instances": 1,
+  "loader": {
+    "count": 1,
+    "preparation_ns": 10938222,
+    "totals": {
+      "object_load_ns": 560863,
+      "policy_setup_ns": 833,
+      "program_load_ns": 466753,
+      "attach_ns": 91609,
+      "pin_ns": 12997
+    },
+    "instances": [
+      {
+        "index": 0,
+        "ident": 14001000,
+        "cgroup": "/sys/fs/cgroup/system.slice/soglia-spike-s14-55766245754.service/executions/s14-e000",
+        "fd_before": 4,
+        "fd_after": 27,
+        "timings": {
+          "object_load_ns": 560863,
+          "policy_setup_ns": 833,
+          "program_load_ns": 466753,
+          "attach_ns": 91609,
+          "pin_ns": 12997
+        }
+      }
+    ]
+  },
+  "limit": null,
+  "resources": {
+    "programs": 6,
+    "links": 6,
+    "maps": 10,
+    "pins": 14,
+    "program_ids": [
+      903,
+      904,
+      905,
+      906,
+      907,
+      908
+    ],
+    "link_ids": [
+      270,
+      271,
+      272,
+      273,
+      274,
+      275
+    ],
+    "map_ids": [
+      612,
+      613,
+      614,
+      615,
+      616,
+      617,
+      618,
+      619,
+      620,
+      621
+    ],
+    "program_bytes_xlated": 5736,
+    "program_bytes_jited": 4728,
+    "program_bytes_memlock": 24576,
+    "map_bytes_memlock": 1176080,
+    "map_names": {
+      ".rodata": 1,
+      "policy_local": 1,
+      "soglia_cookie_a": 1,
+      "soglia_counters": 1,
+      "soglia_denies": 1,
+      "soglia_events": 1,
+      "soglia_meta": 1,
+      "soglia_policy": 1,
+      "soglia_sk_b": 1,
+      "soglia_tuples": 1
+    },
+    "program_names": {
+      "soglia_connect4": 1,
+      "soglia_connect6": 1,
+      "soglia_sendmsg4": 1,
+      "soglia_sendmsg6": 1,
+      "soglia_sock_create": 1,
+      "soglia_sockops": 1
+    }
+  },
+  "memberships": [
+    {
+      "index": 0,
+      "trusted_pid": 13664,
+      "host_pid": 13664,
+      "agent_pid": 13664,
+      "cgroup": "/sys/fs/cgroup/system.slice/soglia-spike-s14-55766245754.service/executions/s14-e000",
+      "cgroup_inode": 18973,
+      "proc_cgroup": "0::/system.slice/soglia-spike-s14-55766245754.service/executions/s14-e000",
+      "cgroup_procs": "13664",
+      "process_netns_inode": 4026532347,
+      "owned_netns_inode": 4026532347,
+      "proven": true
+    }
+  ],
+  "attributions": [
+    {
+      "origin_index": 0,
+      "execution_id": "s14-n1-execution-000-generation-1",
+      "expected_ident": 14001000,
+      "accepted_peer": "10.202.0.1:40000",
+      "accepted_local": "10.200.255.1:15001",
+      "tuple_key_hex": "0aca00010ac8ff01409c0000993a0000",
+      "tuple_evidence": [
+        4227,
+        18973,
+        18973,
+        14001000,
+        4101,
+        139259835266,
+        18973,
+        2570715136
+      ],
+      "resolved_index": 0,
+      "application_bytes_before_resolve": 0,
+      "dns_before_resolve": 0,
+      "outbound_before_resolve": 0,
+      "ip_fallback_authorization": false,
+      "resolve_latency_ns": 2666,
+      "application_line_after_resolve": "HELLO 0",
+      "agent_exit_code": 0,
+      "agent_signal": null,
+      "correct": true
+    }
+  ],
+  "direct_and_effective_six": true,
+  "teardown_ns": 154186749,
+  "cleanup_equal": true,
+  "cleanup": {
+    "cgroups_absent": true,
+    "clean": true,
+    "count": 1,
+    "netns_absent": true,
+    "pin_root_absent": true,
+    "proxy_absent": true,
+    "veths_absent": true
+  }
+}

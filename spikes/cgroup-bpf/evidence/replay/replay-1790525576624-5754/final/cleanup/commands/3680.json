@@ -1,0 +1,21 @@
+{
+  "sequence": 3680,
+  "executable": "ip",
+  "argv": [
+    "-j",
+    "link",
+    "show",
+    "dev",
+    "s145754h015"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525710603,
+  "monotonic_start_ns": 133977364523,
+  "duration_ms": 23,
+  "exit_code": 1,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "final/cleanup/commands/3680.stdout",
+  "stderr_file": "final/cleanup/commands/3680.stderr"
+}

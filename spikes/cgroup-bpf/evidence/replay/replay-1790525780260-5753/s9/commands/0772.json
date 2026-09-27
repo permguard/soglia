@@ -1,0 +1,20 @@
+{
+  "sequence": 772,
+  "executable": "ip",
+  "argv": [
+    "link",
+    "show",
+    "dev",
+    "s9h5780260"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525828974,
+  "monotonic_start_ns": 48711710645,
+  "duration_ms": 23,
+  "exit_code": 1,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s9/commands/0772.stdout",
+  "stderr_file": "s9/commands/0772.stderr"
+}

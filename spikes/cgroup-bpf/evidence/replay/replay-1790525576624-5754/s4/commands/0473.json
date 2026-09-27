@@ -1,0 +1,20 @@
+{
+  "sequence": 473,
+  "executable": "nft",
+  "argv": [
+    "list",
+    "table",
+    "inet",
+    "sg_s4_55766245"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525602266,
+  "monotonic_start_ns": 25640573999,
+  "duration_ms": 22,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s4/commands/0473.stdout",
+  "stderr_file": "s4/commands/0473.stderr"
+}

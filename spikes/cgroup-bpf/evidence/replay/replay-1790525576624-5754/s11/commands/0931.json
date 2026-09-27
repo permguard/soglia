@@ -1,0 +1,19 @@
+{
+  "sequence": 931,
+  "executable": "runc",
+  "argv": [
+    "list",
+    "--format",
+    "json"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525633327,
+  "monotonic_start_ns": 56701111445,
+  "duration_ms": 23,
+  "exit_code": 1,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s11/commands/0931.stdout",
+  "stderr_file": "s11/commands/0931.stderr"
+}

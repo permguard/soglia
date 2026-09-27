@@ -1,0 +1,20 @@
+{
+  "sequence": 1008,
+  "executable": "ip",
+  "argv": [
+    "link",
+    "show",
+    "dev",
+    "s12h5780260"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525840808,
+  "monotonic_start_ns": 60546173470,
+  "duration_ms": 22,
+  "exit_code": 1,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s12/commands/1008.stdout",
+  "stderr_file": "s12/commands/1008.stderr"
+}

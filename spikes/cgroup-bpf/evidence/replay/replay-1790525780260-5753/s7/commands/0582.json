@@ -1,0 +1,20 @@
+{
+  "sequence": 582,
+  "executable": "nft",
+  "argv": [
+    "list",
+    "table",
+    "inet",
+    "sg_s7_57802605"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525813363,
+  "monotonic_start_ns": 33100744992,
+  "duration_ms": 21,
+  "exit_code": 1,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s7/commands/0582.stdout",
+  "stderr_file": "s7/commands/0582.stderr"
+}

@@ -1,0 +1,51 @@
+{
+  "bpf_inventory_assessment": {
+    "classification": "EXTERNAL_CHURN",
+    "clean": true,
+    "detail": "EXTERNAL_CHURN: systemd sd_* program IDs changed [338, 339, 340, 341, 342, 343, 344, 345, 346, 347, 348, 349] -> [356, 357, 358, 359, 360, 361, 362, 363, 364, 365, 366, 367]; the complete stable sd_* object multiset excluding IDs, all non-systemd programs, links and maps are unchanged; all registered test-owned objects are absent",
+    "links_identical": true,
+    "maps_identical": true,
+    "owned_objects_present": [],
+    "systemd_program_ids_after": [
+      356,
+      357,
+      358,
+      359,
+      360,
+      361,
+      362,
+      363,
+      364,
+      365,
+      366,
+      367
+    ],
+    "systemd_program_ids_before": [
+      338,
+      339,
+      340,
+      341,
+      342,
+      343,
+      344,
+      345,
+      346,
+      347,
+      348,
+      349
+    ]
+  },
+  "bpf_inventory_classification": "EXTERNAL_CHURN",
+  "bpf_inventory_restored": true,
+  "clean": true,
+  "delegated_root_absent": true,
+  "executions_absent": true,
+  "host_veth_absent": true,
+  "netns_absent": true,
+  "nft_table_absent": true,
+  "pin_root_absent": true,
+  "proxy_link_absent": true,
+  "runtime_root_absent": true,
+  "target_absent": true,
+  "unit_state": "LoadState=not-found\nActiveState=inactive\n"
+}

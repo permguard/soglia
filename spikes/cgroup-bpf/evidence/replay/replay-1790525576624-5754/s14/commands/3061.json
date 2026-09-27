@@ -1,0 +1,19 @@
+{
+  "sequence": 3061,
+  "executable": "ip",
+  "argv": [
+    "link",
+    "del",
+    "s14p5754"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525693854,
+  "monotonic_start_ns": 117228555401,
+  "duration_ms": 22,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s14/commands/3061.stdout",
+  "stderr_file": "s14/commands/3061.stderr"
+}

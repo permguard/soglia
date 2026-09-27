@@ -1,0 +1,20 @@
+{
+  "sequence": 948,
+  "executable": "ip",
+  "argv": [
+    "link",
+    "set",
+    "s12h5780260",
+    "up"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525837028,
+  "monotonic_start_ns": 56765870991,
+  "duration_ms": 23,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s12/commands/0948.stdout",
+  "stderr_file": "s12/commands/0948.stderr"
+}

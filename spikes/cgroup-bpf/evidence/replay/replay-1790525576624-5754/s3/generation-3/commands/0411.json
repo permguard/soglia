@@ -1,0 +1,20 @@
+{
+  "sequence": 411,
+  "executable": "ip",
+  "argv": [
+    "link",
+    "show",
+    "dev",
+    "s3h5576624"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525598990,
+  "monotonic_start_ns": 22363920529,
+  "duration_ms": 23,
+  "exit_code": 1,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s3/generation-3/commands/0411.stdout",
+  "stderr_file": "s3/generation-3/commands/0411.stderr"
+}

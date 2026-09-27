@@ -1,0 +1,10 @@
+{
+  "test": "s2",
+  "authoritative": true,
+  "verdict": "PASS",
+  "invariant": "four live Executions and 132 sockets have zero cross-attribution; missing publication remains fail closed",
+  "detail": "invariant and cleanup proven",
+  "cleanup": "PASS",
+  "started_unix_ms": 1790525793606,
+  "duration_ms": 4422
+}

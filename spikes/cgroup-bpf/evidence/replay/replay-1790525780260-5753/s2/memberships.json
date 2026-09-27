@@ -1,0 +1,58 @@
+[
+  {
+    "index": 0,
+    "execution_id": "s2-execution-e0-generation-1",
+    "cgroup": "/sys/fs/cgroup/system.slice/soglia-spike-s2-57802605753.service/executions/s2-e0",
+    "cgroup_inode": 7824,
+    "agent_pid": 6767,
+    "netns": "soglia-s2-e0",
+    "netns_inode": 4026532347,
+    "ip": "10.201.0.1",
+    "expected_ident": 2001001,
+    "proc_cgroup": "0::/system.slice/soglia-spike-s2-57802605753.service/executions/s2-e0\n",
+    "cgroup_procs": "6767\n",
+    "independently_proven": true
+  },
+  {
+    "index": 1,
+    "execution_id": "s2-execution-e1-generation-1",
+    "cgroup": "/sys/fs/cgroup/system.slice/soglia-spike-s2-57802605753.service/executions/s2-e1",
+    "cgroup_inode": 7866,
+    "agent_pid": 6770,
+    "netns": "soglia-s2-e1",
+    "netns_inode": 4026532418,
+    "ip": "10.201.0.5",
+    "expected_ident": 2001002,
+    "proc_cgroup": "0::/system.slice/soglia-spike-s2-57802605753.service/executions/s2-e1\n",
+    "cgroup_procs": "6770\n",
+    "independently_proven": true
+  },
+  {
+    "index": 2,
+    "execution_id": "s2-execution-e2-generation-1",
+    "cgroup": "/sys/fs/cgroup/system.slice/soglia-spike-s2-57802605753.service/executions/s2-e2",
+    "cgroup_inode": 7908,
+    "agent_pid": 6773,
+    "netns": "soglia-s2-e2",
+    "netns_inode": 4026532479,
+    "ip": "10.201.0.9",
+    "expected_ident": 2001003,
+    "proc_cgroup": "0::/system.slice/soglia-spike-s2-57802605753.service/executions/s2-e2\n",
+    "cgroup_procs": "6773\n",
+    "independently_proven": true
+  },
+  {
+    "index": 3,
+    "execution_id": "s2-execution-e3-generation-1",
+    "cgroup": "/sys/fs/cgroup/system.slice/soglia-spike-s2-57802605753.service/executions/s2-e3",
+    "cgroup_inode": 7950,
+    "agent_pid": 6776,
+    "netns": "soglia-s2-e3",
+    "netns_inode": 4026532540,
+    "ip": "10.201.0.13",
+    "expected_ident": 2001004,
+    "proc_cgroup": "0::/system.slice/soglia-spike-s2-57802605753.service/executions/s2-e3\n",
+    "cgroup_procs": "6776\n",
+    "independently_proven": true
+  }
+]

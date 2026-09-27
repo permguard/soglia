@@ -1,0 +1,20 @@
+{
+  "sequence": 528,
+  "executable": "ip",
+  "argv": [
+    "link",
+    "show",
+    "dev",
+    "s5h5576624"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525608610,
+  "monotonic_start_ns": 31984038695,
+  "duration_ms": 22,
+  "exit_code": 1,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s5/commands/0528.stdout",
+  "stderr_file": "s5/commands/0528.stderr"
+}

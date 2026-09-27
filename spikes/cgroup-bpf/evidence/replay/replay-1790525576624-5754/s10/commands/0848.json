@@ -1,0 +1,20 @@
+{
+  "sequence": 848,
+  "executable": "ip",
+  "argv": [
+    "link",
+    "show",
+    "dev",
+    "s10h5576624"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525630952,
+  "monotonic_start_ns": 54326136445,
+  "duration_ms": 22,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s10/commands/0848.stdout",
+  "stderr_file": "s10/commands/0848.stderr"
+}

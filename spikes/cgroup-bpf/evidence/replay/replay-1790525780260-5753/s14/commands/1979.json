@@ -1,0 +1,26 @@
+{
+  "sequence": 1979,
+  "executable": "ip",
+  "argv": [
+    "link",
+    "add",
+    "s145753h011",
+    "type",
+    "veth",
+    "peer",
+    "name",
+    "eth0",
+    "netns",
+    "sg14-5753-32-011"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525867310,
+  "monotonic_start_ns": 87048110016,
+  "duration_ms": 22,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s14/commands/1979.stdout",
+  "stderr_file": "s14/commands/1979.stderr"
+}

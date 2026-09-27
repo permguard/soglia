@@ -1,0 +1,18 @@
+{
+  "sequence": 301,
+  "executable": "systemctl",
+  "argv": [
+    "stop",
+    "soglia-spike-s3-57802605753.service"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525799149,
+  "monotonic_start_ns": 18886665206,
+  "duration_ms": 61,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s3/generation-1/commands/0301.stdout",
+  "stderr_file": "s3/generation-1/commands/0301.stderr"
+}

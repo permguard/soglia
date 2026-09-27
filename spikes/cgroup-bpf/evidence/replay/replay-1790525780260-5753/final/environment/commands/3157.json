@@ -1,0 +1,17 @@
+{
+  "sequence": 3157,
+  "executable": "runc",
+  "argv": [
+    "--version"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525900463,
+  "monotonic_start_ns": 120201171764,
+  "duration_ms": 24,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "final/environment/commands/3157.stdout",
+  "stderr_file": "final/environment/commands/3157.stderr"
+}

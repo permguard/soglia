@@ -1,0 +1,26 @@
+{
+  "sequence": 817,
+  "executable": "ip",
+  "argv": [
+    "netns",
+    "exec",
+    "sg-s10-55766245754",
+    "nft",
+    "-a",
+    "list",
+    "chain",
+    "inet",
+    "soglia",
+    "output"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525628549,
+  "monotonic_start_ns": 51923157853,
+  "duration_ms": 24,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s10/commands/0817.stdout",
+  "stderr_file": "s10/commands/0817.stderr"
+}

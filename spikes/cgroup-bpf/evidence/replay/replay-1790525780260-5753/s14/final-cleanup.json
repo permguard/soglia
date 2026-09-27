@@ -1,0 +1,10 @@
+{
+  "bpf_baseline_restored": true,
+  "bpffs_baseline_restored": true,
+  "clean": true,
+  "delegated_root_absent": true,
+  "executions_absent": true,
+  "owned_absent": true,
+  "pin_root_absent": true,
+  "runtime_absent": true
+}

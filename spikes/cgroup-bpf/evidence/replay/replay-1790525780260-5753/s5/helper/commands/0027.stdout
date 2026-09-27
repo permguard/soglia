@@ -1,0 +1,2 @@
+{"cmd":"barrier /run/soglia-spike-s5-connect6-omitted-control-agent.ready /run/soglia-spike-s5-connect6-omitted-control-agent.go 15","ok":true,"detail":"released pid=8251"}
+{"cmd":"tcp6 [fd00:201::2]:16002","ok":true,"detail":"connected"}

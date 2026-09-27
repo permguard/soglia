@@ -1,0 +1,17 @@
+{
+  "sequence": 3152,
+  "executable": "bpftool",
+  "argv": [
+    "version"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525696402,
+  "monotonic_start_ns": 119775813856,
+  "duration_ms": 23,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "final/environment/commands/3152.stdout",
+  "stderr_file": "final/environment/commands/3152.stderr"
+}

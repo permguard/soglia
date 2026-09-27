@@ -1,0 +1,19 @@
+{
+  "sequence": 2346,
+  "executable": "bpftool",
+  "argv": [
+    "-j",
+    "prog",
+    "show"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525673936,
+  "monotonic_start_ns": 97310508324,
+  "duration_ms": 21,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s14/commands/2346.stdout",
+  "stderr_file": "s14/commands/2346.stderr"
+}

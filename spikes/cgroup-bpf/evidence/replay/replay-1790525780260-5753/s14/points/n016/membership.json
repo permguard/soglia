@@ -1,0 +1,41 @@
+[
+  {
+    "index": 0,
+    "trusted_pid": 14717,
+    "host_pid": 14717,
+    "agent_pid": 14717,
+    "cgroup": "/sys/fs/cgroup/system.slice/soglia-spike-s14-57802605753.service/executions/s14-e000",
+    "cgroup_inode": 19522,
+    "proc_cgroup": "0::/system.slice/soglia-spike-s14-57802605753.service/executions/s14-e000",
+    "cgroup_procs": "14717",
+    "process_netns_inode": 4026532347,
+    "owned_netns_inode": 4026532347,
+    "proven": true
+  },
+  {
+    "index": 8,
+    "trusted_pid": 14720,
+    "host_pid": 14720,
+    "agent_pid": 14720,
+    "cgroup": "/sys/fs/cgroup/system.slice/soglia-spike-s14-57802605753.service/executions/s14-e008",
+    "cgroup_inode": 19858,
+    "proc_cgroup": "0::/system.slice/soglia-spike-s14-57802605753.service/executions/s14-e008",
+    "cgroup_procs": "14720",
+    "process_netns_inode": 4026532845,
+    "owned_netns_inode": 4026532845,
+    "proven": true
+  },
+  {
+    "index": 15,
+    "trusted_pid": 14723,
+    "host_pid": 14723,
+    "agent_pid": 14723,
+    "cgroup": "/sys/fs/cgroup/system.slice/soglia-spike-s14-57802605753.service/executions/s14-e015",
+    "cgroup_inode": 20152,
+    "proc_cgroup": "0::/system.slice/soglia-spike-s14-57802605753.service/executions/s14-e015",
+    "cgroup_procs": "14723",
+    "process_netns_inode": 4026533272,
+    "owned_netns_inode": 4026533272,
+    "proven": true
+  }
+]

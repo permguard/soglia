@@ -1,0 +1,19 @@
+{
+  "sequence": 1022,
+  "executable": "ip",
+  "argv": [
+    "netns",
+    "add",
+    "sg-s13-57802605753"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525841188,
+  "monotonic_start_ns": 60926299379,
+  "duration_ms": 24,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s13/commands/1022.stdout",
+  "stderr_file": "s13/commands/1022.stderr"
+}

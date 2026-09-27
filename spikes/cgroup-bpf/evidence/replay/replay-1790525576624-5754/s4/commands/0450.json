@@ -1,0 +1,26 @@
+{
+  "sequence": 450,
+  "executable": "ip",
+  "argv": [
+    "netns",
+    "exec",
+    "sg-s4-55766245754",
+    "nft",
+    "-a",
+    "list",
+    "chain",
+    "inet",
+    "soglia",
+    "output"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525601602,
+  "monotonic_start_ns": 24976145854,
+  "duration_ms": 23,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s4/commands/0450.stdout",
+  "stderr_file": "s4/commands/0450.stderr"
+}

@@ -1,0 +1,584 @@
+{
+  "target_inode": 17356,
+  "direct_attachments": [
+    {
+      "attach_btf_id": 0,
+      "attach_btf_name": "",
+      "attach_btf_obj_id": 0,
+      "attach_flags": "multi",
+      "attach_type": "cgroup_inet_sock_create",
+      "id": 746,
+      "name": "soglia_sock_create"
+    },
+    {
+      "attach_btf_id": 0,
+      "attach_btf_name": "",
+      "attach_btf_obj_id": 0,
+      "attach_flags": "multi",
+      "attach_type": "cgroup_inet4_connect",
+      "id": 747,
+      "name": "soglia_connect4"
+    },
+    {
+      "attach_btf_id": 0,
+      "attach_btf_name": "",
+      "attach_btf_obj_id": 0,
+      "attach_flags": "multi",
+      "attach_type": "cgroup_inet6_connect",
+      "id": 748,
+      "name": "soglia_connect6"
+    },
+    {
+      "attach_btf_id": 0,
+      "attach_btf_name": "",
+      "attach_btf_obj_id": 0,
+      "attach_flags": "multi",
+      "attach_type": "cgroup_udp4_sendmsg",
+      "id": 749,
+      "name": "soglia_sendmsg4"
+    },
+    {
+      "attach_btf_id": 0,
+      "attach_btf_name": "",
+      "attach_btf_obj_id": 0,
+      "attach_flags": "multi",
+      "attach_type": "cgroup_udp6_sendmsg",
+      "id": 750,
+      "name": "soglia_sendmsg6"
+    },
+    {
+      "attach_btf_id": 0,
+      "attach_btf_name": "",
+      "attach_btf_obj_id": 0,
+      "attach_flags": "multi",
+      "attach_type": "cgroup_sock_ops",
+      "id": 751,
+      "name": "soglia_sockops"
+    }
+  ],
+  "effective_attachments": [
+    {
+      "attach_btf_id": 0,
+      "attach_btf_name": "",
+      "attach_btf_obj_id": 0,
+      "attach_type": "cgroup_inet_sock_create",
+      "id": 746,
+      "name": "soglia_sock_create"
+    },
+    {
+      "attach_btf_id": 0,
+      "attach_btf_name": "",
+      "attach_btf_obj_id": 0,
+      "attach_type": "cgroup_inet4_connect",
+      "id": 747,
+      "name": "soglia_connect4"
+    },
+    {
+      "attach_btf_id": 0,
+      "attach_btf_name": "",
+      "attach_btf_obj_id": 0,
+      "attach_type": "cgroup_inet6_connect",
+      "id": 748,
+      "name": "soglia_connect6"
+    },
+    {
+      "attach_btf_id": 0,
+      "attach_btf_name": "",
+      "attach_btf_obj_id": 0,
+      "attach_type": "cgroup_udp4_sendmsg",
+      "id": 749,
+      "name": "soglia_sendmsg4"
+    },
+    {
+      "attach_btf_id": 0,
+      "attach_btf_name": "",
+      "attach_btf_obj_id": 0,
+      "attach_type": "cgroup_udp6_sendmsg",
+      "id": 750,
+      "name": "soglia_sendmsg6"
+    },
+    {
+      "attach_btf_id": 0,
+      "attach_btf_name": "",
+      "attach_btf_obj_id": 0,
+      "attach_type": "cgroup_sock_ops",
+      "id": 751,
+      "name": "soglia_sockops"
+    }
+  ],
+  "map_contracts": [
+    {
+      "name": "soglia_tuples",
+      "map_type": "hash",
+      "max_entries": 8,
+      "producer": "sockops established callback",
+      "consumer": "bounded proxy Resolve",
+      "update_failure": "increments C_TUPLE_INSERT_FAILED and emits EV_MAP_FULL; tuple remains absent",
+      "authorization_state": true
+    },
+    {
+      "name": "soglia_cookie_a",
+      "map_type": "hash",
+      "max_entries": 8,
+      "producer": "connect4 attribution publication",
+      "consumer": "sockops final evidence assembly",
+      "update_failure": "candidate-A evidence remains absent; final tuple publication still must fail closed",
+      "authorization_state": true
+    },
+    {
+      "name": "soglia_sk_b",
+      "map_type": "sk_storage",
+      "max_entries": 0,
+      "producer": "connect4 socket-local storage update",
+      "consumer": "sockops final evidence assembly",
+      "update_failure": "diagnosed separately; deterministic capacity forcing is not available for socket storage",
+      "authorization_state": true
+    },
+    {
+      "name": "soglia_events/counters/diagnostics/meta",
+      "map_type": "diagnostic/metadata",
+      "max_entries": 0,
+      "producer": "diagnostic paths",
+      "consumer": "evidence only",
+      "update_failure": "not authorization state",
+      "authorization_state": false
+    }
+  ],
+  "tuple_baseline": [],
+  "cookie_baseline": [],
+  "precontrol_membership": {
+    "trusted_pid": 10966,
+    "announced_host_pid": 10966,
+    "announced_agent_pid": 10966,
+    "expected_proc_cgroup": "0::/system.slice/soglia-spike-s12-57802605753.service/executions/s1-e1",
+    "proc_cgroup": "0::/system.slice/soglia-spike-s12-57802605753.service/executions/s1-e1",
+    "target_processes": "10966",
+    "target_inode": 17356,
+    "agent_netns_inode": 4026532347,
+    "owned_netns_inode": 4026532347,
+    "proven": true
+  },
+  "precontrol_agent": {
+    "exit_code": 0,
+    "signal": null,
+    "stdout": "{\"cmd\":\"barrier /run/soglia-spike-runner/replay-1790525780260-5753/s12/precontrol-agent.ready /run/soglia-spike-runner/replay-1790525780260-5753/s12/precontrol-agent.go 30\",\"ok\":true,\"detail\":\"released pid=10966\"}\n{\"cmd\":\"proxy\",\"ok\":true,\"detail\":\"ATTRIBUTED s12-execution-generation-1\",\"i\":0,\"local\":\"10.201.0.1:34106\"}\n",
+    "stderr": "",
+    "json": [
+      {
+        "cmd": "barrier /run/soglia-spike-runner/replay-1790525780260-5753/s12/precontrol-agent.ready /run/soglia-spike-runner/replay-1790525780260-5753/s12/precontrol-agent.go 30",
+        "detail": "released pid=10966",
+        "ok": true
+      },
+      {
+        "cmd": "proxy",
+        "detail": "ATTRIBUTED s12-execution-generation-1",
+        "i": 0,
+        "local": "10.201.0.1:34106",
+        "ok": true
+      }
+    ]
+  },
+  "precontrol_entry": {
+    "peer": "10.201.0.1:34106",
+    "local": "10.200.255.1:15001",
+    "key_hex": "0ac900010ac8ff013a850000993a0000",
+    "evidence": [
+      8390,
+      17356,
+      17356,
+      12001001,
+      12294,
+      123113650415,
+      17356,
+      2570715136
+    ]
+  },
+  "fill_membership": {
+    "trusted_pid": 10995,
+    "announced_host_pid": 10995,
+    "announced_agent_pid": 10995,
+    "expected_proc_cgroup": "0::/system.slice/soglia-spike-s12-57802605753.service/executions/s1-e1",
+    "proc_cgroup": "0::/system.slice/soglia-spike-s12-57802605753.service/executions/s1-e1",
+    "target_processes": "10995",
+    "target_inode": 17356,
+    "agent_netns_inode": 4026532347,
+    "owned_netns_inode": 4026532347,
+    "proven": true
+  },
+  "fill_entries": [
+    {
+      "peer": "10.201.0.1:34118",
+      "local": "10.200.255.1:15001",
+      "key_hex": "0ac900010ac8ff0146850000993a0000",
+      "evidence": [
+        8391,
+        17356,
+        17356,
+        12001001,
+        12294,
+        123286106510,
+        17356,
+        2570715136
+      ]
+    },
+    {
+      "peer": "10.201.0.1:34116",
+      "local": "10.200.255.1:15001",
+      "key_hex": "0ac900010ac8ff0144850000993a0000",
+      "evidence": [
+        12370,
+        17356,
+        17356,
+        12001001,
+        12294,
+        123286106552,
+        17356,
+        2570715136
+      ]
+    },
+    {
+      "peer": "10.201.0.1:34132",
+      "local": "10.200.255.1:15001",
+      "key_hex": "0ac900010ac8ff0154850000993a0000",
+      "evidence": [
+        4170,
+        17356,
+        17356,
+        12001001,
+        12294,
+        123286116844,
+        17356,
+        2570715136
+      ]
+    },
+    {
+      "peer": "10.201.0.1:34140",
+      "local": "10.200.255.1:15001",
+      "key_hex": "0ac900010ac8ff015c850000993a0000",
+      "evidence": [
+        139,
+        17356,
+        17356,
+        12001001,
+        12294,
+        123286139263,
+        17356,
+        2570715136
+      ]
+    },
+    {
+      "peer": "10.201.0.1:34156",
+      "local": "10.200.255.1:15001",
+      "key_hex": "0ac900010ac8ff016c850000993a0000",
+      "evidence": [
+        12371,
+        17356,
+        17356,
+        12001001,
+        12294,
+        123286146930,
+        17356,
+        2570715136
+      ]
+    },
+    {
+      "peer": "10.201.0.1:34158",
+      "local": "10.200.255.1:15001",
+      "key_hex": "0ac900010ac8ff016e850000993a0000",
+      "evidence": [
+        8392,
+        17356,
+        17356,
+        12001001,
+        12294,
+        123286154556,
+        17356,
+        2570715136
+      ]
+    },
+    {
+      "peer": "10.201.0.1:34174",
+      "local": "10.200.255.1:15001",
+      "key_hex": "0ac900010ac8ff017e850000993a0000",
+      "evidence": [
+        4171,
+        17356,
+        17356,
+        12001001,
+        12294,
+        123286157014,
+        17356,
+        2570715136
+      ]
+    },
+    {
+      "peer": "10.201.0.1:34190",
+      "local": "10.200.255.1:15001",
+      "key_hex": "0ac900010ac8ff018e850000993a0000",
+      "evidence": [
+        140,
+        17356,
+        17356,
+        12001001,
+        12294,
+        123286187433,
+        17356,
+        2570715136
+      ]
+    }
+  ],
+  "phase_a_tuple_occupancy": 8,
+  "phase_a_cookie_occupancy": 8,
+  "phase_a_distinct_tuples": 8,
+  "phase_a_distinct_cookies": 8,
+  "overflow_membership": {
+    "trusted_pid": 11026,
+    "announced_host_pid": 11026,
+    "announced_agent_pid": 11026,
+    "expected_proc_cgroup": "0::/system.slice/soglia-spike-s12-57802605753.service/executions/s1-e1",
+    "proc_cgroup": "0::/system.slice/soglia-spike-s12-57802605753.service/executions/s1-e1",
+    "target_processes": "10995\n11026",
+    "target_inode": 17356,
+    "agent_netns_inode": 4026532347,
+    "owned_netns_inode": 4026532347,
+    "proven": true
+  },
+  "overflow_agent": {
+    "exit_code": 0,
+    "signal": null,
+    "stdout": "{\"cmd\":\"barrier /run/soglia-spike-runner/replay-1790525780260-5753/s12/overflow-agent.ready /run/soglia-spike-runner/replay-1790525780260-5753/s12/overflow-agent.go 30\",\"ok\":true,\"detail\":\"released pid=11026\"}\n{\"cmd\":\"proxy\",\"ok\":false,\"errno\":104,\"error\":\"Connection reset by peer (os error 104)\",\"i\":0,\"local\":\"10.201.0.1:34200\"}\n",
+    "stderr": "",
+    "json": [
+      {
+        "cmd": "barrier /run/soglia-spike-runner/replay-1790525780260-5753/s12/overflow-agent.ready /run/soglia-spike-runner/replay-1790525780260-5753/s12/overflow-agent.go 30",
+        "detail": "released pid=11026",
+        "ok": true
+      },
+      {
+        "cmd": "proxy",
+        "errno": 104,
+        "error": "Connection reset by peer (os error 104)",
+        "i": 0,
+        "local": "10.201.0.1:34200",
+        "ok": false
+      }
+    ]
+  },
+  "overflow_peer": "10.201.0.1:34200",
+  "overflow_local": "10.200.255.1:15001",
+  "overflow_key_hex": "0ac900010ac8ff0198850000993a0000",
+  "overflow_tuple_present": false,
+  "overflow_tuple_occupancy": 8,
+  "overflow_cookie_occupancy": 8,
+  "counters_before_fill": [
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1
+  ],
+  "counters_overflow": [
+    0,
+    1,
+    9,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1
+  ],
+  "diagnostics_before_fill": [
+    1,
+    1,
+    9,
+    1,
+    1,
+    1,
+    1
+  ],
+  "diagnostics_overflow": [
+    10,
+    10,
+    63,
+    10,
+    10,
+    10,
+    10
+  ],
+  "map_diagnostics_before_fill": [
+    1,
+    0,
+    0,
+    1,
+    0,
+    1,
+    0,
+    0
+  ],
+  "map_diagnostics_overflow": [
+    10,
+    1,
+    -7,
+    10,
+    0,
+    10,
+    1,
+    -7
+  ],
+  "cookie_failure_delta": 1,
+  "sk_storage_failure_delta": 0,
+  "tuple_failure_delta": 1,
+  "resolve_timeout_ms": 2000,
+  "overflow_resolve_result": "UNRESOLVED -> DENY",
+  "application_bytes_read_while_unresolved": 0,
+  "dns_lookups_while_unresolved": 0,
+  "outbound_effects_while_unresolved": 0,
+  "ip_fallback_authorization": false,
+  "map_full_events": [
+    {
+      "kind": 2,
+      "cgroup_id": 0,
+      "cookie": 12372,
+      "destination_ipv4_raw": 33540106,
+      "destination_port": 15001,
+      "bytes_hex": "02000000000000000000000000000000543000000000000002000000010000000ac8ff01993a00005907febb1c000000"
+    }
+  ],
+  "freed_key_hex": "0ac900010ac8ff0146850000993a0000",
+  "occupancy_after_free": 7,
+  "control_membership": {
+    "trusted_pid": 11075,
+    "announced_host_pid": 11075,
+    "announced_agent_pid": 11075,
+    "expected_proc_cgroup": "0::/system.slice/soglia-spike-s12-57802605753.service/executions/s1-e1",
+    "proc_cgroup": "0::/system.slice/soglia-spike-s12-57802605753.service/executions/s1-e1",
+    "target_processes": "10995\n11075",
+    "target_inode": 17356,
+    "agent_netns_inode": 4026532347,
+    "owned_netns_inode": 4026532347,
+    "proven": true
+  },
+  "control_agent": {
+    "exit_code": 0,
+    "signal": null,
+    "stdout": "{\"cmd\":\"barrier /run/soglia-spike-runner/replay-1790525780260-5753/s12/control-agent.ready /run/soglia-spike-runner/replay-1790525780260-5753/s12/control-agent.go 30\",\"ok\":true,\"detail\":\"released pid=11075\"}\n{\"cmd\":\"proxy\",\"ok\":true,\"detail\":\"ATTRIBUTED s12-execution-generation-1\",\"i\":0,\"local\":\"10.201.0.1:34216\"}\n",
+    "stderr": "",
+    "json": [
+      {
+        "cmd": "barrier /run/soglia-spike-runner/replay-1790525780260-5753/s12/control-agent.ready /run/soglia-spike-runner/replay-1790525780260-5753/s12/control-agent.go 30",
+        "detail": "released pid=11075",
+        "ok": true
+      },
+      {
+        "cmd": "proxy",
+        "detail": "ATTRIBUTED s12-execution-generation-1",
+        "i": 0,
+        "local": "10.201.0.1:34216",
+        "ok": true
+      }
+    ]
+  },
+  "control_entry": {
+    "peer": "10.201.0.1:34216",
+    "local": "10.200.255.1:15001",
+    "key_hex": "0ac900010ac8ff01a8850000993a0000",
+    "evidence": [
+      12373,
+      17356,
+      17356,
+      12001001,
+      12294,
+      125713711930,
+      17356,
+      2570715136
+    ]
+  },
+  "control_tuple_occupancy": 8,
+  "control_cookie_occupancy": 8,
+  "control_map_diagnostics": [
+    11,
+    1,
+    0,
+    11,
+    0,
+    11,
+    1,
+    0
+  ],
+  "final_tuple_occupancy": 0,
+  "final_cookie_occupancy": 0,
+  "fill_agent": {
+    "exit_code": 0,
+    "signal": null,
+    "stdout": "{\"cmd\":\"barrier /run/soglia-spike-runner/replay-1790525780260-5753/s12/fill-agent.ready /run/soglia-spike-runner/replay-1790525780260-5753/s12/fill-agent.go 30\",\"ok\":true,\"detail\":\"released pid=10995\"}\n{\"cmd\":\"proxy\",\"ok\":true,\"detail\":\"ATTRIBUTED s12-execution-generation-1\",\"i\":0,\"local\":\"10.201.0.1:34118\"}\n{\"cmd\":\"proxy\",\"ok\":true,\"detail\":\"ATTRIBUTED s12-execution-generation-1\",\"i\":1,\"local\":\"10.201.0.1:34116\"}\n{\"cmd\":\"proxy\",\"ok\":true,\"detail\":\"ATTRIBUTED s12-execution-generation-1\",\"i\":2,\"local\":\"10.201.0.1:34132\"}\n{\"cmd\":\"proxy\",\"ok\":true,\"detail\":\"ATTRIBUTED s12-execution-generation-1\",\"i\":7,\"local\":\"10.201.0.1:34158\"}\n{\"cmd\":\"proxy\",\"ok\":true,\"detail\":\"ATTRIBUTED s12-execution-generation-1\",\"i\":6,\"local\":\"10.201.0.1:34156\"}\n{\"cmd\":\"proxy\",\"ok\":true,\"detail\":\"ATTRIBUTED s12-execution-generation-1\",\"i\":3,\"local\":\"10.201.0.1:34140\"}\n{\"cmd\":\"proxy\",\"ok\":true,\"detail\":\"ATTRIBUTED s12-execution-generation-1\",\"i\":5,\"local\":\"10.201.0.1:34190\"}\n{\"cmd\":\"proxy\",\"ok\":true,\"detail\":\"ATTRIBUTED s12-execution-generation-1\",\"i\":4,\"local\":\"10.201.0.1:34174\"}\n",
+    "stderr": "",
+    "json": [
+      {
+        "cmd": "barrier /run/soglia-spike-runner/replay-1790525780260-5753/s12/fill-agent.ready /run/soglia-spike-runner/replay-1790525780260-5753/s12/fill-agent.go 30",
+        "detail": "released pid=10995",
+        "ok": true
+      },
+      {
+        "cmd": "proxy",
+        "detail": "ATTRIBUTED s12-execution-generation-1",
+        "i": 0,
+        "local": "10.201.0.1:34118",
+        "ok": true
+      },
+      {
+        "cmd": "proxy",
+        "detail": "ATTRIBUTED s12-execution-generation-1",
+        "i": 1,
+        "local": "10.201.0.1:34116",
+        "ok": true
+      },
+      {
+        "cmd": "proxy",
+        "detail": "ATTRIBUTED s12-execution-generation-1",
+        "i": 2,
+        "local": "10.201.0.1:34132",
+        "ok": true
+      },
+      {
+        "cmd": "proxy",
+        "detail": "ATTRIBUTED s12-execution-generation-1",
+        "i": 7,
+        "local": "10.201.0.1:34158",
+        "ok": true
+      },
+      {
+        "cmd": "proxy",
+        "detail": "ATTRIBUTED s12-execution-generation-1",
+        "i": 6,
+        "local": "10.201.0.1:34156",
+        "ok": true
+      },
+      {
+        "cmd": "proxy",
+        "detail": "ATTRIBUTED s12-execution-generation-1",
+        "i": 3,
+        "local": "10.201.0.1:34140",
+        "ok": true
+      },
+      {
+        "cmd": "proxy",
+        "detail": "ATTRIBUTED s12-execution-generation-1",
+        "i": 5,
+        "local": "10.201.0.1:34190",
+        "ok": true
+      },
+      {
+        "cmd": "proxy",
+        "detail": "ATTRIBUTED s12-execution-generation-1",
+        "i": 4,
+        "local": "10.201.0.1:34174",
+        "ok": true
+      }
+    ]
+  }
+}

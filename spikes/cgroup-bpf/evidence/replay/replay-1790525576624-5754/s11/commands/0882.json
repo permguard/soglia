@@ -1,0 +1,25 @@
+{
+  "sequence": 882,
+  "executable": "ip",
+  "argv": [
+    "netns",
+    "exec",
+    "sg-s11-55766245754",
+    "ip",
+    "addr",
+    "add",
+    "10.201.0.1/30",
+    "dev",
+    "eth0"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525631891,
+  "monotonic_start_ns": 55265016009,
+  "duration_ms": 23,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s11/commands/0882.stdout",
+  "stderr_file": "s11/commands/0882.stderr"
+}

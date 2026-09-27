@@ -1,0 +1,18 @@
+{
+  "sequence": 674,
+  "executable": "systemctl",
+  "argv": [
+    "stop",
+    "soglia-spike-s8-5753.service"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525824380,
+  "monotonic_start_ns": 44118366920,
+  "duration_ms": 84,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s8/commands/0674.stdout",
+  "stderr_file": "s8/commands/0674.stderr"
+}

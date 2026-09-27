@@ -1,0 +1,17 @@
+{
+  "sequence": 16,
+  "executable": "ip",
+  "argv": [
+    "-Version"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525780628,
+  "monotonic_start_ns": 366285353,
+  "duration_ms": 20,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "preflight/commands/0016.stdout",
+  "stderr_file": "preflight/commands/0016.stderr"
+}

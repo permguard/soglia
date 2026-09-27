@@ -1,0 +1,28 @@
+{
+  "requested": 64,
+  "status": "BOUNDED_LIMIT",
+  "complete_instances": 44,
+  "loader": null,
+  "limit": {
+    "index": 44,
+    "ident": 14064044,
+    "operation": "EbpfLoader/load/configure/attach/pin",
+    "error": "load object for e44: MapError(CreateError { name: \"soglia_counters\", io_error: Os { code: 24, kind: Uncategorized, message: \"Too many open files\" } })",
+    "open_fd_count": 1016
+  },
+  "resources": null,
+  "memberships": [],
+  "attributions": [],
+  "direct_and_effective_six": false,
+  "teardown_ns": 5390539402,
+  "cleanup_equal": true,
+  "cleanup": {
+    "cgroups_absent": true,
+    "clean": true,
+    "count": 64,
+    "netns_absent": true,
+    "pin_root_absent": true,
+    "proxy_absent": true,
+    "veths_absent": true
+  }
+}

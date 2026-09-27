@@ -1,0 +1,20 @@
+{
+  "sequence": 1816,
+  "executable": "ip",
+  "argv": [
+    "link",
+    "show",
+    "dev",
+    "s145754h014"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525659394,
+  "monotonic_start_ns": 82767884384,
+  "duration_ms": 22,
+  "exit_code": 1,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s14/commands/1816.stdout",
+  "stderr_file": "s14/commands/1816.stderr"
+}

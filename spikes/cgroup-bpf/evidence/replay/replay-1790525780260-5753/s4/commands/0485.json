@@ -1,0 +1,22 @@
+{
+  "sequence": 485,
+  "executable": "systemctl",
+  "argv": [
+    "show",
+    "soglia-spike-s4-57802605753.service",
+    "-p",
+    "LoadState",
+    "-p",
+    "ActiveState"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525805854,
+  "monotonic_start_ns": 25592157856,
+  "duration_ms": 23,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s4/commands/0485.stdout",
+  "stderr_file": "s4/commands/0485.stderr"
+}

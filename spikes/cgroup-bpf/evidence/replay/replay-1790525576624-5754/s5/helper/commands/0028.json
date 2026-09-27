@@ -1,0 +1,21 @@
+{
+  "sequence": 28,
+  "executable": "bpftool",
+  "argv": [
+    "-j",
+    "map",
+    "dump",
+    "pinned",
+    "/sys/fs/bpf/soglia-spike-runner/replay-1790525576624-5754/s5/maps/connect6-omitted-control/soglia_diag_entries"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525604178,
+  "monotonic_start_ns": 788250109,
+  "duration_ms": 20,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s5/helper/commands/0028.stdout",
+  "stderr_file": "s5/helper/commands/0028.stderr"
+}

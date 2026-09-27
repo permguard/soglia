@@ -1,0 +1,25 @@
+{
+  "sequence": 665,
+  "executable": "curl",
+  "argv": [
+    "--max-time",
+    "2",
+    "--silent",
+    "--show-error",
+    "--request",
+    "POST",
+    "--data-binary",
+    "sleep 1",
+    "http://127.0.0.1:18089/v1/execute/probe"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525613673,
+  "monotonic_start_ns": 37047235970,
+  "duration_ms": 21,
+  "exit_code": 7,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s8/commands/0665.stdout",
+  "stderr_file": "s8/commands/0665.stderr"
+}

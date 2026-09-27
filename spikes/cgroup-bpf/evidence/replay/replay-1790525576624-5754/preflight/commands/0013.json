@@ -1,0 +1,17 @@
+{
+  "sequence": 13,
+  "executable": "bpftool",
+  "argv": [
+    "version"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525576920,
+  "monotonic_start_ns": 294694992,
+  "duration_ms": 21,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "preflight/commands/0013.stdout",
+  "stderr_file": "preflight/commands/0013.stderr"
+}

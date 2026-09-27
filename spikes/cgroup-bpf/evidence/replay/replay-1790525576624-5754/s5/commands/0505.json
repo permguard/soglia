@@ -1,0 +1,23 @@
+{
+  "sequence": 505,
+  "executable": "ip",
+  "argv": [
+    "-6",
+    "addr",
+    "add",
+    "fd00:201::2/64",
+    "dev",
+    "s5h5576624",
+    "nodad"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525603153,
+  "monotonic_start_ns": 26526803565,
+  "duration_ms": 22,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s5/commands/0505.stdout",
+  "stderr_file": "s5/commands/0505.stderr"
+}

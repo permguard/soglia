@@ -1,0 +1,26 @@
+{
+  "sequence": 1727,
+  "executable": "ip",
+  "argv": [
+    "link",
+    "add",
+    "s145753h011",
+    "type",
+    "veth",
+    "peer",
+    "name",
+    "eth0",
+    "netns",
+    "sg14-5753-16-011"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525860308,
+  "monotonic_start_ns": 80046057000,
+  "duration_ms": 21,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s14/commands/1727.stdout",
+  "stderr_file": "s14/commands/1727.stderr"
+}

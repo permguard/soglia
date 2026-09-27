@@ -1,0 +1,26 @@
+{
+  "sequence": 878,
+  "executable": "ip",
+  "argv": [
+    "link",
+    "add",
+    "s11h5780260",
+    "type",
+    "veth",
+    "peer",
+    "name",
+    "eth0",
+    "netns",
+    "sg-s11-57802605753"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525835033,
+  "monotonic_start_ns": 54770591997,
+  "duration_ms": 23,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s11/commands/0878.stdout",
+  "stderr_file": "s11/commands/0878.stderr"
+}

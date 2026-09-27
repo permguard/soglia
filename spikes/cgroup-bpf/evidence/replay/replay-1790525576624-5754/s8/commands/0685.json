@@ -1,0 +1,17 @@
+{
+  "sequence": 685,
+  "executable": "systemctl",
+  "argv": [
+    "daemon-reload"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525621622,
+  "monotonic_start_ns": 44995964947,
+  "duration_ms": 103,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s8/commands/0685.stdout",
+  "stderr_file": "s8/commands/0685.stderr"
+}

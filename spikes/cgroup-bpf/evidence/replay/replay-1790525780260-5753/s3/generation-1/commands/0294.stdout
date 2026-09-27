@@ -1,0 +1,16 @@
+table inet sg_s3_57802605 {
+	chain input {
+		type filter hook input priority filter - 10; policy accept;
+		iifname "s3h5780260" ip saddr != 10.201.0.1 drop
+		iifname "s3h5780260" ct state invalid drop
+		iifname "s3h5780260" ct state new meta l4proto != tcp drop
+		iifname "s3h5780260" ct state new ip daddr != 10.200.255.1 drop
+		iifname "s3h5780260" ct state new tcp dport != 15001 drop
+	}
+
+	chain forward {
+		type filter hook forward priority filter - 10; policy accept;
+		iifname "s3h5780260" drop
+		oifname "s3h5780260" drop
+	}
+}

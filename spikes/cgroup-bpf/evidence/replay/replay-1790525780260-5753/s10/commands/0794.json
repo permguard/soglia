@@ -1,0 +1,21 @@
+{
+  "sequence": 794,
+  "executable": "bpftool",
+  "argv": [
+    "-j",
+    "prog",
+    "show",
+    "pinned",
+    "/sys/fs/bpf/soglia-spike-runner/replay-1790525780260-5753/s10-foreign/foreign_rewrite"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525829575,
+  "monotonic_start_ns": 49312625302,
+  "duration_ms": 21,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s10/commands/0794.stdout",
+  "stderr_file": "s10/commands/0794.stderr"
+}

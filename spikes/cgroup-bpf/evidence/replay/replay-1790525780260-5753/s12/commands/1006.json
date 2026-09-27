@@ -1,0 +1,20 @@
+{
+  "sequence": 1006,
+  "executable": "nft",
+  "argv": [
+    "list",
+    "table",
+    "inet",
+    "sg_s12_57802605"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525840758,
+  "monotonic_start_ns": 60495421416,
+  "duration_ms": 22,
+  "exit_code": 1,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s12/commands/1006.stdout",
+  "stderr_file": "s12/commands/1006.stderr"
+}

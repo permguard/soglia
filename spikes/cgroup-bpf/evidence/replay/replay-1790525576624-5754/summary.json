@@ -1,0 +1,169 @@
+{
+  "run_id": "replay-1790525576624-5754",
+  "authoritative": true,
+  "verdict": "PASS",
+  "results": [
+    {
+      "test": "s0",
+      "authoritative": true,
+      "verdict": "PASS",
+      "invariant": "required cgroup/BPF environment, six link attaches, ancestor composition and zero owned residue",
+      "detail": "invariant and cleanup proven",
+      "cleanup": "PASS",
+      "started_unix_ms": 1790525584301,
+      "duration_ms": 1370
+    },
+    {
+      "test": "s1",
+      "authoritative": true,
+      "verdict": "PASS",
+      "invariant": "trusted Execution placement -> BPF attribution -> accepted tuple -> bounded Resolve -> correct Execution",
+      "detail": "invariant and cleanup proven; EXTERNAL_CHURN: systemd sd_* program IDs changed [162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173] -> [184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195]; the complete stable sd_* object multiset excluding IDs, all non-systemd programs, links and maps are unchanged; all registered test-owned objects are absent",
+      "cleanup": "PASS",
+      "started_unix_ms": 1790525585676,
+      "duration_ms": 1403
+    },
+    {
+      "test": "s1b",
+      "authoritative": true,
+      "verdict": "PASS",
+      "invariant": "delayed attribution resolves only after publication; missing publication reaches bounded deny before application/DNS/outbound processing",
+      "detail": "invariant and cleanup proven; EXTERNAL_CHURN: systemd sd_* program IDs changed [196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206, 207] -> [214, 215, 216, 217, 218, 219, 220, 221, 222, 223, 224, 225]; the complete stable sd_* object multiset excluding IDs, all non-systemd programs, links and maps are unchanged; all registered test-owned objects are absent",
+      "cleanup": "PASS",
+      "started_unix_ms": 1790525587084,
+      "duration_ms": 3386
+    },
+    {
+      "test": "s2",
+      "authoritative": true,
+      "verdict": "PASS",
+      "invariant": "four live Executions and 132 sockets have zero cross-attribution; missing publication remains fail closed",
+      "detail": "invariant and cleanup proven",
+      "cleanup": "PASS",
+      "started_unix_ms": 1790525590475,
+      "duration_ms": 4419
+    },
+    {
+      "test": "s3",
+      "authoritative": true,
+      "verdict": "PASS",
+      "invariant": "an old Execution generation never authorizes a later generation across FIN, RST, process death, teardown and exact source-tuple reuse",
+      "detail": "invariant and cleanup proven; EXTERNAL_CHURN: systemd sd_* program IDs changed [278, 279, 280, 281, 282, 283, 284, 285, 286, 287, 288, 289] -> [296, 297, 298, 299, 300, 301, 302, 303, 304, 305, 306, 307]; the complete stable sd_* object multiset excluding IDs, all non-systemd programs, links and maps are unchanged; all registered test-owned objects are absent; EXTERNAL_CHURN: systemd sd_* program IDs changed [308, 309, 310, 311, 312, 313, 314, 315, 316, 317, 318, 319] -> [326, 327, 328, 329, 330, 331, 332, 333, 334, 335, 336, 337]; the complete stable sd_* object multiset excluding IDs, all non-systemd programs, links and maps are unchanged; all registered test-owned objects are absent; EXTERNAL_CHURN: systemd sd_* program IDs changed [338, 339, 340, 341, 342, 343, 344, 345, 346, 347, 348, 349] -> [356, 357, 358, 359, 360, 361, 362, 363, 364, 365, 366, 367]; the complete stable sd_* object multiset excluding IDs, all non-systemd programs, links and maps are unchanged; all registered test-owned objects are absent",
+      "cleanup": "PASS",
+      "started_unix_ms": 1790525594898,
+      "duration_ms": 4200
+    },
+    {
+      "test": "s4",
+      "authoritative": true,
+      "verdict": "PASS",
+      "invariant": "with only the exact nft destination barrier relaxed, cgroup/connect4 prevents direct IPv4 establishment and the no-deny control exposes the same path",
+      "detail": "invariant and cleanup proven; EXTERNAL_CHURN: systemd sd_* program IDs changed [368, 369, 370, 371, 372, 373, 374, 375, 376, 377, 378, 379] -> [398, 399, 400, 401, 402, 403, 404, 405, 406, 407, 408, 409]; the complete stable sd_* object multiset excluding IDs, all non-systemd programs, links and maps are unchanged; all registered test-owned objects are absent",
+      "cleanup": "PASS",
+      "started_unix_ms": 1790525599103,
+      "duration_ms": 3634
+    },
+    {
+      "test": "s5",
+      "authoritative": true,
+      "verdict": "PASS",
+      "invariant": "each of the six cgroup-BPF hooks has a causally isolated contribution, and missing sockops attribution remains fail-closed",
+      "detail": "invariant and cleanup proven; EXTERNAL_CHURN: systemd sd_* program IDs changed [410, 411, 412, 413, 414, 415, 416, 417, 418, 419, 420, 421] -> [499, 500, 501, 502, 503, 504, 505, 506, 507, 508, 509, 510]; the complete stable sd_* object multiset excluding IDs, all non-systemd programs, links and maps are unchanged; all registered test-owned objects are absent",
+      "cleanup": "PASS",
+      "started_unix_ms": 1790525602742,
+      "duration_ms": 5972
+    },
+    {
+      "test": "s6",
+      "authoritative": true,
+      "verdict": "PASS",
+      "invariant": "the enforcement-layer table is derived only from structured S1-S5 evidence and distinguishes primary enforcement, defense-in-depth, topology and unestablished later properties",
+      "detail": "invariant and cleanup proven",
+      "cleanup": "PASS",
+      "started_unix_ms": 1790525608720,
+      "duration_ms": 160
+    },
+    {
+      "test": "s7",
+      "authoritative": true,
+      "verdict": "PASS",
+      "invariant": "pinned links and maps preserve kernel enforcement after abrupt loader loss, while removing only the connect4 pin detaches that gate and exposes the controlled path",
+      "detail": "invariant and cleanup proven; EXTERNAL_CHURN: systemd sd_* program IDs changed [511, 512, 513, 514, 515, 516, 517, 518, 519, 520, 521, 522] -> [539, 540, 541, 542, 543, 544, 545, 546, 547, 548, 549, 550]; the complete stable sd_* object multiset excluding IDs, all non-systemd programs, links and maps are unchanged; all registered test-owned objects are absent",
+      "cleanup": "PASS",
+      "started_unix_ms": 1790525608885,
+      "duration_ms": 1444
+    },
+    {
+      "test": "s8",
+      "authoritative": true,
+      "verdict": "PASS",
+      "invariant": "production Enforcer loss is detected autonomously and causes bounded fail-closed cancellation, trusted Execution termination, retained kernel confinement, and sweep-before-readiness restart",
+      "detail": "invariant and cleanup proven",
+      "cleanup": "PASS",
+      "started_unix_ms": 1790525610335,
+      "duration_ms": 11596
+    },
+    {
+      "test": "s9",
+      "authoritative": true,
+      "verdict": "PASS",
+      "invariant": "foreign ancestor ALLOW plus child Soglia DENY remains fail-closed, while the same path establishes with the child permissive control",
+      "detail": "invariant and cleanup proven; EXTERNAL_CHURN: systemd sd_* program IDs changed [608, 609, 610, 611, 612, 613, 614, 615, 616, 617, 618, 619] -> [647, 648, 649, 650, 651, 652, 653, 654, 655, 656, 657, 658]; the complete stable sd_* object multiset excluding IDs, all non-systemd programs, links and maps are unchanged; all registered test-owned objects are absent",
+      "cleanup": "PASS",
+      "started_unix_ms": 1790525621937,
+      "duration_ms": 3939
+    },
+    {
+      "test": "s10",
+      "authoritative": true,
+      "verdict": "PASS",
+      "invariant": "an empirically proven ancestor destination rewrite cannot bypass the normal nft final-destination barrier, while one exact nft exposure causally opens the same rewritten path",
+      "detail": "invariant and cleanup proven; EXTERNAL_CHURN: systemd sd_* program IDs changed [659, 660, 661, 662, 663, 664, 665, 666, 667, 668, 669, 670] -> [692, 693, 694, 695, 696, 697, 698, 699, 700, 701, 702, 703]; the complete stable sd_* object multiset excluding IDs, all non-systemd programs, links and maps are unchanged; all registered test-owned objects are absent",
+      "cleanup": "PASS",
+      "started_unix_ms": 1790525625882,
+      "duration_ms": 5499
+    },
+    {
+      "test": "s11",
+      "authoritative": true,
+      "verdict": "PASS",
+      "invariant": "a representative attributed Execution lifecycle creates every owned resource class and trusted teardown leaves zero Soglia-owned residue",
+      "detail": "invariant and cleanup proven; EXTERNAL_CHURN: systemd sd_* program IDs changed [704, 705, 706, 707, 708, 709, 710, 711, 712, 713, 714, 715] -> [722, 723, 724, 725, 726, 727, 728, 729, 730, 731, 732, 733]; the complete stable sd_* object multiset excluding IDs, all non-systemd programs, links and maps are unchanged; all registered test-owned objects are absent",
+      "cleanup": "PASS",
+      "started_unix_ms": 1790525631387,
+      "duration_ms": 2124
+    },
+    {
+      "test": "s12",
+      "authoritative": true,
+      "verdict": "PASS",
+      "invariant": "bounded authorization-map update failure produces missing trusted attribution and bounded fail-closed denial without IP fallback or effects",
+      "detail": "invariant and cleanup proven; EXTERNAL_CHURN: systemd sd_* program IDs changed [734, 735, 736, 737, 738, 739, 740, 741, 742, 743, 744, 745] -> [752, 753, 754, 755, 756, 757, 758, 759, 760, 761, 762, 763]; the complete stable sd_* object multiset excluding IDs, all non-systemd programs, links and maps are unchanged; all registered test-owned objects are absent",
+      "cleanup": "PASS",
+      "started_unix_ms": 1790525633518,
+      "duration_ms": 4197
+    },
+    {
+      "test": "s13",
+      "authoritative": true,
+      "verdict": "PASS",
+      "invariant": "trusted external ownership plus kernel-observed compatibility sweeps known residue before readiness, while incompatible and unknown pinned state fail closed without pathname deletion",
+      "detail": "invariant and cleanup proven; EXTERNAL_CHURN: systemd sd_* program IDs changed [764, 765, 766, 767, 768, 769, 770, 771, 772, 773, 774, 775] -> [875, 876, 877, 878, 879, 880, 881, 882, 883, 884, 885, 886]; the complete stable sd_* object multiset excluding IDs, all non-systemd programs, links and maps are unchanged; all registered test-owned objects are absent",
+      "cleanup": "PASS",
+      "started_unix_ms": 1790525637722,
+      "duration_ms": 12525
+    },
+    {
+      "test": "s14",
+      "authoritative": true,
+      "verdict": "PASS",
+      "invariant": "Candidate C resource scaling is empirically characterized while sampled Execution identities remain distinct and every point returns to baseline",
+      "detail": "invariant and cleanup proven",
+      "cleanup": "PASS",
+      "started_unix_ms": 1790525650255,
+      "duration_ms": 45816
+    }
+  ],
+  "stopped_at": null,
+  "evidence_root": "/soglia/spikes/cgroup-bpf/evidence/replay/replay-1790525576624-5754"
+}

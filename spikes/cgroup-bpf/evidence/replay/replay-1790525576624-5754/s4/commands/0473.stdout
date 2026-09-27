@@ -1,0 +1,14 @@
+table inet sg_s4_55766245 {
+	chain input {
+		type filter hook input priority filter - 10; policy accept;
+		iifname "s4h5576624" ip saddr != 10.201.0.1 drop
+		iifname "s4h5576624" ct state invalid drop
+		iifname "s4h5576624" ct state new meta l4proto != tcp drop
+	}
+
+	chain forward {
+		type filter hook forward priority filter - 10; policy accept;
+		iifname "s4h5576624" drop
+		oifname "s4h5576624" drop
+	}
+}

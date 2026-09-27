@@ -1,105 +1,47 @@
 <!-- Copyright (c) 2022 Nitro Agility S.r.l. -->
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 
-# S13 spike-only pinned-state ownership and compatibility contract
+# S13 spike ownership and recovery contract
 
-This is an experimental contract for the Phase-1 spike. It is not the production
-`CgroupBpfBackend` design.
+This contract is experimental qualification machinery. It does not implement or select a production `CgroupBpfBackend`.
 
-## Trust boundary
+## Trust roots and identity
 
-The trust anchor is `/run/soglia/cgroup-bpf-spike/state.json`, not bpffs. Soglia already owns
-`/run/soglia` as a root-owned mode `0700` state directory. The spike requires every directory in
-this record path to be a real directory (not a symlink), owned by uid/gid 0 and mode `0700`; the
-record must be root-owned, mode `0600`, and atomically published through a complete temporary file,
-file `fsync`, rename, and directory sync. Startup runs as root and refuses the state if any of these
-checks fail.
+The ownership record lives below a root-owned, non-symlink `/run/soglia` directory with mode `0700`. Its per-run directory is mode `0700`; `state.json` is a root-owned regular file with mode `0600`, published by write, file sync, atomic rename and directory sync.
 
-This boundary does not claim protection after an attacker can arbitrarily change all root-owned
-Soglia state and kernel objects. It prevents a foreign bpffs object, pathname, or copied
-`soglia_meta` value from becoming ownership proof by itself.
+An owned state is identified by all of the following, never by a pathname or name prefix alone:
 
-## Minimum record and metadata
+- magic `SOGLIA_CGROUP_BPF_SPIKE_STATE`, schema version 1 and ABI version 1;
+- a random 128-bit `state_id` and monotonically increasing nonzero generation;
+- exact BPF object SHA-256 and exact per-run pin root;
+- exact target cgroup path and inode;
+- exact map IDs, program identities and link identities in the READY manifest;
+- a 48-byte `soglia_meta` value binding magic, schema, ABI, state ID and generation.
 
-The trusted JSON record contains:
+The expected inventory is ten named maps and six named links. Map type, key width, value width, capacity and flags are validated before state can be considered compatible.
 
-| Field | Purpose |
-| --- | --- |
-| `magic` | Reject a different record type in the trusted slot. |
-| `schema_version` | Define the JSON parsing and write-ahead state-machine contract. |
-| `abi_version` | Select the hard-coded expected map/program/link contract. |
-| `state_id` | Random 128-bit identity binding this record to one bpffs state set. |
-| `generation` | Distinguish the prior state set from the state created after recovery. |
-| `phase` | `INTENT` before any bpffs creation, `READY` only after validation. |
-| `pin_root` | Bind the record to one exact bpffs root; it is not ownership proof by itself. |
-| `object_sha256` | Bind a compatible READY set to the exact spike BPF build used to create it. |
-| `cgroup_path` / `cgroup_inode` | Bind the recorded link set to its original cgroup subject. |
-| object IDs | Bind the READY record to the exact kernel maps, programs and links validated before readiness. |
+## State machine
 
-`soglia_meta` has six `u64` slots: magic bytes, schema version, ABI version, the opaque 128-bit
-`state_id` in two slots, and generation. It is compared byte-for-byte with the trusted record and is
-never read by a BPF program or by Resolve. It is corroboration and binding, not a standalone trust
-anchor.
+Startup performs this order:
 
-No separate build-version field exists inside `soglia_meta`: the trusted record carries the object
-SHA-256, while the loader validates the live kernel contracts. Duplicating that digest in the map
-would not add an independent trust source.
+1. classify existing state as `Fresh`, `KnownCompatible`, `Incompatible` or `Unknown`;
+2. for known compatible residue, validate the trusted record, kernel identities, metadata and exact inventory, then remove only those recorded objects and prove their absence;
+3. atomically publish durable `INTENT` for a new generation;
+4. create the expected maps, programs, links and pins;
+5. bind `soglia_meta` and validate the kernel contract;
+6. atomically publish the durable READY manifest;
+7. publish `startup.ready` last.
 
-## Kernel-observed ABI contract
+Fresh and known-compatible states may proceed. Incompatible or unknown state fails closed without altering its kernel objects or contents. A pin root without a trusted record is unknown. An unexpected object beneath an otherwise recorded root is also unknown. Cleanup by broad prefix, guessed name or stale generation is forbidden.
 
-The ABI version fixes the exact expected pin inventory. Every security-relevant map is checked via
-`bpftool map show pinned` for type, key size, value size, maximum entries and flags. The loader also
-checks the six direct cgroup attachments, program names/types, link type, attach type, program ID and
-target cgroup inode from kernel-observed state. An extra file, missing file, unexpected directory,
-ID mismatch, or contract mismatch fails closed.
+## Crash recovery
 
-Compatibility means only that the residue is recognizable and safe to sweep. No old map, program
-or link is reused for authorization.
+S13 exercises interruption after durable INTENT, after pin creation, after kernel validation and after durable READY but before readiness publication. At every boundary readiness must still be absent. The next start must classify the residue as known compatible, validate it, sweep its exact recorded generation, create generation `N+1`, and publish readiness only after the new READY record is durable.
 
-## Write-ahead and crash classification
+Stale policy, cookie or tuple entries are never inherited into the next generation. Old kernel IDs must be absent before readiness, and a stale generation cannot authorize a new request.
 
-Creation/recovery order is:
+## Refusal and cleanup
 
-1. validate the trusted state directory and classify the old record/pin root;
-2. for known-compatible residue, validate it, unpin its exact recorded objects, and verify their
-   kernel IDs and pin root are absent;
-3. generate a new `state_id` and increment generation;
-4. atomically publish `INTENT` before creating the bpffs root;
-5. create and pin the expected maps/programs/links;
-6. write the matching `soglia_meta` binding;
-7. validate the complete kernel-observed object contract;
-8. atomically replace `INTENT` with `READY`, including exact object IDs;
-9. publish `startup.ready` last.
+Malformed schema or ABI is `Incompatible`; missing trust, mismatched pin root/cgroup/kernel identity/metadata, or foreign inventory is `Unknown`. Both classifications leave the observed state byte-for-byte and ID-for-ID unchanged.
 
-Crash outcomes:
-
-| Crash point | Next-start classification |
-| --- | --- |
-| Before `INTENT` | No record and no root is fresh. A root without a record is unknown. |
-| During record publication | A temporary record is not ownership proof. With no root it is removable test residue; with a root startup fails unknown. |
-| After `INTENT`, before bpffs | Trusted known-compatible intent with no objects; advance generation and recreate. |
-| During pin creation | Trusted intent plus only expected, contract-matching objects; sweep exact observed subset. Any unexpected object fails closed and remains. |
-| After pins/meta, before `READY` | Trusted intent and matching state binding; validate, sweep, recreate. |
-| After `READY`, before runtime readiness | Trusted compatible READY residue; sweep/recreate. No admission marker exists. |
-| After runtime readiness | Normal prior-generation residue; the same validation and sweep occurs. |
-
-There is never a no-record interval between sweeping a compatible generation and publishing the new
-intent: the old record remains until it is atomically replaced by the new intent.
-
-## Classification and cleanup
-
-- No record and no pin root: fresh; create clean state.
-- Matching trusted record, meta and exact kernel contract: known compatible; sweep, verify absence,
-  create a new state ID/generation, then become ready.
-- Trusted record with unsupported schema/ABI/build/object contract: known incompatible; fail closed,
-  do not migrate, delete, or publish readiness.
-- Pin root without a valid matching trusted record, mismatched meta/state identity, or an unexpected
-  object: unknown; fail closed and leave it untouched.
-
-Broad deletion by `soglia*` prefix is prohibited. The recovery path removes only the exact expected
-objects after the trusted record, metadata binding and kernel contracts establish ownership. A
-foreign control object is removed only by the S13 test harness that created it and rechecks its ID.
-
-Old tuple, cookie, policy, owner or generation state is never copied into the new maps. A successful
-compatible recovery proves old map IDs disappeared, fresh IDs were allocated, authorization maps
-are empty, the old tuple lookup is absent, and the new generation differs before readiness.
+Normal cleanup first revalidates ownership, removes only the exact manifest, verifies BPF program/link/map baselines, and then removes the ownership record and run-owned directories. Any unverifiable or unowned residue produces `CLEANUP_FAIL` rather than a broad deletion.

@@ -1,0 +1,22 @@
+{
+  "sequence": 1007,
+  "executable": "systemctl",
+  "argv": [
+    "show",
+    "soglia-spike-s12-55766245754.service",
+    "-p",
+    "LoadState",
+    "-p",
+    "ActiveState"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525637587,
+  "monotonic_start_ns": 60960837818,
+  "duration_ms": 22,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s12/commands/1007.stdout",
+  "stderr_file": "s12/commands/1007.stderr"
+}

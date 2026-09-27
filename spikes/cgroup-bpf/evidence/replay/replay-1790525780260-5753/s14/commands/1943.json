@@ -1,0 +1,26 @@
+{
+  "sequence": 1943,
+  "executable": "ip",
+  "argv": [
+    "link",
+    "add",
+    "s145753h007",
+    "type",
+    "veth",
+    "peer",
+    "name",
+    "eth0",
+    "netns",
+    "sg14-5753-32-007"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525866303,
+  "monotonic_start_ns": 86040504346,
+  "duration_ms": 23,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s14/commands/1943.stdout",
+  "stderr_file": "s14/commands/1943.stderr"
+}

@@ -1,0 +1,20 @@
+{
+  "sequence": 676,
+  "executable": "runc",
+  "argv": [
+    "--root",
+    "/run/soglia-spike-runner/replay-1790525780260-5753/s8-state/runc",
+    "list",
+    "--quiet"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525824498,
+  "monotonic_start_ns": 44236034290,
+  "duration_ms": 23,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s8/commands/0676.stdout",
+  "stderr_file": "s8/commands/0676.stderr"
+}

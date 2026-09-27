@@ -1,0 +1,19 @@
+{
+  "sequence": 679,
+  "executable": "ip",
+  "argv": [
+    "link",
+    "delete",
+    "soglia0"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525621388,
+  "monotonic_start_ns": 44762023043,
+  "duration_ms": 22,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s8/commands/0679.stdout",
+  "stderr_file": "s8/commands/0679.stderr"
+}

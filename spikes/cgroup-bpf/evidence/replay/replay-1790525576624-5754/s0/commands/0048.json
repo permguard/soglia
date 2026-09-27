@@ -1,0 +1,30 @@
+{
+  "sequence": 48,
+  "executable": "/var/tmp/soglia-spike-2/bin/soglia-spike-runner",
+  "argv": [
+    "_s0-loader",
+    "--object",
+    "/var/tmp/soglia-spike-2/bpf/soglia.o",
+    "--cgroup",
+    "/sys/fs/cgroup/system.slice/soglia-spike-5576624-5754.service/executions/s0-probe",
+    "--map-pins",
+    "/sys/fs/bpf/soglia-spike-runner/replay-1790525576624-5754/s0/child-exclusive/maps",
+    "--link-pins",
+    "/sys/fs/bpf/soglia-spike-runner/replay-1790525576624-5754/s0/child-exclusive/links",
+    "--ready",
+    "/run/soglia-spike-runner/replay-1790525576624-5754/s0/child-exclusive.ready",
+    "--stop",
+    "/run/soglia-spike-runner/replay-1790525576624-5754/s0/child-exclusive.stop",
+    "--connect4-only"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525584916,
+  "monotonic_start_ns": 8290006303,
+  "duration_ms": 21,
+  "exit_code": 14,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s0/commands/0048.stdout",
+  "stderr_file": "s0/commands/0048.stderr"
+}

@@ -1,0 +1,23 @@
+{
+  "sequence": 3148,
+  "executable": "/usr/bin/env",
+  "argv": [
+    "sh",
+    "-c",
+    "command -v \"$1\"",
+    "sh",
+    "nft"
+  ],
+  "working_directory": "/",
+  "selected_environment": {
+    "LC_ALL": "C"
+  },
+  "wall_start_unix_ms": 1790525900224,
+  "monotonic_start_ns": 119962234417,
+  "duration_ms": 23,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "final/environment/commands/3148.stdout",
+  "stderr_file": "final/environment/commands/3148.stderr"
+}

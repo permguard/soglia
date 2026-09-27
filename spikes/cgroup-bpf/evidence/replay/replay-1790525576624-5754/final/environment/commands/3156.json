@@ -1,0 +1,17 @@
+{
+  "sequence": 3156,
+  "executable": "nft",
+  "argv": [
+    "--version"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525696509,
+  "monotonic_start_ns": 119883640920,
+  "duration_ms": 22,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "final/environment/commands/3156.stdout",
+  "stderr_file": "final/environment/commands/3156.stderr"
+}

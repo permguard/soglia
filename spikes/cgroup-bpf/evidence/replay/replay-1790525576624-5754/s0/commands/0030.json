@@ -1,0 +1,21 @@
+{
+  "sequence": 30,
+  "executable": "bpftool",
+  "argv": [
+    "-j",
+    "cgroup",
+    "show",
+    "/sys/fs/cgroup/system.slice/soglia-spike-5576624-5754.service/executions/s0-probe",
+    "effective"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525584450,
+  "monotonic_start_ns": 7823782879,
+  "duration_ms": 22,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s0/commands/0030.stdout",
+  "stderr_file": "s0/commands/0030.stderr"
+}

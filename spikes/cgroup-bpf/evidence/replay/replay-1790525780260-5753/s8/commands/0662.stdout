@@ -1,0 +1,19 @@
+Started soglia-spike-s8-5753.service - /var/tmp/soglia-spike-2/bin/soglia run --file /var/tmp/soglia-spike-2/runtime/replay-1790525780260-5753/s8/soglia.yaml.
+[2m2026-09-27T16:16:54.002504Z[0m [32m INFO[0m privileges dropped [3mevent.name[0m[2m=[0m"startup.privileges_dropped" [3muid[0m[2m=[0m990 [3mgid[0m[2m=[0m990
+[2m2026-09-27T16:16:54.002873Z[0m [32m INFO[0m soglia is ready [3mevent.name[0m[2m=[0m"startup.ready" [3mingress[0m[2m=[0m127.0.0.1:18089 [3megress[0m[2m=[0m10.200.255.1:15001
+[2m2026-09-27T16:16:54.091648Z[0m [32m INFO[0m execution admitted [3mevent.name[0m[2m=[0m"execution.admitted" [3mexecution_id[0m[2m=[0m824058a2e72fc8a81dd15e134c4066b7 [3magent[0m[2m=[0mprobe [3mslot[0m[2m=[0m0
+[2m2026-09-27T16:16:54.091662Z[0m [32m INFO[0m execution phase [3mevent.name[0m[2m=[0m"execution.phase" [3mexecution_id[0m[2m=[0m824058a2e72fc8a81dd15e134c4066b7 [3mphase[0m[2m=[0mCreating
+[2m2026-09-27T16:16:54.093799Z[0m [32m INFO[0m execution admitted [3mevent.name[0m[2m=[0m"execution.admitted" [3mexecution_id[0m[2m=[0m92e44a2c67991905690f45f3e909e363 [3magent[0m[2m=[0mprobe [3mslot[0m[2m=[0m1
+[2m2026-09-27T16:16:54.093859Z[0m [32m INFO[0m execution phase [3mevent.name[0m[2m=[0m"execution.phase" [3mexecution_id[0m[2m=[0m92e44a2c67991905690f45f3e909e363 [3mphase[0m[2m=[0mCreating
+[2m2026-09-27T16:16:54.094027Z[0m [32m INFO[0m execution admitted [3mevent.name[0m[2m=[0m"execution.admitted" [3mexecution_id[0m[2m=[0m4e1c0478a97226bf5ece5fa4b79a2c11 [3magent[0m[2m=[0mprobe [3mslot[0m[2m=[0m2
+[2m2026-09-27T16:16:54.094052Z[0m [32m INFO[0m execution phase [3mevent.name[0m[2m=[0m"execution.phase" [3mexecution_id[0m[2m=[0m4e1c0478a97226bf5ece5fa4b79a2c11 [3mphase[0m[2m=[0mCreating
+[2m2026-09-27T16:16:54.100320Z[0m [32m INFO[0m execution phase [3mevent.name[0m[2m=[0m"execution.phase" [3mexecution_id[0m[2m=[0m824058a2e72fc8a81dd15e134c4066b7 [3mphase[0m[2m=[0mStarting
+[2m2026-09-27T16:16:54.108396Z[0m [32m INFO[0m execution phase [3mevent.name[0m[2m=[0m"execution.phase" [3mexecution_id[0m[2m=[0m92e44a2c67991905690f45f3e909e363 [3mphase[0m[2m=[0mStarting
+[2m2026-09-27T16:16:54.118140Z[0m [32m INFO[0m execution phase [3mevent.name[0m[2m=[0m"execution.phase" [3mexecution_id[0m[2m=[0m4e1c0478a97226bf5ece5fa4b79a2c11 [3mphase[0m[2m=[0mStarting
+[2m2026-09-27T16:16:54.145743Z[0m [32m INFO[0m execution phase [3mevent.name[0m[2m=[0m"execution.phase" [3mexecution_id[0m[2m=[0m824058a2e72fc8a81dd15e134c4066b7 [3mphase[0m[2m=[0mReady
+[2m2026-09-27T16:16:54.145752Z[0m [32m INFO[0m execution phase [3mevent.name[0m[2m=[0m"execution.phase" [3mexecution_id[0m[2m=[0m824058a2e72fc8a81dd15e134c4066b7 [3mphase[0m[2m=[0mRunning
+[2m2026-09-27T16:16:54.158021Z[0m [32m INFO[0m execution phase [3mevent.name[0m[2m=[0m"execution.phase" [3mexecution_id[0m[2m=[0m92e44a2c67991905690f45f3e909e363 [3mphase[0m[2m=[0mReady
+[2m2026-09-27T16:16:54.158029Z[0m [32m INFO[0m execution phase [3mevent.name[0m[2m=[0m"execution.phase" [3mexecution_id[0m[2m=[0m92e44a2c67991905690f45f3e909e363 [3mphase[0m[2m=[0mRunning
+[2m2026-09-27T16:16:54.170934Z[0m [32m INFO[0m execution phase [3mevent.name[0m[2m=[0m"execution.phase" [3mexecution_id[0m[2m=[0m4e1c0478a97226bf5ece5fa4b79a2c11 [3mphase[0m[2m=[0mReady
+[2m2026-09-27T16:16:54.170942Z[0m [32m INFO[0m execution phase [3mevent.name[0m[2m=[0m"execution.phase" [3mexecution_id[0m[2m=[0m4e1c0478a97226bf5ece5fa4b79a2c11 [3mphase[0m[2m=[0mRunning
+[2m2026-09-27T16:16:56.646293Z[0m [32m INFO[0m egress request allowed [3mevent.name[0m[2m=[0m"egress.allowed" [3mexecution_id[0m[2m=[0m824058a2e72fc8a81dd15e134c4066b7 [3mmethod[0m[2m=[0mCONNECT [3mtarget[0m[2m=[0mallowed.test:443 [3mstatus[0m[2m=[0m200

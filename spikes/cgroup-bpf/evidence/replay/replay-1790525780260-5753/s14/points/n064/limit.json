@@ -1,0 +1,7 @@
+{
+  "index": 44,
+  "ident": 14064044,
+  "operation": "EbpfLoader/load/configure/attach/pin",
+  "error": "load object for e44: MapError(CreateError { name: \"soglia_events\", io_error: Os { code: 24, kind: Uncategorized, message: \"Too many open files\" } })",
+  "open_fd_count": 1016
+}

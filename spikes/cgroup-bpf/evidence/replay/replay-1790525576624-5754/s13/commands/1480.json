@@ -1,0 +1,22 @@
+{
+  "sequence": 1480,
+  "executable": "systemctl",
+  "argv": [
+    "show",
+    "soglia-spike-s13-55766245754.service",
+    "-p",
+    "LoadState",
+    "-p",
+    "ActiveState"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525650036,
+  "monotonic_start_ns": 73410184361,
+  "duration_ms": 23,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s13/commands/1480.stdout",
+  "stderr_file": "s13/commands/1480.stderr"
+}

@@ -1,0 +1,20 @@
+{
+  "sequence": 57,
+  "executable": "bpftool",
+  "argv": [
+    "prog",
+    "loadall",
+    "/var/tmp/soglia-spike-2/bpf/foreign.o",
+    "/sys/fs/bpf/soglia-spike-runner/replay-1790525780260-5753/s0/foreign-multi"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525788280,
+  "monotonic_start_ns": 8017585792,
+  "duration_ms": 20,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s0/commands/0057.stdout",
+  "stderr_file": "s0/commands/0057.stderr"
+}

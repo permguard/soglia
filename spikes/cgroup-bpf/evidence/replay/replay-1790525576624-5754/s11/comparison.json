@@ -1,0 +1,13 @@
+{
+  "bpf_link_identity_equal": true,
+  "bpf_map_identity_equal": true,
+  "bpf_program_identity_equal": true,
+  "bpffs_baseline_equal": true,
+  "external_churn_policy": "whole-host differences are recorded but only exact Soglia ownership absence is security-gating",
+  "host_link_structure_equal": true,
+  "host_nft_structure_equal": true,
+  "netns_baseline_equal": true,
+  "owned_residue_absent": true,
+  "runc_baseline_equal": true,
+  "runtime_baseline_equal": true
+}

@@ -1,0 +1,21 @@
+{
+  "sequence": 424,
+  "executable": "ip",
+  "argv": [
+    "addr",
+    "add",
+    "10.201.0.2/30",
+    "dev",
+    "s4h5576624"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525599331,
+  "monotonic_start_ns": 22705685419,
+  "duration_ms": 23,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s4/commands/0424.stdout",
+  "stderr_file": "s4/commands/0424.stderr"
+}

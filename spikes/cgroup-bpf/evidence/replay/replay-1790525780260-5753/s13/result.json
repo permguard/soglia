@@ -1,0 +1,10 @@
+{
+  "test": "s13",
+  "authoritative": true,
+  "verdict": "PASS",
+  "invariant": "trusted external ownership plus kernel-observed compatibility sweeps known residue before readiness, while incompatible and unknown pinned state fail closed without pathname deletion",
+  "detail": "invariant and cleanup proven; EXTERNAL_CHURN: systemd sd_* program IDs changed [764, 765, 766, 767, 768, 769, 770, 771, 772, 773, 774, 775] -> [875, 876, 877, 878, 879, 880, 881, 882, 883, 884, 885, 886]; the complete stable sd_* object multiset excluding IDs, all non-systemd programs, links and maps are unchanged; all registered test-owned objects are absent",
+  "cleanup": "PASS",
+  "started_unix_ms": 1790525840917,
+  "duration_ms": 12809
+}

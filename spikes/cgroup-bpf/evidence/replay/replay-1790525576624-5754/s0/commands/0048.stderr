@@ -1,0 +1,1 @@
+soglia-spike-runner: attach soglia_connect4: SyscallError(SyscallError { call: "bpf_link_create", io_error: Os { code: 1, kind: PermissionDenied, message: "Operation not permitted" } })

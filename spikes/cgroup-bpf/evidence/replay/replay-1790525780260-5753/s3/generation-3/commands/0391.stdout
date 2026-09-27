@@ -1,0 +1,1 @@
+{"cmd":"barrier /run/soglia-spike-runner/replay-1790525780260-5753/s3/agent.ready /run/soglia-spike-runner/replay-1790525780260-5753/s3/agent.go 30","ok":true,"detail":"released pid=7615"}

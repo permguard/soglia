@@ -1,0 +1,25 @@
+{
+  "sequence": 1947,
+  "executable": "ip",
+  "argv": [
+    "netns",
+    "exec",
+    "sg14-5754-32-007",
+    "ip",
+    "addr",
+    "add",
+    "10.202.0.29/30",
+    "dev",
+    "eth0"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525662910,
+  "monotonic_start_ns": 86283922943,
+  "duration_ms": 22,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s14/commands/1947.stdout",
+  "stderr_file": "s14/commands/1947.stderr"
+}

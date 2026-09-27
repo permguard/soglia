@@ -1,0 +1,10 @@
+{
+  "test": "s12",
+  "authoritative": true,
+  "verdict": "PASS",
+  "invariant": "bounded authorization-map update failure produces missing trusted attribution and bounded fail-closed denial without IP fallback or effects",
+  "detail": "invariant and cleanup proven; EXTERNAL_CHURN: systemd sd_* program IDs changed [734, 735, 736, 737, 738, 739, 740, 741, 742, 743, 744, 745] -> [752, 753, 754, 755, 756, 757, 758, 759, 760, 761, 762, 763]; the complete stable sd_* object multiset excluding IDs, all non-systemd programs, links and maps are unchanged; all registered test-owned objects are absent",
+  "cleanup": "PASS",
+  "started_unix_ms": 1790525633518,
+  "duration_ms": 4197
+}

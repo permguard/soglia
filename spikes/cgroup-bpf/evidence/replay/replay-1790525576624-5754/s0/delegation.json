@@ -1,0 +1,31 @@
+{
+  "executions_metadata": {
+    "gid": 0,
+    "inode": 5748,
+    "mode": 493,
+    "path": "/sys/fs/cgroup/system.slice/soglia-spike-5576624-5754.service/executions",
+    "uid": 0
+  },
+  "helper": {
+    "cgroup_relative": "/system.slice/soglia-spike-5576624-5754.service",
+    "cgroup_root": "/sys/fs/cgroup/system.slice/soglia-spike-5576624-5754.service",
+    "pid": 5839,
+    "runtime_leaf": "/sys/fs/cgroup/system.slice/soglia-spike-5576624-5754.service/runtime",
+    "subtree_control": "memory pids\n"
+  },
+  "helper_pid": 5839,
+  "root_metadata": {
+    "gid": 0,
+    "inode": 5646,
+    "mode": 493,
+    "path": "/sys/fs/cgroup/system.slice/soglia-spike-5576624-5754.service",
+    "uid": 0
+  },
+  "target_metadata": {
+    "gid": 0,
+    "inode": 5790,
+    "mode": 493,
+    "path": "/sys/fs/cgroup/system.slice/soglia-spike-5576624-5754.service/executions/s0-probe",
+    "uid": 0
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "sequence": 706,
+  "executable": "ip",
+  "argv": [
+    "netns",
+    "exec",
+    "sg-s9-55766245754",
+    "ip",
+    "addr",
+    "add",
+    "10.201.0.1/30",
+    "dev",
+    "eth0"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525622255,
+  "monotonic_start_ns": 45628819749,
+  "duration_ms": 22,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s9/commands/0706.stdout",
+  "stderr_file": "s9/commands/0706.stderr"
+}

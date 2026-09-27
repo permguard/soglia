@@ -1,0 +1,20 @@
+{
+  "sequence": 1184,
+  "executable": "bpftool",
+  "argv": [
+    "-j",
+    "cgroup",
+    "show",
+    "/sys/fs/cgroup/system.slice/soglia-spike-s13-55766245754.service/executions/s13-crash-intent-new"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525642276,
+  "monotonic_start_ns": 65650211007,
+  "duration_ms": 22,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s13/commands/1184.stdout",
+  "stderr_file": "s13/commands/1184.stderr"
+}

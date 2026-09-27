@@ -1,0 +1,10 @@
+{
+  "test": "s1b",
+  "authoritative": true,
+  "verdict": "PASS",
+  "invariant": "delayed attribution resolves only after publication; missing publication reaches bounded deny before application/DNS/outbound processing",
+  "detail": "invariant and cleanup proven; EXTERNAL_CHURN: systemd sd_* program IDs changed [196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206, 207] -> [214, 215, 216, 217, 218, 219, 220, 221, 222, 223, 224, 225]; the complete stable sd_* object multiset excluding IDs, all non-systemd programs, links and maps are unchanged; all registered test-owned objects are absent",
+  "cleanup": "PASS",
+  "started_unix_ms": 1790525790226,
+  "duration_ms": 3375
+}

@@ -1,0 +1,26 @@
+{
+  "sequence": 2419,
+  "executable": "ip",
+  "argv": [
+    "link",
+    "add",
+    "s145753h007",
+    "type",
+    "veth",
+    "peer",
+    "name",
+    "eth0",
+    "netns",
+    "sg14-5753-64-007"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525879467,
+  "monotonic_start_ns": 99205116175,
+  "duration_ms": 23,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s14/commands/2419.stdout",
+  "stderr_file": "s14/commands/2419.stderr"
+}

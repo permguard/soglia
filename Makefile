@@ -16,6 +16,11 @@
 #   task coverage:html       -> make coverage-html
 #   task coverage:lcov       -> make coverage-lcov
 #   task dev:image           -> make dev-image
+#   task spike:delete-vms    -> make spike-delete-vms
+#   task spike:doctor        -> make spike-doctor
+#   task spike:replay        -> make spike-replay
+#   task spike:run           -> make spike-run
+#   task spike:vms           -> make spike-vms
 #   task test:acceptance     -> make test-acceptance
 #   task test:portable       -> make test-portable
 
@@ -28,11 +33,17 @@ RELEASE ?=
 ARGS    ?=
 FILTER  ?=
 STALE   ?=
+ONLY    ?= s0
+FROM    ?=
+# 1 shows Lima's own prompts instead of answering them (spike-* targets).
+INTERACTIVE ?= 0
+# Any value skips the confirmation of spike-delete-vms.
+YES ?=
 
 scope   = $(if $(PKG),-p $(PKG),--workspace)
 profile = $(if $(RELEASE),--release)
 
-.PHONY: help build check check-headers check-notices check-phase0-deps check-supply-chain check-systems clean coverage coverage-html coverage-lcov dev-image fmt lint notices test test-acceptance test-portable
+.PHONY: help build check check-headers check-notices check-phase0-deps check-supply-chain check-systems clean coverage coverage-html coverage-lcov dev-image fmt lint notices spike-delete-vms spike-doctor spike-replay spike-run spike-vms test test-acceptance test-portable
 
 help: ## List the targets.
 	@grep -E '^[a-z0-9-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-20s %s\n", $$1, $$2}'
@@ -90,6 +101,21 @@ notices: ## Regenerate THIRD_PARTY_NOTICES.md from the resolved dependency graph
 lint: ## Check formatting and run clippy with warnings denied.
 	cargo fmt --all -- --check
 	cargo clippy --workspace --all-targets --locked -- -D warnings
+
+spike-delete-vms: ## Stop and delete every soglia-spike* Lima VM (asks first; YES=1 skips the question).
+	./spikes/cgroup-bpf/host/delete-vms.sh $(if $(YES),--yes)
+
+spike-doctor: ## Check the cgroup-BPF spike environment on the development VM (created if missing).
+	SOGLIA_SPIKE_INTERACTIVE=$(INTERACTIVE) ./spikes/cgroup-bpf/host/run-dev.sh doctor
+
+spike-replay: ## Run the authoritative S0-S14 replay on two newly created VMs, one after the other.
+	SOGLIA_SPIKE_INTERACTIVE=$(INTERACTIVE) ./spikes/cgroup-bpf/host/run-fresh.sh
+
+spike-run: ## Run spike tests diagnostically on the development VM (default ONLY=s0; FROM=sN runs from sN on).
+	SOGLIA_SPIKE_INTERACTIVE=$(INTERACTIVE) ./spikes/cgroup-bpf/host/run-dev.sh run $(if $(FROM),--from $(FROM),--only $(ONLY))
+
+spike-vms: ## List the Lima VMs of the cgroup-BPF spike.
+	limactl list | awk 'NR == 1 || /soglia-spike/'
 
 test: ## Run the unprivileged test suite.
 	cargo test $(scope) --locked $(ARGS) $(FILTER)

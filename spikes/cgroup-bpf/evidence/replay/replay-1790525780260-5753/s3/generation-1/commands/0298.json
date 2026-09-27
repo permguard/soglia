@@ -1,0 +1,19 @@
+{
+  "sequence": 298,
+  "executable": "ip",
+  "argv": [
+    "netns",
+    "del",
+    "sg-s3-57802605753"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525799073,
+  "monotonic_start_ns": 18811341086,
+  "duration_ms": 22,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s3/generation-1/commands/0298.stdout",
+  "stderr_file": "s3/generation-1/commands/0298.stderr"
+}

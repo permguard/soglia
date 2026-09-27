@@ -1,0 +1,22 @@
+{
+  "sequence": 507,
+  "executable": "ip",
+  "argv": [
+    "netns",
+    "exec",
+    "sg-s5-55766245754",
+    "nft",
+    "-f",
+    "/run/soglia-spike-runner/replay-1790525576624-5754/s5/netns.nft"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525603208,
+  "monotonic_start_ns": 26582086966,
+  "duration_ms": 24,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s5/commands/0507.stdout",
+  "stderr_file": "s5/commands/0507.stderr"
+}

@@ -1,0 +1,25 @@
+{
+  "sequence": 24,
+  "executable": "systemd-run",
+  "argv": [
+    "--unit=soglia-spike-5576624-5754",
+    "--property=Delegate=yes",
+    "--collect",
+    "--service-type=exec",
+    "--",
+    "/var/tmp/soglia-spike-2/bin/soglia-spike-runner",
+    "_delegation-helper",
+    "--ready",
+    "/run/soglia-spike-runner/replay-1790525576624-5754/s0/delegation-ready.json"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525584302,
+  "monotonic_start_ns": 7676501259,
+  "duration_ms": 20,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s0/commands/0024.stdout",
+  "stderr_file": "s0/commands/0024.stderr"
+}

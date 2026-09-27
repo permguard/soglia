@@ -1,0 +1,2 @@
+{"cmd":"barrier /run/soglia-spike-s5-sendmsg6-deny-agent.ready /run/soglia-spike-s5-sendmsg6-deny-agent.go 15","ok":true,"detail":"released pid=8365"}
+{"cmd":"udp6 [fd00:201::2]:16004","ok":false,"errno":1,"error":"Operation not permitted (os error 1)"}

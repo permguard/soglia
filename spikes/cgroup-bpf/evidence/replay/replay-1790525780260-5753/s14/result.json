@@ -1,0 +1,10 @@
+{
+  "test": "s14",
+  "authoritative": true,
+  "verdict": "PASS",
+  "invariant": "Candidate C resource scaling is empirically characterized while sampled Execution identities remain distinct and every point returns to baseline",
+  "detail": "invariant and cleanup proven",
+  "cleanup": "PASS",
+  "started_unix_ms": 1790525853733,
+  "duration_ms": 46263
+}

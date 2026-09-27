@@ -1,0 +1,20 @@
+{
+  "sequence": 880,
+  "executable": "ip",
+  "argv": [
+    "link",
+    "set",
+    "s11h5576624",
+    "up"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525631840,
+  "monotonic_start_ns": 55214004435,
+  "duration_ms": 24,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s11/commands/0880.stdout",
+  "stderr_file": "s11/commands/0880.stderr"
+}

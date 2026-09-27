@@ -1,0 +1,18 @@
+{
+  "sequence": 684,
+  "executable": "systemctl",
+  "argv": [
+    "revert",
+    "soglia-spike-s8-5754.service"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525621515,
+  "monotonic_start_ns": 44888997050,
+  "duration_ms": 102,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s8/commands/0684.stdout",
+  "stderr_file": "s8/commands/0684.stderr"
+}

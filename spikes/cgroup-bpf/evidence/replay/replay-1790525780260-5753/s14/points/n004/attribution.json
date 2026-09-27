@@ -1,0 +1,58 @@
+[
+  {
+    "origin_index": 3,
+    "execution_id": "s14-n4-execution-003-generation-1",
+    "expected_ident": 14004003,
+    "accepted_peer": "10.202.0.13:40000",
+    "accepted_local": "10.200.255.1:15001",
+    "tuple_key_hex": "0aca000d0ac8ff01409c0000993a0000",
+    "tuple_evidence": [
+      151,
+      19480,
+      19480,
+      14004003,
+      6,
+      142290600191,
+      19480,
+      2570715136
+    ],
+    "resolved_index": 3,
+    "application_bytes_before_resolve": 0,
+    "dns_before_resolve": 0,
+    "outbound_before_resolve": 0,
+    "ip_fallback_authorization": false,
+    "resolve_latency_ns": 2749,
+    "application_line_after_resolve": "HELLO 0",
+    "agent_exit_code": 0,
+    "agent_signal": null,
+    "correct": true
+  },
+  {
+    "origin_index": 0,
+    "execution_id": "s14-n4-execution-000-generation-1",
+    "expected_ident": 14004000,
+    "accepted_peer": "10.202.0.1:40000",
+    "accepted_local": "10.200.255.1:15001",
+    "tuple_key_hex": "0aca00010ac8ff01409c0000993a0000",
+    "tuple_evidence": [
+      4174,
+      19354,
+      19354,
+      14004000,
+      8199,
+      142294504957,
+      19354,
+      2570715136
+    ],
+    "resolved_index": 0,
+    "application_bytes_before_resolve": 0,
+    "dns_before_resolve": 0,
+    "outbound_before_resolve": 0,
+    "ip_fallback_authorization": false,
+    "resolve_latency_ns": 1333,
+    "application_line_after_resolve": "HELLO 0",
+    "agent_exit_code": 0,
+    "agent_signal": null,
+    "correct": true
+  }
+]

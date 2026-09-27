@@ -1,0 +1,19 @@
+{
+  "sequence": 1823,
+  "executable": "ip",
+  "argv": [
+    "netns",
+    "del",
+    "sg14-5753-16-010"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525863044,
+  "monotonic_start_ns": 82781611016,
+  "duration_ms": 22,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s14/commands/1823.stdout",
+  "stderr_file": "s14/commands/1823.stderr"
+}

@@ -1,0 +1,20 @@
+{
+  "sequence": 786,
+  "executable": "ip",
+  "argv": [
+    "link",
+    "set",
+    "s10h5780260",
+    "up"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525829358,
+  "monotonic_start_ns": 49096089497,
+  "duration_ms": 24,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s10/commands/0786.stdout",
+  "stderr_file": "s10/commands/0786.stderr"
+}

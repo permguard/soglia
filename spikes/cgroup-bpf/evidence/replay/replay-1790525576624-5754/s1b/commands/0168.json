@@ -1,0 +1,19 @@
+{
+  "sequence": 168,
+  "executable": "ip",
+  "argv": [
+    "link",
+    "del",
+    "s1bp5576624"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525590156,
+  "monotonic_start_ns": 13529917461,
+  "duration_ms": 21,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s1b/commands/0168.stdout",
+  "stderr_file": "s1b/commands/0168.stderr"
+}

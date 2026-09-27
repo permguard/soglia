@@ -1,0 +1,23 @@
+{
+  "sequence": 9,
+  "executable": "/usr/bin/env",
+  "argv": [
+    "sh",
+    "-c",
+    "command -v \"$1\"",
+    "sh",
+    "nft"
+  ],
+  "working_directory": "/",
+  "selected_environment": {
+    "LC_ALL": "C"
+  },
+  "wall_start_unix_ms": 1790525780460,
+  "monotonic_start_ns": 197611972,
+  "duration_ms": 22,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "preflight/commands/0009.stdout",
+  "stderr_file": "preflight/commands/0009.stderr"
+}

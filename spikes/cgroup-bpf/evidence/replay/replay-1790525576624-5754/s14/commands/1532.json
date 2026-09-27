@@ -1,0 +1,19 @@
+{
+  "sequence": 1532,
+  "executable": "ip",
+  "argv": [
+    "-j",
+    "netns",
+    "list"
+  ],
+  "working_directory": "/",
+  "selected_environment": {},
+  "wall_start_unix_ms": 1790525651501,
+  "monotonic_start_ns": 74874718737,
+  "duration_ms": 23,
+  "exit_code": 0,
+  "signal": null,
+  "timed_out": false,
+  "stdout_file": "s14/commands/1532.stdout",
+  "stderr_file": "s14/commands/1532.stderr"
+}

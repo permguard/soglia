@@ -1,0 +1,28 @@
+[
+  {
+    "index": 0,
+    "trusted_pid": 13931,
+    "host_pid": 13931,
+    "agent_pid": 13931,
+    "cgroup": "/sys/fs/cgroup/system.slice/soglia-spike-s14-57802605753.service/executions/s14-e000",
+    "cgroup_inode": 19354,
+    "proc_cgroup": "0::/system.slice/soglia-spike-s14-57802605753.service/executions/s14-e000",
+    "cgroup_procs": "13931",
+    "process_netns_inode": 4026532347,
+    "owned_netns_inode": 4026532347,
+    "proven": true
+  },
+  {
+    "index": 3,
+    "trusted_pid": 13934,
+    "host_pid": 13934,
+    "agent_pid": 13934,
+    "cgroup": "/sys/fs/cgroup/system.slice/soglia-spike-s14-57802605753.service/executions/s14-e003",
+    "cgroup_inode": 19480,
+    "proc_cgroup": "0::/system.slice/soglia-spike-s14-57802605753.service/executions/s14-e003",
+    "cgroup_procs": "13934",
+    "process_netns_inode": 4026532540,
+    "owned_netns_inode": 4026532540,
+    "proven": true
+  }
+]
