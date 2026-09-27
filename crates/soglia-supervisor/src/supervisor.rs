@@ -31,10 +31,10 @@ use std::sync::{Arc, Mutex};
 use std::time::Duration;
 
 use http::StatusCode;
-use soglia_core::config::{AgentConfig, Config};
+use soglia_core::config::{AgentConfig, Config, NetworkBackend};
 use soglia_core::helper::{EnforcerRequest, ExitOutcome, HelperResponse, SandboxRequest};
 use soglia_core::net::ExecutionPool;
-use soglia_core::{ExecutionId, ExecutionPhase, ResourceTag};
+use soglia_core::{BindingKey, ExecutionId, ExecutionNonce, ExecutionPhase, ResourceTag};
 use soglia_proxy::attribution::AttributionTable;
 use soglia_proxy::ingress::{Execution, Executor, Invocation, Outcome};
 use tokio::sync::{Semaphore, watch};
@@ -121,12 +121,17 @@ enum Failure {
 /// One Execution's resources, as far as the Supervisor knows them.
 struct Run {
     id: ExecutionId,
+    nonce: ExecutionNonce,
     tag: ResourceTag,
     slot: u32,
     address: IpAddr,
     listener: SocketAddr,
     phase: ExecutionPhase,
     bound: bool,
+    binding: Option<BindingKey>,
+    reserved_cgroup_inode: Option<u64>,
+    reserved: bool,
+    prepared: bool,
 }
 
 impl Run {
@@ -185,6 +190,46 @@ impl Supervisor {
     pub fn helper_exited(&self, role: &'static str, reason: impl Into<String>) {
         let reason = reason.into();
         self.inner.helper_lost(role, &reason);
+    }
+
+    /// Periodically revalidates the Enforcer's owned production state.
+    pub fn watch_enforcer_health(
+        &self,
+        interval: Duration,
+        mut stopped: watch::Receiver<bool>,
+    ) -> tokio::task::JoinHandle<()> {
+        let supervisor = self.clone();
+        tokio::spawn(async move {
+            loop {
+                tokio::select! {
+                    changed = stopped.changed() => {
+                        if changed.is_err() || *stopped.borrow() {
+                            return;
+                        }
+                    }
+                    () = tokio::time::sleep(interval) => {}
+                }
+                match supervisor
+                    .inner
+                    .enforcer
+                    .call(EnforcerRequest::Health)
+                    .await
+                {
+                    Ok(HelperResponse::Done) => {}
+                    Ok(other) => {
+                        supervisor.helper_exited(
+                            "enforcer-health",
+                            format!("unexpected health response: {other:?}"),
+                        );
+                        return;
+                    }
+                    Err(error) => {
+                        supervisor.helper_exited("enforcer-health", error.to_string());
+                        return;
+                    }
+                }
+            }
+        })
     }
 
     /// Waits until no Execution is running, or `deadline` passes.
@@ -324,12 +369,18 @@ impl Inner {
 
         Ok(Run {
             id,
+            nonce: ExecutionNonce::generate()
+                .map_err(|error| format!("no Execution nonce: {error}"))?,
             tag: id.tag(),
             slot,
             address,
             listener: SocketAddr::new(address, agent.port),
             phase: ExecutionPhase::Queued,
             bound: false,
+            binding: None,
+            reserved_cgroup_inode: None,
+            reserved: false,
+            prepared: false,
         })
     }
 
@@ -341,6 +392,28 @@ impl Inner {
         invocation: &Invocation,
     ) -> Result<Answer, Failure> {
         run.enter(ExecutionPhase::Creating);
+        match self
+            .sandbox
+            .call(SandboxRequest::Reserve {
+                id: run.id,
+                agent: invocation.agent.clone(),
+            })
+            .await
+        {
+            Ok(HelperResponse::Reserved { cgroup_inode }) if cgroup_inode != 0 => {
+                run.reserved_cgroup_inode = Some(cgroup_inode);
+                run.reserved = true;
+            }
+            Ok(other) => {
+                return Err(Failure::Setup(format!(
+                    "sandboxd reserve returned {other:?}"
+                )));
+            }
+            Err(error) => {
+                self.on_helper_error("sandboxd", &error);
+                return Err(Failure::Setup(error.to_string()));
+            }
+        }
         self.expect_done(
             "enforcer",
             self.enforcer
@@ -348,24 +421,83 @@ impl Inner {
                     id: run.id,
                     slot: run.slot,
                     agent: invocation.agent.clone(),
+                    nonce: run.nonce,
                 })
                 .await,
         )
         .map_err(Failure::Setup)?;
-        // The address attributes this Execution before its agent can open a single connection.
-        self.attribution
-            .bind(run.address, run.id)
-            .map_err(|error| Failure::Setup(error.to_string()))?;
-        run.bound = true;
+        run.prepared = true;
 
         run.enter(ExecutionPhase::Starting);
+        let (pid, paused_inode) = match self
+            .sandbox
+            .call(SandboxRequest::CreatePaused { id: run.id })
+            .await
+        {
+            Ok(HelperResponse::CreatedPaused { pid, cgroup_inode }) => (pid, cgroup_inode),
+            Ok(other) => {
+                return Err(Failure::Setup(format!(
+                    "sandboxd create-paused returned {other:?}"
+                )));
+            }
+            Err(error) => {
+                self.on_helper_error("sandboxd", &error);
+                return Err(Failure::Setup(error.to_string()));
+            }
+        };
+        if Some(paused_inode) != run.reserved_cgroup_inode {
+            return Err(Failure::Setup(
+                "the Sandbox cgroup inode changed between reserve and paused-create".to_owned(),
+            ));
+        }
+        let verified = self
+            .enforcer
+            .call(EnforcerRequest::VerifyPlacement { id: run.id, pid })
+            .await;
+        let binding = match (self.config.network.backend, verified) {
+            (NetworkBackend::CgroupBpf, Ok(HelperResponse::PlacementVerified { binding }))
+                if binding.execution_nonce == run.nonce
+                    && Some(binding.cgroup_id) == run.reserved_cgroup_inode
+                    && binding.backend_generation != 0 =>
+            {
+                self.attribution
+                    .bind_key(binding, run.id)
+                    .map_err(|error| Failure::Setup(error.to_string()))?;
+                run.binding = Some(binding);
+                run.bound = true;
+                Some(binding)
+            }
+            (NetworkBackend::NetnsNft, Ok(HelperResponse::Done)) => {
+                self.attribution
+                    .bind(run.address, run.id)
+                    .map_err(|error| Failure::Setup(error.to_string()))?;
+                run.bound = true;
+                None
+            }
+            (_, Ok(other)) => {
+                return Err(Failure::Setup(format!(
+                    "enforcer placement verification returned {other:?}"
+                )));
+            }
+            (_, Err(error)) => {
+                self.on_helper_error("enforcer", &error);
+                return Err(Failure::Setup(error.to_string()));
+            }
+        };
+        self.expect_done(
+            "enforcer",
+            self.enforcer
+                .call(EnforcerRequest::Activate {
+                    id: run.id,
+                    binding,
+                })
+                .await,
+        )
+        .map_err(Failure::Setup)?;
         self.expect_done(
             "sandboxd",
             self.sandbox
-                .call(SandboxRequest::Start {
-                    id: run.id,
-                    agent: invocation.agent.clone(),
-                })
+                .call(SandboxRequest::Start { id: run.id })
                 .await,
         )
         .map_err(Failure::Setup)?;
@@ -389,40 +521,76 @@ impl Inner {
     /// TEARING_DOWN. Returns how the agent ended, or why teardown could not be verified.
     async fn teardown(&self, run: &mut Run) -> Result<ExitOutcome, String> {
         let tag = run.tag;
+        let mut failures = Vec::new();
         if run.bound {
-            self.attribution.revoke(run.address);
-        }
-        self.expect_done(
-            "enforcer",
-            self.enforcer.call(EnforcerRequest::Freeze { tag }).await,
-        )
-        .map_err(|reason| format!("freeze: {reason}"))?;
-        let exit = match self.sandbox.call(SandboxRequest::Kill { tag }).await {
-            Ok(HelperResponse::Exited { outcome }) => outcome,
-            Ok(other) => return Err(format!("kill: unexpected answer {other:?}")),
-            Err(error) => {
-                self.on_helper_error("sandboxd", &error);
-                return Err(format!("kill: {error}"));
+            if let Some(binding) = run.binding {
+                self.attribution.revoke_key(binding);
+            } else {
+                self.attribution.revoke(run.address);
             }
-        };
-        self.expect_done(
-            "sandboxd",
-            self.sandbox.call(SandboxRequest::Destroy { tag }).await,
-        )
-        .map_err(|reason| format!("sandbox destroy: {reason}"))?;
-        self.expect_done(
-            "enforcer",
-            self.enforcer.call(EnforcerRequest::Destroy { tag }).await,
-        )
-        .map_err(|reason| format!("network destroy: {reason}"))?;
-
-        if run.bound && !self.attribution.remove(run.address, run.id) {
-            return Err("the attribution could not be released".to_owned());
         }
-        if let Ok(mut slots) = self.slots.lock() {
-            slots.release(run.slot, &tag);
-        } else {
-            return Err("the slot table is poisoned".to_owned());
+        if run.prepared
+            && let Err(reason) = self.expect_done(
+                "enforcer",
+                self.enforcer.call(EnforcerRequest::Freeze { tag }).await,
+            )
+        {
+            failures.push(format!("freeze: {reason}"));
+        }
+        let mut exit = ExitOutcome::Killed;
+        if run.reserved {
+            match self.sandbox.call(SandboxRequest::Kill { tag }).await {
+                Ok(HelperResponse::Exited { outcome }) => exit = outcome,
+                Ok(other) => failures.push(format!("kill: unexpected answer {other:?}")),
+                Err(error) => {
+                    self.on_helper_error("sandboxd", &error);
+                    failures.push(format!("kill: {error}"));
+                }
+            }
+        }
+        let mut sandbox_destroyed = !run.reserved;
+        if run.reserved {
+            match self.expect_done(
+                "sandboxd",
+                self.sandbox.call(SandboxRequest::Destroy { tag }).await,
+            ) {
+                Ok(()) => sandbox_destroyed = true,
+                Err(reason) => failures.push(format!("sandbox destroy: {reason}")),
+            }
+        }
+        let mut enforcer_destroyed = !run.prepared;
+        if run.prepared && sandbox_destroyed {
+            match self.expect_done(
+                "enforcer",
+                self.enforcer.call(EnforcerRequest::Destroy { tag }).await,
+            ) {
+                Ok(()) => enforcer_destroyed = true,
+                Err(reason) => failures.push(format!("network destroy: {reason}")),
+            }
+        } else if run.prepared {
+            failures.push(
+                "network destroy skipped because Sandbox destruction was not verified".to_owned(),
+            );
+        }
+
+        if failures.is_empty() && sandbox_destroyed && enforcer_destroyed && run.bound {
+            let removed = match run.binding {
+                Some(binding) => self.attribution.remove_key(binding, run.id),
+                None => self.attribution.remove(run.address, run.id),
+            };
+            if !removed {
+                failures.push("the attribution could not be released".to_owned());
+            }
+        }
+        if failures.is_empty() && sandbox_destroyed && enforcer_destroyed {
+            if let Ok(mut slots) = self.slots.lock() {
+                slots.release(run.slot, &tag);
+            } else {
+                failures.push("the slot table is poisoned".to_owned());
+            }
+        }
+        if !failures.is_empty() {
+            return Err(failures.join("; "));
         }
         info!(event.name = "execution.destroyed", execution_id = %run.id, exit = ?exit, "execution destroyed and verified");
 
@@ -541,6 +709,14 @@ impl Inner {
     }
 }
 
+fn refused(execution: Option<ExecutionId>, status: StatusCode, reason: String) -> Outcome {
+    Outcome::Refused {
+        execution,
+        status,
+        reason,
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -563,13 +739,5 @@ mod tests {
         state.finish_helper_loss();
         assert!(*fatal_seen.borrow());
         assert!(!state.begin_helper_loss(), "duplicate loss is a no-op");
-    }
-}
-
-fn refused(execution: Option<ExecutionId>, status: StatusCode, reason: String) -> Outcome {
-    Outcome::Refused {
-        execution,
-        status,
-        reason,
     }
 }

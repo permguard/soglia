@@ -121,8 +121,17 @@ fn the_sandbox_isolates_classifies_and_cleans_up() {
 
     let run = |network: &mut NetnsNftBackend, sandbox: &mut RuncSandbox, slot: u32, agent: &str| {
         let id = ExecutionId::generate().unwrap();
-        network.prepare_execution(id, slot, agent).unwrap();
-        sandbox.start_execution(id, agent).unwrap();
+        sandbox.reserve_execution(id, agent).unwrap();
+        network
+            .prepare_execution(
+                id,
+                slot,
+                agent,
+                soglia_core::ExecutionNonce::generate().unwrap(),
+            )
+            .unwrap();
+        sandbox.create_paused(id).unwrap();
+        sandbox.start_execution(id).unwrap();
         id
     };
     let destroy = |network: &mut NetnsNftBackend, sandbox: &mut RuncSandbox, id: ExecutionId| {

@@ -3,9 +3,10 @@
 
 //! Which Execution a connection came from.
 //!
-//! The egress proxy never asks the agent who it is. It reads the peer address of the socket it
-//! accepted and looks it up here. The address is trustworthy because Soglia assigned it to exactly
-//! one Execution veth and the host drops traffic from that veth with any other source address.
+//! The egress proxy never asks the agent who it is. `NetnsNftBackend` resolves the kernel peer
+//! address protected by veth anti-spoofing. Candidate A resolves the accepted peer/local tuple over
+//! the privileged Enforcer channel and indexes the complete cgroup/nonce/generation binding. The
+//! two mechanisms never fall back to each other.
 //!
 //! A binding is revoked when its Execution starts tearing down: from then on the address attributes
 //! nothing and every open tunnel of that Execution is told to close. The address is removed, and so
@@ -13,10 +14,13 @@
 
 use std::collections::HashMap;
 use std::fmt;
+use std::future::Future;
 use std::net::IpAddr;
+use std::net::SocketAddr;
+use std::pin::Pin;
 use std::sync::Mutex;
 
-use soglia_core::ExecutionId;
+use soglia_core::{BindingKey, ExecutionId};
 use tokio::sync::watch;
 
 /// The attribution of one open connection.
@@ -51,6 +55,8 @@ struct Entry {
 pub enum BindError {
     /// The address still attributes another Execution.
     InUse(IpAddr),
+    /// A complete Candidate-A identity still attributes another Execution.
+    BindingInUse(BindingKey),
     /// The table's lock is poisoned; nothing is attributed any more.
     Poisoned,
 }
@@ -59,6 +65,9 @@ impl fmt::Display for BindError {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Self::InUse(address) => write!(formatter, "{address} is still bound to an Execution"),
+            Self::BindingInUse(binding) => {
+                write!(formatter, "Candidate-A binding {binding:?} is still in use")
+            }
             Self::Poisoned => formatter.write_str("the attribution table is poisoned"),
         }
     }
@@ -70,6 +79,17 @@ impl std::error::Error for BindError {}
 #[derive(Default)]
 pub struct AttributionTable {
     entries: Mutex<HashMap<IpAddr, Entry>>,
+    bindings: Mutex<HashMap<BindingKey, Entry>>,
+}
+
+/// Resolves an accepted socket before the proxy reads application bytes.
+pub trait ConnectionAttributor: Send + Sync {
+    /// Resolve `peer` and `local` to one live, revocable Execution binding.
+    fn resolve<'a>(
+        &'a self,
+        peer: SocketAddr,
+        local: SocketAddr,
+    ) -> Pin<Box<dyn Future<Output = Option<Binding>> + Send + 'a>>;
 }
 
 impl AttributionTable {
@@ -107,6 +127,53 @@ impl AttributionTable {
         })
     }
 
+    /// Attributes one indivisible Candidate-A identity to an Execution.
+    pub fn bind_key(&self, binding: BindingKey, id: ExecutionId) -> Result<(), BindError> {
+        let mut entries = self.bindings.lock().map_err(|_| BindError::Poisoned)?;
+        if entries.contains_key(&binding) {
+            return Err(BindError::BindingInUse(binding));
+        }
+        let (revoked, _) = watch::channel(false);
+        entries.insert(binding, Entry { id, revoked });
+        Ok(())
+    }
+
+    /// Resolves only an exact whole Candidate-A key; partial fields are never indexed.
+    pub fn lookup_key(&self, binding: BindingKey) -> Option<Binding> {
+        let entries = self.bindings.lock().ok()?;
+        let entry = entries.get(&binding)?;
+        if *entry.revoked.borrow() {
+            return None;
+        }
+        Some(Binding {
+            id: entry.id,
+            revoked: entry.revoked.subscribe(),
+        })
+    }
+
+    /// Revokes an exact Candidate-A binding.
+    pub fn revoke_key(&self, binding: BindingKey) {
+        if let Ok(entries) = self.bindings.lock()
+            && let Some(entry) = entries.get(&binding)
+        {
+            entry.revoked.send_replace(true);
+        }
+    }
+
+    /// Releases only the revoked exact Candidate-A binding of `id`.
+    pub fn remove_key(&self, binding: BindingKey, id: ExecutionId) -> bool {
+        let Ok(mut entries) = self.bindings.lock() else {
+            return false;
+        };
+        let releasable = entries
+            .get(&binding)
+            .is_some_and(|entry| entry.id == id && *entry.revoked.borrow());
+        if releasable {
+            entries.remove(&binding);
+        }
+        releasable
+    }
+
     /// Stops attributing `address` and tells every open connection of its Execution to close.
     /// The address stays reserved until [`Self::remove`].
     pub fn revoke(&self, address: IpAddr) {
@@ -133,6 +200,16 @@ impl AttributionTable {
         }
 
         releasable
+    }
+}
+
+impl ConnectionAttributor for AttributionTable {
+    fn resolve<'a>(
+        &'a self,
+        peer: SocketAddr,
+        _local: SocketAddr,
+    ) -> Pin<Box<dyn Future<Output = Option<Binding>> + Send + 'a>> {
+        Box::pin(async move { self.lookup(peer.ip()) })
     }
 }
 
@@ -208,5 +285,26 @@ mod tests {
         tokio::time::timeout(Duration::from_secs(1), open.revoked())
             .await
             .expect("the revocation is observed");
+    }
+
+    #[test]
+    fn candidate_a_lookup_requires_the_complete_binding_key() {
+        let table = AttributionTable::new();
+        let id = ExecutionId::generate().unwrap();
+        let key = BindingKey {
+            cgroup_id: 91,
+            execution_nonce: soglia_core::ExecutionNonce::generate().unwrap(),
+            backend_generation: 3,
+        };
+        table.bind_key(key, id).unwrap();
+        assert_eq!(table.lookup_key(key).unwrap().id, id);
+        assert!(
+            table
+                .lookup_key(BindingKey {
+                    backend_generation: 4,
+                    ..key
+                })
+                .is_none()
+        );
     }
 }

@@ -19,6 +19,8 @@ compile_error!(
 );
 
 pub mod backend;
+#[cfg(feature = "cgroup-bpf")]
+pub mod cgroup_bpf;
 pub mod rules;
 pub mod service;
 pub mod system;

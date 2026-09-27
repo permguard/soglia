@@ -14,16 +14,22 @@
 //! Supervisor after it dropped privileges, so it is not used as proof.
 
 use std::fmt;
+use std::future::Future;
 use std::io;
+use std::net::{IpAddr, SocketAddr};
 use std::os::fd::OwnedFd;
 use std::os::unix::net::UnixStream;
 use std::path::Path;
+use std::pin::Pin;
 use std::process::{Child, Command, ExitStatus, Stdio};
 use std::sync::{Arc, Mutex};
 
 use serde::Serialize;
-use soglia_core::helper::{Hello, HelperResponse};
+use soglia_core::helper::{Hello, HelperResponse, ResolverRequest, SocketTupleV4};
 use soglia_core::ipc::{read_frame, write_frame};
+use soglia_proxy::attribution::{AttributionTable, Binding, ConnectionAttributor};
+use tokio::sync::Semaphore;
+use tracing::{debug, warn};
 
 /// Why a helper exchange failed.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -52,27 +58,51 @@ impl std::error::Error for HelperError {}
 pub struct Helper {
     role: &'static str,
     channel: Arc<Mutex<UnixStream>>,
+    resolver: Option<Arc<Mutex<UnixStream>>>,
     shutdown: UnixStream,
+    resolver_shutdown: Option<UnixStream>,
     process: Arc<Mutex<Child>>,
 }
 
 impl Helper {
     /// Starts `executable` in `role` with one end of a fresh socketpair as its standard input.
     pub fn spawn(executable: &Path, role: &'static str) -> io::Result<Self> {
+        Self::spawn_inner(executable, role, false)
+    }
+
+    /// Starts the Enforcer with independent lifecycle and bounded Resolve socketpairs.
+    pub fn spawn_enforcer(executable: &Path) -> io::Result<Self> {
+        Self::spawn_inner(executable, "enforcer", true)
+    }
+
+    fn spawn_inner(executable: &Path, role: &'static str, with_resolver: bool) -> io::Result<Self> {
         let (ours, theirs) = UnixStream::pair()?;
         let shutdown = ours.try_clone()?;
+        let (resolver, resolver_shutdown, child_stdout) = if with_resolver {
+            let (ours, theirs) = UnixStream::pair()?;
+            let shutdown = ours.try_clone()?;
+            (
+                Some(Arc::new(Mutex::new(ours))),
+                Some(shutdown),
+                Stdio::from(OwnedFd::from(theirs)),
+            )
+        } else {
+            (None, None, Stdio::null())
+        };
         let process = Command::new(executable)
             .arg(format!("__{role}"))
             .env_clear()
             .stdin(Stdio::from(OwnedFd::from(theirs)))
-            .stdout(Stdio::null())
+            .stdout(child_stdout)
             .stderr(Stdio::inherit())
             .spawn()?;
 
         Ok(Self {
             role,
             channel: Arc::new(Mutex::new(ours)),
+            resolver,
             shutdown,
+            resolver_shutdown,
             process: Arc::new(Mutex::new(process)),
         })
     }
@@ -105,6 +135,23 @@ impl Helper {
         })
     }
 
+    /// Confirms the helper is still alive at the final synchronous readiness barrier.
+    pub fn ensure_running(&self) -> Result<(), HelperError> {
+        let status = self
+            .process
+            .lock()
+            .map_err(|_| HelperError::Channel("the child lock is poisoned".to_owned()))?
+            .try_wait()
+            .map_err(|error| HelperError::Channel(error.to_string()))?;
+        match status {
+            None => Ok(()),
+            Some(status) => Err(HelperError::Channel(format!(
+                "the {} helper exited before readiness ({status})",
+                self.role
+            ))),
+        }
+    }
+
     /// Permanently closes the helper IPC channel, interrupting any in-flight exchange.
     ///
     /// `shutdown` is a duplicate of the Supervisor's socket end and does not need the exchange
@@ -113,6 +160,9 @@ impl Helper {
     /// Execution.
     pub fn close_channel(&self) {
         let _ = self.shutdown.shutdown(std::net::Shutdown::Both);
+        if let Some(shutdown) = &self.resolver_shutdown {
+            let _ = shutdown.shutdown(std::net::Shutdown::Both);
+        }
     }
 
     /// Sends the configuration and waits until the helper has swept and is ready. Blocking: it runs
@@ -145,6 +195,129 @@ impl Helper {
             other => Ok(other),
         }
     }
+
+    /// A clonable client for the Enforcer's separate attribution channel.
+    pub fn resolver_client(&self) -> Result<ResolverClient, HelperError> {
+        self.resolver
+            .as_ref()
+            .map(|channel| ResolverClient {
+                channel: Arc::clone(channel),
+            })
+            .ok_or_else(|| HelperError::Unexpected("this helper has no Resolve channel".to_owned()))
+    }
+}
+
+/// The unprivileged endpoint of the Enforcer's authenticated Resolve socketpair.
+#[derive(Clone)]
+pub struct ResolverClient {
+    channel: Arc<Mutex<UnixStream>>,
+}
+
+/// Candidate-A attribution: privileged tuple consumption followed by exact live-binding lookup.
+pub struct CandidateAAttributor {
+    resolver: ResolverClient,
+    bindings: Arc<AttributionTable>,
+    timeout: std::time::Duration,
+    queue: Semaphore,
+    on_channel_loss: Arc<dyn Fn(String) + Send + Sync>,
+}
+
+impl CandidateAAttributor {
+    /// Builds a bounded fail-closed proxy attribution service.
+    pub fn new(
+        resolver: ResolverClient,
+        bindings: Arc<AttributionTable>,
+        timeout: std::time::Duration,
+        queue_depth: usize,
+        on_channel_loss: Arc<dyn Fn(String) + Send + Sync>,
+    ) -> Self {
+        Self {
+            resolver,
+            bindings,
+            timeout,
+            queue: Semaphore::new(queue_depth.max(1)),
+            on_channel_loss,
+        }
+    }
+}
+
+impl ConnectionAttributor for CandidateAAttributor {
+    fn resolve<'a>(
+        &'a self,
+        peer: SocketAddr,
+        local: SocketAddr,
+    ) -> Pin<Box<dyn Future<Output = Option<Binding>> + Send + 'a>> {
+        Box::pin(async move {
+            let (IpAddr::V4(peer_ip), IpAddr::V4(local_ip)) = (peer.ip(), local.ip()) else {
+                return None;
+            };
+            let Ok(_permit) = self.queue.try_acquire() else {
+                warn!(
+                    event.name = "cgroup_bpf.resolve_queue_full",
+                    "Candidate-A Resolve denied"
+                );
+                return None;
+            };
+            let request = ResolverRequest::Resolve {
+                tuple: SocketTupleV4 {
+                    source_address: peer_ip.octets(),
+                    destination_address: local_ip.octets(),
+                    source_port: peer.port(),
+                    destination_port: local.port(),
+                },
+            };
+            let response = tokio::time::timeout(self.timeout, self.resolver.resolve(request)).await;
+            match response {
+                Ok(Ok(HelperResponse::Resolved {
+                    binding: Some(binding),
+                })) => {
+                    let resolved = self.bindings.lookup_key(binding);
+                    debug!(
+                        event.name = "cgroup_bpf.resolve",
+                        result = if resolved.is_some() { "hit" } else { "revoked" },
+                        "Candidate-A Resolve completed"
+                    );
+                    resolved
+                }
+                Ok(Ok(HelperResponse::Resolved { binding: None })) => {
+                    debug!(
+                        event.name = "cgroup_bpf.resolve",
+                        result = "miss",
+                        "Candidate-A Resolve denied"
+                    );
+                    None
+                }
+                Err(_) => {
+                    warn!(
+                        event.name = "cgroup_bpf.resolve_timeout",
+                        "Candidate-A Resolve denied"
+                    );
+                    None
+                }
+                Ok(Ok(other)) => {
+                    (self.on_channel_loss)(format!("unexpected Resolve response: {other:?}"));
+                    None
+                }
+                Ok(Err(error)) => {
+                    (self.on_channel_loss)(error.to_string());
+                    None
+                }
+            }
+        })
+    }
+}
+
+impl ResolverClient {
+    /// Performs one serialized exchange off the async executor.
+    pub async fn resolve<R>(&self, request: R) -> Result<HelperResponse, HelperError>
+    where
+        R: Serialize + Send + 'static,
+    {
+        let channel = Arc::clone(&self.channel);
+        tokio::task::spawn_blocking(move || exchange(&channel, &request))
+            .await
+            .map_err(|error| HelperError::Channel(error.to_string()))?
+    }
 }
 
 /// How long a helper may take to clean up and exit once its channel closes.
@@ -172,6 +345,17 @@ impl Drop for Helper {
     }
 }
 
+fn exchange<R: Serialize>(
+    channel: &Mutex<UnixStream>,
+    request: &R,
+) -> Result<HelperResponse, HelperError> {
+    let mut stream = channel
+        .lock()
+        .map_err(|_| HelperError::Channel("the channel lock is poisoned".to_owned()))?;
+    write_frame(&mut *stream, request).map_err(|error| HelperError::Channel(error.to_string()))?;
+    read_frame(&mut *stream).map_err(|error| HelperError::Channel(error.to_string()))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -191,7 +375,9 @@ mod tests {
         Helper {
             role: "test",
             channel: Arc::new(Mutex::new(ours)),
+            resolver: None,
             shutdown,
+            resolver_shutdown: None,
             process: Arc::new(Mutex::new(process)),
         }
     }
@@ -220,15 +406,4 @@ mod tests {
         assert!(status.success(), "{status:?}");
         assert_eq!(status.signal(), None);
     }
-}
-
-fn exchange<R: Serialize>(
-    channel: &Mutex<UnixStream>,
-    request: &R,
-) -> Result<HelperResponse, HelperError> {
-    let mut stream = channel
-        .lock()
-        .map_err(|_| HelperError::Channel("the channel lock is poisoned".to_owned()))?;
-    write_frame(&mut *stream, request).map_err(|error| HelperError::Channel(error.to_string()))?;
-    read_frame(&mut *stream).map_err(|error| HelperError::Channel(error.to_string()))
 }

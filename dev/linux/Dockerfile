@@ -13,7 +13,10 @@ FROM rust:1-trixie
 
 RUN apt-get update \
     && apt-get install --yes --no-install-recommends \
+        clang \
+        bpftool \
         iproute2 \
+        libbpf-dev \
         nftables \
         procps \
         runc \

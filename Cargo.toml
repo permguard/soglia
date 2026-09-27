@@ -29,6 +29,10 @@ tokio.workspace = true
 tracing-subscriber.workspace = true
 tracing.workspace = true
 
+[features]
+default = []
+cgroup-bpf = ["soglia-enforcer/cgroup-bpf"]
+
 [lints]
 workspace = true
 
@@ -68,6 +72,9 @@ serde_norway = "0.9"
 tokio = { version = "1", features = ["io-util", "macros", "net", "rt-multi-thread", "signal", "sync", "time"] }
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", default-features = false, features = ["fmt", "std", "ansi"] }
+aya = "0.14"
+libbpf-rs = "0.27"
+sha2 = "0.10"
 
 # First-party code carries no `unsafe`. Kernel operations go through safe wrappers; an operation that
 # cannot is a blocker to report, not a reason to add an `unsafe` block.

@@ -48,6 +48,9 @@ pub struct Config {
     /// Where Execution cgroups are created.
     #[serde(default)]
     pub cgroup: CgroupConfig,
+    /// Candidate-A production cgroup-BPF limits and recovery roots.
+    #[serde(default)]
+    pub cgroup_bpf: CgroupBpfConfig,
     /// Components of later phases. Enabling any of them fails validation in this build.
     #[serde(default)]
     pub features: Features,
@@ -79,6 +82,8 @@ pub struct RuntimeConfig {
     pub nft: PathBuf,
     /// The iproute2 executable.
     pub ip: PathBuf,
+    /// The bpftool executable used for exact cgroup attachment inventory.
+    pub bpftool: PathBuf,
 }
 
 impl Default for RuntimeConfig {
@@ -94,6 +99,7 @@ impl Default for RuntimeConfig {
             runc: PathBuf::from("/usr/sbin/runc"),
             nft: PathBuf::from("/usr/sbin/nft"),
             ip: PathBuf::from("/usr/sbin/ip"),
+            bpftool: PathBuf::from("/usr/sbin/bpftool"),
         }
     }
 }
@@ -124,6 +130,8 @@ impl Default for IngressConfig {
 #[derive(Debug, Clone, Deserialize)]
 #[serde(deny_unknown_fields, default)]
 pub struct NetworkConfig {
+    /// The network enforcement and attribution backend.
+    pub backend: NetworkBackend,
     /// The IPv4 range Execution links are carved from.
     pub execution_pool: Cidr,
     /// The only address an Execution may connect to: the egress proxy.
@@ -137,11 +145,48 @@ pub struct NetworkConfig {
 impl Default for NetworkConfig {
     fn default() -> Self {
         Self {
+            backend: NetworkBackend::NetnsNft,
             execution_pool: Cidr::new(IpAddr::V4(Ipv4Addr::new(10, 201, 0, 0)), 16)
                 .unwrap_or_else(|_| unreachable!("the default pool is a valid range")),
             proxy_address: Ipv4Addr::new(10, 200, 255, 1),
             proxy_port: 15001,
             internal_allow: Vec::new(),
+        }
+    }
+}
+
+/// The explicitly selected network enforcement backend.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum NetworkBackend {
+    /// Network namespace, veth and nftables with source-address attribution.
+    #[default]
+    NetnsNft,
+    /// The composite namespace/nftables backend with Candidate-A cgroup-BPF attribution.
+    CgroupBpf,
+}
+
+/// Production Candidate-A map, Resolve and pinning limits.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields, default)]
+pub struct CgroupBpfConfig {
+    /// Maximum simultaneously tracked socket cookies and tuples.
+    pub max_tracked_sockets: u32,
+    /// Maximum tuple-publication wait before Resolve denies.
+    pub resolve_timeout_ms: u64,
+    /// Bounded diagnostic ring-buffer size.
+    pub ring_buffer_bytes: u32,
+    /// Root below bpffs owned by this Soglia instance.
+    pub pin_root: PathBuf,
+}
+
+impl Default for CgroupBpfConfig {
+    fn default() -> Self {
+        Self {
+            max_tracked_sockets: 4096,
+            resolve_timeout_ms: 2_000,
+            ring_buffer_bytes: 64 * 1024,
+            pin_root: PathBuf::from("/sys/fs/bpf/soglia"),
         }
     }
 }
@@ -224,6 +269,7 @@ impl Features {
             (self.credential_anchor, DeferredComponent::CredentialAnchor),
             (self.ca_signer, DeferredComponent::CaSigner),
             (self.grpc, DeferredComponent::GrpcProxy),
+            // Kept only as a compatibility trap: backend selection is explicit in `network`.
             (self.cgroup_bpf, DeferredComponent::CgroupBpfBackend),
         ]
         .into_iter()
@@ -408,6 +454,7 @@ impl Config {
         if let Some(root) = &self.cgroup.root {
             require_absolute("cgroup.root", root)?;
         }
+        self.validate_cgroup_bpf()?;
         if self.agents.is_empty() {
             return invalid("at least one agent must be configured");
         }
@@ -424,6 +471,7 @@ impl Config {
         require_absolute("runtime.runc", &runtime.runc)?;
         require_absolute("runtime.nft", &runtime.nft)?;
         require_absolute("runtime.ip", &runtime.ip)?;
+        require_absolute("runtime.bpftool", &runtime.bpftool)?;
         if runtime.uid == 0 || runtime.gid == 0 {
             return invalid("runtime.uid and runtime.gid must name an unprivileged user, not root");
         }
@@ -514,6 +562,45 @@ impl Config {
             }
         }
 
+        Ok(())
+    }
+
+    fn validate_cgroup_bpf(&self) -> Result<(), ConfigError> {
+        let bpf = &self.cgroup_bpf;
+        require_absolute("cgroup_bpf.pin_root", &bpf.pin_root)?;
+        if bpf.max_tracked_sockets == 0 || bpf.max_tracked_sockets > 262_144 {
+            return invalid(
+                "cgroup_bpf.max_tracked_sockets must be between 1 and the implementation ceiling 262144",
+            );
+        }
+        if bpf.resolve_timeout_ms == 0 || bpf.resolve_timeout_ms > 2_000 {
+            return invalid("cgroup_bpf.resolve_timeout_ms must be between 1 and 2000");
+        }
+        if bpf.ring_buffer_bytes < 4096
+            || bpf.ring_buffer_bytes > 16 * 1024 * 1024
+            || !bpf.ring_buffer_bytes.is_power_of_two()
+        {
+            return invalid(
+                "cgroup_bpf.ring_buffer_bytes must be a power of two between 4096 and 16777216",
+            );
+        }
+        let policy_capacity = self
+            .runtime
+            .max_concurrency
+            .checked_add(self.runtime.cleanup_failure_threshold)
+            .ok_or_else(|| {
+                ConfigError::Invalid(
+                    "max_concurrency plus cleanup_failure_threshold overflows".to_owned(),
+                )
+            })?;
+        if policy_capacity == 0 {
+            return invalid("the cgroup-BPF policy capacity must be positive");
+        }
+        if policy_capacity > 65_536 {
+            return invalid(
+                "the cgroup-BPF policy capacity exceeds the implementation ceiling 65536",
+            );
+        }
         Ok(())
     }
 }
@@ -623,7 +710,9 @@ agents:
         let config = Config::from_yaml(MINIMAL).unwrap();
         assert_eq!(config.runtime.max_concurrency, 4);
         assert_eq!(config.runtime.cleanup_failure_threshold, 1);
+        assert_eq!(config.runtime.bpftool, PathBuf::from("/usr/sbin/bpftool"));
         assert_eq!(config.network.proxy_port, 15001);
+        assert_eq!(config.network.backend, NetworkBackend::NetnsNft);
         let echo = &config.agents["echo"];
         assert_eq!(echo.port, 8080);
         assert_eq!(echo.uid, 65534);
@@ -746,5 +835,23 @@ agents:
         let config =
             with("egress:\n  allow:\n    - host: api.example.com\n      ports: [443]\n").unwrap();
         assert_eq!(config.egress.allow[0].ports, vec![443]);
+    }
+
+    #[test]
+    fn cgroup_bpf_limits_are_bounded_and_explicit_selection_is_accepted() {
+        let config = with("network:\n  backend: cgroup-bpf\n").unwrap();
+        assert_eq!(config.network.backend, NetworkBackend::CgroupBpf);
+
+        let mut too_many_sockets = Config::from_yaml(MINIMAL).unwrap();
+        too_many_sockets.cgroup_bpf.max_tracked_sockets = 262_145;
+        assert!(too_many_sockets.validate().is_err());
+
+        let mut too_large_ring = Config::from_yaml(MINIMAL).unwrap();
+        too_large_ring.cgroup_bpf.ring_buffer_bytes = 32 * 1024 * 1024;
+        assert!(too_large_ring.validate().is_err());
+
+        let mut too_many_policies = Config::from_yaml(MINIMAL).unwrap();
+        too_many_policies.runtime.max_concurrency = 65_536;
+        assert!(too_many_policies.validate().is_err());
     }
 }

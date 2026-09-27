@@ -23,6 +23,6 @@ pub mod records;
 pub mod unavailable;
 
 pub use config::Config;
-pub use id::{ExecutionId, ResourceTag};
+pub use id::{BindingKey, ExecutionId, ExecutionNonce, ResourceTag};
 pub use phase::ExecutionPhase;
 pub use unavailable::{DeferredComponent, Unavailable};

@@ -11,7 +11,21 @@
 
 use serde::{Deserialize, Serialize};
 
-use crate::id::{ExecutionId, ResourceTag};
+use crate::id::{BindingKey, ExecutionId, ExecutionNonce, ResourceTag};
+
+/// The canonical IPv4 TCP tuple used by Candidate-A Resolve.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct SocketTupleV4 {
+    /// Source address as the four network-order octets interpreted as native bytes.
+    pub source_address: [u8; 4],
+    /// Destination address in the same representation.
+    pub destination_address: [u8; 4],
+    /// Source port in host order.
+    pub source_port: u16,
+    /// Destination port in host order.
+    pub destination_port: u16,
+}
 
 /// The first frame on every helper channel.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -25,6 +39,8 @@ pub struct Hello {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub enum EnforcerRequest {
+    /// Revalidate the exact production attachment, pin and policy inventory.
+    Health,
     /// Create and configure the network of a new Execution.
     Prepare {
         /// The Execution.
@@ -33,6 +49,22 @@ pub enum EnforcerRequest {
         slot: u32,
         /// The configured agent it will run.
         agent: String,
+        /// Random identity of this exact Execution incarnation.
+        nonce: ExecutionNonce,
+    },
+    /// Prove the paused init's placement while policy remains frozen.
+    VerifyPlacement {
+        /// The Execution whose durable frozen record already exists.
+        id: ExecutionId,
+        /// Host PID observed by the trusted Sandbox helper after `runc create`.
+        pid: i32,
+    },
+    /// Activate only after the Supervisor has installed the returned live binding.
+    Activate {
+        /// The Execution whose placement was verified.
+        id: ExecutionId,
+        /// Candidate-A identity returned by placement verification; absent for netns-nft.
+        binding: Option<BindingKey>,
     },
     /// Deny every packet of the Execution from now on.
     Freeze {
@@ -46,16 +78,37 @@ pub enum EnforcerRequest {
     },
 }
 
+/// Requests accepted only on the Enforcer's bounded attribution channel.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub enum ResolverRequest {
+    /// Consume and validate one proxy-accepted tuple.
+    Resolve {
+        /// Tuple derived from kernel peer/local socket addresses before application reads.
+        tuple: SocketTupleV4,
+    },
+}
+
 /// What the Supervisor asks the sandbox helper to do.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub enum SandboxRequest {
-    /// Create the cgroup and bundle of a new Execution and start its agent.
-    Start {
+    /// Durably reserve an empty Execution cgroup before network preparation.
+    Reserve {
         /// The Execution.
         id: ExecutionId,
         /// The configured agent to run.
         agent: String,
+    },
+    /// Perform `runc create` and leave the init process paused.
+    CreatePaused {
+        /// The Execution whose cgroup is already reserved.
+        id: ExecutionId,
+    },
+    /// Release one verified paused init with `runc start`.
+    Start {
+        /// The Execution to start.
+        id: ExecutionId,
     },
     /// Freeze and kill every process of the Execution, and wait until none is left.
     Kill {
@@ -80,6 +133,28 @@ pub enum HelperResponse {
     },
     /// The request was carried out and verified.
     Done,
+    /// The exact empty cgroup the Sandbox reserved, reported as a trusted observation.
+    Reserved {
+        /// Filesystem inode of the cgroup directory.
+        cgroup_inode: u64,
+    },
+    /// A container exists but its init process has not run agent code.
+    CreatedPaused {
+        /// Trusted host PID observed from runc state.
+        pid: i32,
+        /// Filesystem inode of the target cgroup.
+        cgroup_inode: u64,
+    },
+    /// The Enforcer proved placement while the kernel policy is still frozen.
+    PlacementVerified {
+        /// Candidate-A identity; all fields must be compared together.
+        binding: BindingKey,
+    },
+    /// A privileged bounded tuple lookup consumed and validated a Candidate-A tuple.
+    Resolved {
+        /// `None` is a fail-closed miss, timeout or identity disagreement.
+        binding: Option<BindingKey>,
+    },
     /// The agent of a started Execution exited.
     Exited {
         /// How it ended.
@@ -117,6 +192,7 @@ mod tests {
             id,
             slot: 3,
             agent: "echo".into(),
+            nonce: ExecutionNonce::generate().unwrap(),
         };
         let json = serde_json::to_string(&request).unwrap();
         assert_eq!(

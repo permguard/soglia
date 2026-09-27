@@ -23,6 +23,53 @@ pub const HOST_VETH_PREFIX: &str = "sgh-";
 const ID_BYTES: usize = 16;
 const TAG_BYTES: usize = 5;
 
+/// A per-Execution random value that prevents a reused kernel cgroup id from reusing identity.
+#[derive(Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize)]
+pub struct ExecutionNonce([u8; ID_BYTES]);
+
+impl ExecutionNonce {
+    /// A new nonce from the operating system's random source.
+    pub fn generate() -> io::Result<Self> {
+        let mut bytes = [0_u8; ID_BYTES];
+        File::open("/dev/urandom")?.read_exact(&mut bytes)?;
+        Ok(Self(bytes))
+    }
+
+    /// The exact bytes copied into the kernel policy, cookie and tuple values.
+    pub fn bytes(self) -> [u8; ID_BYTES] {
+        self.0
+    }
+
+    /// Reconstructs the exact nonce read from a trusted kernel or durable record.
+    pub const fn from_bytes(bytes: [u8; ID_BYTES]) -> Self {
+        Self(bytes)
+    }
+}
+
+impl fmt::Display for ExecutionNonce {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write_hex(formatter, &self.0)
+    }
+}
+
+impl fmt::Debug for ExecutionNonce {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(formatter, "ExecutionNonce({self})")
+    }
+}
+
+/// The indivisible Candidate-A identity checked at every attribution boundary.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct BindingKey {
+    /// Kernel cgroup id observed for the exact Execution cgroup.
+    pub cgroup_id: u64,
+    /// Random identity of one Execution incarnation.
+    pub execution_nonce: ExecutionNonce,
+    /// Host-wide backend generation that created the BPF objects.
+    pub backend_generation: u64,
+}
+
 /// The identity of one Execution.
 #[derive(Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize)]
 #[serde(try_from = "String", into = "String")]
@@ -200,6 +247,38 @@ mod tests {
         let text = first.to_string();
         assert_eq!(text.len(), 32);
         assert_eq!(text.parse::<ExecutionId>().unwrap(), first);
+    }
+
+    #[test]
+    fn binding_key_equality_covers_all_three_identity_fields() {
+        let nonce = ExecutionNonce::generate().unwrap();
+        let other_nonce = ExecutionNonce::generate().unwrap();
+        let key = BindingKey {
+            cgroup_id: 41,
+            execution_nonce: nonce,
+            backend_generation: 7,
+        };
+        assert_ne!(
+            key,
+            BindingKey {
+                cgroup_id: 42,
+                ..key
+            }
+        );
+        assert_ne!(
+            key,
+            BindingKey {
+                execution_nonce: other_nonce,
+                ..key
+            }
+        );
+        assert_ne!(
+            key,
+            BindingKey {
+                backend_generation: 8,
+                ..key
+            }
+        );
     }
 
     #[test]

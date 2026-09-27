@@ -11,9 +11,17 @@ license.workspace = true
 repository.workspace = true
 
 [dependencies]
+aya = { workspace = true, optional = true }
+libbpf-rs = { workspace = true, optional = true }
 rustix.workspace = true
 serde.workspace = true
+serde_json.workspace = true
+sha2 = { workspace = true, optional = true }
 soglia-core.workspace = true
+
+[features]
+default = []
+cgroup-bpf = ["dep:aya", "dep:libbpf-rs", "dep:sha2"]
 
 [dev-dependencies]
 serde_json.workspace = true

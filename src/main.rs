@@ -85,13 +85,14 @@ mod runtime {
     use std::time::Duration;
 
     use soglia_core::Config;
-    use soglia_proxy::attribution::AttributionTable;
+    use soglia_core::config::NetworkBackend;
+    use soglia_proxy::attribution::{AttributionTable, ConnectionAttributor};
     use soglia_proxy::egress::{EgressLimits, EgressProxy};
     use soglia_proxy::ingress::{self, Executor, IngressLimits};
     use soglia_proxy::policy::DestinationPolicy;
     use soglia_proxy::resolver::SystemResolver;
     use soglia_supervisor::Supervisor;
-    use soglia_supervisor::helpers::Helper;
+    use soglia_supervisor::helpers::{CandidateAAttributor, Helper};
     use soglia_supervisor::privilege;
     use tokio::net::TcpListener;
     use tokio::signal::unix::{SignalKind, signal};
@@ -136,7 +137,7 @@ mod runtime {
         let executable = PathBuf::from("/proc/self/exe");
         let sandbox = Helper::spawn(&executable, "sandboxd")
             .map_err(|error| format!("cannot start the sandbox helper: {error}"))?;
-        let enforcer = Helper::spawn(&executable, "enforcer")
+        let enforcer = Helper::spawn_enforcer(&executable)
             .map_err(|error| format!("cannot start the enforcer: {error}"))?;
         // Processes are killed before their network is removed, at startup as at teardown.
         for helper in [&sandbox, &enforcer] {
@@ -146,6 +147,14 @@ mod runtime {
             for resource in swept {
                 info!(event.name = "startup.swept", helper = helper.role(), resource = %resource, "a resource left by a previous run was removed");
             }
+        }
+        for helper in [&sandbox, &enforcer] {
+            helper.ensure_running().map_err(|error| {
+                format!(
+                    "the {} failed the readiness barrier: {error}",
+                    helper.role()
+                )
+            })?;
         }
 
         privilege::drop_to(config.runtime.uid, config.runtime.gid)
@@ -176,6 +185,14 @@ mod runtime {
         let config = Arc::new(config);
         let pool = config.pool().map_err(|error| error.to_string())?;
         let attribution = Arc::new(AttributionTable::new());
+        let resolver_client =
+            if config.network.backend == NetworkBackend::CgroupBpf {
+                Some(enforcer.resolver_client().map_err(|error| {
+                    format!("the Enforcer Resolve channel is unavailable: {error}")
+                })?)
+            } else {
+                None
+            };
         let (fatal, mut lost) = watch::channel(false);
         let (stop, stopped) = watch::channel(false);
         let mut sandbox_exit = sandbox.watch_exit();
@@ -189,6 +206,21 @@ mod runtime {
             fatal,
             stop.clone(),
         );
+        let connection_attribution: Arc<dyn ConnectionAttributor> = match resolver_client {
+            Some(resolver) => {
+                let observed = supervisor.clone();
+                Arc::new(CandidateAAttributor::new(
+                    resolver,
+                    Arc::clone(&attribution),
+                    Duration::from_millis(config.cgroup_bpf.resolve_timeout_ms),
+                    usize::try_from(config.runtime.max_concurrency).unwrap_or(usize::MAX),
+                    Arc::new(move |reason| observed.helper_exited("enforcer-resolve", reason)),
+                ))
+            }
+            None => Arc::clone(&attribution) as Arc<dyn ConnectionAttributor>,
+        };
+        let _enforcer_health =
+            supervisor.watch_enforcer_health(Duration::from_secs(1), stopped.clone());
 
         let proxy_address =
             SocketAddr::from((config.network.proxy_address, config.network.proxy_port));
@@ -206,7 +238,7 @@ mod runtime {
 
         let egress = Arc::new(EgressProxy::new(
             Arc::new(policy),
-            attribution,
+            connection_attribution,
             Arc::new(SystemResolver),
             EgressLimits::from_config(&config.egress),
         ));
@@ -343,6 +375,13 @@ mod runtime {
         Ok(std::os::unix::net::UnixStream::from(descriptor))
     }
 
+    fn channel_from_stdout() -> std::io::Result<std::os::unix::net::UnixStream> {
+        use std::os::fd::AsFd;
+
+        let descriptor = std::io::stdout().as_fd().try_clone_to_owned()?;
+        Ok(std::os::unix::net::UnixStream::from(descriptor))
+    }
+
     /// `soglia __sandboxd`.
     pub fn sandboxd() -> Result<(), String> {
         let channel = channel_from_stdin().map_err(|error| error.to_string())?;
@@ -352,6 +391,7 @@ mod runtime {
     /// `soglia __enforcer`.
     pub fn enforcer() -> Result<(), String> {
         let channel = channel_from_stdin().map_err(|error| error.to_string())?;
-        soglia_enforcer::service::run(channel)
+        let resolver = channel_from_stdout().map_err(|error| error.to_string())?;
+        soglia_enforcer::service::run(channel, resolver)
     }
 }

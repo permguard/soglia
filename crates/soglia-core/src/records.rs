@@ -11,6 +11,7 @@
 
 use std::fs::{self, File, OpenOptions};
 use std::io::{self, Write};
+use std::os::unix::fs::{OpenOptionsExt, PermissionsExt};
 use std::path::{Path, PathBuf};
 
 use serde::Serialize;
@@ -27,7 +28,9 @@ pub fn publish<T: Serialize>(directory: &Path, name: &str, record: &T) -> io::Re
         .write(true)
         .create(true)
         .truncate(true)
+        .mode(0o600)
         .open(&temporary)?;
+    file.set_permissions(fs::Permissions::from_mode(0o600))?;
     file.write_all(&body)?;
     file.sync_all()?;
     drop(file);

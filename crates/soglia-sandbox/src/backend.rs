@@ -80,9 +80,14 @@ pub trait SandboxBackend {
     /// any Execution exists. Returns what the sweep removed.
     fn initialize(&mut self) -> Result<Vec<String>, SandboxError>;
 
-    /// Creates the Execution's cgroup and bundle and starts its agent inside the network namespace
-    /// the enforcer prepared.
-    fn start_execution(&mut self, id: ExecutionId, agent: &str) -> Result<(), SandboxError>;
+    /// Durably reserves an empty cgroup and applies the configured resource limits.
+    fn reserve_execution(&mut self, id: ExecutionId, agent: &str) -> Result<u64, SandboxError>;
+
+    /// Creates the container and returns its trusted host PID while the init remains paused.
+    fn create_paused(&mut self, id: ExecutionId) -> Result<(i32, u64), SandboxError>;
+
+    /// Releases the already verified paused init process.
+    fn start_execution(&mut self, id: ExecutionId) -> Result<(), SandboxError>;
 
     /// Freezes and kills every process of the Execution, waits until none is left, and says how
     /// the agent ended.
@@ -102,6 +107,20 @@ pub struct SandboxRecord {
     pub tag: ResourceTag,
     /// The agent it runs.
     pub agent: String,
+    /// Last durably completed lifecycle stage.
+    pub stage: SandboxStage,
+}
+
+/// Durable stages before an agent is started.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+pub enum SandboxStage {
+    /// The exact empty cgroup and its limits exist.
+    CgroupReserved,
+    /// `runc create` completed and the init is still paused.
+    ContainerCreatedPaused,
+    /// `runc start` released the init.
+    Started,
 }
 
 /// The facts of the configuration the sandbox backend needs.
@@ -158,6 +177,9 @@ impl SandboxSettings {
 
 /// A started Execution: its agent's init process, and how that process ended once it has.
 struct Live {
+    id: ExecutionId,
+    agent: String,
+    stage: SandboxStage,
     init: Option<i32>,
     exit: Option<i32>,
 }
@@ -211,6 +233,40 @@ impl RuncSandbox {
 
     fn bundle_dir(&self, tag: &ResourceTag) -> PathBuf {
         self.settings.bundles.join(tag.to_string())
+    }
+
+    fn publish_live(&self, tag: &ResourceTag, live: &Live) -> Result<(), SandboxError> {
+        let record = SandboxRecord {
+            id: live.id,
+            tag: *tag,
+            agent: live.agent.clone(),
+            stage: live.stage,
+        };
+        records::publish(&self.settings.records, &format!("{tag}.json"), &record)?;
+        Ok(())
+    }
+
+    fn cgroup_inode(&self, tag: &ResourceTag) -> Result<u64, SandboxError> {
+        Ok(fs::metadata(self.settings.delegation.execution(&tag.to_string()))?.ino())
+    }
+
+    fn prove_membership(&self, tag: &ResourceTag, pid: i32) -> Result<u64, SandboxError> {
+        let target = self.settings.delegation.execution(&tag.to_string());
+        let expected = self.settings.delegation.oci_path(&tag.to_string());
+        let membership = fs::read_to_string(format!("/proc/{pid}/cgroup"))?;
+        let exact = membership
+            .lines()
+            .any(|line| line.strip_prefix("0::") == Some(expected.as_str()));
+        let listed = fs::read_to_string(target.join("cgroup.procs"))?
+            .split_whitespace()
+            .any(|entry| entry.parse::<i32>() == Ok(pid));
+        if !exact || !listed {
+            return Err(SandboxError::Failed(format!(
+                "paused pid {pid} is not a member of the exact Execution cgroup {}",
+                target.display()
+            )));
+        }
+        self.cgroup_inode(tag)
     }
 
     /// Waits until the container is created, then proves its init process sits in the Execution
@@ -434,7 +490,11 @@ impl SandboxBackend for RuncSandbox {
         self.sweep()
     }
 
-    fn start_execution(&mut self, id: ExecutionId, agent_name: &str) -> Result<(), SandboxError> {
+    fn reserve_execution(
+        &mut self,
+        id: ExecutionId,
+        agent_name: &str,
+    ) -> Result<u64, SandboxError> {
         let tag = id.tag();
         let agent = self
             .settings
@@ -451,17 +511,11 @@ impl SandboxBackend for RuncSandbox {
                 "a record for {tag} already exists"
             )));
         }
-        let netns = Path::new(NETNS_DIR).join(tag.netns_name());
-        if !netns.exists() {
-            return Err(SandboxError::Refused(format!(
-                "the network namespace of {tag} does not exist; the enforcer prepares it first"
-            )));
-        }
-
         let record = SandboxRecord {
             id,
             tag,
             agent: agent_name.to_owned(),
+            stage: SandboxStage::CgroupReserved,
         };
         // Recorded before anything is created, so a crash at any later point leaves a record the
         // next start can sweep.
@@ -469,10 +523,92 @@ impl SandboxBackend for RuncSandbox {
         self.live.insert(
             tag,
             Live {
+                id,
+                agent: agent_name.to_owned(),
+                stage: SandboxStage::CgroupReserved,
                 init: None,
                 exit: None,
             },
         );
+
+        let cgroup = self.settings.delegation.execution(&tag.to_string());
+        if let Err(error) = fs::create_dir(&cgroup) {
+            self.live.remove(&tag);
+            records::remove(&self.settings.records, &record_name)?;
+            return Err(error.into());
+        }
+        let provisioned = (|| -> Result<u64, SandboxError> {
+            fs::write(cgroup.join("pids.max"), agent.limits.pids_max.to_string())?;
+            fs::write(
+                cgroup.join("memory.max"),
+                agent.limits.memory_max_bytes.to_string(),
+            )?;
+            fs::write(cgroup.join("memory.swap.max"), "0")?;
+            if let Some(cpu) = agent.limits.cpu_max {
+                fs::write(
+                    cgroup.join("cpu.max"),
+                    format!("{} {}", cpu.quota_us, cpu.period_us),
+                )?;
+            }
+            let inode = self.cgroup_inode(&tag)?;
+            if !fs::read_to_string(cgroup.join("cgroup.procs"))?
+                .trim()
+                .is_empty()
+            {
+                return Err(SandboxError::Failed(format!(
+                    "reserved cgroup {} is not empty",
+                    cgroup.display()
+                )));
+            }
+            Ok(inode)
+        })();
+        match provisioned {
+            Ok(inode) => Ok(inode),
+            Err(error) => {
+                let removed = cgroup::remove(&cgroup);
+                if removed.is_ok() {
+                    self.live.remove(&tag);
+                    records::remove(&self.settings.records, &record_name)?;
+                    Err(error)
+                } else {
+                    Err(SandboxError::Failed(format!(
+                        "{error}; failed to roll back {}: {}",
+                        cgroup.display(),
+                        removed.err().map_or_else(
+                            || "unknown rollback error".to_owned(),
+                            |cleanup| cleanup.to_string()
+                        )
+                    )))
+                }
+            }
+        }
+    }
+
+    fn create_paused(&mut self, id: ExecutionId) -> Result<(i32, u64), SandboxError> {
+        let tag = id.tag();
+        let live = self
+            .live
+            .get(&tag)
+            .ok_or_else(|| SandboxError::Refused(format!("tag {tag} is not reserved")))?;
+        if live.id != id || live.stage != SandboxStage::CgroupReserved {
+            return Err(SandboxError::Refused(format!(
+                "tag {tag} is not at the reserved stage for this Execution"
+            )));
+        }
+        let agent = self
+            .settings
+            .agents
+            .get(&live.agent)
+            .ok_or_else(|| {
+                SandboxError::Refused("the recorded agent is not configured".to_owned())
+            })?
+            .clone();
+        let netns = Path::new(NETNS_DIR).join(tag.netns_name());
+        if !netns.exists() {
+            return Err(SandboxError::Refused(format!(
+                "the network namespace of {tag} does not exist; the enforcer prepares it first"
+            )));
+        }
 
         let bundle = self.bundle_dir(&tag);
         fs::create_dir(&bundle)?;
@@ -514,10 +650,40 @@ impl SandboxBackend for RuncSandbox {
         }
 
         let init = self.await_created(&tag)?;
+        let inode = self.prove_membership(&tag, init)?;
         if let Some(live) = self.live.get_mut(&tag) {
             live.init = Some(init);
+            live.stage = SandboxStage::ContainerCreatedPaused;
         }
-        self.runc(&["start", &container])?;
+        let live = self
+            .live
+            .get(&tag)
+            .ok_or_else(|| SandboxError::Failed("the live reservation vanished".to_owned()))?;
+        self.publish_live(&tag, live)?;
+
+        Ok((init, inode))
+    }
+
+    fn start_execution(&mut self, id: ExecutionId) -> Result<(), SandboxError> {
+        let tag = id.tag();
+        let live = self
+            .live
+            .get(&tag)
+            .ok_or_else(|| SandboxError::Refused(format!("tag {tag} is not live")))?;
+        if live.id != id || live.stage != SandboxStage::ContainerCreatedPaused {
+            return Err(SandboxError::Refused(format!(
+                "tag {tag} is not a verified paused container for this Execution"
+            )));
+        }
+        self.runc(&["start", &tag.container_id()])?;
+        if let Some(live) = self.live.get_mut(&tag) {
+            live.stage = SandboxStage::Started;
+        }
+        let live = self
+            .live
+            .get(&tag)
+            .ok_or_else(|| SandboxError::Failed("the live container vanished".to_owned()))?;
+        self.publish_live(&tag, live)?;
 
         Ok(())
     }

@@ -168,6 +168,19 @@ tasks:
     cmds:
       - ./spikes/cgroup-bpf/host/run-dev.sh doctor
 
+  spike:b1:
+    interactive: true
+    desc: Run authoritative production B1 once on a newly created Lima VM.
+    summary: |
+      Create one fresh VM named `soglia-spike-b1-<id>`, provision it, build the production binary
+      with the cgroup-BPF feature, and execute B1 only. The VM is left in place and B2-B7 are never
+      started. Evidence goes to spikes/cgroup-bpf/evidence/replay/.
+
+      Example:
+        task spike:b1
+    cmds:
+      - ./spikes/cgroup-bpf/host/run-b1-fresh.sh
+
   spike:replay:
     interactive: true
     desc: Run the authoritative S0-S14 replay on two newly created VMs, one after the other.

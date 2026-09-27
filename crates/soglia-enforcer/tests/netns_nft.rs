@@ -100,7 +100,14 @@ fn the_network_backend_confines_attributes_and_cleans_up() {
     let tag = id.tag();
     let netns = tag.netns_name();
     let veth = tag.host_veth();
-    backend.prepare_execution(id, 1, "echo").unwrap();
+    backend
+        .prepare_execution(
+            id,
+            1,
+            "echo",
+            soglia_core::ExecutionNonce::generate().unwrap(),
+        )
+        .unwrap();
     let host_end: Ipv4Addr = "10.201.0.2".parse().unwrap();
     let execution: Ipv4Addr = "10.201.0.3".parse().unwrap();
     let proxy = SocketAddr::from((PROXY, PROXY_PORT));
@@ -226,7 +233,14 @@ fn the_network_backend_confines_attributes_and_cleans_up() {
 
     // Sweep: a recorded Execution left behind by a crashed run is removed at the next start.
     let crashed = ExecutionId::generate().unwrap();
-    backend.prepare_execution(crashed, 2, "echo").unwrap();
+    backend
+        .prepare_execution(
+            crashed,
+            2,
+            "echo",
+            soglia_core::ExecutionNonce::generate().unwrap(),
+        )
+        .unwrap();
     drop(backend);
     let mut restarted = NetnsNftBackend::new(settings(records.clone()));
     let swept = restarted.initialize().unwrap();

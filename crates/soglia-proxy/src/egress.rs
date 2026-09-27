@@ -39,7 +39,7 @@ use tokio::net::{TcpListener, TcpStream};
 use tokio::sync::watch;
 use tracing::{info, warn};
 
-use crate::attribution::{AttributionTable, Binding};
+use crate::attribution::{Binding, ConnectionAttributor};
 use crate::policy::{DestinationPolicy, Host, Target};
 use crate::resolver::Resolver;
 use crate::tunnel::{self, TunnelEnd, TunnelLimits};
@@ -90,7 +90,7 @@ impl EgressLimits {
 /// The egress proxy.
 pub struct EgressProxy {
     policy: Arc<DestinationPolicy>,
-    attribution: Arc<AttributionTable>,
+    attribution: Arc<dyn ConnectionAttributor>,
     resolver: Arc<dyn Resolver>,
     limits: EgressLimits,
 }
@@ -130,7 +130,7 @@ impl EgressProxy {
     /// A proxy over the given policy, attribution table and resolver.
     pub fn new(
         policy: Arc<DestinationPolicy>,
-        attribution: Arc<AttributionTable>,
+        attribution: Arc<dyn ConnectionAttributor>,
         resolver: Arc<dyn Resolver>,
         limits: EgressLimits,
     ) -> Self {
@@ -171,7 +171,14 @@ impl EgressProxy {
     ) {
         // Attribution comes from the kernel's view of the peer, before any byte from the agent is
         // read. Nothing the agent sends can change which Execution this connection belongs to.
-        let Some(binding) = self.attribution.lookup(peer.ip()) else {
+        let local = match stream.local_addr() {
+            Ok(local) => local,
+            Err(error) => {
+                warn!(event.name = "egress.local_address_failed", peer = %peer, %error, "an accepted connection was closed");
+                return;
+            }
+        };
+        let Some(binding) = self.attribution.resolve(peer, local).await else {
             warn!(
                 event.name = "egress.unattributed",
                 peer = %peer,
@@ -474,6 +481,7 @@ fn plain(status: StatusCode, message: String) -> Response<ProxyBody> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::attribution::AttributionTable;
     use crate::resolver::fixed::FixedResolver;
     use soglia_core::ExecutionId;
     use soglia_core::config::{EgressRule, NetworkConfig};
@@ -541,7 +549,7 @@ mod tests {
         }
         let proxy = Arc::new(EgressProxy::new(
             Arc::new(policy),
-            Arc::clone(&attribution),
+            attribution.clone(),
             resolver,
             limits(),
         ));

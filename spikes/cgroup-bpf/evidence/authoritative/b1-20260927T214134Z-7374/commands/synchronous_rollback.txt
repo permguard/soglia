@@ -1,0 +1,4 @@
+Running as unit: soglia-b1-sync-rollback.service; invocation ID: 01a383e9aa694ea2917d1364fbcbe791
+RUN_ID=b1-diagnostic-sync-rollback-20260927T214140Z-7889
+EVIDENCE=/soglia/spikes/cgroup-bpf/evidence/replay/b1-diagnostic-sync-rollback-20260927T214140Z-7889
+Sep 27 23:41:41 lima-soglia-spike-b1-20260927T213345Z-92027 soglia[7940]: event.name=cgroup_bpf.generation_rollback result=PASS generation=1

@@ -5,11 +5,11 @@
 
 ## Status and decision
 
-Status: `DESIGN_FOR_REVIEW`.
+Status: `APPROVED_FOR_IMPLEMENTATION`.
 
 Candidate A, socket cookie to cgroup identity, was selected explicitly after the completed candidate review on 2026-09-27.
-This document defines the first production design and its B1-B7 qualification gates.
-It does not implement the backend, enable the feature, change the default backend, execute B1-B7 or authorize a commit.
+This document defines the normative production contract and its B1-B7 qualification gates.
+The first implementation is feature-gated; it does not change the default backend, execute B1-B7 or authorize a commit.
 
 The normative inputs are:
 
@@ -72,7 +72,7 @@ Loss of either authenticated inherited channel is Enforcer loss and triggers the
 
 ## Attachment topology and program contract
 
-One shared production object supplies six programs attached with link-based, multi-compatible semantics to the Soglia-owned `executions/` cgroup:
+One shared production object supplies six programs attached to the Soglia-owned `executions/` cgroup. Every Aya link uses `CgroupAttachMode::Single`: on the qualified link-based kernel API this passes zero `link_create.flags`, while `cgroup_bpf_link_attach` installs the link internally with `BPF_F_ALLOW_MULTI`. Passing Aya `AllowMultiple` is forbidden because the qualified kernel rejects that nonzero link-create flag with `EINVAL`. A unit test fixes this mode for all six hooks:
 
 1. `cgroup/sock_create` admits only the IPv4 TCP socket shape needed by the architecture and denies other families/types;
 2. `cgroup/connect4` admits only the configured proxy IPv4 address and port for an `ACTIVE` Execution;
@@ -208,7 +208,7 @@ It verifies:
 - the exact delegated-root, `executions/` path, inode, ownership, controller and no-internal-process invariants;
 - mounted bpffs, root-owned non-symlink state/pin ancestors and BTF required by the production build;
 - BPF syscall access, link creation and the exact six program types, helpers, callbacks and map types used by the production object;
-- multi-compatible child attachment and effective visibility from a disposable empty probe cgroup;
+- multi-compatible child attachment and effective visibility from a disposable empty probe cgroup, with inherited state read using `bpftool cgroup show <probe> effective` rather than the subtree-oriented `cgroup tree` command;
 - `BPF_NOEXIST`, atomic tuple lookup-and-delete and required map enumeration behavior;
 - nftables and network-namespace facilities retained as the final barrier;
 - requested map capacities, memlock/JIT allocation and process FD headroom under the actual service limits;
@@ -217,6 +217,7 @@ It verifies:
 
 The executable feature probe uses only an exact registered disposable cgroup and exact registered kernel objects.
 It must clean them and prove their absence before startup can continue.
+An exclusive program on an ancestor must surface as the typed `IncompatibleBpfTopology` refusal carrying the failed hook and kernel errno; production logic must not classify it by matching human-readable error text.
 Probe failure means no readiness; unsupported kernel capability stays distinguishable from incompatible/unknown owned state and from an infrastructure failure.
 
 ## Host-wide initialize and S13 recovery
@@ -245,7 +246,8 @@ Known-compatible state is revalidated against the trusted record, kernel identit
 Incompatible or unknown state fails closed without changing its kernel objects, map contents, pins or record.
 A pin root without a trusted record, an unexpected object, a mismatched tag/hash/inode or a stale generation is unknown.
 
-For a new generation, initialize publishes durable `INTENT`, creates maps/programs/links/pins, initializes `soglia_meta`, validates the live kernel contract, publishes the durable READY manifest and exposes backend readiness last.
+For a new generation, initialize runs and cleans the complete disposable attach probe before publishing durable `INTENT`. It then publishes `INTENT`, creates maps/programs/links/pins, initializes `soglia_meta`, validates the live kernel contract, publishes the durable READY manifest and exposes backend readiness last.
+If an operation returns an ordinary synchronous error after `INTENT`, the same call removes only the exact recorded links/maps/pins, proves owned attachments and the generation root absent, and removes the record last. A process crash at any point does not execute this rollback and deliberately preserves `INTENT` for S13 recovery.
 Policy and attribution maps start empty, so the new generation denies every Execution until its staged activation completes.
 No stale authorization entry is imported.
 
@@ -520,4 +522,4 @@ The legacy `NetnsNftBackend` remains available and unchanged until those regress
 - Full kernel/distro/architecture portability, upgrades between BPF ABI versions and rolling multi-instance coordination remain unqualified.
 - Phase-0 CONNECT mediation still does not provide L7 TLS identity or prevent domain-fronting behavior after an allowed tunnel is established.
 
-Implementation remains blocked pending review and explicit authorization of this design.
+Implementation was explicitly authorized against this contract. Production enablement remains blocked on B1-B7, the full regressions and a separate explicit default-backend decision.

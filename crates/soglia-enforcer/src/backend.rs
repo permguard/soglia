@@ -7,8 +7,9 @@
 //! anti-spoofing that makes its address attributable, and the teardown of both. It does not parse
 //! HTTP and it does not implement PIC.
 //!
-//! `NetnsNftBackend` is the active backend. `CgroupBpfBackend` is a skeleton that refuses every
-//! operation with `UnsupportedInThisBuild`: it can be selected by nobody, and it never allows.
+//! `NetnsNftBackend` remains the default. `CgroupBpfBackend` is an explicit feature-gated
+//! production implementation; selecting it in a binary built without that feature refuses startup
+//! rather than silently changing enforcement.
 
 use std::collections::{BTreeMap, HashMap};
 use std::fmt;
@@ -17,11 +18,17 @@ use std::path::PathBuf;
 
 use serde::{Deserialize, Serialize};
 use soglia_core::config::Config;
-use soglia_core::id::{ExecutionId, ResourceTag};
+use soglia_core::helper::SocketTupleV4;
+use soglia_core::id::{BindingKey, ExecutionId, ExecutionNonce, ResourceTag};
 use soglia_core::net::{ExecutionPool, SlotAddresses};
-use soglia_core::unavailable::{DeferredComponent, Unavailable};
+#[cfg(not(feature = "cgroup-bpf"))]
+use soglia_core::unavailable::DeferredComponent;
+use soglia_core::unavailable::Unavailable;
 
 use crate::rules::ProxyEndpoint;
+
+#[cfg(feature = "cgroup-bpf")]
+pub use crate::cgroup_bpf::CgroupBpfBackend;
 
 /// Why a backend operation failed.
 #[derive(Debug)]
@@ -30,6 +37,13 @@ pub enum BackendError {
     Unavailable(Unavailable),
     /// The request contradicts the configuration or the backend's state.
     Refused(String),
+    /// The kernel rejected the production cgroup-BPF attachment topology.
+    IncompatibleBpfTopology {
+        /// Production program whose link could not be attached.
+        hook: String,
+        /// Linux errno returned by `BPF_LINK_CREATE`, when available.
+        errno: Option<i32>,
+    },
     /// A host operation failed.
     Failed(String),
 }
@@ -39,6 +53,10 @@ impl fmt::Display for BackendError {
         match self {
             Self::Unavailable(reason) => write!(formatter, "{reason}"),
             Self::Refused(reason) => write!(formatter, "refused: {reason}"),
+            Self::IncompatibleBpfTopology { hook, errno } => write!(
+                formatter,
+                "refused: INCOMPATIBLE_BPF_TOPOLOGY hook={hook} errno={errno:?}"
+            ),
             Self::Failed(reason) => write!(formatter, "failed: {reason}"),
         }
     }
@@ -57,6 +75,9 @@ pub trait EnforcementBackend {
     /// The backend's name, for logs.
     fn name(&self) -> &'static str;
 
+    /// Exact tags whose policy/resources this backend currently owns.
+    fn live_tags(&self) -> Vec<ResourceTag>;
+
     /// Checks that the host offers everything the backend's guarantees depend on.
     fn probe_capabilities(&self) -> Result<(), BackendError>;
 
@@ -64,13 +85,34 @@ pub trait EnforcementBackend {
     /// any Execution exists. Returns what the sweep removed.
     fn initialize(&mut self) -> Result<Vec<String>, BackendError>;
 
+    /// Revalidates the backend's security-critical owned state while it is live.
+    fn health_check(&mut self) -> Result<(), BackendError>;
+
     /// Creates and configures the network of a new Execution.
     fn prepare_execution(
         &mut self,
         id: ExecutionId,
         slot: u32,
         agent: &str,
+        nonce: ExecutionNonce,
     ) -> Result<(), BackendError>;
+
+    /// Independently proves a paused init's exact cgroup membership while policy remains frozen.
+    fn verify_placement(
+        &mut self,
+        id: ExecutionId,
+        pid: i32,
+    ) -> Result<Option<BindingKey>, BackendError>;
+
+    /// Activates only the exact identity already returned by placement verification.
+    fn activate_execution(
+        &mut self,
+        id: ExecutionId,
+        binding: Option<BindingKey>,
+    ) -> Result<(), BackendError>;
+
+    /// Consumes and validates one canonical proxy-accepted tuple.
+    fn resolve(&mut self, tuple: SocketTupleV4) -> Result<Option<BindingKey>, BackendError>;
 
     /// Denies every packet of the Execution from now on.
     fn freeze(&mut self, tag: &ResourceTag) -> Result<(), BackendError>;
@@ -79,10 +121,12 @@ pub trait EnforcementBackend {
     fn destroy_execution(&mut self, tag: &ResourceTag) -> Result<(), BackendError>;
 }
 
-/// The cgroup-BPF backend: not carried by this build.
+/// The cgroup-BPF backend is a feature-gated production component.
+#[cfg(not(feature = "cgroup-bpf"))]
 #[derive(Debug, Default, Clone, Copy)]
 pub struct CgroupBpfBackend;
 
+#[cfg(not(feature = "cgroup-bpf"))]
 impl CgroupBpfBackend {
     fn refuse<T>(&self) -> Result<T, BackendError> {
         Err(BackendError::Unavailable(
@@ -96,9 +140,14 @@ impl CgroupBpfBackend {
     }
 }
 
+#[cfg(not(feature = "cgroup-bpf"))]
 impl EnforcementBackend for CgroupBpfBackend {
     fn name(&self) -> &'static str {
         "cgroup-bpf"
+    }
+
+    fn live_tags(&self) -> Vec<ResourceTag> {
+        Vec::new()
     }
 
     fn probe_capabilities(&self) -> Result<(), BackendError> {
@@ -109,7 +158,37 @@ impl EnforcementBackend for CgroupBpfBackend {
         self.refuse()
     }
 
-    fn prepare_execution(&mut self, _: ExecutionId, _: u32, _: &str) -> Result<(), BackendError> {
+    fn health_check(&mut self) -> Result<(), BackendError> {
+        self.refuse()
+    }
+
+    fn prepare_execution(
+        &mut self,
+        _: ExecutionId,
+        _: u32,
+        _: &str,
+        _: ExecutionNonce,
+    ) -> Result<(), BackendError> {
+        self.refuse()
+    }
+
+    fn verify_placement(
+        &mut self,
+        _: ExecutionId,
+        _: i32,
+    ) -> Result<Option<BindingKey>, BackendError> {
+        self.refuse()
+    }
+
+    fn activate_execution(
+        &mut self,
+        _: ExecutionId,
+        _: Option<BindingKey>,
+    ) -> Result<(), BackendError> {
+        self.refuse()
+    }
+
+    fn resolve(&mut self, _: SocketTupleV4) -> Result<Option<BindingKey>, BackendError> {
         self.refuse()
     }
 
@@ -446,11 +525,56 @@ mod linux {
                 self.settings.supervisor_uid,
             ))
         }
+
+        /// Rolls back only the host-wide resources created by `initialize` in this process.
+        /// Per-Execution sweep results are deliberately not recreated.
+        #[cfg(feature = "cgroup-bpf")]
+        pub(crate) fn rollback_initialization(&self) -> Result<(), BackendError> {
+            if !self.live.is_empty() {
+                return Err(BackendError::Failed(
+                    "cannot roll back host initialization with live Executions".to_owned(),
+                ));
+            }
+            let expected = HostRecord {
+                dummy: PROXY_INTERFACE.to_owned(),
+                proxy_address: self.settings.proxy.address,
+            };
+            let recorded: Option<HostRecord> = records::read(self.records(), HOST_RECORD)?;
+            if recorded.as_ref() != Some(&expected) {
+                return Err(BackendError::Refused(
+                    "host network rollback lacks the exact trusted ownership record".to_owned(),
+                ));
+            }
+            self.nft(&format!(
+                "add table inet {}\ndelete table inet {}\n",
+                rules::HOST_TABLE,
+                rules::HOST_TABLE
+            ))?;
+            if interface_exists(PROXY_INTERFACE) {
+                self.ip(&["link", "del", PROXY_INTERFACE])?;
+            }
+            if interface_exists(PROXY_INTERFACE) {
+                return Err(BackendError::Failed(format!(
+                    "{PROXY_INTERFACE} survived host initialization rollback"
+                )));
+            }
+            records::remove(self.records(), HOST_RECORD)?;
+            match fs::remove_dir(self.records()) {
+                Ok(()) => {}
+                Err(error) if error.kind() == std::io::ErrorKind::NotFound => {}
+                Err(error) => return Err(error.into()),
+            }
+            Ok(())
+        }
     }
 
     impl EnforcementBackend for NetnsNftBackend {
         fn name(&self) -> &'static str {
             "netns-nft"
+        }
+
+        fn live_tags(&self) -> Vec<ResourceTag> {
+            NetnsNftBackend::live_tags(self)
         }
 
         fn probe_capabilities(&self) -> Result<(), BackendError> {
@@ -474,11 +598,22 @@ mod linux {
             Ok(swept)
         }
 
+        fn health_check(&mut self) -> Result<(), BackendError> {
+            self.probe_capabilities()?;
+            if !interface_exists(PROXY_INTERFACE) {
+                return Err(BackendError::Failed(format!(
+                    "the owned proxy interface {PROXY_INTERFACE} disappeared"
+                )));
+            }
+            Ok(())
+        }
+
         fn prepare_execution(
             &mut self,
             id: ExecutionId,
             slot: u32,
             agent: &str,
+            _nonce: ExecutionNonce,
         ) -> Result<(), BackendError> {
             let record = self.plan(id, slot, agent)?;
             let name = NetRecord::file_name(&record.tag);
@@ -493,7 +628,49 @@ mod linux {
             records::publish(self.records(), &name, &record)?;
             self.live.insert(record.tag, record.clone());
 
-            self.create(&record)
+            if let Err(error) = self.create(&record) {
+                if let Err(cleanup) = self.remove(&record, false) {
+                    return Err(BackendError::Failed(format!(
+                        "{error}; failed to roll back the partial network: {cleanup}"
+                    )));
+                }
+                records::remove(self.records(), &name)?;
+                self.live.remove(&record.tag);
+                return Err(error);
+            }
+            Ok(())
+        }
+
+        fn verify_placement(
+            &mut self,
+            id: ExecutionId,
+            _pid: i32,
+        ) -> Result<Option<BindingKey>, BackendError> {
+            if !self.live.contains_key(&id.tag()) {
+                return Err(BackendError::Refused(format!(
+                    "Execution {id} has no prepared network"
+                )));
+            }
+            Ok(None)
+        }
+
+        fn activate_execution(
+            &mut self,
+            id: ExecutionId,
+            binding: Option<BindingKey>,
+        ) -> Result<(), BackendError> {
+            if binding.is_some() || !self.live.contains_key(&id.tag()) {
+                return Err(BackendError::Refused(
+                    "netns-nft activation received a mismatched identity".to_owned(),
+                ));
+            }
+            Ok(())
+        }
+
+        fn resolve(&mut self, _: SocketTupleV4) -> Result<Option<BindingKey>, BackendError> {
+            Err(BackendError::Refused(
+                "Candidate-A Resolve is unavailable on netns-nft".to_owned(),
+            ))
         }
 
         fn freeze(&mut self, tag: &ResourceTag) -> Result<(), BackendError> {
@@ -586,6 +763,7 @@ mod tests {
     }
 
     #[test]
+    #[cfg(not(feature = "cgroup-bpf"))]
     fn the_cgroup_bpf_skeleton_refuses_everything() {
         let mut skeleton = CgroupBpfBackend;
         let tag: ResourceTag = "0123456789".parse().unwrap();
@@ -602,7 +780,8 @@ mod tests {
         assert!(unsupported(skeleton.prepare_execution(
             ExecutionId::generate().unwrap(),
             0,
-            "echo"
+            "echo",
+            ExecutionNonce::generate().unwrap()
         )));
         assert!(unsupported(skeleton.freeze(&tag)));
         assert!(unsupported(skeleton.destroy_execution(&tag)));

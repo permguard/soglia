@@ -1,0 +1,16 @@
+× soglia-b1-sync-rollback.service - /var/tmp/soglia-b1-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b1-diagnostic-sync-rollback-20260927T214140Z-7889/config.yaml
+     Loaded: loaded (/run/systemd/transient/soglia-b1-sync-rollback.service; transient)
+  Transient: yes
+     Active: failed (Result: exit-code) since Sun 2026-09-27 23:41:41 CEST; 21ms ago
+   Duration: 133ms
+    Process: 7938 ExecStart=/var/tmp/soglia-b1-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b1-diagnostic-sync-rollback-20260927T214140Z-7889/config.yaml (code=exited, status=1/FAILURE)
+   Main PID: 7938 (code=exited, status=1/FAILURE)
+        CPU: 72ms
+
+Sep 27 23:41:41 lima-soglia-spike-b1-20260927T213345Z-92027 systemd[1]: Started soglia-b1-sync-rollback.service - /var/tmp/soglia-b1-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b1-diagnostic-sync-rollback-20260927T214140Z-7889/config.yaml.
+Sep 27 23:41:41 lima-soglia-spike-b1-20260927T213345Z-92027 soglia[7940]: event.name=cgroup_bpf.attach_probe result=PASS mode=single hooks=6 effective=true
+Sep 27 23:41:41 lima-soglia-spike-b1-20260927T213345Z-92027 soglia[7940]: event.name=cgroup_bpf.generation_rollback result=PASS generation=1
+Sep 27 23:41:41 lima-soglia-spike-b1-20260927T213345Z-92027 soglia[7940]: soglia: the cgroup-bpf backend could not start: refused: INCOMPATIBLE_BPF_TOPOLOGY hook=soglia_connect4 errno=Some(1)
+Sep 27 23:41:41 lima-soglia-spike-b1-20260927T213345Z-92027 soglia[7938]: soglia: the enforcer did not start: the cgroup-bpf backend could not start: refused: INCOMPATIBLE_BPF_TOPOLOGY hook=soglia_connect4 errno=Some(1)
+Sep 27 23:41:41 lima-soglia-spike-b1-20260927T213345Z-92027 systemd[1]: soglia-b1-sync-rollback.service: Main process exited, code=exited, status=1/FAILURE
+Sep 27 23:41:41 lima-soglia-spike-b1-20260927T213345Z-92027 systemd[1]: soglia-b1-sync-rollback.service: Failed with result 'exit-code'.

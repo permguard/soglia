@@ -155,9 +155,7 @@ request B ----> fresh Execution B ----> destroy
 request C ----> fresh Execution C ----> destroy
 ```
 
-The process is no longer the security unit.
-
-**The invocation is.**
+The process is no longer the security unit. **The invocation is.**
 
 Permguard proves why authority may continue.
 

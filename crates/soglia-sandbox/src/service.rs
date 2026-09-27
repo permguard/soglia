@@ -84,9 +84,13 @@ fn serve(
     request: SandboxRequest,
 ) -> Result<HelperResponse, SandboxError> {
     match request {
-        SandboxRequest::Start { id, agent } => backend
-            .start_execution(id, &agent)
-            .map(|()| HelperResponse::Done),
+        SandboxRequest::Reserve { id, agent } => backend
+            .reserve_execution(id, &agent)
+            .map(|cgroup_inode| HelperResponse::Reserved { cgroup_inode }),
+        SandboxRequest::CreatePaused { id } => backend
+            .create_paused(id)
+            .map(|(pid, cgroup_inode)| HelperResponse::CreatedPaused { pid, cgroup_inode }),
+        SandboxRequest::Start { id } => backend.start_execution(id).map(|()| HelperResponse::Done),
         SandboxRequest::Kill { tag } => backend
             .kill_execution(&tag)
             .map(|outcome| HelperResponse::Exited { outcome }),
