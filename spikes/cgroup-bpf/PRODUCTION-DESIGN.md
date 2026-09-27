@@ -189,6 +189,8 @@ A successful Resolve atomically consumes the tuple entry and validates all of th
 5. the root-owned live Execution record maps that exact identity to one `ExecutionId`;
 6. the Supervisor binding for that Execution is live and not revoked.
 
+Every identity comparison is a whole-`BindingKey` equality check.
+A reused cgroup ID with a different nonce, a reused nonce in a different backend generation, a stale cookie or tuple from an older generation, or any mixed/torn triple is a mismatch and cannot yield an `ExecutionId`.
 Any miss, timeout, malformed value, identity disagreement, stale generation, inactive policy, channel error or duplicate consumption returns no identity.
 The proxy then closes the accepted socket without parsing application data, DNS, outbound connect or IP-derived fallback.
 
@@ -423,7 +425,7 @@ Capacity thresholds warn before full, but a warning never changes enforcement.
 - S6 fixes the BPF/nft/proxy/lifecycle enforcement boundaries used by this design.
 - S7 requires pinned enforcement to survive loader loss.
 - S8 requires autonomous helper-loss cancellation and restart-before-readiness ordering.
-- S9 and S10 bound the supported foreign-ancestor composition and preserve nft post-rewrite enforcement.
+- S9 and S10 bound the supported foreign-ancestor composition and preserve nft post-rewrite enforcement, but do not qualify the production shared attach topology.
 - S11 requires complete lifecycle cleanup and independent absence proof.
 - S12 requires explicit bounded maps, observable update failure and isolated Candidate-A full-map qualification before production enablement.
 - S13 supplies exact ownership, compatibility, crash recovery and READY-last rules.
@@ -464,12 +466,19 @@ Wrong cgroup, PID, nonce, generation, tuple byte order, missing cookie or IP-onl
 
 B3 runs at the configured concurrent-Execution limit with many overlapping proxy sockets and checks unique cookies, correct tuples and zero mismatch/cross-attribution.
 It exercises successful close, FIN, RST, connect failure, agent kill, frozen teardown, source-port reuse, cgroup-ID/inode reuse attempts and fresh backend/Execution generations.
-PASS requires that old close callbacks cannot delete new state, stale entries cannot authorize a new Execution, revocation closes existing work and exact destroy returns occupancy to baseline.
+B3 forces cgroup-ID reuse where the test environment permits and proves that the new cgroup ID plus fresh nonce and current generation can become a new valid binding only after the old binding is destroyed.
+B3 separately injects every single-field mismatch class: current cgroup ID with stale nonce, current cgroup ID and nonce with stale backend generation, stale cgroup ID with current nonce and generation, and stale cookie/tuple values carrying an old complete or mixed `BindingKey`.
+It also races Resolve with freeze so the live-binding revocation and whole-policy transition are exercised at their defined linearization points.
+PASS requires whole-`BindingKey` comparison at policy, cookie, tuple, durable-record and live-binding boundaries; every mismatch must deny without fallback, old close callbacks must not delete new state, stale entries must not authorize a new Execution, revocation must close existing work and exact destroy must return occupancy to baseline.
 
 ### B4 — fail-closed capacity and publication
 
 B4 independently fills each authorization-relevant map while the others retain headroom.
 The Candidate-A cookie map full case is mandatory because S12 filled cookie and tuple maps together and did not isolate it.
+B4 uses the unchanged production object with a deliberately small but valid production `max_tracked_sockets` configuration; it does not use a test-only BPF map variant.
+Its deterministic production case opens and resolves exactly `C` long-lived proxy connections, keeps their client sockets open so all `C` cookie entries remain live, and verifies that Resolve consumption has returned the tuple map below capacity before attempting connection `C+1`.
+Connection `C+1` must fail synchronously at the production `connect4` cookie insertion with the cookie-full counter incremented, no TCP establishment or proxy accept, no tuple publication, no application read, DNS or outbound effect, and no new or overwritten cookie/tuple state.
+After the original sockets close, exact cleanup must return both maps to baseline and a fresh connection must succeed, proving capacity rather than another layer caused the denial.
 It also covers policy full, tuple full, duplicate cookie, duplicate tuple, delayed publication, missing publication, Resolve queue full, Resolve timeout and event-ring overflow.
 PASS requires observable failures, denial before application read/DNS/outbound effect, no IP fallback, no stale authorization and successful freed-entry reuse after exact cleanup.
 
@@ -489,9 +498,12 @@ PASS requires immediate admission stop and effect cancellation, Sandbox kill-all
 ### B7 — resource envelope, observability and cleanup
 
 B7 runs the declared supported matrix of `max_concurrency`, `max_tracked_sockets`, connection churn and Resolve rate under production service limits.
+At every Execution-count point, B7 loads the real production object once, attaches exactly the six shared links to the real Soglia `executions/` subtree, and records direct/effective attachment state for the subtree and representative children before releasing traffic.
+B7 must prove constant host-wide inventory of six Soglia programs and six Soglia links, zero per-Execution program/link instances, correct attribution for every sampled child and unchanged effective enforcement as Execution count grows.
+This is an independent production qualification gate; S9/S10 foreign-ancestor PASS results are requirements for B5 and do not satisfy or waive the B7 topology proof.
 It measures map memory, occupancy/high-water, FDs, program/link/map/pin counts, load/recovery latency, Resolve latency and event loss without tuning the host to force PASS.
 It injects observable integrity drift and verifies the health transition, then runs representative full lifecycles and proves zero Soglia-owned process, cgroup, runtime, netns/veth/nft, BPF, pin, map-entry and ownership-record residue.
-PASS establishes only the measured envelope and does not generalize beyond it.
+PASS requires the constant shared-attachment model as well as the measured resource envelope, and does not generalize beyond the tested topology or limits.
 
 B1-B7 do not replace the existing full regression obligations for both backends, T1-T9/H1-H4 or the T10 no-eBPF build.
 The legacy `NetnsNftBackend` remains available and unchanged until those regressions pass and a separate explicit enablement decision is made.
