@@ -92,6 +92,7 @@ fn run(command: &str, started: Instant) {
     match arg(0) {
         "barrier" => barrier(command, arg(1), arg(2), num(3, 30)),
         "proxy" => proxy(num(1, 1) as usize, 0),
+        "proxy-http" => proxy_http(arg(1)),
         "proxy-fixed" => proxy_fixed(num(1, 40_000) as u16, num(2, 1) as usize),
         "proxy-hold" => proxy(num(1, 1) as usize, num(2, 5)),
         "proxy-port" => proxy_port(num(1, 40000) as u16, arg(2) == "rst", num(3, 1)),
@@ -149,6 +150,24 @@ fn run(command: &str, started: Instant) {
         "sleep" => thread::sleep(Duration::from_millis(num(1, 100))),
         other => print(format!("{{\"cmd\":{},\"unknown\":true}}", quote(other))),
     }
+}
+
+/// One syntactically valid CONNECT request, used to prove that the production proxy does not parse
+/// application bytes before Candidate-A Resolve completes.
+fn proxy_http(target: &str) {
+    let result = (|| -> std::io::Result<String> {
+        let mut stream = TcpStream::connect_timeout(&SocketAddr::V4(PROXY), CONNECT_TIMEOUT)?;
+        stream.set_read_timeout(Some(Duration::from_secs(10)))?;
+        let request = format!("CONNECT {target} HTTP/1.1\r\nHost: {target}\r\n\r\n");
+        stream.write_all(request.as_bytes())?;
+        let mut line = String::new();
+        let read = BufReader::new(stream).read_line(&mut line)?;
+        if read == 0 {
+            return Err(std::io::Error::from_raw_os_error(104));
+        }
+        Ok(line.trim().to_owned())
+    })();
+    print(outcome("proxy-http", result, ""));
 }
 
 /// Announces this exact agent PID, then waits for the trusted harness to release one operation.

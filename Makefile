@@ -17,6 +17,7 @@
 #   task coverage:lcov       -> make coverage-lcov
 #   task dev:image           -> make dev-image
 #   task spike:b1            -> make spike-b1
+#   task spike:b2:diagnostic -> make spike-b2-diagnostic
 #   task spike:delete-vms    -> make spike-delete-vms
 #   task spike:doctor        -> make spike-doctor
 #   task spike:replay        -> make spike-replay
@@ -44,7 +45,7 @@ YES ?=
 scope   = $(if $(PKG),-p $(PKG),--workspace)
 profile = $(if $(RELEASE),--release)
 
-.PHONY: help build check check-headers check-notices check-phase0-deps check-supply-chain check-systems clean coverage coverage-html coverage-lcov dev-image fmt lint notices spike-b1 spike-delete-vms spike-doctor spike-replay spike-run spike-vms test test-acceptance test-portable
+.PHONY: help build check check-headers check-notices check-phase0-deps check-supply-chain check-systems clean coverage coverage-html coverage-lcov dev-image fmt lint notices spike-b1 spike-b2-diagnostic spike-delete-vms spike-doctor spike-replay spike-run spike-vms test test-acceptance test-portable
 
 help: ## List the targets.
 	@grep -E '^[a-z0-9-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-20s %s\n", $$1, $$2}'
@@ -105,6 +106,9 @@ lint: ## Check formatting and run clippy with warnings denied.
 
 spike-b1: ## Run authoritative production B1 once on a newly created Lima VM.
 	./spikes/cgroup-bpf/host/run-b1-fresh.sh
+
+spike-b2-diagnostic: ## Run diagnostic production B2 on the reusable development VM.
+	./spikes/cgroup-bpf/host/run-b2-diagnostic.sh
 
 spike-delete-vms: ## Stop and delete every soglia-spike* Lima VM (asks first; YES=1 skips the question).
 	./spikes/cgroup-bpf/host/delete-vms.sh $(if $(YES),--yes)

@@ -15,7 +15,7 @@ use std::path::{Path, PathBuf};
 use std::thread;
 use std::time::{Duration, Instant};
 
-use aya::maps::{Array, HashMap, MapInfo};
+use aya::maps::{Array, HashMap, MapError, MapInfo};
 use aya::programs::links::{FdLink, PinnedLink};
 use aya::programs::{CgroupAttachMode, CgroupSock, CgroupSockAddr, ProgramError, SockOps};
 use aya::{Ebpf, EbpfLoader};
@@ -1180,9 +1180,7 @@ impl CgroupBpfBackend {
                         BackendError::Failed(format!("enumerate {name}: {error:#}"))
                     })?;
                 for key in keys {
-                    entries.remove(&key).map_err(|error| {
-                        BackendError::Failed(format!("remove from {name}: {error:#}"))
-                    })?;
+                    cleanup_map_delete(entries.remove(&key), name)?;
                 }
                 for entry in entries.iter() {
                     let (_, value) = entry.map_err(|error| {
@@ -1211,9 +1209,7 @@ impl CgroupBpfBackend {
                         BackendError::Failed(format!("enumerate {name}: {error:#}"))
                     })?;
                 for key in keys {
-                    entries.remove(&key).map_err(|error| {
-                        BackendError::Failed(format!("remove from {name}: {error:#}"))
-                    })?;
+                    cleanup_map_delete(entries.remove(&key), name)?;
                 }
                 for entry in entries.iter() {
                     let (_, value) = entry.map_err(|error| {
@@ -1238,14 +1234,7 @@ impl CgroupBpfBackend {
         let mut denies = HashMap::<_, [u8; 32], u64>::try_from(map)
             .map_err(|error| BackendError::Failed(format!("open deny map: {error:#}")))?;
         let key = encode_binding(binding);
-        match denies.remove(&key) {
-            Ok(()) | Err(aya::maps::MapError::KeyNotFound) => {}
-            Err(error) => {
-                return Err(BackendError::Failed(format!(
-                    "remove deny counter: {error:#}"
-                )));
-            }
-        }
+        cleanup_map_delete(denies.remove(&key), "deny counter")?;
         match denies.get(&key, 0) {
             Err(aya::maps::MapError::KeyNotFound) => Ok(()),
             Ok(_) => Err(BackendError::Failed(
@@ -1345,6 +1334,28 @@ impl CgroupBpfBackend {
         })?;
         Ok(Some((cookie, binding)))
     }
+}
+
+/// A cleanup key may disappear after it was observed: sockops owns socket-state expiry, and a deny
+/// counter is created lazily. Aya reports an absent key from `HashMap::remove` as the raw delete
+/// syscall's `ENOENT`, not as `MapError::KeyNotFound`. No other syscall or errno is benign.
+fn cleanup_map_delete(result: Result<(), MapError>, resource: &str) -> Result<(), BackendError> {
+    match result {
+        Ok(()) => Ok(()),
+        Err(error) if map_delete_was_already_absent(&error) => Ok(()),
+        Err(error) => Err(BackendError::Failed(format!(
+            "remove from {resource}: {error:#}"
+        ))),
+    }
+}
+
+fn map_delete_was_already_absent(error: &MapError) -> bool {
+    matches!(
+        error,
+        MapError::SyscallError(aya::sys::SyscallError { call, io_error })
+            if *call == "bpf_map_delete_elem"
+                && io_error.raw_os_error() == Some(rustix::io::Errno::NOENT.raw_os_error())
+    )
 }
 
 impl EnforcementBackend for CgroupBpfBackend {
@@ -2236,6 +2247,31 @@ fn hex(bytes: &[u8]) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    fn map_syscall_error(call: &'static str, errno: rustix::io::Errno) -> MapError {
+        MapError::SyscallError(aya::sys::SyscallError {
+            call,
+            io_error: io::Error::from_raw_os_error(errno.raw_os_error()),
+        })
+    }
+
+    #[test]
+    fn cleanup_delete_accepts_only_delete_enoent() {
+        let absent = map_syscall_error("bpf_map_delete_elem", rustix::io::Errno::NOENT);
+        assert!(map_delete_was_already_absent(&absent));
+        assert!(cleanup_map_delete(Err(absent), "test map").is_ok());
+
+        let denied = map_syscall_error("bpf_map_delete_elem", rustix::io::Errno::PERM);
+        assert!(!map_delete_was_already_absent(&denied));
+        assert!(matches!(
+            cleanup_map_delete(Err(denied), "test map"),
+            Err(BackendError::Failed(reason)) if reason.contains("bpf_map_delete_elem")
+        ));
+
+        let wrong_call = map_syscall_error("bpf_map_lookup_elem", rustix::io::Errno::NOENT);
+        assert!(!map_delete_was_already_absent(&wrong_call));
+        assert!(!map_delete_was_already_absent(&MapError::KeyNotFound));
+    }
 
     #[test]
     fn production_attach_plan_is_exactly_six_single_links() {

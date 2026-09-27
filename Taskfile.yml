@@ -181,6 +181,19 @@ tasks:
     cmds:
       - ./spikes/cgroup-bpf/host/run-b1-fresh.sh
 
+  spike:b2:diagnostic:
+    interactive: true
+    desc: Run diagnostic production B2 on the reusable development VM.
+    summary: |
+      Create or reuse `soglia-spike-dev`, build the production Candidate-A backend and its
+      qualification harness, and execute B2 diagnostically. This never creates authoritative
+      evidence and never starts B3-B7.
+
+      Example:
+        task spike:b2:diagnostic
+    cmds:
+      - ./spikes/cgroup-bpf/host/run-b2-diagnostic.sh
+
   spike:replay:
     interactive: true
     desc: Run the authoritative S0-S14 replay on two newly created VMs, one after the other.

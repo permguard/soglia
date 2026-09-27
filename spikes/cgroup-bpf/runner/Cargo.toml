@@ -17,6 +17,11 @@ serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 sha2 = "0.10"
 signal-hook = "0.3"
+soglia-core = { path = "../../../crates/soglia-core" }
+soglia-proxy = { path = "../../../crates/soglia-proxy" }
+soglia-supervisor = { path = "../../../crates/soglia-supervisor" }
+tokio = { version = "1", features = ["macros", "net", "rt-multi-thread", "sync", "time"] }
+tracing-subscriber = { version = "0.3", default-features = false, features = ["fmt", "std"] }
 
 [lints]
 workspace = true
