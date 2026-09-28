@@ -24,7 +24,7 @@ if [[ $# -eq 4 ]]; then
   authoritative=true
 fi
 
-production_baseline=d2a61480f1f771358fd8579ddd4d63191c552f10
+production_baseline=bc55e76725c251a5ae3b89360b014563dd8249df
 production_source_matches=false
 vm_name=${SOGLIA_B2_VM_NAME:-}
 if [[ "$authoritative" == true && "$vm_name" != soglia-spike-b2-* ]]; then
