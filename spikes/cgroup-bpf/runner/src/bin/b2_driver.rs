@@ -4685,9 +4685,11 @@ async fn run_b3_backend_generation(
     // production Drop path freezes the record before it exits; the Sandbox then removes the
     // paused subject so recovery can classify the record without live traffic.
     let table = Arc::new(AttributionTable::new());
+    let durable_source = evidence.join("durable-source");
+    fs::create_dir_all(&durable_source).map_err(|error| error.to_string())?;
     let prepared = prepare_b3_execution(
         config,
-        &evidence.join("durable-source"),
+        &durable_source,
         sandbox,
         &enforcer,
         &table,
