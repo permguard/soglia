@@ -107,6 +107,9 @@ lint: ## Check formatting and run clippy with warnings denied.
 spike-b1: ## Run authoritative production B1 once on a newly created Lima VM.
 	./spikes/cgroup-bpf/host/run-b1-fresh.sh
 
+spike-b2: ## Run authoritative production B2 once on a newly created Lima VM.
+	./spikes/cgroup-bpf/host/run-b2-fresh.sh
+
 spike-b2-diagnostic: ## Run diagnostic production B2 on the reusable development VM.
 	./spikes/cgroup-bpf/host/run-b2-diagnostic.sh
 

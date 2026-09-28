@@ -2,17 +2,33 @@
 # Copyright (c) 2022 Nitro Agility S.r.l.
 # SPDX-License-Identifier: Apache-2.0
 
-# Diagnostic B2 qualification, with a focused production-cleanup probe mode used before rerunning
-# B1. It deliberately refuses an authoritative mode: the harness must be reviewed and committed
-# before a fresh-VM authoritative B2 run exists.
+# B2 qualification, with separate diagnostic and authoritative modes plus a focused
+# production-cleanup probe mode used before rerunning B1.
 
 set -euo pipefail
 
-binary="${1:?usage: b2-qualification.sh <soglia> <b2-driver> <agent>}"
-driver="${2:?usage: b2-qualification.sh <soglia> <b2-driver> <agent>}"
-agent="${3:?usage: b2-qualification.sh <soglia> <b2-driver> <agent>}"
-if [[ $# -ne 3 ]]; then
-  echo "B2 diagnostic accepts no authoritative flag" >&2
+usage='usage: b2-qualification.sh <soglia> <b2-driver> <agent> [--authoritative]'
+if [[ $# -ne 3 && $# -ne 4 ]]; then
+  echo "$usage" >&2
+  exit 13
+fi
+binary=$1
+driver=$2
+agent=$3
+authoritative=false
+if [[ $# -eq 4 ]]; then
+  if [[ $4 != --authoritative ]]; then
+    echo "unknown B2 qualification flag: $4" >&2
+    exit 13
+  fi
+  authoritative=true
+fi
+
+production_baseline=42b6ced25a78a33cce370248af1e8d61d7251731
+production_source_matches=false
+vm_name=${SOGLIA_B2_VM_NAME:-}
+if [[ "$authoritative" == true && "$vm_name" != soglia-spike-b2-* ]]; then
+  echo "authoritative B2 requires a recorded soglia-spike-b2-* VM name" >&2
   exit 13
 fi
 
@@ -20,12 +36,26 @@ mode=${SOGLIA_B2_MODE:-b2}
 case "$mode" in
   b2)
     gate=B2
-    run_prefix=b2-diagnostic
+    if [[ "$authoritative" == true ]]; then
+      run_prefix="b2"
+      supported_platform_scope="the exact recorded authoritative fresh-VM environment fingerprint"
+      authoritative_fresh_vm_scope="PERFORMED: the host wrapper created a never-used VM"
+    else
+      run_prefix="b2-diagnostic"
+      supported_platform_scope="the exact recorded diagnostic environment fingerprint"
+      authoritative_fresh_vm_scope="NOT_PERFORMED: diagnostic phase only"
+    fi
     driver_extra=()
     ;;
   cleanup-probe)
+    if [[ "$authoritative" == true ]]; then
+      echo "cleanup probe cannot be authoritative" >&2
+      exit 13
+    fi
     gate=CGROUP_BPF_CLEANUP_PROBE
-    run_prefix=cgroup-bpf-cleanup-probe
+    run_prefix="cgroup-bpf-cleanup-probe"
+    supported_platform_scope="the exact recorded diagnostic environment fingerprint"
+    authoritative_fresh_vm_scope="NOT_PERFORMED: diagnostic phase only"
     driver_extra=(--cleanup-probe)
     ;;
   *)
@@ -56,8 +86,9 @@ printf '%s\n' RUNNING > "$evidence/verdict.txt"
 
 persist_state() {
   jq -n --arg run_id "$run_id" --arg phase "$current_phase" --arg last_case "$last_case" \
-    --arg gate "$gate" \
-    '{schema:1,run_id:$run_id,gate:$gate,authoritative:false,current_phase:$phase,last_case:$last_case}' \
+    --arg gate "$gate" --argjson authoritative "$authoritative" \
+    '{schema:1,run_id:$run_id,gate:$gate,authoritative:$authoritative,
+      current_phase:$phase,last_case:$last_case}' \
     > "$evidence/state.json"
 }
 
@@ -71,13 +102,19 @@ write_summary() {
     --arg programs "$program_classification" \
     --arg links "$links_classification" \
     --arg maps "$maps_classification" \
+    --arg baseline "$production_baseline" \
+    --arg supported_platform "$supported_platform_scope" \
+    --arg authoritative_fresh_vm "$authoritative_fresh_vm_scope" \
+    --arg vm_name "$vm_name" \
+    --argjson authoritative "$authoritative" \
+    --argjson production_source_matches "$production_source_matches" \
     --argjson driver_status "$driver_status" \
-    '{schema:1,run_id:$run_id,gate:$gate,authoritative:false,verdict:$verdict,
+    '({schema:1,run_id:$run_id,gate:$gate,authoritative:$authoritative,verdict:$verdict,
       driver_status:$driver_status,
       cleanup:{verdict:$cleanup,programs:$programs,links:$links,maps:$maps},
       scope:{
-        supported_platform:"the exact recorded diagnostic environment fingerprint",
-        authoritative_fresh_vm:"NOT_PERFORMED: diagnostic phase only",
+        supported_platform:$supported_platform,
+        authoritative_fresh_vm:$authoritative_fresh_vm,
         production_code_change:"NOT_PERFORMED: qualification harness only",
         helper_loss_cancellation:"NOT_PERFORMED: belongs to B6",
         concurrency_and_identity_reuse:"NOT_PERFORMED: belongs to B3",
@@ -86,7 +123,11 @@ write_summary() {
           "NOT_PERFORMED: deterministic privileged race injection is unavailable; ENOENT classification is unit-tested"
       },
       remaining_gates:{B3:"NOT_EXECUTED",B4:"NOT_EXECUTED",B5:"NOT_EXECUTED",
-        B6:"NOT_EXECUTED",B7:"NOT_EXECUTED"}}' > "$evidence/summary.json"
+        B6:"NOT_EXECUTED",B7:"NOT_EXECUTED"}})
+      + if $authoritative then
+          {production_source_baseline:{commit:$baseline,matches:$production_source_matches},
+           authoritative_vm:{name:$vm_name,fresh_name_verified_by_host_wrapper:true}}
+        else {} end' > "$evidence/summary.json"
   printf '%s\n' "$verdict" > "$evidence/verdict.txt"
 }
 
@@ -199,6 +240,7 @@ on_exit() {
   fi
   (
     cd "$evidence"
+    # shellcheck disable=SC2094 # SHA256SUMS does not exist until the redirection opens it.
     find . -type f ! -name SHA256SUMS -print0 | sort -z | xargs -0 sha256sum > SHA256SUMS
   )
   printf 'RUN_ID=%s\nEVIDENCE=%s\n' "$run_id" "$evidence"
@@ -210,8 +252,10 @@ trap on_exit EXIT
 persist_state
 
 jq -n --arg run_id "$run_id" \
-  --arg gate "$gate" \
-  '{schema:1,run_id:$run_id,gate:$gate,authoritative:false,started_at:(now|todateiso8601)}' \
+  --arg gate "$gate" --arg vm_name "$vm_name" --argjson authoritative "$authoritative" \
+  '({schema:1,run_id:$run_id,gate:$gate,authoritative:$authoritative,
+    started_at:(now|todateiso8601)})
+    + if $authoritative then {authoritative_vm:$vm_name} else {} end' \
   > "$evidence/run.json"
 {
   date -u +%FT%T.%NZ
@@ -223,6 +267,11 @@ jq -n --arg run_id "$run_id" \
   ip -V
   runc --version
   /root/.cargo/bin/rustc +1.97.0 --version --verbose
+  if [[ "$authoritative" == true ]]; then
+    hostname
+    cat /etc/machine-id
+    cat /proc/sys/kernel/random/boot_id
+  fi
   mount
   ulimit -a
 } > "$evidence/environment.txt"
@@ -235,6 +284,29 @@ jq -n --arg run_id "$run_id" \
     -type f ! -path '*/target/*' ! -path '*/evidence/*' -print0 \
     | sort -z | xargs -0 sha256sum
 } > "$evidence/source-fingerprint.txt"
+if [[ "$authoritative" == true ]]; then
+  production_status=$(git -C /soglia status --short --untracked-files=all -- \
+    crates src Cargo.toml Cargo.lock)
+  {
+    printf 'baseline_commit=%s\n' "$production_baseline"
+    printf 'current_commit=%s\n' "$(git -C /soglia rev-parse HEAD)"
+    printf 'command=git diff --exit-code %s -- crates src Cargo.toml Cargo.lock\n' \
+      "$production_baseline"
+    git -C /soglia cat-file -e "$production_baseline^{commit}"
+    git -C /soglia diff --exit-code "$production_baseline" -- \
+      crates src Cargo.toml Cargo.lock
+    printf 'diff_exit=0\n'
+    for production_path in crates src Cargo.toml Cargo.lock; do
+      printf 'object %s baseline=%s current=%s\n' \
+        "$production_path" \
+        "$(git -C /soglia rev-parse "$production_baseline:$production_path")" \
+        "$(git -C /soglia rev-parse "HEAD:$production_path")"
+    done
+    printf 'production_status=%s\n' "${production_status:-CLEAN}"
+    [[ -z "$production_status" ]]
+  } > "$evidence/production-source-baseline.txt"
+  production_source_matches=true
+fi
 sha256sum "$binary" "$driver" "$agent" > "$evidence/binary-sha256.txt"
 bpftool -j prog show > "$evidence/baseline-programs.json"
 bpftool -j link show > "$evidence/baseline-links.json"

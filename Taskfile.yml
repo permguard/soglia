@@ -181,6 +181,20 @@ tasks:
     cmds:
       - ./spikes/cgroup-bpf/host/run-b1-fresh.sh
 
+  spike:b2:
+    interactive: true
+    desc: Run authoritative production B2 once on a newly created Lima VM.
+    summary: |
+      Create one fresh VM named `soglia-spike-b2-<id>`, verify that production sources match the
+      B1-qualified baseline, build the production binary with the cgroup-BPF feature, and execute
+      B2 only. The VM is left in place and B3-B7 are never started. Evidence goes to
+      spikes/cgroup-bpf/evidence/replay/.
+
+      Example:
+        task spike:b2
+    cmds:
+      - ./spikes/cgroup-bpf/host/run-b2-fresh.sh
+
   spike:b2:diagnostic:
     interactive: true
     desc: Run diagnostic production B2 on the reusable development VM.
