@@ -483,6 +483,7 @@ fn proxy_connect_report(
         let _ = append_report(report, &established_line);
         print(established_line);
         if !established_ok {
+            thread::sleep(Duration::from_secs(hold_secs));
             continue;
         }
         match mode {
