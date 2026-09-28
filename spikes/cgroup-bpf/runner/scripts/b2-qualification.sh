@@ -361,6 +361,15 @@ agents:
     command: ["/agent", "proxy-http allowed.test:443 40000"]
     env: {}
     timeout_ms: 10000
+  concurrent:
+    rootfs: $rootfs
+    # Four non-byte-symmetric source ports. The agent records every connect outcome in a tmpfs
+    # while remaining alive long enough for the trusted driver to copy the evidence through /proc.
+    command: ["/agent", "proxy-fixed-report 40000 4 /tmp/client-outcomes.jsonl 10"]
+    env: {}
+    timeout_ms: 15000
+    tmpfs:
+      - { path: /tmp, size_bytes: 1048576 }
 YAML
 
 current_phase=RUNNING_CASES

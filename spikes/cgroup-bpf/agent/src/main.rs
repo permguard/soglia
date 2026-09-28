@@ -103,7 +103,12 @@ fn run(command: &str, started: Instant) {
         "proxy" => proxy(num(1, 1) as usize, 0),
         "proxy-http" => proxy_http(arg(1), arg(2).parse().ok()),
         "netns-cookie" => netns_cookie(),
-        "proxy-fixed" => proxy_fixed(num(1, 40_000) as u16, num(2, 1) as usize),
+        "proxy-fixed" => proxy_fixed(num(1, 40_000) as u16, num(2, 1) as usize, None),
+        "proxy-fixed-report" => proxy_fixed(
+            num(1, 40_000) as u16,
+            num(2, 1) as usize,
+            Some((arg(3), num(4, 10))),
+        ),
         "proxy-hold" => proxy(num(1, 1) as usize, num(2, 5)),
         "proxy-port" => proxy_port(num(1, 40000) as u16, arg(2) == "rst", num(3, 1)),
         "hold-proxy" => hold_proxy(num(1, 30)),
@@ -274,40 +279,67 @@ fn proxy(count: usize, hold_secs: u64) {
 
 /// Concurrent proxy connections using a deterministic source-port range. Distinct network
 /// namespaces can deliberately reuse the same range to exercise the complete tuple key.
-fn proxy_fixed(first_port: u16, count: usize) {
+fn proxy_fixed(first_port: u16, count: usize, report: Option<(&str, u64)>) {
     let workers: Vec<_> = (0..count)
         .map(|i| {
             thread::spawn(move || {
                 let port = first_port.saturating_add(i as u16);
-                let result = (|| -> std::io::Result<(String, String)> {
+                let connected = (|| -> std::io::Result<TcpStream> {
                     let fd = rustix::net::socket(AddressFamily::INET, SocketType::STREAM, None)
                         .map_err(errno)?;
                     rustix::net::sockopt::set_socket_reuseaddr(&fd, true).map_err(errno)?;
                     rustix::net::bind(&fd, &SocketAddrV4::new(Ipv4Addr::UNSPECIFIED, port))
                         .map_err(errno)?;
                     rustix::net::connect(&fd, &PROXY).map_err(errno)?;
-                    let mut stream = TcpStream::from(OwnedFd::from(fd));
-                    let local = stream.local_addr()?.to_string();
-                    let verdict = hello(&mut stream, i)?;
-                    Ok((local, verdict))
+                    Ok(TcpStream::from(OwnedFd::from(fd)))
                 })();
-                let local = result
-                    .as_ref()
-                    .map(|(local, _)| local.clone())
-                    .unwrap_or_default();
-                print(outcome(
-                    "proxy-fixed",
-                    result.map(|(_, verdict)| verdict),
-                    &format!(
-                        ",\"i\":{i},\"source_port\":{port},\"local\":{}",
-                        quote(&local)
-                    ),
-                ));
+                let line = match connected {
+                    Ok(mut stream) => {
+                        let local = stream
+                            .local_addr()
+                            .map(|address| address.to_string())
+                            .unwrap_or_default();
+                        outcome(
+                            "proxy-fixed",
+                            hello(&mut stream, i),
+                            &format!(
+                                ",\"i\":{i},\"source_port\":{port},\"local\":{},\"status\":\"connected\"",
+                                quote(&local)
+                            ),
+                        )
+                    }
+                    Err(error) => {
+                        let status = if error.kind() == std::io::ErrorKind::TimedOut {
+                            "timed_out"
+                        } else {
+                            "refused"
+                        };
+                        outcome(
+                            "proxy-fixed",
+                            Err(error),
+                            &format!(
+                                ",\"i\":{i},\"source_port\":{port},\"local\":\"\",\"status\":{}",
+                                quote(status)
+                            ),
+                        )
+                    }
+                };
+                print(line.clone());
+                line
             })
         })
         .collect();
+    let mut outcomes = Vec::with_capacity(count);
     for worker in workers {
-        let _ = worker.join();
+        if let Ok(outcome) = worker.join() {
+            outcomes.push(outcome);
+        }
+    }
+    if let Some((path, hold_secs)) = report {
+        let result = fs::write(path, format!("{}\n", outcomes.join("\n")))
+            .map(|()| format!("recorded {} client outcomes", outcomes.len()));
+        print(outcome("proxy-fixed-report", result, ""));
+        thread::sleep(Duration::from_secs(hold_secs));
     }
 }
 

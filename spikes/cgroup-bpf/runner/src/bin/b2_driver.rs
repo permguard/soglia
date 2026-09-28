@@ -30,7 +30,6 @@ use soglia_proxy::resolver::{Resolution, Resolver};
 use soglia_supervisor::helpers::{
     CandidateAAttributor, Helper, HelperError, ResolveHealthFailure, ResolverClient,
 };
-use tokio::io::AsyncWriteExt;
 use tokio::net::{TcpListener, TcpStream};
 use tokio::sync::watch;
 
@@ -155,6 +154,8 @@ struct ResolveObservation {
 struct ConcurrentResolveObservation {
     peer: SocketAddr,
     local: SocketAddr,
+    queried_peer: SocketAddr,
+    queried_local: SocketAddr,
     recv_q_bytes: u64,
     outcome: ObservedResolveOutcome,
     mismatch: Option<ResolveMismatch>,
@@ -359,12 +360,16 @@ impl ConnectionAttributor for ConcurrentObservingAttributor {
             let recv_q_bytes = capture_receive_queue(peer, local)
                 .map(|(bytes, _)| bytes)
                 .unwrap_or(0);
+            let queried_peer = SocketAddr::new(peer.ip(), peer.port().swap_bytes());
+            let queried_local = local;
             let started = Instant::now();
-            let resolved = self.inner.resolve(peer, local).await;
+            let resolved = self.inner.resolve(queried_peer, queried_local).await;
             let (outcome, mismatch, _) = observed_result(&resolved);
             let observation = ConcurrentResolveObservation {
                 peer,
                 local,
+                queried_peer,
+                queried_local,
                 recv_q_bytes,
                 outcome,
                 mismatch,
@@ -378,6 +383,24 @@ impl ConnectionAttributor for ConcurrentObservingAttributor {
                 observations.push(observation);
             }
             resolved
+        })
+    }
+}
+
+struct CountingConnectionAttributor {
+    inner: Arc<dyn ConnectionAttributor>,
+    calls: Arc<AtomicUsize>,
+}
+
+impl ConnectionAttributor for CountingConnectionAttributor {
+    fn resolve<'a>(
+        &'a self,
+        peer: SocketAddr,
+        local: SocketAddr,
+    ) -> Pin<Box<dyn Future<Output = AttributionResult> + Send + 'a>> {
+        Box::pin(async move {
+            self.calls.fetch_add(1, Ordering::SeqCst);
+            self.inner.resolve(peer, local).await
         })
     }
 }
@@ -708,7 +731,15 @@ async fn run() -> Result<(), String> {
         .map_err(|error| error.to_string())?,
     )
     .map_err(|error| error.to_string())?;
-    run_concurrent_timeout_case(&evidence, &config, &enforcer, Arc::clone(&outbound)).await?;
+    run_host_origin_refused_case(&evidence, &config, &enforcer, Arc::clone(&outbound)).await?;
+    run_concurrent_timeout_case(
+        &evidence,
+        &config,
+        &sandbox,
+        &enforcer,
+        Arc::clone(&outbound),
+    )
+    .await?;
     write_tuple_insert_failed_summary(&evidence)?;
     fs::write(evidence.join("current-case.txt"), "complete\n")
         .map_err(|error| error.to_string())?;
@@ -878,10 +909,12 @@ async fn run_cleanup_probe(
 async fn run_concurrent_timeout_case(
     evidence: &Path,
     config: &Config,
+    sandbox: &Helper,
     enforcer: &Helper,
     outbound: Arc<AtomicUsize>,
 ) -> Result<(), String> {
     const CONCURRENT: usize = 4;
+    const FIRST_SOURCE_PORT: u16 = 40_000;
     let case_dir = evidence.join("cases/concurrent_timeout");
     fs::create_dir_all(&case_dir).map_err(|error| error.to_string())?;
     fs::write(evidence.join("current-case.txt"), "concurrent_timeout\n")
@@ -891,8 +924,11 @@ async fn run_concurrent_timeout_case(
         serde_json::to_vec_pretty(&json!({
             "case": "CONCURRENT_TIMEOUT",
             "connections": CONCURRENT,
-            "origin": "qualification host outside the executions cgroup subtree",
-            "expected_tuple_publication": false,
+            "origin": "agent inside one verified production Execution",
+            "agent": "concurrent",
+            "source_ports": [40000, 40001, 40002, 40003],
+            "lookup_fault": "byte-swap each source port while preserving both addresses and the proxy destination port",
+            "expected_tuple_publication": true,
             "configured_timeout_ms": config.cgroup_bpf.resolve_timeout_ms,
             "minimum_acceptable_elapsed_ms": config.cgroup_bpf.resolve_timeout_ms
                 .saturating_sub(TIMEOUT_EARLY_TOLERANCE_MS),
@@ -904,7 +940,292 @@ async fn run_concurrent_timeout_case(
     )
     .map_err(|error| error.to_string())?;
 
+    let id = ExecutionId::generate().map_err(|error| error.to_string())?;
+    let nonce = ExecutionNonce::generate().map_err(|error| error.to_string())?;
+    let table = Arc::new(AttributionTable::new());
+    let mut execution = Execution {
+        sandbox,
+        enforcer,
+        id,
+        binding: None,
+        key_bound: false,
+        legacy_ip: None,
+        reserved: false,
+        prepared: false,
+        moved_pid: None,
+    };
     let observations = Arc::new(Mutex::new(Vec::new()));
+    let dns = Arc::new(AtomicUsize::new(0));
+    outbound.store(0, Ordering::SeqCst);
+    let health_failure = Arc::new(Mutex::new(None));
+    let result = async {
+        let reserved = sandbox
+            .call(SandboxRequest::Reserve {
+                id,
+                agent: "concurrent".to_owned(),
+            })
+            .await
+            .map_err(|error| error.to_string())?;
+        let HelperResponse::Reserved { cgroup_inode } = reserved else {
+            return Err(format!("unexpected reserve response: {reserved:?}"));
+        };
+        execution.reserved = true;
+        enforcer
+            .call(EnforcerRequest::Prepare {
+                id,
+                slot: 0,
+                agent: "concurrent".to_owned(),
+                nonce,
+            })
+            .await
+            .map_err(|error| error.to_string())?;
+        execution.prepared = true;
+        let paused = sandbox
+            .call(SandboxRequest::CreatePaused { id })
+            .await
+            .map_err(|error| error.to_string())?;
+        let HelperResponse::CreatedPaused {
+            pid,
+            cgroup_inode: paused_inode,
+        } = paused
+        else {
+            return Err(format!("unexpected create-paused response: {paused:?}"));
+        };
+        if cgroup_inode != paused_inode {
+            return Err("reserved and paused cgroup inodes differ".to_owned());
+        }
+        record_placement(config, &case_dir, id, pid, cgroup_inode)?;
+        let verified = enforcer
+            .call(EnforcerRequest::VerifyPlacement { id, pid })
+            .await
+            .map_err(|error| error.to_string())?;
+        let HelperResponse::PlacementVerified { binding } = verified else {
+            return Err(format!("unexpected placement response: {verified:?}"));
+        };
+        if binding.cgroup_id != cgroup_inode || binding.execution_nonce != nonce {
+            return Err("verified BindingKey does not match reserved identity".to_owned());
+        }
+        execution.binding = Some(binding);
+        table
+            .bind_key(binding, id)
+            .map_err(|error| error.to_string())?;
+        execution.key_bound = true;
+        enforcer
+            .call(EnforcerRequest::Activate {
+                id,
+                binding: Some(binding),
+            })
+            .await
+            .map_err(|error| error.to_string())?;
+        dump_maps(config, &case_dir, "active")?;
+
+        let observed_failure = Arc::clone(&health_failure);
+        let production: Arc<dyn ConnectionAttributor> = Arc::new(CandidateAAttributor::new(
+            enforcer
+                .resolver_client()
+                .map_err(|error| error.to_string())?,
+            Arc::clone(&table),
+            Duration::from_millis(config.cgroup_bpf.resolve_timeout_ms),
+            CONCURRENT,
+            Arc::new(move |failure| {
+                if let Ok(mut observed) = observed_failure.lock() {
+                    *observed = Some(match failure {
+                        ResolveHealthFailure::Unavailable => ObservedHealthFailure::Unavailable,
+                        ResolveHealthFailure::IntegrityFailure => {
+                            ObservedHealthFailure::IntegrityFailure
+                        }
+                    });
+                }
+            }),
+        ));
+        let observing: Arc<dyn ConnectionAttributor> = Arc::new(ConcurrentObservingAttributor {
+            inner: production,
+            observations: Arc::clone(&observations),
+            dns: Arc::clone(&dns),
+            outbound: Arc::clone(&outbound),
+            health_failure: Arc::clone(&health_failure),
+        });
+        let policy = DestinationPolicy::new(&config.egress, &config.network, Vec::new())
+            .map_err(|error| error.to_string())?;
+        let proxy = Arc::new(EgressProxy::new(
+            Arc::new(policy),
+            observing,
+            Arc::new(CountingResolver {
+                calls: Arc::clone(&dns),
+            }),
+            EgressLimits::from_config(&config.egress),
+        ));
+        let address = SocketAddr::from((config.network.proxy_address, config.network.proxy_port));
+        let listener = TcpListener::bind(address)
+            .await
+            .map_err(|error| format!("bind concurrent-timeout proxy: {error}"))?;
+        let (stop, stopped) = watch::channel(false);
+        let proxy_task = tokio::spawn(proxy.serve(listener, stopped));
+        sandbox
+            .call(SandboxRequest::Start { id })
+            .await
+            .map_err(|error| error.to_string())?;
+
+        let observation_deadline = Instant::now()
+            + Duration::from_millis(config.cgroup_bpf.resolve_timeout_ms)
+            + Duration::from_secs(3);
+        while observations
+            .lock()
+            .map_err(|_| "concurrent observation lock poisoned".to_owned())?
+            .len()
+            < CONCURRENT
+        {
+            if Instant::now() >= observation_deadline {
+                break;
+            }
+            tokio::time::sleep(Duration::from_millis(10)).await;
+        }
+        let client_outcomes = read_agent_client_outcomes(
+            pid,
+            &case_dir,
+            CONCURRENT,
+            FIRST_SOURCE_PORT,
+            Duration::from_secs(2),
+        )
+        .await;
+        stop.send_replace(true);
+        tokio::time::timeout(Duration::from_secs(2), proxy_task)
+            .await
+            .map_err(|_| "concurrent-timeout proxy did not stop".to_owned())?
+            .map_err(|error| error.to_string())?;
+        let client_outcomes = client_outcomes?;
+        dump_maps(config, &case_dir, "after-resolve")?;
+
+        let observations = observations
+            .lock()
+            .map_err(|_| "concurrent observation lock poisoned".to_owned())?;
+        fs::write(
+            case_dir.join("resolve.json"),
+            serde_json::to_vec_pretty(&*observations).map_err(|error| error.to_string())?,
+        )
+        .map_err(|error| error.to_string())?;
+        let mut real_ports: Vec<u16> = observations
+            .iter()
+            .map(|observation| observation.peer.port())
+            .collect();
+        real_ports.sort_unstable();
+        let expected_ports: Vec<u16> = (0..CONCURRENT)
+            .map(|index| FIRST_SOURCE_PORT + index as u16)
+            .collect();
+        if observations.len() != CONCURRENT {
+            return Err(format!(
+                "observed {} of {CONCURRENT} concurrent Resolve calls",
+                observations.len()
+            ));
+        }
+        if real_ports != expected_ports {
+            return Err(format!(
+                "concurrent Resolve source ports were {real_ports:?}, expected {expected_ports:?}"
+            ));
+        }
+        if observations.iter().any(|observation| {
+            observation.queried_peer.ip() != observation.peer.ip()
+                || observation.queried_peer.port() != observation.peer.port().swap_bytes()
+                || observation.queried_peer.port() == observation.peer.port()
+                || observation.queried_local != observation.local
+                || observation.outcome != ObservedResolveOutcome::Timeout
+                || observation.mismatch.is_some()
+                || observation.recv_q_bytes == 0
+                || observation.dns_when_resolve_returned != 0
+                || observation.outbound_when_resolve_returned != 0
+                || observation.health_failure.is_some()
+                || !timeout_duration_is_bounded(
+                    observation.resolve_elapsed_ms,
+                    config.cgroup_bpf.resolve_timeout_ms,
+                    CONCURRENT_TIMEOUT_LATE_TOLERANCE_MS,
+                )
+        }) {
+            return Err(
+                "a concurrent Resolve violated tuple swap, timeout, no-read, no-effect or health bounds"
+                    .to_owned(),
+            );
+        }
+        if client_outcomes.iter().any(|outcome| {
+            outcome.get("status").and_then(Value::as_str) != Some("connected")
+        }) {
+            return Err("an in-Execution concurrent client did not connect to the proxy".to_owned());
+        }
+        if health_failure
+            .lock()
+            .map_err(|_| "health observation lock poisoned".to_owned())?
+            .is_some()
+        {
+            return Err("concurrent timeout changed runtime health".to_owned());
+        }
+        Ok(())
+    }
+    .await;
+
+    let cleanup = execution.cleanup(Some(&table)).await;
+    fs::write(
+        case_dir.join("execution-cleanup.json"),
+        serde_json::to_vec_pretty(&json!({"failures": cleanup}))
+            .map_err(|error| error.to_string())?,
+    )
+    .map_err(|error| error.to_string())?;
+    if !cleanup.is_empty() {
+        return Err(format!("concurrent_timeout cleanup failed: {cleanup:?}"));
+    }
+    dump_maps(config, &case_dir, "post-cleanup")?;
+    let tuple_entries = map_dump_entry_count(&case_dir, "post-cleanup", "soglia_tuples")?;
+    let cookie_entries = map_dump_entry_count(&case_dir, "post-cleanup", "soglia_cookie_a")?;
+    let tuple_insert_failed =
+        counter_value_from_evidence(&case_dir, "post-cleanup", C_TUPLE_INSERT_FAILED)?;
+    fs::write(
+        case_dir.join("post-cleanup-attribution.json"),
+        serde_json::to_vec_pretty(&json!({
+            "case": "CONCURRENT_TIMEOUT",
+            "execution_id": id,
+            "binding": execution.binding,
+            "tuple_entries_after_cleanup": tuple_entries,
+            "cookie_entries_after_cleanup": cookie_entries,
+            "execution_attribution_absent": tuple_entries == 0 && cookie_entries == 0,
+            "C_TUPLE_INSERT_FAILED": tuple_insert_failed,
+            "tuple_insert_failed_invariant": tuple_insert_failed == 0
+        }))
+        .map_err(|error| error.to_string())?,
+    )
+    .map_err(|error| error.to_string())?;
+    if tuple_entries != 0 || cookie_entries != 0 {
+        return Err(format!(
+            "concurrent_timeout retained Candidate-A state: tuples={tuple_entries}, cookies={cookie_entries}"
+        ));
+    }
+    if tuple_insert_failed != 0 {
+        return Err(format!(
+            "C_TUPLE_INSERT_FAILED is {tuple_insert_failed}, expected 0"
+        ));
+    }
+    enforcer
+        .call(EnforcerRequest::Health)
+        .await
+        .map_err(|error| format!("post-concurrency backend health: {error}"))?;
+    if let Err(error) = &result {
+        fs::write(case_dir.join("verdict.txt"), "FAIL\n").map_err(|write| write.to_string())?;
+        fs::write(case_dir.join("failure.txt"), format!("{error}\n"))
+            .map_err(|write| write.to_string())?;
+    } else {
+        fs::write(case_dir.join("verdict.txt"), "PASS\n").map_err(|error| error.to_string())?;
+    }
+    result
+}
+
+async fn run_host_origin_refused_case(
+    evidence: &Path,
+    config: &Config,
+    enforcer: &Helper,
+    outbound: Arc<AtomicUsize>,
+) -> Result<(), String> {
+    let case_dir = evidence.join("cases/host_origin_refused");
+    fs::create_dir_all(&case_dir).map_err(|error| error.to_string())?;
+    fs::write(evidence.join("current-case.txt"), "host_origin_refused\n")
+        .map_err(|error| error.to_string())?;
+    let calls = Arc::new(AtomicUsize::new(0));
     let dns = Arc::new(AtomicUsize::new(0));
     outbound.store(0, Ordering::SeqCst);
     let health_failure = Arc::new(Mutex::new(None));
@@ -915,7 +1236,7 @@ async fn run_concurrent_timeout_case(
             .map_err(|error| error.to_string())?,
         Arc::new(AttributionTable::new()),
         Duration::from_millis(config.cgroup_bpf.resolve_timeout_ms),
-        CONCURRENT,
+        1,
         Arc::new(move |failure| {
             if let Ok(mut observed) = observed_failure.lock() {
                 *observed = Some(match failure {
@@ -927,12 +1248,9 @@ async fn run_concurrent_timeout_case(
             }
         }),
     ));
-    let observing: Arc<dyn ConnectionAttributor> = Arc::new(ConcurrentObservingAttributor {
+    let observing: Arc<dyn ConnectionAttributor> = Arc::new(CountingConnectionAttributor {
         inner: production,
-        observations: Arc::clone(&observations),
-        dns: Arc::clone(&dns),
-        outbound: Arc::clone(&outbound),
-        health_failure: Arc::clone(&health_failure),
+        calls: Arc::clone(&calls),
     });
     let policy = DestinationPolicy::new(&config.egress, &config.network, Vec::new())
         .map_err(|error| error.to_string())?;
@@ -947,109 +1265,159 @@ async fn run_concurrent_timeout_case(
     let address = SocketAddr::from((config.network.proxy_address, config.network.proxy_port));
     let listener = TcpListener::bind(address)
         .await
-        .map_err(|error| format!("bind concurrent-timeout proxy: {error}"))?;
+        .map_err(|error| format!("bind host-origin-refused proxy: {error}"))?;
     let (stop, stopped) = watch::channel(false);
     let proxy_task = tokio::spawn(proxy.serve(listener, stopped));
-    let mut clients = tokio::task::JoinSet::new();
-    for _ in 0..CONCURRENT {
-        clients.spawn(async move {
-            let mut stream = TcpStream::connect(address).await?;
-            stream.write_all(&[b'x'; 61]).await?;
-            tokio::time::sleep(Duration::from_secs(5)).await;
-            Ok::<(), io::Error>(())
-        });
-    }
-
-    let observation_deadline = Instant::now()
-        + Duration::from_millis(config.cgroup_bpf.resolve_timeout_ms)
-        + Duration::from_secs(3);
-    while observations
-        .lock()
-        .map_err(|_| "concurrent observation lock poisoned".to_owned())?
-        .len()
-        < CONCURRENT
-    {
-        if Instant::now() >= observation_deadline {
-            break;
-        }
-        tokio::time::sleep(Duration::from_millis(10)).await;
-    }
+    let started = Instant::now();
+    let attempted =
+        tokio::time::timeout(Duration::from_millis(1_500), TcpStream::connect(address)).await;
+    let (status, error) = match attempted {
+        Ok(Ok(_stream)) => ("connected", None),
+        Ok(Err(error)) => ("refused", Some(error.to_string())),
+        Err(error) => ("timed_out", Some(error.to_string())),
+    };
+    tokio::time::sleep(Duration::from_millis(200)).await;
     stop.send_replace(true);
     tokio::time::timeout(Duration::from_secs(2), proxy_task)
         .await
-        .map_err(|_| "concurrent-timeout proxy did not stop".to_owned())?
+        .map_err(|_| "host-origin-refused proxy did not stop".to_owned())?
         .map_err(|error| error.to_string())?;
-    clients.abort_all();
-    while clients.join_next().await.is_some() {}
+    let resolve_calls = calls.load(Ordering::SeqCst);
     dump_maps(config, &case_dir, "post-case")?;
     let tuple_insert_failed =
         counter_value_from_evidence(&case_dir, "post-case", C_TUPLE_INSERT_FAILED)?;
     fs::write(
-        case_dir.join("counter-invariant.json"),
+        case_dir.join("client-outcomes.json"),
+        serde_json::to_vec_pretty(&json!([{
+            "origin": "qualification host outside executions/",
+            "destination": address,
+            "status": status,
+            "error": error,
+            "elapsed_ms": u64::try_from(started.elapsed().as_millis()).unwrap_or(u64::MAX)
+        }]))
+        .map_err(|error| error.to_string())?,
+    )
+    .map_err(|error| error.to_string())?;
+    fs::write(
+        case_dir.join("scope.json"),
         serde_json::to_vec_pretty(&json!({
-            "counter": "C_TUPLE_INSERT_FAILED",
-            "index": C_TUPLE_INSERT_FAILED,
-            "value": tuple_insert_failed,
-            "expected": 0,
-            "holds": tuple_insert_failed == 0
+            "case": "HOST_ORIGIN_REFUSED",
+            "nft_contract": "inet soglia_host input drops proxy-address traffic not arriving from an Execution veth",
+            "origin": "qualification host outside the executions cgroup subtree",
+            "destination": address,
+            "expected": "client refused or timed out, proxy accepts nothing, zero Resolve calls",
+            "production_code_modified": false
         }))
         .map_err(|error| error.to_string())?,
     )
     .map_err(|error| error.to_string())?;
-
-    let observations = observations
-        .lock()
-        .map_err(|_| "concurrent observation lock poisoned".to_owned())?;
     fs::write(
-        case_dir.join("resolve.json"),
-        serde_json::to_vec_pretty(&*observations).map_err(|error| error.to_string())?,
+        case_dir.join("resolve-count.json"),
+        serde_json::to_vec_pretty(&json!({
+            "accepted_connections_reaching_attributor": resolve_calls,
+            "expected": 0,
+            "dns_calls": dns.load(Ordering::SeqCst),
+            "outbound_accepts": outbound.load(Ordering::SeqCst),
+            "health_failure": health_failure.lock().ok().and_then(|value| *value),
+            "C_TUPLE_INSERT_FAILED": tuple_insert_failed
+        }))
+        .map_err(|error| error.to_string())?,
     )
     .map_err(|error| error.to_string())?;
-    let result = if observations.len() != CONCURRENT {
+    let result = if status == "connected" || resolve_calls != 0 {
         Err(format!(
-            "observed {} of {CONCURRENT} concurrent Resolve calls",
-            observations.len()
+            "host origin was {status} and produced {resolve_calls} Resolve calls"
         ))
-    } else if observations.iter().any(|observation| {
-        observation.outcome != ObservedResolveOutcome::Timeout
-            || observation.mismatch.is_some()
-            || observation.recv_q_bytes == 0
-            || observation.dns_when_resolve_returned != 0
-            || observation.outbound_when_resolve_returned != 0
-            || observation.health_failure.is_some()
-            || !timeout_duration_is_bounded(
-                observation.resolve_elapsed_ms,
-                config.cgroup_bpf.resolve_timeout_ms,
-                CONCURRENT_TIMEOUT_LATE_TOLERANCE_MS,
-            )
-    }) {
-        Err("a concurrent Resolve violated timeout, no-read, no-effect or health bounds".to_owned())
+    } else if dns.load(Ordering::SeqCst) != 0 || outbound.load(Ordering::SeqCst) != 0 {
+        Err("host-origin refusal produced DNS or outbound effects".to_owned())
     } else if tuple_insert_failed != 0 {
         Err(format!(
-            "C_TUPLE_INSERT_FAILED is {tuple_insert_failed}, expected 0"
+            "C_TUPLE_INSERT_FAILED is {tuple_insert_failed} after host_origin_refused"
         ))
     } else if health_failure
         .lock()
         .map_err(|_| "health observation lock poisoned".to_owned())?
         .is_some()
     {
-        Err("concurrent timeout changed runtime health".to_owned())
+        Err("host-origin refusal changed runtime health".to_owned())
     } else {
+        enforcer
+            .call(EnforcerRequest::Health)
+            .await
+            .map_err(|error| format!("post-host-origin backend health: {error}"))?;
         Ok(())
     };
-    drop(observations);
     if let Err(error) = &result {
         fs::write(case_dir.join("verdict.txt"), "FAIL\n").map_err(|write| write.to_string())?;
         fs::write(case_dir.join("failure.txt"), format!("{error}\n"))
             .map_err(|write| write.to_string())?;
     } else {
-        enforcer
-            .call(EnforcerRequest::Health)
-            .await
-            .map_err(|error| format!("post-concurrency backend health: {error}"))?;
         fs::write(case_dir.join("verdict.txt"), "PASS\n").map_err(|error| error.to_string())?;
     }
     result
+}
+
+async fn read_agent_client_outcomes(
+    pid: i32,
+    evidence: &Path,
+    expected_count: usize,
+    first_source_port: u16,
+    timeout: Duration,
+) -> Result<Vec<Value>, String> {
+    let report = PathBuf::from(format!("/proc/{pid}/root/tmp/client-outcomes.jsonl"));
+    wait_for_file(&report, timeout).await?;
+    let raw = fs::read_to_string(&report).map_err(|error| error.to_string())?;
+    fs::write(evidence.join("client-outcomes.jsonl"), &raw).map_err(|error| error.to_string())?;
+    let outcomes: Vec<Value> = raw
+        .lines()
+        .filter(|line| !line.trim().is_empty())
+        .map(|line| serde_json::from_str(line).map_err(|error| error.to_string()))
+        .collect::<Result<_, _>>()?;
+    fs::write(
+        evidence.join("client-outcomes.json"),
+        serde_json::to_vec_pretty(&outcomes).map_err(|error| error.to_string())?,
+    )
+    .map_err(|error| error.to_string())?;
+    if outcomes.len() != expected_count {
+        return Err(format!(
+            "agent recorded {} of {expected_count} client outcomes",
+            outcomes.len()
+        ));
+    }
+    let mut observed = Vec::with_capacity(expected_count);
+    for outcome in &outcomes {
+        if outcome.get("cmd").and_then(Value::as_str) != Some("proxy-fixed") {
+            return Err(format!("unexpected client outcome command: {outcome}"));
+        }
+        let index = outcome
+            .get("i")
+            .and_then(Value::as_u64)
+            .and_then(|value| usize::try_from(value).ok())
+            .ok_or_else(|| format!("client outcome omitted a valid index: {outcome}"))?;
+        let source_port = outcome
+            .get("source_port")
+            .and_then(Value::as_u64)
+            .and_then(|value| u16::try_from(value).ok())
+            .ok_or_else(|| format!("client outcome omitted a valid source port: {outcome}"))?;
+        let status = outcome
+            .get("status")
+            .and_then(Value::as_str)
+            .ok_or_else(|| format!("client outcome omitted its status: {outcome}"))?;
+        if !matches!(status, "connected" | "refused" | "timed_out") {
+            return Err(format!("client outcome has unknown status {status}"));
+        }
+        observed.push((index, source_port));
+    }
+    observed.sort_unstable();
+    let expected: Vec<(usize, u16)> = (0..expected_count)
+        .map(|index| (index, first_source_port + index as u16))
+        .collect();
+    if observed != expected {
+        return Err(format!(
+            "client outcome identities were {observed:?}, expected {expected:?}"
+        ));
+    }
+    Ok(outcomes)
 }
 
 fn assert_expected_resolve(
@@ -1858,12 +2226,24 @@ fn write_tuple_insert_failed_summary(evidence: &Path) -> Result<(), String> {
             ));
         }
     }
+    let host_dir = evidence.join("cases/host_origin_refused");
+    let host = counter_value_from_evidence(&host_dir, "post-case", C_TUPLE_INSERT_FAILED)?;
+    observations.push(json!({
+        "case": "HOST_ORIGIN_REFUSED",
+        "stage": "post-case",
+        "value": host
+    }));
+    if host != 0 {
+        return Err(format!(
+            "C_TUPLE_INSERT_FAILED is {host} after host_origin_refused"
+        ));
+    }
     let concurrent_dir = evidence.join("cases/concurrent_timeout");
     let concurrent =
-        counter_value_from_evidence(&concurrent_dir, "post-case", C_TUPLE_INSERT_FAILED)?;
+        counter_value_from_evidence(&concurrent_dir, "post-cleanup", C_TUPLE_INSERT_FAILED)?;
     observations.push(json!({
         "case": "CONCURRENT_TIMEOUT",
-        "stage": "post-case",
+        "stage": "post-cleanup",
         "value": concurrent
     }));
     if concurrent != 0 {
@@ -2188,6 +2568,24 @@ mod tests {
         let error = qualification_query(Case::TupleByteOrder, peer, local).unwrap_err();
 
         assert!(error.contains("byte-symmetric"));
+    }
+
+    #[test]
+    fn concurrent_source_ports_are_all_changed_by_byte_swap() {
+        let local: SocketAddr = "10.200.255.1:15001".parse().unwrap();
+        let mut queried = Vec::new();
+        for port in 40_000..40_004 {
+            let peer = SocketAddr::new("10.201.0.1".parse().unwrap(), port);
+            let (queried_peer, queried_local) =
+                qualification_query(Case::TupleByteOrder, peer, local).unwrap();
+            assert_ne!(queried_peer.port(), port);
+            assert_eq!(queried_peer.ip(), peer.ip());
+            assert_eq!(queried_local, local);
+            queried.push(queried_peer.port());
+        }
+        queried.sort_unstable();
+        queried.dedup();
+        assert_eq!(queried.len(), 4);
     }
 
     #[test]
