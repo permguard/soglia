@@ -1,0 +1,8 @@
+{
+  "case": "TUPLE_BYTE_ORDER",
+  "injected_fault_count": 1,
+  "injection_owner": "qualification harness",
+  "production_code_modified": false,
+  "same_production_build": true,
+  "same_topology": true
+}

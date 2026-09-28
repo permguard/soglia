@@ -1,0 +1,9 @@
+{
+  "application_bytes_read": 0,
+  "case": "IP_ONLY",
+  "dns_calls": 0,
+  "local": "10.200.255.1:15001",
+  "outbound_accepts": 0,
+  "peer": "10.201.0.1:44978",
+  "recv_q_bytes": 61
+}

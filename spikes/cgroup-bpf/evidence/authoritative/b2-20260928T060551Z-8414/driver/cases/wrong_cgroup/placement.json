@@ -1,0 +1,15 @@
+{
+  "execution_id": "7c9a3420d1eeffeecb7042608cd6b2a3",
+  "host_pid": 8943,
+  "netns": {
+    "agent_inode": 4026532356,
+    "matches": true,
+    "owned_inode": 4026532356
+  },
+  "pid_listed": true,
+  "proc_cgroup": "0::/system.slice/soglia-b2.service/executions/7c9a3420d1\n",
+  "tag": "7c9a3420d1",
+  "target": "/sys/fs/cgroup/system.slice/soglia-b2.service/executions/7c9a3420d1",
+  "target_cgroup_procs": "8943\n",
+  "target_inode": 7397
+}

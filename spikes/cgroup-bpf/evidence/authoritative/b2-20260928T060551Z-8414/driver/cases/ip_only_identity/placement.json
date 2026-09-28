@@ -1,0 +1,15 @@
+{
+  "execution_id": "cb22bfa1daab5aef17daa5894521e674",
+  "host_pid": 9566,
+  "netns": {
+    "agent_inode": 4026532356,
+    "matches": true,
+    "owned_inode": 4026532356
+  },
+  "pid_listed": true,
+  "proc_cgroup": "0::/system.slice/soglia-b2.service/executions/cb22bfa1da\n",
+  "tag": "cb22bfa1da",
+  "target": "/sys/fs/cgroup/system.slice/soglia-b2.service/executions/cb22bfa1da",
+  "target_cgroup_procs": "9566\n",
+  "target_inode": 7955
+}

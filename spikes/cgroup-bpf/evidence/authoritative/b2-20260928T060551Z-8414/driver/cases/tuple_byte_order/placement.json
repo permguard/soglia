@@ -1,0 +1,15 @@
+{
+  "execution_id": "c3ef230bf30e642f4bbabe47378348b1",
+  "host_pid": 9306,
+  "netns": {
+    "agent_inode": 4026532415,
+    "matches": true,
+    "owned_inode": 4026532415
+  },
+  "pid_listed": true,
+  "proc_cgroup": "0::/system.slice/soglia-b2.service/executions/c3ef230bf3\n",
+  "tag": "c3ef230bf3",
+  "target": "/sys/fs/cgroup/system.slice/soglia-b2.service/executions/c3ef230bf3",
+  "target_cgroup_procs": "9306\n",
+  "target_inode": 7769
+}

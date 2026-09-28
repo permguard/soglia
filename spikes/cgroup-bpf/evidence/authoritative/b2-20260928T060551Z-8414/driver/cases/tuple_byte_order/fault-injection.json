@@ -1,0 +1,13 @@
+{
+  "actor": "b2_driver qualification wrapper",
+  "fault": "TUPLE_BYTE_ORDER",
+  "injected": {
+    "local": "10.200.255.1:39226",
+    "peer": "10.201.0.1:44719"
+  },
+  "original": {
+    "local": "10.200.255.1:15001",
+    "peer": "10.201.0.1:44974"
+  },
+  "production_code_modified": false
+}

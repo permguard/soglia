@@ -1,0 +1,15 @@
+{
+  "execution_id": "5e6c6ead7578b2912f7e58d21aa4fd6f",
+  "host_pid": 9039,
+  "netns": {
+    "agent_inode": 4026532415,
+    "matches": true,
+    "owned_inode": 4026532415
+  },
+  "pid_listed": true,
+  "proc_cgroup": "0::/system.slice/soglia-b2.service/executions/5e6c6ead75\n",
+  "tag": "5e6c6ead75",
+  "target": "/sys/fs/cgroup/system.slice/soglia-b2.service/executions/5e6c6ead75",
+  "target_cgroup_procs": "9039\n",
+  "target_inode": 7583
+}

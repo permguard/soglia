@@ -1,0 +1,15 @@
+{
+  "execution_id": "527acad220adcb58218d3d124f6d8bae",
+  "host_pid": 9433,
+  "netns": {
+    "agent_inode": 4026532356,
+    "matches": true,
+    "owned_inode": 4026532356
+  },
+  "pid_listed": true,
+  "proc_cgroup": "0::/system.slice/soglia-b2.service/executions/527acad220\n",
+  "tag": "527acad220",
+  "target": "/sys/fs/cgroup/system.slice/soglia-b2.service/executions/527acad220",
+  "target_cgroup_procs": "9433\n",
+  "target_inode": 7862
+}

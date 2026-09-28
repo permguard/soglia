@@ -1,0 +1,14 @@
+{
+  "case": "IP_ONLY",
+  "peer": "10.201.0.1:44978",
+  "local": "10.200.255.1:15001",
+  "queried_peer": "10.201.0.1:44978",
+  "queried_local": "10.200.255.1:15001",
+  "recv_q_bytes": 61,
+  "dns_before": 0,
+  "outbound_before": 0,
+  "dns_when_resolve_returned": 0,
+  "outbound_when_resolve_returned": 0,
+  "resolved_execution": null,
+  "channel_loss": null
+}

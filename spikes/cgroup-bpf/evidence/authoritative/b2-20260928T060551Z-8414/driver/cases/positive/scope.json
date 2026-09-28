@@ -1,0 +1,8 @@
+{
+  "case": "POSITIVE",
+  "injected_fault_count": 0,
+  "injection_owner": "none",
+  "production_code_modified": false,
+  "same_production_build": true,
+  "same_topology": true
+}

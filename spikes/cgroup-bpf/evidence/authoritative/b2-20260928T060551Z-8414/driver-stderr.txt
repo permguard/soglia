@@ -1,0 +1,22 @@
+Running as unit: soglia-b2.service
+event.name=cgroup_bpf.attach_probe result=PASS mode=single hooks=6 effective=true
+event.name=cgroup_bpf.ready generation=1 programs=6 links=6 maps=7 policy_capacity=3 socket_capacity=64 ring_bytes=65536
+2026-09-28T06:05:56.544358Z  INFO egress request allowed event.name="egress.allowed" execution_id=9d32b22673b52eea81a2ae2d07b226c4 method=CONNECT target=allowed.test:443 status=200
+soglia-agent 2026-09-28T06:05:56.547988Z  INFO tunnel ended event.name="egress.tunnel_ended" execution_id=9d32b22673b52eea81a2ae2d07b226c4 end="closed"
+9d32b22673b52eea81a2ae2d07b226c4: {"cmd":"proxy-http","ok":true,"detail":"HTTP/1.1 200 OK"}
+2026-09-28T06:05:57.361694Z  WARN a connection from an address no live Execution holds was closed event.name="egress.unattributed" peer=10.201.0.1:44958
+soglia-agent 5e6c6ead7578b2912f7e58d21aa4fd6f: {"cmd":"proxy-http","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)"}
+2026-09-28T06:05:57.775776Z  WARN a connection from an address no live Execution holds was closed event.name="egress.unattributed" peer=10.201.0.1:44968
+soglia-agent 3741fd41578cfcafb7905718a598e096: {"cmd":"proxy-http","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)"}
+2026-09-28T06:05:58.200465Z  WARN a connection from an address no live Execution holds was closed event.name="egress.unattributed" peer=10.201.0.1:44974
+soglia-agent c3ef230bf30e642f4bbabe47378348b1: {"cmd":"proxy-http","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)"}
+2026-09-28T06:05:58.613758Z  WARN a connection from an address no live Execution holds was closed event.name="egress.unattributed" peer=10.201.0.1:44976
+soglia-agent 527acad220adcb58218d3d124f6d8bae: {"cmd":"proxy-http","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)"}
+2026-09-28T06:05:59.032714Z  WARN a connection from an address no live Execution holds was closed event.name="egress.unattributed" peer=10.201.0.1:44978
+soglia-agent cb22bfa1daab5aef17daa5894521e674: {"cmd":"proxy-http","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)"}
+Finished with result: success
+Main processes terminated with: code=exited/status=0
+Service runtime: 3.119s
+CPU time consumed: 942ms
+Memory peak: 3.6M
+Memory swap peak: 0B
