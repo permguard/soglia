@@ -4486,14 +4486,14 @@ async fn run_b3_freeze_resolve_race(
                 observed.0, observed.1
             ));
         }
+        // ResolveFirst can be revoked after attribution but before the proxy's
+        // CONNECT response reaches the agent, so the establishment result is
+        // the only mandatory line here. Established-tunnel closure is proven
+        // independently by connect_tunnel_revocation.
         let report = wait_b3_report_lines(
             execution.pid,
             "b3-report.jsonl",
-            if observed.0 == ObservedResolveOutcome::Resolved {
-                2
-            } else {
-                1
-            },
+            1,
             Duration::from_secs(5),
         )
         .await?;
