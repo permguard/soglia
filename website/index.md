@@ -40,9 +40,9 @@ import { withBase } from 'vitepress'
     <div class="soglia-hero__copy">
       <div class="soglia-kicker">Soglia Runtime</div>
       <h1>Trusted execution for AI agents and mission-critical workloads.</h1>
-      <p>Soglia is a runtime that enables trusted execution for AI agents and mission-critical workloads under authority that never expands.</p>
+      <p>Every call runs in its own isolated Execution, under authority that never expands, and leaves nothing behind.</p>
       <div class="soglia-actions">
-        <a class="soglia-btn soglia-btn--primary" :href="withBase('/architecture')">Architecture</a>
+        <a class="soglia-btn soglia-btn--primary" :href="withBase('/how-it-works')">How it works</a>
         <a class="soglia-btn soglia-btn--ghost" href="https://github.com/permguard/soglia" target="_blank" rel="noopener noreferrer">View on GitHub</a>
       </div>
     </div>
@@ -86,6 +86,20 @@ import { withBase } from 'vitepress'
       <p><strong class="soglia-flows__soglia">Soglia</strong> controls execution and effect flow.</p>
     </div>
   </section>
+  <section id="philosophy" class="soglia-principles soglia-philosophy">
+    <div class="soglia-section-inner soglia-philosophy__inner">
+      <div>
+        <div class="soglia-kicker">Philosophy</div>
+        <h2>If it cannot be proven, it does not ship.</h2>
+        <p>Soglia is built the way PIC is: formal model first. A mechanism enters Soglia only when the property it enforces can be stated and proved. Whatever cannot be proved stays out, however convenient it would be.</p>
+      </div>
+      <ol class="soglia-philosophy__steps">
+        <li><b>Stated</b><span>every guarantee is a formal property, not a promise</span></li>
+        <li><b>Proved</b><span>it holds along the whole causal chain of an execution</span></li>
+        <li><b>Enforced</b><span>Soglia supplies exactly what the proof assumes</span></li>
+      </ol>
+    </div>
+  </section>
   <section id="benefits" class="soglia-benefits">
     <div class="soglia-section-inner">
       <div class="soglia-section-head">
@@ -95,18 +109,18 @@ import { withBase } from 'vitepress'
       <div class="soglia-benefits__grid">
         <article>
           <svg class="soglia-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
-          <h3>Bounded authority</h3>
-          <p>Authority and context carried across the chain of action can only narrow, never expand.</p>
+          <h3>No standing privileges</h3>
+          <p>An agent holds authority only for the call it serves, and never more than it was given.</p>
         </article>
         <article>
           <svg class="soglia-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
-          <h3>Isolation by default</h3>
-          <p>Every request runs in a fresh, isolated Execution with its own boundaries.</p>
+          <h3>No cross-contamination</h3>
+          <p>One call can never see, reuse or leak the state or credentials of another.</p>
         </article>
         <article>
           <svg class="soglia-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.59 13.51 6.83 3.98"/><path d="m15.41 6.51-6.82 3.98"/></svg>
-          <h3>Network mediation</h3>
-          <p>Every outbound effect crosses a mediated boundary toward external services and enterprise APIs.</p>
+          <h3>No secrets to steal</h3>
+          <p>Real credentials never reach agent code, so a compromised agent has nothing worth taking.</p>
         </article>
         <article>
           <svg class="soglia-icon" viewBox="0 0 24 24" aria-hidden="true"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
@@ -134,7 +148,7 @@ import { withBase } from 'vitepress'
         </article>
         <article>
           <h3>PIC</h3>
-          <p>Proves why authority may continue at every step, so Soglia can enforce it at every boundary.</p>
+          <p>Carries authority from one step to the next, and proves it never grew on the way.</p>
         </article>
         <article>
           <h3>Governance</h3>
@@ -176,18 +190,9 @@ import { withBase } from 'vitepress'
           <p>Controlled, verifiable execution for mission-critical robotic and operational systems.</p>
         </article>
       </div>
+      <div class="soglia-actions soglia-usecases__more">
+        <a class="soglia-btn soglia-btn--ghost" :href="withBase('/use-cases')">Explore use cases</a>
+      </div>
     </div>
   </section>
-  <footer class="soglia-footer">
-    <div class="soglia-section-inner">
-      <div class="soglia-footer__top">
-        <div>
-          <p><strong>Soglia is a <a href="https://permguard.com" target="_blank" rel="noopener noreferrer">Permguard</a> family product.</strong></p>
-          <p class="soglia-footer__legal">Permguard® is a registered trademark.</p>
-        </div>
-        <p><strong>Brought to you by <a href="https://nitroagility.com" target="_blank" rel="noopener noreferrer">Nitro Agility S.r.l.</a></strong></p>
-      </div>
-      <p class="soglia-footer__copy">© 2026 All rights reserved</p>
-    </div>
-  </footer>
 </div>

@@ -15,7 +15,9 @@ export default defineConfig({
   appearance: 'dark',
   themeConfig: {
     nav: [
-      { text: 'Architecture', link: '/architecture' }
+      { text: 'How it works', link: '/how-it-works' },
+      { text: 'AI Agents', link: '/agents' },
+      { text: 'Use cases', link: '/use-cases' }
     ],
     socialLinks: [
       { icon: 'github', link: 'https://github.com/permguard/soglia' }
