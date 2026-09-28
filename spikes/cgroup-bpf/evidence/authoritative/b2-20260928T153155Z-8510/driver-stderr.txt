@@ -1,0 +1,41 @@
+Running as unit: soglia-b2.service
+event.name=cgroup_bpf.attach_probe result=PASS mode=single hooks=6 effective=true
+event.name=cgroup_bpf.ready generation=1 programs=6 links=6 maps=7 policy_capacity=3 socket_capacity=64 ring_bytes=65536
+2026-09-28T15:32:00.937442Z  INFO egress request allowed event.name="egress.allowed" execution_id=b34ac9bf0fd92c9ea25ae7b4cfcc8d51 method=CONNECT target=allowed.test:443 status=200
+2026-09-28T15:32:00.937577Z  INFO tunnel ended event.name="egress.tunnel_ended" execution_id=b34ac9bf0fd92c9ea25ae7b4cfcc8d51 end="runtime-shutdown"
+soglia-agent b34ac9bf0fd92c9ea25ae7b4cfcc8d51: {"cmd":"proxy-http","ok":true,"detail":"HTTP/1.1 200 OK"}
+2026-09-28T15:32:01.793015Z  WARN Candidate-A Resolve denied event.name="cgroup_bpf.resolve_identity_mismatch" reason=ExecutionNonce
+2026-09-28T15:32:01.793351Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:40000 result=IdentityMismatch(ExecutionNonce)
+soglia-agent 7d1b3aa979799230b2a3a2f06742d8c3: {"cmd":"proxy-http","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)"}
+2026-09-28T15:32:02.236009Z  WARN Candidate-A Resolve denied event.name="cgroup_bpf.resolve_identity_mismatch" reason=BackendGeneration
+2026-09-28T15:32:02.236234Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:40000 result=IdentityMismatch(BackendGeneration)
+soglia-agent 1fb7bc6dc54e73a5269e08946ac12334: {"cmd":"proxy-http","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)"}
+2026-09-28T15:32:04.672844Z  WARN Candidate-A Resolve denied at its publication deadline event.name="cgroup_bpf.resolve_timeout" reason="tuple_absent"
+2026-09-28T15:32:04.674936Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:40000 result=Timeout
+soglia-agent eca898c46373984bb29603d755ccb142: {"cmd":"proxy-http","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)"}
+2026-09-28T15:32:05.144676Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:40000 result=NotFound
+soglia-agent 5d34b19c0361e214860541734d5465d5: {"cmd":"proxy-http","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)"}
+2026-09-28T15:32:05.589118Z  WARN Candidate-A Resolve denied event.name="cgroup_bpf.resolve_identity_mismatch" reason=Cookie
+2026-09-28T15:32:05.589403Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:40000 result=IdentityMismatch(Cookie)
+soglia-agent eb0fc208394b38f3be8023b8659a66dd: {"cmd":"proxy-http","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)"}
+2026-09-28T15:32:06.017088Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:40000 result=NotFound
+soglia-agent 4ae824e68c2e111dbf1943beb97617b5: {"cmd":"proxy-http","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)"}
+2026-09-28T15:32:10.209595Z  WARN Candidate-A Resolve denied at its publication deadline event.name="cgroup_bpf.resolve_timeout" reason="tuple_absent"
+2026-09-28T15:32:10.210181Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:40000 result=Timeout
+2026-09-28T15:32:10.209737Z  WARN Candidate-A Resolve denied at its publication deadline event.name="cgroup_bpf.resolve_timeout" reason="tuple_absent"
+2026-09-28T15:32:10.210800Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:40003 result=Timeout
+soglia-agent 2026-09-28T15:32:10.209626Z  WARN Candidate-A Resolve denied at its publication deadline event.name="cgroup_bpf.resolve_timeout" reason="tuple_absent"
+2026-09-28T15:32:10.211910Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:40002 result=Timeout
+7f692026-09-28T15:32:10.209812Z  WARN Candidate-A Resolve denied at its publication deadline event.name="cgroup_bpf.resolve_timeout" reason="tuple_absent"
+2026-09-28T15:32:10.213050Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:40001 result=Timeout
+4e85a77d85a0264801f7bfc045f7: {"cmd":"proxy-fixed","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)","i":0,"source_port":40000,"local":"10.201.0.1:40000","status":"connected"}
+soglia-agent 7f694e85a77d85a0264801f7bfc045f7: {"cmd":"proxy-fixed","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)","i":3,"source_port":40003,"local":"10.201.0.1:40003","status":"connected"}
+soglia-agent 7f694e85a77d85a0264801f7bfc045f7: {"cmd":"proxy-fixed","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)","i":2,"source_port":40002,"local":"10.201.0.1:40002","status":"connected"}
+soglia-agent 7f694e85a77d85a0264801f7bfc045f7: {"cmd":"proxy-fixed","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)","i":1,"source_port":40001,"local":"10.201.0.1:40001","status":"connected"}
+soglia-agent 7f694e85a77d85a0264801f7bfc045f7: {"cmd":"proxy-fixed-report","ok":true,"detail":"recorded 4 client outcomes"}
+Finished with result: success
+Main processes terminated with: code=exited/status=0
+Service runtime: 9.823s
+CPU time consumed: 1.735s
+Memory peak: 3.4M
+Memory swap peak: 0B

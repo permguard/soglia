@@ -812,15 +812,34 @@ The earlier authoritative B1 runs are retained but superseded:
   includes that correction but predates the typed, correlated one-shot Resolve
   protocol qualified by the current run.
 
-Neither superseded run counts as the current B1 qualification. B2 through B7
-for the typed-Resolve production revision remain `NOT_EXECUTED` at this
-checkpoint and require their own reviewed authoritative evidence.
+Neither superseded run counts as the current B1 qualification.
+
+The current authoritative B2 qualification is
+[`b2-20260928T153155Z-8510`](evidence/authoritative/b2-20260928T153155Z-8510/).
+It qualifies production commit
+`d2a61480f1f771358fd8579ddd4d63191c552f10` with the B2 harness and complete
+source fingerprint `a351ae77bab8ee4612cd0738dbae44dca65766e1`; the recorded
+working-tree diff is empty. The run records `authoritative: true`, B2 `PASS`
+and all eleven cases `PASS`. In addition to the positive chain and the typed
+placement and Resolve refusals, it independently qualifies `wrong_destination`,
+the source-port-only `tuple_byte_order` case, and `host_origin_refused`. Its
+`concurrent_timeout` case originates four simultaneous connections inside one
+Execution and observes four bounded `Timeout` results without a health failure,
+application read, DNS or outbound effect. Cleanup is `PASS`; programs are
+`EXTERNAL_CHURN` solely because systemd replaced equivalent `sd_*` programs,
+while links and maps are `MATCH` and no Soglia-owned object remains. All 356
+entries in `SHA256SUMS` verify.
+
+B3 through B7 for this production revision remain `NOT_EXECUTED` and require
+their own reviewed authoritative evidence.
 
 The earlier authoritative B2 run
 [`b2-20260928T060551Z-8414`](evidence/authoritative/b2-20260928T060551Z-8414/)
-is retained as historical evidence. Its `tuple_byte_order` case swapped both
+is retained as superseded historical evidence. Its `tuple_byte_order` case swapped both
 the source and destination ports, so it exercised the production proxy-
 destination guard rather than proving the tuple source-port byte-order
-invariant. It must not be cited as qualification of that invariant. The typed-
-Resolve B2 qualification adds a separate `wrong_destination` case and keeps the
-proxy destination unchanged in `tuple_byte_order`.
+invariant. It must not be cited as qualification of that invariant. The current
+typed-Resolve B2 qualification adds a separate `wrong_destination` case, keeps
+the proxy destination unchanged in `tuple_byte_order`, explicitly qualifies
+host-origin anti-spoofing, and executes the concurrent no-publication case from
+inside an Execution.

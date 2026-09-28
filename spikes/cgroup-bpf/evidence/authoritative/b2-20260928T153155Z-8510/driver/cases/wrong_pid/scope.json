@@ -1,0 +1,11 @@
+{
+  "case": "WRONG_PID",
+  "configured_timeout_ms": 2000,
+  "injected_fault_count": 1,
+  "injection_owner": "qualification harness",
+  "maximum_acceptable_elapsed_ms": null,
+  "minimum_acceptable_elapsed_ms": null,
+  "production_code_modified": false,
+  "same_production_build": true,
+  "same_topology": true
+}

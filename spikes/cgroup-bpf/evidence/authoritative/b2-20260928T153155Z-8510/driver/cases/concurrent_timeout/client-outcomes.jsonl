@@ -1,0 +1,4 @@
+{"cmd":"proxy-fixed","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)","i":0,"source_port":40000,"local":"10.201.0.1:40000","status":"connected"}
+{"cmd":"proxy-fixed","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)","i":1,"source_port":40001,"local":"10.201.0.1:40001","status":"connected"}
+{"cmd":"proxy-fixed","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)","i":2,"source_port":40002,"local":"10.201.0.1:40002","status":"connected"}
+{"cmd":"proxy-fixed","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)","i":3,"source_port":40003,"local":"10.201.0.1:40003","status":"connected"}

@@ -1,0 +1,8 @@
+{
+  "case": "HOST_ORIGIN_REFUSED",
+  "destination": "10.200.255.1:15001",
+  "expected": "client refused or timed out, proxy accepts nothing, zero Resolve calls",
+  "nft_contract": "inet soglia_host input drops proxy-address traffic not arriving from an Execution veth",
+  "origin": "qualification host outside the executions cgroup subtree",
+  "production_code_modified": false
+}
