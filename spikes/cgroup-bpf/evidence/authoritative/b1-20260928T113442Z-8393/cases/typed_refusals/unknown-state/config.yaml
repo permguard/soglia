@@ -1,0 +1,30 @@
+runtime:
+  uid: 65534
+  gid: 65534
+  state_dir: /run/soglia-b1-unknown
+  max_concurrency: 4
+  max_queue: 4
+  cleanup_failure_threshold: 1
+  teardown_timeout_ms: 5000
+  runc: /usr/sbin/runc
+  nft: /usr/sbin/nft
+  ip: /usr/sbin/ip
+  bpftool: /usr/sbin/bpftool
+ingress:
+  listen: 127.0.0.1:18098
+network:
+  backend: cgroup-bpf
+  execution_pool: 10.205.0.0/24
+  proxy_address: 10.200.255.8
+  proxy_port: 15008
+cgroup:
+  root: /sys/fs/cgroup/system.slice/soglia-b1-unknown-root.service
+cgroup_bpf:
+  max_tracked_sockets: 4096
+  resolve_timeout_ms: 2000
+  ring_buffer_bytes: 65536
+  pin_root: /sys/fs/bpf/soglia-b1-unknown
+agents:
+  probe:
+    rootfs: /var/empty
+    command: ["/bin/false"]

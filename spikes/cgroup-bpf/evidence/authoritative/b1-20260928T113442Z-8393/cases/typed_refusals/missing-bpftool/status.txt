@@ -1,0 +1,14 @@
+× soglia-b1-no-bpftool.service - /var/tmp/soglia-b1-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b1-diagnostic-refusals-20260928T113450Z-9442/missing-bpftool/config.yaml
+     Loaded: loaded (/run/systemd/transient/soglia-b1-no-bpftool.service; transient)
+  Transient: yes
+     Active: failed (Result: exit-code) since Mon 2026-09-28 13:34:50 CEST; 22ms ago
+   Duration: 48ms
+    Process: 9487 ExecStart=/var/tmp/soglia-b1-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b1-diagnostic-refusals-20260928T113450Z-9442/missing-bpftool/config.yaml (code=exited, status=1/FAILURE)
+   Main PID: 9487 (code=exited, status=1/FAILURE)
+        CPU: 8ms
+
+Sep 28 13:34:50 lima-soglia-spike-b1-20260928T113248Z-50921 systemd[1]: Started soglia-b1-no-bpftool.service - /var/tmp/soglia-b1-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b1-diagnostic-refusals-20260928T113450Z-9442/missing-bpftool/config.yaml.
+Sep 28 13:34:50 lima-soglia-spike-b1-20260928T113248Z-50921 soglia[9489]: soglia: the cgroup-bpf probe failed: refused: bpftool is unavailable: /usr/sbin/soglia-missing-bpftool: No such file or directory (os error 2)
+Sep 28 13:34:50 lima-soglia-spike-b1-20260928T113248Z-50921 soglia[9487]: soglia: the enforcer did not start: the cgroup-bpf probe failed: refused: bpftool is unavailable: /usr/sbin/soglia-missing-bpftool: No such file or directory (os error 2)
+Sep 28 13:34:50 lima-soglia-spike-b1-20260928T113248Z-50921 systemd[1]: soglia-b1-no-bpftool.service: Main process exited, code=exited, status=1/FAILURE
+Sep 28 13:34:50 lima-soglia-spike-b1-20260928T113248Z-50921 systemd[1]: soglia-b1-no-bpftool.service: Failed with result 'exit-code'.

@@ -786,5 +786,32 @@ The candidate review itself made no final A/B/C/D selection, changed no architec
 On 2026-09-27, after approving the evidence-backed review above, the human reviewer explicitly selected **Candidate A** as the attribution mechanism for the first production `CgroupBpfBackend`.
 The production architecture, lifecycle, ownership/recovery rules, failure semantics and B1-B7 qualification gates are specified in [PRODUCTION-DESIGN.md](PRODUCTION-DESIGN.md).
 
-This records a design decision only.
-No production backend has been implemented or enabled, B1-B7 have not been executed, the existing backend default is unchanged and no implementation is authorized until the design receives separate review approval.
+This recorded a design decision only at that review checkpoint. Implementation
+was subsequently authorized under the normative production design; the existing
+`NetnsNftBackend` default remains unchanged.
+
+## Production qualification status
+
+The current authoritative B1 qualification is
+[`b1-20260928T113442Z-8393`](evidence/authoritative/b1-20260928T113442Z-8393/).
+It qualifies the Candidate-A production implementation at production commit
+`d2a61480f1f771358fd8579ddd4d63191c552f10`; its complete source fingerprint is
+`2e95ce6f01fb97668a49e573f70bdb86ddea63de` with an empty working-tree diff.
+The run records `authoritative: true`, B1 `PASS`, all thirteen qualified
+properties true and cleanup `PASS`. Its BPF inventory result is
+`EXTERNAL_CHURN`: only systemd-owned `sd_*` program IDs changed while the full
+set of program name/type/tag tuples, all non-systemd programs, links and maps
+were restored and every Soglia-owned resource was absent. All 144 entries in
+`SHA256SUMS` verify.
+
+The earlier authoritative B1 runs are retained but superseded:
+
+- [`b1-20260927T214134Z-7374`](evidence/authoritative/b1-20260927T214134Z-7374/)
+  predates the production cleanup `ENOENT` correction;
+- [`b1-20260927T235134Z-8460`](evidence/authoritative/b1-20260927T235134Z-8460/)
+  includes that correction but predates the typed, correlated one-shot Resolve
+  protocol qualified by the current run.
+
+Neither superseded run counts as the current B1 qualification. B2 through B7
+for the typed-Resolve production revision remain `NOT_EXECUTED` at this
+checkpoint and require their own reviewed authoritative evidence.

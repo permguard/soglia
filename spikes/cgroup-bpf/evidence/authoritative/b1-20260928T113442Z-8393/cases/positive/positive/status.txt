@@ -1,0 +1,19 @@
+● soglia-b1.service - /var/tmp/soglia-b1-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b1-20260928T113442Z-8393/positive-config.yaml
+     Loaded: loaded (/run/systemd/transient/soglia-b1.service; transient)
+  Transient: yes
+     Active: active (running) since Mon 2026-09-28 13:34:47 CEST; 176ms ago
+   Main PID: 8536 (soglia)
+      Tasks: 8 (limit: 9420)
+     Memory: 5.8M (peak: 27.7M)
+        CPU: 95ms
+     CGroup: /system.slice/soglia-b1.service
+             └─runtime
+               ├─8536 /var/tmp/soglia-b1-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b1-20260928T113442Z-8393/positive-config.yaml
+               ├─8537 /proc/self/exe __sandboxd
+               └─8538 /proc/self/exe __enforcer
+
+Sep 28 13:34:47 lima-soglia-spike-b1-20260928T113248Z-50921 systemd[1]: Started soglia-b1.service - /var/tmp/soglia-b1-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b1-20260928T113442Z-8393/positive-config.yaml.
+Sep 28 13:34:47 lima-soglia-spike-b1-20260928T113248Z-50921 soglia[8538]: event.name=cgroup_bpf.attach_probe result=PASS mode=single hooks=6 effective=true
+Sep 28 13:34:47 lima-soglia-spike-b1-20260928T113248Z-50921 soglia[8538]: event.name=cgroup_bpf.ready generation=1 programs=6 links=6 maps=7 policy_capacity=5 socket_capacity=4096 ring_bytes=65536
+Sep 28 13:34:47 lima-soglia-spike-b1-20260928T113248Z-50921 soglia[8536]: 2026-09-28T11:34:47.169335Z  INFO privileges dropped event.name="startup.privileges_dropped" uid=65534 gid=65534
+Sep 28 13:34:47 lima-soglia-spike-b1-20260928T113248Z-50921 soglia[8536]: 2026-09-28T11:34:47.169559Z  INFO soglia is ready event.name="startup.ready" ingress=127.0.0.1:18091 egress=10.200.255.1:15001
