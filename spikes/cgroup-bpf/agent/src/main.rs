@@ -531,6 +531,7 @@ fn proxy_connect_many_report(
     let workers: Vec<_> = (0..count)
         .map(|index| {
             let target = target.to_owned();
+            let report = report.to_owned();
             thread::spawn(move || {
                 let port = first_port.saturating_add(index as u16);
                 let started = Instant::now();
@@ -538,23 +539,38 @@ fn proxy_connect_many_report(
                     let mut stream = connect_from_port(port)?;
                     let local = stream.local_addr()?.to_string();
                     let status = establish_connect(&mut stream, &target)?;
+                    let line = outcome(
+                        "proxy-connect-many-report",
+                        Ok(format!("{status}; local={local}")),
+                        &format!(
+                            ",\"i\":{index},\"source_port\":{port},\"elapsed_ms\":{}",
+                            started.elapsed().as_millis()
+                        ),
+                    );
+                    append_report(&report, &line)?;
                     thread::sleep(Duration::from_secs(hold_secs));
-                    Ok(format!("{status}; local={local}"))
+                    Ok(line)
                 })();
-                outcome(
-                    "proxy-connect-many-report",
-                    result,
-                    &format!(
-                        ",\"i\":{index},\"source_port\":{port},\"elapsed_ms\":{}",
-                        started.elapsed().as_millis()
-                    ),
-                )
+                match result {
+                    Ok(line) => line,
+                    Err(error) => {
+                        let line = outcome(
+                            "proxy-connect-many-report",
+                            Err(error),
+                            &format!(
+                                ",\"i\":{index},\"source_port\":{port},\"elapsed_ms\":{}",
+                                started.elapsed().as_millis()
+                            ),
+                        );
+                        let _ = append_report(&report, &line);
+                        line
+                    }
+                }
             })
         })
         .collect();
     for worker in workers {
         if let Ok(line) = worker.join() {
-            let _ = append_report(report, &line);
             print(line);
         }
     }
