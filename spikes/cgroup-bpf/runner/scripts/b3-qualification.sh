@@ -100,6 +100,22 @@ cleanup() {
   systemctl stop "$unit.service" >/dev/null 2>&1
   systemctl reset-failed "$unit.service" >/dev/null 2>&1
   ip link delete b3-upstream >/dev/null 2>&1
+
+  # If the driver stopped between lifecycle operations, use the production recovery order and
+  # exact durable ownership records to sweep the partial Execution before inspecting residue.
+  if find "$runtime/sandbox" -maxdepth 1 -type f -name '*.json' -print -quit 2>/dev/null \
+    | grep -q .; then
+    systemd-run --unit="$unit" --property=Delegate=yes --property=Type=exec --pipe --wait --collect \
+      "$driver" "$binary" "$config" "$evidence/final/production-recovery" --cleanup-recovery \
+      > "$evidence/final/production-recovery-stdout.txt" \
+      2> "$evidence/final/production-recovery-stderr.txt"
+    recovery_status=$?
+    printf '%s\n' "$recovery_status" > "$evidence/final/production-recovery-status.txt"
+    if [[ $recovery_status -ne 0 ]]; then
+      printf 'production cleanup recovery exited %s\n' "$recovery_status" \
+        >> "$evidence/final/cleanup-errors.txt"
+    fi
+  fi
   if [[ -f "$state" ]] && jq -e '.pin_root and .links and .maps' "$state" >/dev/null 2>&1; then
     while IFS= read -r pin; do
       case "$pin" in
@@ -264,6 +280,11 @@ cgroup_bpf:
   ring_buffer_bytes: 65536
   pin_root: $pin_parent
 agents:
+  probe:
+    rootfs: $rootfs
+    command: ["/agent", "netns-cookie"]
+    env: {}
+    timeout_ms: 10000
   concurrent-0:
     rootfs: $rootfs
     command: ["/agent", "proxy-connect-many-report allowed.test:443 40000 4 /tmp/b3-report.jsonl 2"]

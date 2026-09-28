@@ -2827,12 +2827,19 @@ pub async fn run_b3() -> Result<(), String> {
     let binary = PathBuf::from(arguments.next().ok_or("missing production binary")?);
     let config_path = PathBuf::from(arguments.next().ok_or("missing configuration")?);
     let evidence = PathBuf::from(arguments.next().ok_or("missing evidence directory")?);
+    let mode = arguments.next();
     if arguments.next().is_some() {
         return Err("too many arguments".to_owned());
     }
     fs::create_dir_all(&evidence).map_err(|error| error.to_string())?;
     let config_yaml = fs::read_to_string(&config_path).map_err(|error| error.to_string())?;
     let config = Config::from_yaml(&config_yaml).map_err(|error| error.to_string())?;
+    if mode.as_deref() == Some(std::ffi::OsStr::new("--cleanup-recovery")) {
+        return run_b3_cleanup_recovery(&binary, &config_yaml, &evidence).await;
+    }
+    if let Some(mode) = mode {
+        return Err(format!("unknown B3 driver mode: {}", mode.to_string_lossy()));
+    }
     if config.runtime.max_concurrency < 2 {
         return Err("B3 requires a configured concurrent-Execution limit of at least two".into());
     }
@@ -2961,6 +2968,40 @@ pub async fn run_b3() -> Result<(), String> {
     upstream_task.abort();
     fs::write(evidence.join("current-case.txt"), "complete\n")
         .map_err(|error| error.to_string())?;
+    fs::write(evidence.join("verdict.txt"), "PASS\n").map_err(|error| error.to_string())
+}
+
+async fn run_b3_cleanup_recovery(
+    binary: &Path,
+    config_yaml: &str,
+    evidence: &Path,
+) -> Result<(), String> {
+    fs::create_dir_all(evidence).map_err(|error| error.to_string())?;
+    let sandbox = Helper::spawn(binary, "sandboxd").map_err(|error| error.to_string())?;
+    let sandbox_swept = sandbox
+        .hello(config_yaml)
+        .map_err(|error| format!("cleanup Sandbox recovery failed: {error}"))?;
+    sandbox.ensure_running().map_err(|error| error.to_string())?;
+    let enforcer = Helper::spawn_enforcer(binary).map_err(|error| error.to_string())?;
+    let enforcer_swept = enforcer
+        .hello(config_yaml)
+        .map_err(|error| format!("cleanup Enforcer recovery failed: {error}"))?;
+    enforcer.ensure_running().map_err(|error| error.to_string())?;
+    fs::write(
+        evidence.join("result.json"),
+        serde_json::to_vec_pretty(&json!({
+            "mode": "B3_CLEANUP_RECOVERY",
+            "order": ["sandbox", "enforcer"],
+            "sandbox_swept": sandbox_swept,
+            "enforcer_swept": enforcer_swept,
+            "ownership_source": "production durable records",
+            "verdict": "PASS"
+        }))
+        .map_err(|error| error.to_string())?,
+    )
+    .map_err(|error| error.to_string())?;
+    drop(enforcer);
+    drop(sandbox);
     fs::write(evidence.join("verdict.txt"), "PASS\n").map_err(|error| error.to_string())
 }
 

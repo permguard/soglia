@@ -2527,3 +2527,311 @@
 .soglia-hero__copy > p strong {
   color: var(--home-fg);
 }
+
+/* Cloud & Infrastructure Providers page -------------------------------------------------- */
+
+.pv-stack-sec {
+  padding: 86px 0;
+}
+
+.pv-stack-sec__inner {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 56px;
+  align-items: center;
+}
+
+.pv-stack-sec__inner > div > p {
+  margin: 0;
+  font-size: 17.5px;
+  line-height: 1.6;
+  color: var(--band-muted);
+}
+
+/* The two layers, with the host as the line between them. */
+.pv-stack {
+  display: grid;
+  gap: 0;
+}
+
+.pv-layer {
+  padding: 22px 24px;
+  border-radius: 16px;
+  background: var(--band-card);
+  border: 1px solid var(--band-border);
+}
+
+.pv-layer--exec {
+  border: 1.5px solid var(--soglia-green);
+  box-shadow: 0 0 0 6px color-mix(in srgb, var(--soglia-green) 10%, transparent);
+}
+
+.pv-layer__owner {
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--band-muted);
+}
+
+.pv-layer--exec .pv-layer__owner {
+  color: var(--band-num);
+}
+
+.pv-layer__title {
+  margin-top: 4px;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--band-fg);
+}
+
+.pv-layer .arch-chips {
+  justify-content: flex-start;
+}
+
+.pv-layer .arch-chips span {
+  border-color: var(--band-border);
+  color: var(--band-muted);
+}
+
+.pv-host {
+  position: relative;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pv-host::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  border-top: 2px dashed var(--soglia-green);
+}
+
+.pv-host span {
+  position: relative;
+  padding: 2px 12px;
+  border-radius: 999px;
+  background: var(--band-bg);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--band-num);
+}
+
+.pv-keep,
+.pv-split {
+  padding: 78px 0;
+  background: var(--surface-soft);
+}
+
+.pv-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+
+.pv-cards article {
+  padding: 24px;
+  border: 1px solid var(--band-border, rgba(127,127,127,.16));
+  border-radius: 16px;
+  background: var(--band-card, var(--home-bg));
+}
+
+.pv-keep .pv-cards article {
+  border-color: rgba(127,127,127,.16);
+  background: var(--home-bg);
+}
+
+.pv-cards .soglia-num {
+  margin-bottom: 14px;
+}
+
+.pv-cards p {
+  margin: 0;
+  font-size: 15.5px;
+  line-height: 1.6;
+  color: var(--home-muted);
+}
+
+.soglia-principles .pv-cards p {
+  color: var(--band-muted);
+}
+
+.soglia-principles .pv-cards h3 {
+  color: var(--band-fg);
+}
+
+.pv-quote {
+  --band-card: var(--home-bg);
+  --band-fg: var(--home-fg);
+}
+
+.pv-dist {
+  padding: 78px 0;
+  background: var(--home-bg);
+}
+
+/* Nodes above, the provider's network below, authority running across. */
+.pv-fabric {
+  display: grid;
+  gap: 16px;
+}
+
+.pv-nodes {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+
+.pv-node {
+  padding: 18px;
+  border: 1px solid rgba(127,127,127,.2);
+  border-radius: 16px;
+  background: var(--surface-soft);
+}
+
+.pv-node__name {
+  margin-bottom: 12px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--home-muted);
+}
+
+.pv-execs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.pv-execs span {
+  padding: 8px 12px;
+  border: 1.5px solid var(--soglia-green);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--soglia-green) 8%, var(--home-bg));
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--home-fg);
+}
+
+.pv-continuity {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  padding: 6px 0;
+}
+
+.pv-continuity::before {
+  content: "";
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  top: 50%;
+  border-top: 1.5px dashed rgba(217, 70, 239, .6);
+}
+
+.pv-continuity span {
+  position: relative;
+  padding: 3px 12px;
+  border: 1px solid rgba(217, 70, 239, .55);
+  border-radius: 999px;
+  background: var(--home-bg);
+  font-size: 12.5px;
+  color: var(--home-fg);
+  text-align: center;
+}
+
+.pv-net {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: center;
+  gap: 6px 14px;
+  padding: 16px 20px;
+  border: 1px dashed rgba(127,127,127,.35);
+  border-radius: 14px;
+  font-size: 14px;
+  color: var(--home-muted);
+  text-align: center;
+}
+
+.pv-net strong {
+  color: var(--home-fg);
+}
+
+.pv-opp {
+  padding: 86px 0;
+}
+
+.pv-table-wrap {
+  overflow-x: auto;
+  border: 1px solid rgba(127,127,127,.18);
+  border-radius: 16px;
+  background: var(--home-bg);
+}
+
+.pv-table {
+  display: table;
+  width: 100%;
+  margin: 0;
+  border-collapse: collapse;
+  font-size: 15px;
+}
+
+.pv-table th,
+.pv-table td {
+  padding: 14px 20px;
+  border: 0;
+  border-bottom: 1px solid rgba(127,127,127,.14);
+  text-align: left;
+  color: var(--home-muted);
+  background: transparent;
+}
+
+.pv-table tr {
+  background: transparent;
+  border: 0;
+}
+
+.pv-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.pv-table th {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--band-num);
+}
+
+.pv-table td:first-child {
+  color: var(--home-fg);
+}
+
+.pv-table .pv-yes {
+  font-weight: 700;
+  color: var(--home-fg);
+}
+
+.pv-status {
+  background: var(--home-bg);
+}
+
+.pv-status .arch-status__box {
+  background: var(--surface-soft);
+}
+
+@media (max-width: 900px) {
+  .pv-stack-sec__inner,
+  .pv-cards,
+  .pv-nodes {
+    grid-template-columns: 1fr;
+  }
+}
