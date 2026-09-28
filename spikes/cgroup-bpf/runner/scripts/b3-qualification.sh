@@ -129,19 +129,30 @@ cleanup() {
     find "$rootfs" -depth -mindepth 1 -delete 2>/dev/null
     rmdir "$rootfs" 2>/dev/null
   fi
-  bpftool -j prog show > "$evidence/final/programs.json"
+  : > "$evidence/final/program-settle.jsonl"
+  for attempt in $(seq 0 240); do
+    bpftool -j prog show > "$evidence/final/programs.json"
+    program_classification=$(jq -nr \
+      --slurpfile before "$evidence/baseline-programs.json" \
+      --slurpfile after "$evidence/final/programs.json" '
+        def inventory($xs): $xs | map({id,name,type,tag}) | sort_by(.name,.type,.tag,.id);
+        def signatures($xs): $xs | map({name,type,tag}) | sort_by(.name,.type,.tag);
+        def external($xs): $xs | map(select(((.name // "") | startswith("sd_")) | not) | {id,name,type,tag})
+          | sort_by(.name,.type,.tag,.id);
+        if inventory($before[0]) == inventory($after[0]) then "MATCH"
+        elif signatures($before[0]) == signatures($after[0]) and external($before[0]) == external($after[0])
+        then "EXTERNAL_CHURN" else "FAIL" end')
+    jq -cn --argjson attempt "$attempt" --arg classification "$program_classification" \
+      --argjson programs "$(jq 'length' "$evidence/final/programs.json")" \
+      '{attempt:$attempt,classification:$classification,program_count:$programs}' \
+      >> "$evidence/final/program-settle.jsonl"
+    if [[ "$program_classification" == MATCH || "$program_classification" == EXTERNAL_CHURN ]]; then
+      break
+    fi
+    sleep 0.25
+  done
   bpftool -j link show > "$evidence/final/links.json"
   bpftool -j map show > "$evidence/final/maps.json"
-  program_classification=$(jq -nr \
-    --slurpfile before "$evidence/baseline-programs.json" \
-    --slurpfile after "$evidence/final/programs.json" '
-      def inventory($xs): $xs | map({id,name,type,tag}) | sort_by(.name,.type,.tag,.id);
-      def signatures($xs): $xs | map({name,type,tag}) | sort_by(.name,.type,.tag);
-      def external($xs): $xs | map(select((.name | startswith("sd_")) | not) | {id,name,type,tag})
-        | sort_by(.name,.type,.tag,.id);
-      if inventory($before[0]) == inventory($after[0]) then "MATCH"
-      elif signatures($before[0]) == signatures($after[0]) and external($before[0]) == external($after[0])
-      then "EXTERNAL_CHURN" else "FAIL" end')
   jq -S 'sort_by(.id)' "$evidence/baseline-links.json" > "$evidence/final/links-before.normalized.json"
   jq -S 'sort_by(.id)' "$evidence/final/links.json" > "$evidence/final/links-after.normalized.json"
   jq -S 'sort_by(.id)' "$evidence/baseline-maps.json" > "$evidence/final/maps-before.normalized.json"

@@ -454,6 +454,7 @@ fn proxy_connect_report(
                 );
                 let _ = append_report(report, &line);
                 print(line);
+                thread::sleep(Duration::from_secs(hold_secs));
                 continue;
             }
         };
@@ -516,6 +517,9 @@ fn proxy_connect_report(
             }
         }
         drop(stream);
+        if mode != "hold" {
+            thread::sleep(Duration::from_secs(hold_secs));
+        }
     }
 }
 
