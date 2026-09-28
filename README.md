@@ -6,7 +6,7 @@
 [![licence](https://img.shields.io/badge/licence-Apache--2.0-blue)](LICENSE)
 
 <p align="center">
-  <img src="assets/assets/soglia-banner.png" alt="Soglia Runtime" width="820">
+  <img src="assets/soglia-banner.png" alt="Soglia Runtime" width="820">
 </p>
 
 **Trusted execution for AI agents and mission-critical workloads under authority that never expands.**
