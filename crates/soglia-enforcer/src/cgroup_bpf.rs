@@ -15,7 +15,7 @@ use std::path::{Path, PathBuf};
 use std::thread;
 use std::time::{Duration, Instant};
 
-use aya::maps::{Array, HashMap, MapError, MapInfo};
+use aya::maps::{Array, HashMap, Map as AyaMap, MapData, MapError, MapInfo};
 use aya::programs::links::{FdLink, PinnedLink};
 use aya::programs::{CgroupAttachMode, CgroupSock, CgroupSockAddr, ProgramError, SockOps};
 use aya::{Ebpf, EbpfLoader};
@@ -371,6 +371,7 @@ impl CgroupBpfBackend {
         }
         self.validate_manifest_structure(&state)?;
         self.validate_recorded_pins(&state)?;
+        self.validate_recovery_policy(&state)?;
         if let Some(current) =
             self.validate_attachment_inventory(&state, state.phase == ManifestPhase::Ready)?
         {
@@ -475,6 +476,55 @@ impl CgroupBpfBackend {
             }
         }
         Ok(())
+    }
+
+    fn validate_recovery_policy(&self, state: &HostState) -> Result<(), BackendError> {
+        let policy_pin = state.pin_root.join("maps/soglia_policy");
+        let policy_exists = match fs::symlink_metadata(&policy_pin) {
+            Ok(_) => true,
+            Err(error) if error.kind() == io::ErrorKind::NotFound => false,
+            Err(error) => {
+                eprintln!(
+                    "event.name=cgroup_bpf.recovery_policy_unverifiable path={:?} error={error:?}",
+                    policy_pin
+                );
+                return Err(unknown_execution_record());
+            }
+        };
+        if !policy_exists {
+            // Recovery publishes INTENT before removing any pin. A crash during that cleanup can
+            // therefore leave a trusted partial inventory after the policy map has already gone;
+            // at that point no kernel policy remains to compare with the durable records.
+            return validate_recovery_policy_snapshot(state.phase, state.executions.values(), None);
+        }
+
+        let data = MapData::from_pin(&policy_pin).map_err(|error| {
+            eprintln!(
+                "event.name=cgroup_bpf.recovery_policy_unverifiable path={:?} error={error:#}",
+                policy_pin
+            );
+            unknown_execution_record()
+        })?;
+        let policies =
+            HashMap::<_, u64, [u8; 40]>::try_from(AyaMap::HashMap(data)).map_err(|error| {
+                eprintln!("event.name=cgroup_bpf.recovery_policy_unverifiable error={error:#}");
+                unknown_execution_record()
+            })?;
+        let mut snapshot = BTreeMap::new();
+        for entry in policies.iter() {
+            let (cgroup_id, value) = entry.map_err(|error| {
+                eprintln!("event.name=cgroup_bpf.recovery_policy_unverifiable error={error:#}");
+                unknown_execution_record()
+            })?;
+            if value[4..8] != [0_u8; 4] {
+                return Err(unknown_execution_record());
+            }
+            let Some((policy_state, binding)) = decode_policy(&value) else {
+                return Err(unknown_execution_record());
+            };
+            snapshot.insert(cgroup_id, (policy_state, binding));
+        }
+        validate_recovery_policy_snapshot(state.phase, state.executions.values(), Some(&snapshot))
     }
 
     fn cgroup_attachments(&self, effective: bool) -> Result<Vec<CgroupAttachment>, BackendError> {
@@ -1755,6 +1805,65 @@ impl Drop for CgroupBpfBackend {
     }
 }
 
+fn unknown_execution_record() -> BackendError {
+    BackendError::Refused(
+        "UNKNOWN per-Execution ownership record; no kernel object was changed".to_owned(),
+    )
+}
+
+fn validate_recovery_policy_snapshot<'a>(
+    phase: ManifestPhase,
+    executions: impl Iterator<Item = &'a ExecutionState>,
+    policies: Option<&BTreeMap<u64, (u32, BindingKey)>>,
+) -> Result<(), BackendError> {
+    let Some(policies) = policies else {
+        return if phase == ManifestPhase::Intent {
+            Ok(())
+        } else {
+            Err(unknown_execution_record())
+        };
+    };
+
+    let mut recorded = BTreeMap::new();
+    for execution in executions {
+        if recorded
+            .insert(execution.binding.cgroup_id, execution)
+            .is_some()
+        {
+            return Err(unknown_execution_record());
+        }
+    }
+    for (cgroup_id, (state, binding)) in policies {
+        if (*state != POLICY_FROZEN && *state != POLICY_ACTIVE)
+            || binding.cgroup_id != *cgroup_id
+            || recorded
+                .get(cgroup_id)
+                .is_none_or(|execution| execution.binding != *binding)
+        {
+            return Err(unknown_execution_record());
+        }
+    }
+    for (cgroup_id, execution) in recorded
+        .iter()
+        .filter(|(cgroup_id, _)| !policies.contains_key(cgroup_id))
+    {
+        // These are the two owned record-without-policy windows: prepare publishes the
+        // NetworkPreparedFrozen record before inserting policy, while destroy removes frozen
+        // policy before deleting its record. Neither record has kernel authorization.
+        if !matches!(
+            execution.phase,
+            ExecutionPhase::NetworkPreparedFrozen | ExecutionPhase::Frozen
+        ) {
+            return Err(unknown_execution_record());
+        }
+        eprintln!(
+            "event.name=cgroup_bpf.recovery_record_without_policy cgroup_id={cgroup_id} phase={:?}",
+            execution.phase
+        );
+    }
+    Ok(())
+}
+
 fn delegated_root(configured: Option<&Path>) -> Result<PathBuf, BackendError> {
     if let Some(root) = configured {
         return Ok(root.to_path_buf());
@@ -2343,6 +2452,188 @@ fn hex(bytes: &[u8]) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    fn test_binding(cgroup_id: u64, nonce_byte: u8, backend_generation: u64) -> BindingKey {
+        BindingKey {
+            cgroup_id,
+            execution_nonce: ExecutionNonce::from_bytes([nonce_byte; 16]),
+            backend_generation,
+        }
+    }
+
+    fn test_execution(binding: BindingKey) -> ExecutionState {
+        test_execution_in_phase(binding, ExecutionPhase::Active)
+    }
+
+    fn test_execution_in_phase(binding: BindingKey, phase: ExecutionPhase) -> ExecutionState {
+        let id = ExecutionId::generate().unwrap();
+        ExecutionState {
+            id,
+            tag: id.tag(),
+            slot: 0,
+            cgroup_inode: binding.cgroup_id,
+            binding,
+            phase,
+        }
+    }
+
+    fn assert_unknown_execution_record(result: Result<(), BackendError>) {
+        assert!(matches!(
+            result,
+            Err(BackendError::Refused(reason))
+                if reason == "UNKNOWN per-Execution ownership record; no kernel object was changed"
+        ));
+    }
+
+    #[test]
+    fn recovery_accepts_exact_active_and_frozen_policy_bindings() {
+        let active = test_binding(41, 1, 7);
+        let frozen = test_binding(42, 2, 7);
+        let executions = [test_execution(active), test_execution(frozen)];
+        let policies =
+            BTreeMap::from([(41, (POLICY_ACTIVE, active)), (42, (POLICY_FROZEN, frozen))]);
+
+        assert!(
+            validate_recovery_policy_snapshot(
+                ManifestPhase::Ready,
+                executions.iter(),
+                Some(&policies),
+            )
+            .is_ok()
+        );
+    }
+
+    #[test]
+    fn recovery_rejects_a_durable_nonce_that_disagrees_with_policy() {
+        let policy_binding = test_binding(41, 1, 7);
+        let execution = test_execution(test_binding(41, 2, 7));
+        let policies = BTreeMap::from([(41, (POLICY_ACTIVE, policy_binding))]);
+
+        assert_unknown_execution_record(validate_recovery_policy_snapshot(
+            ManifestPhase::Ready,
+            std::iter::once(&execution),
+            Some(&policies),
+        ));
+    }
+
+    #[test]
+    fn recovery_rejects_a_durable_cgroup_that_disagrees_with_policy() {
+        let policy_binding = test_binding(41, 1, 7);
+        let execution = test_execution(test_binding(42, 1, 7));
+        let policies = BTreeMap::from([(41, (POLICY_ACTIVE, policy_binding))]);
+
+        assert_unknown_execution_record(validate_recovery_policy_snapshot(
+            ManifestPhase::Ready,
+            std::iter::once(&execution),
+            Some(&policies),
+        ));
+    }
+
+    #[test]
+    fn recovery_rejects_a_durable_generation_that_disagrees_with_policy() {
+        let policy_binding = test_binding(41, 1, 7);
+        let execution = test_execution(test_binding(41, 1, 8));
+        let policies = BTreeMap::from([(41, (POLICY_FROZEN, policy_binding))]);
+
+        assert_unknown_execution_record(validate_recovery_policy_snapshot(
+            ManifestPhase::Ready,
+            std::iter::once(&execution),
+            Some(&policies),
+        ));
+    }
+
+    #[test]
+    fn recovery_accepts_a_prepare_crash_after_the_record_and_before_policy() {
+        let execution = test_execution_in_phase(
+            test_binding(41, 1, 7),
+            ExecutionPhase::NetworkPreparedFrozen,
+        );
+        let policies = BTreeMap::new();
+
+        assert!(
+            validate_recovery_policy_snapshot(
+                ManifestPhase::Ready,
+                std::iter::once(&execution),
+                Some(&policies),
+            )
+            .is_ok()
+        );
+    }
+
+    #[test]
+    fn recovery_accepts_a_destroy_crash_after_policy_and_before_record_removal() {
+        let execution = test_execution_in_phase(test_binding(41, 1, 7), ExecutionPhase::Frozen);
+        let policies = BTreeMap::new();
+
+        assert!(
+            validate_recovery_policy_snapshot(
+                ManifestPhase::Ready,
+                std::iter::once(&execution),
+                Some(&policies),
+            )
+            .is_ok()
+        );
+    }
+
+    #[test]
+    fn recovery_rejects_an_active_record_without_policy() {
+        let execution = test_execution(test_binding(41, 1, 7));
+        let policies = BTreeMap::new();
+
+        assert_unknown_execution_record(validate_recovery_policy_snapshot(
+            ManifestPhase::Ready,
+            std::iter::once(&execution),
+            Some(&policies),
+        ));
+    }
+
+    #[test]
+    fn recovery_rejects_an_orphan_policy_entry() {
+        let binding = test_binding(41, 1, 7);
+        let execution = test_execution(binding);
+        let policies = BTreeMap::from([
+            (41, (POLICY_ACTIVE, binding)),
+            (42, (POLICY_FROZEN, test_binding(42, 2, 7))),
+        ]);
+
+        assert_unknown_execution_record(validate_recovery_policy_snapshot(
+            ManifestPhase::Ready,
+            std::iter::once(&execution),
+            Some(&policies),
+        ));
+    }
+
+    #[test]
+    fn recovery_allows_intent_after_the_policy_map_was_removed() {
+        let execution = test_execution(test_binding(41, 1, 7));
+
+        assert!(
+            validate_recovery_policy_snapshot(
+                ManifestPhase::Intent,
+                std::iter::once(&execution),
+                None,
+            )
+            .is_ok()
+        );
+        assert_unknown_execution_record(validate_recovery_policy_snapshot(
+            ManifestPhase::Ready,
+            std::iter::once(&execution),
+            None,
+        ));
+    }
+
+    #[test]
+    fn recovery_rejects_an_invalid_policy_state() {
+        let binding = test_binding(41, 1, 7);
+        let execution = test_execution(binding);
+        let policies = BTreeMap::from([(41, (u32::MAX, binding))]);
+
+        assert_unknown_execution_record(validate_recovery_policy_snapshot(
+            ManifestPhase::Ready,
+            std::iter::once(&execution),
+            Some(&policies),
+        ));
+    }
 
     fn map_syscall_error(call: &'static str, errno: rustix::io::Errno) -> MapError {
         MapError::SyscallError(aya::sys::SyscallError {
