@@ -2517,3 +2517,13 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* The Home link appears on every page but the home page itself, in the bar and in the mobile menu.
+   It is the only nav link whose target ends with a slash. */
+.soglia-page-home .VPNavMenuLink[href$="/"] {
+  display: none;
+}
+
+.soglia-hero__copy > p strong {
+  color: var(--home-fg);
+}

@@ -14,7 +14,9 @@ export default defineConfig({
   // Dark by default, like the rest of the Soglia material; the toggle still offers light.
   appearance: 'dark',
   themeConfig: {
+    // `Home` is listed first, and the home page hides it (see `soglia-page-home` in custom.css).
     nav: [
+      { text: 'Home', link: '/' },
       { text: 'How it works', link: '/how-it-works' },
       { text: 'AI Agents', link: '/agents' },
       { text: 'Use cases', link: '/use-cases' }

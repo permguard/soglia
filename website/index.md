@@ -1,5 +1,6 @@
 ---
 layout: page
+pageClass: soglia-page-home
 title: Soglia Runtime
 description: Trusted execution for AI agents and mission-critical workloads under authority that never expands.
 ---
@@ -40,7 +41,7 @@ import { withBase } from 'vitepress'
     <div class="soglia-hero__copy">
       <div class="soglia-kicker">Soglia Runtime</div>
       <h1>Trusted execution for AI agents and mission-critical workloads.</h1>
-      <p>Every call runs in its own isolated Execution, under authority that never expands, and leaves nothing behind.</p>
+      <p>Every call runs in its own isolated Execution, where <strong>authority becomes physical</strong>: enforced at runtime by the kernel, never expanding, and leaving nothing behind.</p>
       <div class="soglia-actions">
         <a class="soglia-btn soglia-btn--primary" :href="withBase('/how-it-works')">How it works</a>
         <a class="soglia-btn soglia-btn--ghost" href="https://github.com/permguard/soglia" target="_blank" rel="noopener noreferrer">View on GitHub</a>
