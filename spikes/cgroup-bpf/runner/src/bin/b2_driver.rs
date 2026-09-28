@@ -31,7 +31,7 @@ use soglia_supervisor::helpers::{
     CandidateAAttributor, Helper, HelperError, ResolveHealthFailure, ResolverClient,
 };
 use tokio::net::{TcpListener, TcpStream};
-use tokio::sync::watch;
+use tokio::sync::{Barrier, Notify, watch};
 
 const TIMEOUT_EARLY_TOLERANCE_MS: u64 = 100;
 const SINGLE_TIMEOUT_LATE_TOLERANCE_MS: u64 = 100;
@@ -2542,6 +2542,2351 @@ fn hex(bytes: &[u8]) -> String {
     bytes.iter().map(|byte| format!("{byte:02x}")).collect()
 }
 
+const B3_RACE_ITERATIONS: usize = 200;
+const B3_CONNECTIONS_PER_EXECUTION: usize = 4;
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+enum B3SingleMode {
+    SuccessfulClose,
+    Fin,
+    Rst,
+    ConnectFailure,
+    AgentKill,
+}
+
+impl B3SingleMode {
+    const fn name(self) -> &'static str {
+        match self {
+            Self::SuccessfulClose => "successful_close",
+            Self::Fin => "fin",
+            Self::Rst => "rst",
+            Self::ConnectFailure => "connect_failure",
+            Self::AgentKill => "agent_kill",
+        }
+    }
+}
+
+#[derive(Clone, Debug, Serialize)]
+struct B3ResolveObservation {
+    index: usize,
+    peer: SocketAddr,
+    local: SocketAddr,
+    recv_q_bytes: u64,
+    cookie: Option<u64>,
+    tuple_binding: Option<BindingKey>,
+    outcome: ObservedResolveOutcome,
+    mismatch: Option<ResolveMismatch>,
+    resolved_execution: Option<ExecutionId>,
+    elapsed_ms: u64,
+    dns_when_resolve_returned: usize,
+    outbound_when_resolve_returned: usize,
+    health_failure: Option<ObservedHealthFailure>,
+}
+
+struct B3RecordingAttributor {
+    inner: Arc<dyn ConnectionAttributor>,
+    observations: Arc<Mutex<Vec<B3ResolveObservation>>>,
+    state: PathBuf,
+    bpftool: PathBuf,
+    dns: Arc<AtomicUsize>,
+    outbound: Arc<AtomicUsize>,
+    health_failure: Arc<Mutex<Option<ObservedHealthFailure>>>,
+    completion_barrier: Option<Arc<Barrier>>,
+}
+
+impl ConnectionAttributor for B3RecordingAttributor {
+    fn resolve<'a>(
+        &'a self,
+        peer: SocketAddr,
+        local: SocketAddr,
+    ) -> Pin<Box<dyn Future<Output = AttributionResult> + Send + 'a>> {
+        Box::pin(async move {
+            let index = self
+                .observations
+                .lock()
+                .map(|observations| observations.len())
+                .unwrap_or(usize::MAX);
+            let (recv_q_bytes, _) = capture_receive_queue(peer, local).unwrap_or_default();
+            let tuple = capture_live_tuple(
+                &self.bpftool,
+                &self.state,
+                peer,
+                local,
+                Duration::from_secs(1),
+            )
+            .ok();
+            let started = Instant::now();
+            let result = self.inner.resolve(peer, local).await;
+            if let Some(barrier) = &self.completion_barrier {
+                barrier.wait().await;
+            }
+            let (outcome, mismatch, resolved_execution) = observed_result(&result);
+            let observation = B3ResolveObservation {
+                index,
+                peer,
+                local,
+                recv_q_bytes,
+                cookie: tuple.as_ref().map(|tuple| tuple.0),
+                tuple_binding: tuple.as_ref().map(|tuple| tuple.1),
+                outcome,
+                mismatch,
+                resolved_execution,
+                elapsed_ms: u64::try_from(started.elapsed().as_millis()).unwrap_or(u64::MAX),
+                dns_when_resolve_returned: self.dns.load(Ordering::SeqCst),
+                outbound_when_resolve_returned: self.outbound.load(Ordering::SeqCst),
+                health_failure: self.health_failure.lock().ok().and_then(|failure| *failure),
+            };
+            if let Ok(mut observations) = self.observations.lock() {
+                observations.push(observation);
+            }
+            result
+        })
+    }
+}
+
+#[derive(Clone, Copy, Debug, Serialize)]
+struct B3Counters {
+    tuple_insert_failed: u64,
+    published: u64,
+    unpublished: u64,
+    live_tuples: usize,
+    live_cookies: usize,
+}
+
+struct B3Prepared<'a> {
+    execution: Execution<'a>,
+    pid: i32,
+    binding: BindingKey,
+    cgroup_inode: u64,
+}
+
+struct B3Proxy {
+    stop: watch::Sender<bool>,
+    task: tokio::task::JoinHandle<()>,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+enum B3Boundary {
+    Tuple,
+    Cookie,
+    Policy,
+    DurableRecord,
+    LiveBinding,
+}
+
+impl B3Boundary {
+    const fn name(self) -> &'static str {
+        match self {
+            Self::Tuple => "tuple",
+            Self::Cookie => "cookie",
+            Self::Policy => "policy",
+            Self::DurableRecord => "durable_record",
+            Self::LiveBinding => "live_binding",
+        }
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+enum B3Field {
+    CgroupId,
+    ExecutionNonce,
+    BackendGeneration,
+    OldComplete,
+    Mixed,
+}
+
+impl B3Field {
+    const fn name(self) -> &'static str {
+        match self {
+            Self::CgroupId => "cgroup_id",
+            Self::ExecutionNonce => "execution_nonce",
+            Self::BackendGeneration => "backend_generation",
+            Self::OldComplete => "old_complete_binding",
+            Self::Mixed => "mixed_binding",
+        }
+    }
+}
+
+#[derive(Clone, Copy, Debug, Serialize)]
+struct B3MatrixCell {
+    boundary: B3Boundary,
+    field: B3Field,
+    covered_by_b2: bool,
+}
+
+struct B3FaultAttributor {
+    inner: Arc<dyn ConnectionAttributor>,
+    config_state: PathBuf,
+    bpftool: PathBuf,
+    expected: BindingKey,
+    cell: B3MatrixCell,
+    evidence: PathBuf,
+}
+
+impl ConnectionAttributor for B3FaultAttributor {
+    fn resolve<'a>(
+        &'a self,
+        peer: SocketAddr,
+        local: SocketAddr,
+    ) -> Pin<Box<dyn Future<Output = AttributionResult> + Send + 'a>> {
+        Box::pin(async move {
+            let injection = inject_b3_boundary_fault(
+                &self.bpftool,
+                &self.config_state,
+                peer,
+                local,
+                self.expected,
+                self.cell,
+            );
+            let (restore, evidence) = match injection {
+                Ok(injection) => injection,
+                Err(error) => {
+                    let _ = fs::write(self.evidence.join("injection-error.txt"), &error);
+                    return AttributionResult::IntegrityFailure;
+                }
+            };
+            let _ = fs::write(
+                self.evidence.join("fault-injection.json"),
+                serde_json::to_vec_pretty(&evidence).unwrap_or_default(),
+            );
+            let result = self.inner.resolve(peer, local).await;
+            if let Some(restore) = restore
+                && let Err(error) = restore_b3_boundary_fault(&self.bpftool, restore)
+            {
+                let _ = fs::write(self.evidence.join("restore-error.txt"), error);
+                return AttributionResult::IntegrityFailure;
+            }
+            result
+        })
+    }
+}
+
+struct B3FaultRestore {
+    pin: PathBuf,
+    key: Vec<u8>,
+    value: Vec<u8>,
+}
+
+enum B3RaceGate {
+    Immediate,
+    Release(Arc<Notify>),
+    Concurrent(Arc<Barrier>),
+}
+
+struct B3RaceAttributor {
+    inner: Arc<dyn ConnectionAttributor>,
+    gate: B3RaceGate,
+    entered: Arc<Notify>,
+    completed: Arc<Notify>,
+    result: Arc<Mutex<Option<(ObservedResolveOutcome, Option<ResolveMismatch>)>>>,
+}
+
+impl ConnectionAttributor for B3RaceAttributor {
+    fn resolve<'a>(
+        &'a self,
+        peer: SocketAddr,
+        local: SocketAddr,
+    ) -> Pin<Box<dyn Future<Output = AttributionResult> + Send + 'a>> {
+        Box::pin(async move {
+            self.entered.notify_one();
+            match &self.gate {
+                B3RaceGate::Immediate => {}
+                B3RaceGate::Release(release) => release.notified().await,
+                B3RaceGate::Concurrent(barrier) => {
+                    barrier.wait().await;
+                }
+            }
+            let result = self.inner.resolve(peer, local).await;
+            let (outcome, mismatch, _) = observed_result(&result);
+            if let Ok(mut observed) = self.result.lock() {
+                *observed = Some((outcome, mismatch));
+            }
+            self.completed.notify_one();
+            result
+        })
+    }
+}
+
+impl B3Proxy {
+    async fn stop(self) -> Result<(), String> {
+        self.stop.send_replace(true);
+        tokio::time::timeout(Duration::from_secs(2), self.task)
+            .await
+            .map_err(|_| "B3 proxy did not stop".to_owned())?
+            .map_err(|error| error.to_string())
+    }
+}
+
+/// Runs B3 only. The small wrapper binary imports this shared qualification module so B2 keeps
+/// using the same already-qualified ABI helpers without introducing a second implementation.
+pub async fn run_b3() -> Result<(), String> {
+    let mut arguments = env::args_os().skip(1);
+    let binary = PathBuf::from(arguments.next().ok_or("missing production binary")?);
+    let config_path = PathBuf::from(arguments.next().ok_or("missing configuration")?);
+    let evidence = PathBuf::from(arguments.next().ok_or("missing evidence directory")?);
+    if arguments.next().is_some() {
+        return Err("too many arguments".to_owned());
+    }
+    fs::create_dir_all(&evidence).map_err(|error| error.to_string())?;
+    let config_yaml = fs::read_to_string(&config_path).map_err(|error| error.to_string())?;
+    let config = Config::from_yaml(&config_yaml).map_err(|error| error.to_string())?;
+    if config.runtime.max_concurrency < 2 {
+        return Err("B3 requires a configured concurrent-Execution limit of at least two".into());
+    }
+    let sandbox = Helper::spawn(&binary, "sandboxd").map_err(|error| error.to_string())?;
+    let enforcer = Helper::spawn_enforcer(&binary).map_err(|error| error.to_string())?;
+    let sandbox_swept = sandbox
+        .hello(&config_yaml)
+        .map_err(|error| error.to_string())?;
+    let enforcer_swept = enforcer
+        .hello(&config_yaml)
+        .map_err(|error| error.to_string())?;
+    sandbox
+        .ensure_running()
+        .map_err(|error| error.to_string())?;
+    enforcer
+        .ensure_running()
+        .map_err(|error| error.to_string())?;
+    fs::write(
+        evidence.join("startup.json"),
+        serde_json::to_vec_pretty(&json!({
+            "sandbox_swept": sandbox_swept,
+            "enforcer_swept": enforcer_swept,
+            "production_binary": binary,
+            "production_backend": "cgroup-bpf",
+            "configured_max_concurrency": config.runtime.max_concurrency,
+            "race_iterations": B3_RACE_ITERATIONS
+        }))
+        .map_err(|error| error.to_string())?,
+    )
+    .map_err(|error| error.to_string())?;
+
+    prepare_b3_upstream().map_err(|error| error.to_string())?;
+    let upstream = TcpListener::bind((Ipv4Addr::new(11, 0, 0, 1), 443))
+        .await
+        .map_err(|error| format!("bind B3 upstream: {error}"))?;
+    let outbound = Arc::new(AtomicUsize::new(0));
+    let upstream_task = {
+        let outbound = Arc::clone(&outbound);
+        tokio::spawn(async move {
+            while let Ok((mut stream, _)) = upstream.accept().await {
+                outbound.fetch_add(1, Ordering::SeqCst);
+                tokio::spawn(async move {
+                    let mut byte = [0_u8; 1];
+                    let _ = tokio::io::AsyncReadExt::read(&mut stream, &mut byte).await;
+                });
+            }
+        })
+    };
+
+    run_b3_concurrent_limit(
+        &evidence,
+        &config,
+        &sandbox,
+        &enforcer,
+        Arc::clone(&outbound),
+    )
+    .await?;
+    for mode in [
+        B3SingleMode::SuccessfulClose,
+        B3SingleMode::Fin,
+        B3SingleMode::Rst,
+        B3SingleMode::ConnectFailure,
+        B3SingleMode::AgentKill,
+    ] {
+        run_b3_single_lifecycle(
+            mode,
+            &evidence,
+            &config,
+            &sandbox,
+            &enforcer,
+            Arc::clone(&outbound),
+        )
+        .await?;
+    }
+    run_b3_frozen_teardown(&evidence, &config, &sandbox, &enforcer).await?;
+    run_b3_source_port_reuse(
+        &evidence,
+        &config,
+        &sandbox,
+        &enforcer,
+        Arc::clone(&outbound),
+    )
+    .await?;
+    run_b3_execution_generation(
+        &evidence,
+        &config,
+        &sandbox,
+        &enforcer,
+        Arc::clone(&outbound),
+    )
+    .await?;
+    run_b3_binding_matrix(
+        &evidence,
+        &config,
+        &sandbox,
+        &enforcer,
+        Arc::clone(&outbound),
+    )
+    .await?;
+    run_b3_freeze_resolve_race(
+        &evidence,
+        &config,
+        &sandbox,
+        &enforcer,
+        Arc::clone(&outbound),
+    )
+    .await?;
+    run_b3_connect_tunnel_revocation(
+        &evidence,
+        &config,
+        &sandbox,
+        &enforcer,
+        Arc::clone(&outbound),
+    )
+    .await?;
+    run_b3_backend_generation(
+        &evidence,
+        &config,
+        &config_yaml,
+        &binary,
+        &sandbox,
+        enforcer,
+        Arc::clone(&outbound),
+    )
+    .await?;
+    upstream_task.abort();
+    fs::write(evidence.join("current-case.txt"), "complete\n")
+        .map_err(|error| error.to_string())?;
+    fs::write(evidence.join("verdict.txt"), "PASS\n").map_err(|error| error.to_string())
+}
+
+async fn prepare_b3_execution<'a>(
+    config: &Config,
+    evidence: &Path,
+    sandbox: &'a Helper,
+    enforcer: &'a Helper,
+    table: &Arc<AttributionTable>,
+    agent: &str,
+    slot: u32,
+) -> Result<B3Prepared<'a>, String> {
+    let id = ExecutionId::generate().map_err(|error| error.to_string())?;
+    let nonce = ExecutionNonce::generate().map_err(|error| error.to_string())?;
+    let mut execution = Execution {
+        sandbox,
+        enforcer,
+        id,
+        binding: None,
+        key_bound: false,
+        legacy_ip: None,
+        reserved: false,
+        prepared: false,
+        moved_pid: None,
+    };
+    let reserved = sandbox
+        .call(SandboxRequest::Reserve {
+            id,
+            agent: agent.to_owned(),
+        })
+        .await
+        .map_err(|error| error.to_string())?;
+    let HelperResponse::Reserved { cgroup_inode } = reserved else {
+        return Err(format!("unexpected reserve response: {reserved:?}"));
+    };
+    execution.reserved = true;
+    enforcer
+        .call(EnforcerRequest::Prepare {
+            id,
+            slot,
+            agent: agent.to_owned(),
+            nonce,
+        })
+        .await
+        .map_err(|error| error.to_string())?;
+    execution.prepared = true;
+    let paused = sandbox
+        .call(SandboxRequest::CreatePaused { id })
+        .await
+        .map_err(|error| error.to_string())?;
+    let HelperResponse::CreatedPaused {
+        pid,
+        cgroup_inode: paused_inode,
+    } = paused
+    else {
+        return Err(format!("unexpected create-paused response: {paused:?}"));
+    };
+    if paused_inode != cgroup_inode {
+        return Err("reserved and paused cgroup identities differ".to_owned());
+    }
+    record_placement(config, evidence, id, pid, cgroup_inode)?;
+    let verified = enforcer
+        .call(EnforcerRequest::VerifyPlacement { id, pid })
+        .await
+        .map_err(|error| error.to_string())?;
+    let HelperResponse::PlacementVerified { binding } = verified else {
+        return Err(format!("unexpected placement response: {verified:?}"));
+    };
+    if binding.cgroup_id != cgroup_inode || binding.execution_nonce != nonce {
+        return Err("verified BindingKey does not match reserved identity".to_owned());
+    }
+    table
+        .bind_key(binding, id)
+        .map_err(|error| error.to_string())?;
+    execution.binding = Some(binding);
+    execution.key_bound = true;
+    enforcer
+        .call(EnforcerRequest::Activate {
+            id,
+            binding: Some(binding),
+        })
+        .await
+        .map_err(|error| error.to_string())?;
+    Ok(B3Prepared {
+        execution,
+        pid,
+        binding,
+        cgroup_inode,
+    })
+}
+
+fn b3_attributor(
+    config: &Config,
+    enforcer: &Helper,
+    table: Arc<AttributionTable>,
+    observations: Arc<Mutex<Vec<B3ResolveObservation>>>,
+    dns: Arc<AtomicUsize>,
+    outbound: Arc<AtomicUsize>,
+    health_failure: Arc<Mutex<Option<ObservedHealthFailure>>>,
+    completion_barrier: Option<Arc<Barrier>>,
+) -> Result<Arc<dyn ConnectionAttributor>, String> {
+    let inner = b3_candidate_attributor(config, enforcer, table, Arc::clone(&health_failure))?;
+    Ok(Arc::new(B3RecordingAttributor {
+        inner,
+        observations,
+        state: config.runtime.state_dir.join("cgroup-bpf/state.json"),
+        bpftool: config.runtime.bpftool.clone(),
+        dns,
+        outbound,
+        health_failure,
+        completion_barrier,
+    }))
+}
+
+fn b3_candidate_attributor(
+    config: &Config,
+    enforcer: &Helper,
+    table: Arc<AttributionTable>,
+    health_failure: Arc<Mutex<Option<ObservedHealthFailure>>>,
+) -> Result<Arc<dyn ConnectionAttributor>, String> {
+    let observed_failure = Arc::clone(&health_failure);
+    Ok(Arc::new(CandidateAAttributor::new(
+        enforcer
+            .resolver_client()
+            .map_err(|error| error.to_string())?,
+        table,
+        Duration::from_millis(config.cgroup_bpf.resolve_timeout_ms),
+        config.runtime.max_concurrency as usize * B3_CONNECTIONS_PER_EXECUTION,
+        Arc::new(move |failure| {
+            if let Ok(mut observed) = observed_failure.lock() {
+                *observed = Some(match failure {
+                    ResolveHealthFailure::Unavailable => ObservedHealthFailure::Unavailable,
+                    ResolveHealthFailure::IntegrityFailure => {
+                        ObservedHealthFailure::IntegrityFailure
+                    }
+                });
+            }
+        }),
+    )))
+}
+
+fn b3_recording_wrapper(
+    config: &Config,
+    inner: Arc<dyn ConnectionAttributor>,
+    observations: Arc<Mutex<Vec<B3ResolveObservation>>>,
+    dns: Arc<AtomicUsize>,
+    outbound: Arc<AtomicUsize>,
+    health_failure: Arc<Mutex<Option<ObservedHealthFailure>>>,
+) -> Arc<dyn ConnectionAttributor> {
+    Arc::new(B3RecordingAttributor {
+        inner,
+        observations,
+        state: config.runtime.state_dir.join("cgroup-bpf/state.json"),
+        bpftool: config.runtime.bpftool.clone(),
+        dns,
+        outbound,
+        health_failure,
+        completion_barrier: None,
+    })
+}
+
+async fn start_b3_proxy(
+    config: &Config,
+    attributor: Arc<dyn ConnectionAttributor>,
+    dns: Arc<AtomicUsize>,
+) -> Result<B3Proxy, String> {
+    let policy = DestinationPolicy::new(&config.egress, &config.network, Vec::new())
+        .map_err(|error| error.to_string())?;
+    let proxy = Arc::new(EgressProxy::new(
+        Arc::new(policy),
+        attributor,
+        Arc::new(CountingResolver { calls: dns }),
+        EgressLimits::from_config(&config.egress),
+    ));
+    let listener = TcpListener::bind(SocketAddr::from((
+        config.network.proxy_address,
+        config.network.proxy_port,
+    )))
+    .await
+    .map_err(|error| format!("bind B3 proxy: {error}"))?;
+    let (stop, stopped) = watch::channel(false);
+    Ok(B3Proxy {
+        stop,
+        task: tokio::spawn(proxy.serve(listener, stopped)),
+    })
+}
+
+fn capture_live_tuple(
+    bpftool: &Path,
+    state_path: &Path,
+    peer: SocketAddr,
+    local: SocketAddr,
+    timeout: Duration,
+) -> Result<(u64, BindingKey, Vec<u8>, Vec<u8>), String> {
+    let state: Value =
+        serde_json::from_slice(&fs::read(state_path).map_err(|error| error.to_string())?)
+            .map_err(|error| error.to_string())?;
+    let pin = map_pin(&state, "soglia_tuples")?;
+    let key = encode_socket_tuple(peer, local)?;
+    let started = Instant::now();
+    loop {
+        let dump = dump_map(bpftool, &pin)?;
+        if let Some(value) = map_dump_value_for_key(&dump, &key)? {
+            if value.len() != 48 {
+                return Err(format!(
+                    "tuple value has {} bytes, expected 48",
+                    value.len()
+                ));
+            }
+            let cookie = u64::from_ne_bytes(
+                value[0..8]
+                    .try_into()
+                    .map_err(|_| "tuple cookie has the wrong width")?,
+            );
+            let binding = decode_b3_binding(&value[8..40])?;
+            return Ok((cookie, binding, key.to_vec(), value));
+        }
+        if started.elapsed() >= timeout {
+            return Err("tuple did not become visible before B3 Resolve".to_owned());
+        }
+        std::thread::sleep(Duration::from_millis(2));
+    }
+}
+
+fn decode_b3_binding(bytes: &[u8]) -> Result<BindingKey, String> {
+    if bytes.len() != 32 {
+        return Err(format!("BindingKey has {} bytes, expected 32", bytes.len()));
+    }
+    Ok(BindingKey {
+        cgroup_id: u64::from_ne_bytes(bytes[0..8].try_into().map_err(|_| "cgroup id width")?),
+        execution_nonce: ExecutionNonce::from_bytes(
+            bytes[8..24].try_into().map_err(|_| "nonce width")?,
+        ),
+        backend_generation: u64::from_ne_bytes(
+            bytes[24..32].try_into().map_err(|_| "generation width")?,
+        ),
+    })
+}
+
+fn mutate_b3_binding(binding: BindingKey, field: B3Field) -> BindingKey {
+    let mut nonce = binding.execution_nonce.bytes();
+    match field {
+        B3Field::CgroupId => BindingKey {
+            cgroup_id: binding.cgroup_id.wrapping_add(1),
+            ..binding
+        },
+        B3Field::ExecutionNonce => {
+            nonce[0] ^= 0x80;
+            BindingKey {
+                execution_nonce: ExecutionNonce::from_bytes(nonce),
+                ..binding
+            }
+        }
+        B3Field::BackendGeneration => BindingKey {
+            backend_generation: binding.backend_generation.wrapping_add(1),
+            ..binding
+        },
+        B3Field::OldComplete => {
+            nonce[0] ^= 0x80;
+            BindingKey {
+                cgroup_id: binding.cgroup_id.wrapping_add(1),
+                execution_nonce: ExecutionNonce::from_bytes(nonce),
+                backend_generation: binding.backend_generation.wrapping_add(1),
+            }
+        }
+        B3Field::Mixed => {
+            nonce[0] ^= 0x80;
+            BindingKey {
+                cgroup_id: binding.cgroup_id.wrapping_add(1),
+                execution_nonce: ExecutionNonce::from_bytes(nonce),
+                backend_generation: binding.backend_generation,
+            }
+        }
+    }
+}
+
+fn encode_b3_policy(binding: BindingKey) -> [u8; 40] {
+    let mut value = [0_u8; 40];
+    value[0..4].copy_from_slice(&1_u32.to_ne_bytes());
+    value[8..40].copy_from_slice(&encode_binding_key(binding));
+    value
+}
+
+fn inject_b3_boundary_fault(
+    bpftool: &Path,
+    state_path: &Path,
+    peer: SocketAddr,
+    local: SocketAddr,
+    expected: BindingKey,
+    cell: B3MatrixCell,
+) -> Result<(Option<B3FaultRestore>, Value), String> {
+    let state: Value =
+        serde_json::from_slice(&fs::read(state_path).map_err(|error| error.to_string())?)
+            .map_err(|error| error.to_string())?;
+    let (cookie, observed, tuple_key, tuple_value) =
+        capture_live_tuple(bpftool, state_path, peer, local, Duration::from_secs(1))?;
+    if observed != expected {
+        return Err("tuple did not initially carry the exact current BindingKey".to_owned());
+    }
+    let injected = mutate_b3_binding(expected, cell.field);
+    let (pin, key, before, after, restore) = match cell.boundary {
+        B3Boundary::Tuple => {
+            let pin = map_pin(&state, "soglia_tuples")?;
+            let mut after = tuple_value.clone();
+            after[8..40].copy_from_slice(&encode_binding_key(injected));
+            map_command(bpftool, "update", &pin, &tuple_key, Some(&after))?;
+            (pin, tuple_key, tuple_value, after, None)
+        }
+        B3Boundary::Cookie => {
+            let pin = map_pin(&state, "soglia_cookie_a")?;
+            let key = cookie.to_ne_bytes().to_vec();
+            let before = encode_binding_key(expected).to_vec();
+            let after = encode_binding_key(injected).to_vec();
+            map_command(bpftool, "update", &pin, &key, Some(&after))?;
+            let restore = Some(B3FaultRestore {
+                pin: pin.clone(),
+                key: key.clone(),
+                value: before.clone(),
+            });
+            (pin, key, before, after, restore)
+        }
+        B3Boundary::Policy => {
+            let pin = map_pin(&state, "soglia_policy")?;
+            let key = expected.cgroup_id.to_ne_bytes().to_vec();
+            let before = encode_b3_policy(expected).to_vec();
+            let after = encode_b3_policy(injected).to_vec();
+            map_command(bpftool, "update", &pin, &key, Some(&after))?;
+            let restore = Some(B3FaultRestore {
+                pin: pin.clone(),
+                key: key.clone(),
+                value: before.clone(),
+            });
+            (pin, key, before, after, restore)
+        }
+        B3Boundary::DurableRecord | B3Boundary::LiveBinding => {
+            return Err(format!(
+                "{} is not a BPF map boundary",
+                cell.boundary.name()
+            ));
+        }
+    };
+    Ok((
+        restore,
+        json!({
+            "actor": "B3 qualification harness",
+            "boundary": cell.boundary,
+            "field": cell.field,
+            "covered_by_b2": cell.covered_by_b2,
+            "single_boundary_mutation": true,
+            "production_code_modified": false,
+            "pin": pin,
+            "key_hex": hex(&key),
+            "value_before_hex": hex(&before),
+            "value_after_hex": hex(&after),
+            "binding_before": expected,
+            "binding_after": injected,
+            "socket_cookie": cookie
+        }),
+    ))
+}
+
+fn restore_b3_boundary_fault(bpftool: &Path, restore: B3FaultRestore) -> Result<(), String> {
+    map_command(
+        bpftool,
+        "update",
+        &restore.pin,
+        &restore.key,
+        Some(&restore.value),
+    )
+}
+
+fn b3_expected_mismatch(cell: B3MatrixCell) -> (ObservedResolveOutcome, Option<ResolveMismatch>) {
+    match cell.boundary {
+        B3Boundary::Tuple => {
+            let reason = match cell.field {
+                B3Field::CgroupId => ResolveMismatch::CgroupId,
+                B3Field::ExecutionNonce => ResolveMismatch::ExecutionNonce,
+                B3Field::BackendGeneration | B3Field::OldComplete => {
+                    ResolveMismatch::BackendGeneration
+                }
+                B3Field::Mixed => ResolveMismatch::OwnershipRecord,
+            };
+            (ObservedResolveOutcome::IdentityMismatch, Some(reason))
+        }
+        B3Boundary::Cookie => (
+            ObservedResolveOutcome::IdentityMismatch,
+            Some(ResolveMismatch::Cookie),
+        ),
+        B3Boundary::Policy => (
+            ObservedResolveOutcome::IdentityMismatch,
+            Some(ResolveMismatch::Policy),
+        ),
+        B3Boundary::LiveBinding => (ObservedResolveOutcome::NotFound, None),
+        B3Boundary::DurableRecord => (ObservedResolveOutcome::IntegrityFailure, None),
+    }
+}
+
+fn b3_counters(config: &Config) -> Result<B3Counters, String> {
+    let state: Value = serde_json::from_slice(
+        &fs::read(config.runtime.state_dir.join("cgroup-bpf/state.json"))
+            .map_err(|error| error.to_string())?,
+    )
+    .map_err(|error| error.to_string())?;
+    let counters = dump_map(
+        &config.runtime.bpftool,
+        &map_pin(&state, "soglia_counters")?,
+    )?;
+    let tuples = dump_map(&config.runtime.bpftool, &map_pin(&state, "soglia_tuples")?)?;
+    let cookies = dump_map(
+        &config.runtime.bpftool,
+        &map_pin(&state, "soglia_cookie_a")?,
+    )?;
+    Ok(B3Counters {
+        tuple_insert_failed: counter_value(&counters, C_TUPLE_INSERT_FAILED)?,
+        published: counter_value(&counters, C_PUBLISHED)?,
+        unpublished: counter_value(&counters, C_UNPUBLISHED)?,
+        live_tuples: tuples.as_array().ok_or("tuple dump is not an array")?.len(),
+        live_cookies: cookies
+            .as_array()
+            .ok_or("cookie dump is not an array")?
+            .len(),
+    })
+}
+
+fn write_b3_accounting(
+    evidence: &Path,
+    before: B3Counters,
+    after: B3Counters,
+    consumed: u64,
+) -> Result<(), String> {
+    let published = after.published.saturating_sub(before.published);
+    let unpublished = after.unpublished.saturating_sub(before.unpublished);
+    let live = after.live_tuples as u64;
+    let holds = published == unpublished + consumed + live
+        && after.live_tuples == 0
+        && after.live_cookies == 0
+        && after.tuple_insert_failed == 0;
+    fs::write(
+        evidence.join("counter-accounting.json"),
+        serde_json::to_vec_pretty(&json!({
+            "before": before,
+            "after": after,
+            "delta": {
+                "published": published,
+                "unpublished_by_sockops_close": unpublished,
+                "consumed_by_resolve": consumed,
+                "live": live
+            },
+            "equation": "published = unpublished + consumed + live",
+            "holds": holds,
+            "C_TUPLE_INSERT_FAILED_absolute": after.tuple_insert_failed
+        }))
+        .map_err(|error| error.to_string())?,
+    )
+    .map_err(|error| error.to_string())?;
+    if holds {
+        Ok(())
+    } else {
+        Err(format!(
+            "counter accounting failed: published={published}, unpublished={unpublished}, consumed={consumed}, live={live}, cookies={}, insert_failed={}",
+            after.live_cookies, after.tuple_insert_failed
+        ))
+    }
+}
+
+async fn wait_b3_observations(
+    observations: &Mutex<Vec<B3ResolveObservation>>,
+    expected: usize,
+    timeout: Duration,
+) -> Result<(), String> {
+    let started = Instant::now();
+    loop {
+        if observations
+            .lock()
+            .map_err(|_| "B3 observation lock poisoned".to_owned())?
+            .len()
+            >= expected
+        {
+            return Ok(());
+        }
+        if started.elapsed() >= timeout {
+            return Err(format!("observed fewer than {expected} B3 Resolve calls"));
+        }
+        tokio::time::sleep(Duration::from_millis(5)).await;
+    }
+}
+
+async fn read_b3_report(pid: i32, name: &str, timeout: Duration) -> Result<String, String> {
+    let path = PathBuf::from(format!("/proc/{pid}/root/tmp/{name}"));
+    wait_for_file(&path, timeout).await?;
+    fs::read_to_string(path).map_err(|error| error.to_string())
+}
+
+async fn wait_b3_report_lines(
+    pid: i32,
+    name: &str,
+    minimum: usize,
+    timeout: Duration,
+) -> Result<String, String> {
+    let path = PathBuf::from(format!("/proc/{pid}/root/tmp/{name}"));
+    let started = Instant::now();
+    loop {
+        if let Ok(report) = fs::read_to_string(&path)
+            && report.lines().count() >= minimum
+        {
+            return Ok(report);
+        }
+        if started.elapsed() >= timeout {
+            return Err(format!(
+                "{} did not contain {minimum} lines",
+                path.display()
+            ));
+        }
+        tokio::time::sleep(Duration::from_millis(5)).await;
+    }
+}
+
+fn write_b3_case_result(evidence: &Path, value: &Value) -> Result<(), String> {
+    fs::write(
+        evidence.join("result.json"),
+        serde_json::to_vec_pretty(value).map_err(|error| error.to_string())?,
+    )
+    .map_err(|error| error.to_string())?;
+    fs::write(evidence.join("verdict.txt"), "PASS\n").map_err(|error| error.to_string())
+}
+
+fn prepare_b3_upstream() -> io::Result<()> {
+    let _ = Command::new("/usr/sbin/ip")
+        .args(["link", "delete", "b3-upstream"])
+        .output();
+    command_success(
+        Path::new("/usr/sbin/ip"),
+        &["link", "add", "b3-upstream", "type", "dummy"],
+    )?;
+    command_success(
+        Path::new("/usr/sbin/ip"),
+        &["addr", "add", "11.0.0.1/32", "dev", "b3-upstream"],
+    )?;
+    command_success(
+        Path::new("/usr/sbin/ip"),
+        &["link", "set", "b3-upstream", "up"],
+    )
+}
+
+async fn wait_b3_empty(config: &Config, timeout: Duration) -> Result<B3Counters, String> {
+    let started = Instant::now();
+    loop {
+        let counters = b3_counters(config)?;
+        if counters.live_tuples == 0 && counters.live_cookies == 0 {
+            return Ok(counters);
+        }
+        if started.elapsed() >= timeout {
+            return Err(format!(
+                "Candidate-A maps did not empty: tuples={}, cookies={}",
+                counters.live_tuples, counters.live_cookies
+            ));
+        }
+        tokio::time::sleep(Duration::from_millis(10)).await;
+    }
+}
+
+async fn run_b3_concurrent_limit(
+    root: &Path,
+    config: &Config,
+    sandbox: &Helper,
+    enforcer: &Helper,
+    outbound: Arc<AtomicUsize>,
+) -> Result<(), String> {
+    let evidence = root.join("cases/concurrent_limit");
+    fs::create_dir_all(&evidence).map_err(|error| error.to_string())?;
+    fs::write(root.join("current-case.txt"), "concurrent_limit\n")
+        .map_err(|error| error.to_string())?;
+    let before = b3_counters(config)?;
+    let table = Arc::new(AttributionTable::new());
+    let observations = Arc::new(Mutex::new(Vec::new()));
+    let dns = Arc::new(AtomicUsize::new(0));
+    outbound.store(0, Ordering::SeqCst);
+    let health = Arc::new(Mutex::new(None));
+    let total = config.runtime.max_concurrency as usize * B3_CONNECTIONS_PER_EXECUTION;
+    let attributor = b3_attributor(
+        config,
+        enforcer,
+        Arc::clone(&table),
+        Arc::clone(&observations),
+        Arc::clone(&dns),
+        Arc::clone(&outbound),
+        Arc::clone(&health),
+        Some(Arc::new(Barrier::new(total))),
+    )?;
+    let proxy = start_b3_proxy(config, attributor, Arc::clone(&dns)).await?;
+    let mut executions = Vec::new();
+    for slot in 0..config.runtime.max_concurrency {
+        let case = evidence.join(format!("execution-{slot}"));
+        fs::create_dir_all(&case).map_err(|error| error.to_string())?;
+        executions.push(
+            prepare_b3_execution(
+                config,
+                &case,
+                sandbox,
+                enforcer,
+                &table,
+                &format!("concurrent-{slot}"),
+                slot,
+            )
+            .await?,
+        );
+    }
+    for execution in &executions {
+        sandbox
+            .call(SandboxRequest::Start {
+                id: execution.execution.id,
+            })
+            .await
+            .map_err(|error| error.to_string())?;
+    }
+    wait_b3_observations(&observations, total, Duration::from_secs(10)).await?;
+    let mut reports = Vec::new();
+    for execution in &executions {
+        reports
+            .push(read_b3_report(execution.pid, "b3-report.jsonl", Duration::from_secs(10)).await?);
+    }
+    proxy.stop().await?;
+    let snapshot = observations
+        .lock()
+        .map_err(|_| "B3 observation lock poisoned".to_owned())?;
+    let pool = config.pool().map_err(|error| error.to_string())?;
+    let expected: Vec<(IpAddr, ExecutionId)> = executions
+        .iter()
+        .enumerate()
+        .map(|(slot, execution)| {
+            let address = pool
+                .slot(slot as u32)
+                .ok_or_else(|| format!("slot {slot} is unavailable"))?
+                .execution;
+            Ok((IpAddr::V4(address), execution.execution.id))
+        })
+        .collect::<Result<_, String>>()?;
+    let mut cookies = Vec::new();
+    for observation in snapshot.iter() {
+        let expected_id = expected
+            .iter()
+            .find_map(|(address, id)| (*address == observation.peer.ip()).then_some(*id))
+            .ok_or_else(|| format!("unexpected peer {}", observation.peer))?;
+        if observation.outcome != ObservedResolveOutcome::Resolved
+            || observation.resolved_execution != Some(expected_id)
+            || observation.recv_q_bytes == 0
+            || observation.dns_when_resolve_returned != 0
+            || observation.outbound_when_resolve_returned != 0
+            || observation.health_failure.is_some()
+        {
+            return Err(format!(
+                "concurrent observation {} violated attribution/no-read/no-effect invariants",
+                observation.index
+            ));
+        }
+        let cookie = observation
+            .cookie
+            .ok_or("concurrent tuple omitted its cookie")?;
+        if observation.tuple_binding
+            != executions
+                .iter()
+                .find(|execution| execution.execution.id == expected_id)
+                .map(|execution| execution.binding)
+        {
+            return Err("concurrent tuple carried the wrong BindingKey".to_owned());
+        }
+        cookies.push(cookie);
+    }
+    cookies.sort_unstable();
+    cookies.dedup();
+    if cookies.len() != total {
+        return Err(format!(
+            "observed {} unique cookies for {total} sockets",
+            cookies.len()
+        ));
+    }
+    drop(snapshot);
+    let mut cleanup_failures = Vec::new();
+    for execution in &mut executions {
+        cleanup_failures.extend(execution.execution.cleanup(Some(&table)).await);
+    }
+    if !cleanup_failures.is_empty() {
+        return Err(format!("concurrent cleanup failed: {cleanup_failures:?}"));
+    }
+    let after = wait_b3_empty(config, Duration::from_secs(2)).await?;
+    write_b3_accounting(&evidence, before, after, total as u64)?;
+    write_b3_case_result(
+        &evidence,
+        &json!({
+            "case": "CONCURRENT_LIMIT",
+            "configured_execution_limit": config.runtime.max_concurrency,
+            "connections_per_execution": B3_CONNECTIONS_PER_EXECUTION,
+            "total_connections": total,
+            "unique_cookies": cookies,
+            "observations": observations.lock().ok().as_deref(),
+            "agent_reports": reports,
+            "cross_attribution": false,
+            "health_failure": health.lock().ok().and_then(|failure| *failure)
+        }),
+    )
+}
+
+async fn run_b3_single_lifecycle(
+    mode: B3SingleMode,
+    root: &Path,
+    config: &Config,
+    sandbox: &Helper,
+    enforcer: &Helper,
+    outbound: Arc<AtomicUsize>,
+) -> Result<(), String> {
+    let evidence = root.join("cases").join(mode.name());
+    fs::create_dir_all(&evidence).map_err(|error| error.to_string())?;
+    fs::write(root.join("current-case.txt"), format!("{}\n", mode.name()))
+        .map_err(|error| error.to_string())?;
+    let before = b3_counters(config)?;
+    let table = Arc::new(AttributionTable::new());
+    let agent = match mode {
+        B3SingleMode::SuccessfulClose => "successful-close",
+        B3SingleMode::Fin => "fin",
+        B3SingleMode::Rst => "rst",
+        B3SingleMode::ConnectFailure => "connect-failure",
+        B3SingleMode::AgentKill => "agent-kill",
+    };
+    let mut execution =
+        prepare_b3_execution(config, &evidence, sandbox, enforcer, &table, agent, 0).await?;
+    let observations = Arc::new(Mutex::new(Vec::new()));
+    let dns = Arc::new(AtomicUsize::new(0));
+    outbound.store(0, Ordering::SeqCst);
+    let health = Arc::new(Mutex::new(None));
+    let proxy = if mode == B3SingleMode::ConnectFailure {
+        None
+    } else {
+        Some(
+            start_b3_proxy(
+                config,
+                b3_attributor(
+                    config,
+                    enforcer,
+                    Arc::clone(&table),
+                    Arc::clone(&observations),
+                    Arc::clone(&dns),
+                    Arc::clone(&outbound),
+                    Arc::clone(&health),
+                    None,
+                )?,
+                Arc::clone(&dns),
+            )
+            .await?,
+        )
+    };
+    sandbox
+        .call(SandboxRequest::Start {
+            id: execution.execution.id,
+        })
+        .await
+        .map_err(|error| error.to_string())?;
+    let report = read_b3_report(execution.pid, "b3-report.jsonl", Duration::from_secs(12)).await?;
+    let consumed = if mode == B3SingleMode::ConnectFailure {
+        if report.lines().any(|line| {
+            serde_json::from_str::<Value>(line)
+                .ok()
+                .and_then(|value| value.get("ok").and_then(Value::as_bool).map(|ok| !ok))
+                != Some(true)
+        }) {
+            return Err("connect-failure agent did not record a refused connection".to_owned());
+        }
+        0
+    } else {
+        wait_b3_observations(&observations, 1, Duration::from_secs(10)).await?;
+        let observations_guard = observations
+            .lock()
+            .map_err(|_| "B3 observation lock poisoned".to_owned())?;
+        let observation = observations_guard
+            .first()
+            .ok_or("missing Resolve observation")?;
+        if observation.outcome != ObservedResolveOutcome::Resolved
+            || observation.resolved_execution != Some(execution.execution.id)
+            || observation.recv_q_bytes == 0
+            || observation.health_failure.is_some()
+        {
+            return Err(format!("{} violated Resolve invariants", mode.name()));
+        }
+        1
+    };
+    if mode == B3SingleMode::AgentKill {
+        sandbox
+            .call(SandboxRequest::Kill {
+                tag: execution.execution.id.tag(),
+            })
+            .await
+            .map_err(|error| error.to_string())?;
+    }
+    if let Some(proxy) = proxy {
+        proxy.stop().await?;
+    }
+    let cleanup = execution.execution.cleanup(Some(&table)).await;
+    if !cleanup.is_empty() {
+        return Err(format!("{} cleanup failed: {cleanup:?}", mode.name()));
+    }
+    let after = wait_b3_empty(config, Duration::from_secs(2)).await?;
+    write_b3_accounting(&evidence, before, after, consumed)?;
+    write_b3_case_result(
+        &evidence,
+        &json!({
+            "case": mode,
+            "execution_id": execution.execution.id,
+            "binding": execution.binding,
+            "agent_report": report,
+            "observations": observations.lock().ok().as_deref(),
+            "health_failure": health.lock().ok().and_then(|failure| *failure),
+            "cleanup_failures": cleanup
+        }),
+    )
+}
+
+async fn run_b3_frozen_teardown(
+    root: &Path,
+    config: &Config,
+    sandbox: &Helper,
+    enforcer: &Helper,
+) -> Result<(), String> {
+    let evidence = root.join("cases/frozen_teardown");
+    fs::create_dir_all(&evidence).map_err(|error| error.to_string())?;
+    fs::write(root.join("current-case.txt"), "frozen_teardown\n")
+        .map_err(|error| error.to_string())?;
+    let before = b3_counters(config)?;
+    let table = Arc::new(AttributionTable::new());
+    let mut execution = prepare_b3_execution(
+        config,
+        &evidence,
+        sandbox,
+        enforcer,
+        &table,
+        "frozen-teardown",
+        0,
+    )
+    .await?;
+    table.revoke_key(execution.binding);
+    enforcer
+        .call(EnforcerRequest::Freeze {
+            tag: execution.execution.id.tag(),
+        })
+        .await
+        .map_err(|error| error.to_string())?;
+    let cleanup = execution.execution.cleanup(Some(&table)).await;
+    if !cleanup.is_empty() {
+        return Err(format!("frozen teardown cleanup failed: {cleanup:?}"));
+    }
+    let after = wait_b3_empty(config, Duration::from_secs(2)).await?;
+    write_b3_accounting(&evidence, before, after, 0)?;
+    write_b3_case_result(
+        &evidence,
+        &json!({
+            "case": "FROZEN_TEARDOWN",
+            "execution_id": execution.execution.id,
+            "binding": execution.binding,
+            "started": false,
+            "freeze_before_sandbox_destroy": true,
+            "cleanup_failures": cleanup
+        }),
+    )
+}
+
+async fn run_b3_source_port_reuse(
+    root: &Path,
+    config: &Config,
+    sandbox: &Helper,
+    enforcer: &Helper,
+    outbound: Arc<AtomicUsize>,
+) -> Result<(), String> {
+    let evidence = root.join("cases/source_port_reuse");
+    fs::create_dir_all(&evidence).map_err(|error| error.to_string())?;
+    fs::write(root.join("current-case.txt"), "source_port_reuse\n")
+        .map_err(|error| error.to_string())?;
+    let before = b3_counters(config)?;
+    let table = Arc::new(AttributionTable::new());
+    let mut execution = prepare_b3_execution(
+        config,
+        &evidence,
+        sandbox,
+        enforcer,
+        &table,
+        "source-reuse",
+        0,
+    )
+    .await?;
+    let observations = Arc::new(Mutex::new(Vec::new()));
+    let dns = Arc::new(AtomicUsize::new(0));
+    outbound.store(0, Ordering::SeqCst);
+    let health = Arc::new(Mutex::new(None));
+    let proxy = start_b3_proxy(
+        config,
+        b3_attributor(
+            config,
+            enforcer,
+            Arc::clone(&table),
+            Arc::clone(&observations),
+            Arc::clone(&dns),
+            Arc::clone(&outbound),
+            Arc::clone(&health),
+            None,
+        )?,
+        Arc::clone(&dns),
+    )
+    .await?;
+    sandbox
+        .call(SandboxRequest::Start {
+            id: execution.execution.id,
+        })
+        .await
+        .map_err(|error| error.to_string())?;
+    wait_b3_observations(&observations, 1, Duration::from_secs(10)).await?;
+    let first = observations
+        .lock()
+        .map_err(|_| "B3 observation lock poisoned".to_owned())?
+        .first()
+        .cloned()
+        .ok_or("source-port reuse omitted first observation")?;
+    if first.outcome != ObservedResolveOutcome::Resolved
+        || first.resolved_execution != Some(execution.execution.id)
+    {
+        return Err("first source-port reuse connection did not resolve".to_owned());
+    }
+    let state: Value = serde_json::from_slice(
+        &fs::read(config.runtime.state_dir.join("cgroup-bpf/state.json"))
+            .map_err(|error| error.to_string())?,
+    )
+    .map_err(|error| error.to_string())?;
+    let tuple_pin = map_pin(&state, "soglia_tuples")?;
+    let key = encode_socket_tuple(first.peer, first.local)?;
+    let old_cookie = first
+        .cookie
+        .ok_or("first source-port reuse cookie is absent")?;
+    let injected_cookie = old_cookie.wrapping_add(1).max(1);
+    let mut injected = [0_u8; 48];
+    injected[0..8].copy_from_slice(&injected_cookie.to_ne_bytes());
+    injected[8..40].copy_from_slice(&encode_binding_key(execution.binding));
+    map_command(
+        &config.runtime.bpftool,
+        "update",
+        &tuple_pin,
+        &key,
+        Some(&injected),
+    )?;
+    let report_root = PathBuf::from(format!("/proc/{}/root/tmp/b3-reuse.jsonl", execution.pid));
+    fs::write(
+        evidence.join("old-close-injection.json"),
+        serde_json::to_vec_pretty(&json!({
+            "actor": "B3 qualification harness",
+            "tuple_key_hex": hex(&key),
+            "old_socket_cookie": old_cookie,
+            "replacement_cookie": injected_cookie,
+            "replacement_binding": execution.binding,
+            "purpose": "prove an old close callback cannot delete a tuple carrying another cookie",
+            "production_code_modified": false
+        }))
+        .map_err(|error| error.to_string())?,
+    )
+    .map_err(|error| error.to_string())?;
+    fs::write(format!("{}.close", report_root.display()), b"close\n")
+        .map_err(|error| error.to_string())?;
+    wait_for_file(
+        &PathBuf::from(format!("{}.first-closed", report_root.display())),
+        Duration::from_secs(5),
+    )
+    .await?;
+    let after_close = dump_map(&config.runtime.bpftool, &tuple_pin)?;
+    let retained = map_dump_value_for_key(&after_close, &key)? == Some(injected.to_vec());
+    if !retained {
+        return Err("old close callback deleted the cookie-mismatched replacement tuple".into());
+    }
+    map_command(&config.runtime.bpftool, "delete", &tuple_pin, &key, None)?;
+    fs::write(format!("{}.second", report_root.display()), b"second\n")
+        .map_err(|error| error.to_string())?;
+    wait_b3_observations(&observations, 2, Duration::from_secs(10)).await?;
+    let report = read_b3_report(execution.pid, "b3-reuse.jsonl", Duration::from_secs(2)).await?;
+    proxy.stop().await?;
+    let snapshot = observations
+        .lock()
+        .map_err(|_| "B3 observation lock poisoned".to_owned())?
+        .clone();
+    if snapshot.len() != 2
+        || snapshot.iter().any(|observation| {
+            observation.outcome != ObservedResolveOutcome::Resolved
+                || observation.resolved_execution != Some(execution.execution.id)
+                || observation.peer.port() != 40_000
+        })
+    {
+        return Err("source-port reuse did not produce two exact resolutions".to_owned());
+    }
+    let cleanup = execution.execution.cleanup(Some(&table)).await;
+    if !cleanup.is_empty() {
+        return Err(format!("source-port reuse cleanup failed: {cleanup:?}"));
+    }
+    let after = wait_b3_empty(config, Duration::from_secs(2)).await?;
+    write_b3_accounting(&evidence, before, after, 2)?;
+    write_b3_case_result(
+        &evidence,
+        &json!({
+            "case": "SOURCE_PORT_REUSE",
+            "source_port": 40000,
+            "observations": snapshot,
+            "agent_report": report,
+            "old_close_cookie_guard_proven": retained,
+            "injected_tuple_removed_by": "qualification harness before the second connection",
+            "health_failure": health.lock().ok().and_then(|failure| *failure)
+        }),
+    )
+}
+
+async fn run_b3_execution_generation(
+    root: &Path,
+    config: &Config,
+    sandbox: &Helper,
+    enforcer: &Helper,
+    outbound: Arc<AtomicUsize>,
+) -> Result<(), String> {
+    let evidence = root.join("cases/execution_generation");
+    fs::create_dir_all(&evidence).map_err(|error| error.to_string())?;
+    fs::write(root.join("current-case.txt"), "execution_generation\n")
+        .map_err(|error| error.to_string())?;
+    let before = b3_counters(config)?;
+    let table = Arc::new(AttributionTable::new());
+    let mut identities = Vec::new();
+    for incarnation in 0..2 {
+        let incarnation_dir = evidence.join(format!("incarnation-{incarnation}"));
+        fs::create_dir_all(&incarnation_dir).map_err(|error| error.to_string())?;
+        let mut execution = prepare_b3_execution(
+            config,
+            &incarnation_dir,
+            sandbox,
+            enforcer,
+            &table,
+            "execution-generation",
+            0,
+        )
+        .await?;
+        let observations = Arc::new(Mutex::new(Vec::new()));
+        let dns = Arc::new(AtomicUsize::new(0));
+        outbound.store(0, Ordering::SeqCst);
+        let health = Arc::new(Mutex::new(None));
+        let proxy = start_b3_proxy(
+            config,
+            b3_attributor(
+                config,
+                enforcer,
+                Arc::clone(&table),
+                Arc::clone(&observations),
+                Arc::clone(&dns),
+                Arc::clone(&outbound),
+                Arc::clone(&health),
+                None,
+            )?,
+            Arc::clone(&dns),
+        )
+        .await?;
+        sandbox
+            .call(SandboxRequest::Start {
+                id: execution.execution.id,
+            })
+            .await
+            .map_err(|error| error.to_string())?;
+        wait_b3_observations(&observations, 1, Duration::from_secs(10)).await?;
+        let observation = observations
+            .lock()
+            .map_err(|_| "B3 observation lock poisoned".to_owned())?
+            .first()
+            .cloned()
+            .ok_or("execution generation omitted Resolve")?;
+        if observation.outcome != ObservedResolveOutcome::Resolved
+            || observation.resolved_execution != Some(execution.execution.id)
+        {
+            return Err(format!("incarnation {incarnation} resolved incorrectly"));
+        }
+        proxy.stop().await?;
+        identities.push(json!({
+            "incarnation": incarnation,
+            "execution_id": execution.execution.id,
+            "binding": execution.binding,
+            "cgroup_inode": execution.cgroup_inode,
+            "observation": observation
+        }));
+        let cleanup = execution.execution.cleanup(Some(&table)).await;
+        if !cleanup.is_empty() {
+            return Err(format!(
+                "incarnation {incarnation} cleanup failed: {cleanup:?}"
+            ));
+        }
+        wait_b3_empty(config, Duration::from_secs(2)).await?;
+    }
+    let first: BindingKey = serde_json::from_value(
+        identities[0]
+            .get("binding")
+            .cloned()
+            .ok_or("first binding is absent")?,
+    )
+    .map_err(|error| error.to_string())?;
+    let second: BindingKey = serde_json::from_value(
+        identities[1]
+            .get("binding")
+            .cloned()
+            .ok_or("second binding is absent")?,
+    )
+    .map_err(|error| error.to_string())?;
+    if first.execution_nonce == second.execution_nonce
+        || first.backend_generation != second.backend_generation
+    {
+        return Err("fresh Execution did not receive a fresh nonce in the same generation".into());
+    }
+    let actual_reuse = first.cgroup_id == second.cgroup_id;
+    let after = wait_b3_empty(config, Duration::from_secs(2)).await?;
+    write_b3_accounting(&evidence, before, after, 2)?;
+    fs::write(
+        evidence.join("cgroup-id-reuse-scope.json"),
+        serde_json::to_vec_pretty(&json!({
+            "actual_reuse": if actual_reuse { "PERFORMED" } else { "NOT_PERFORMED" },
+            "observed_ids": [first.cgroup_id, second.cgroup_id],
+            "attempt_limit": 2,
+            "reason_if_not_performed": "the recorded Linux kernel exposes a 64-bit kernfs cgroup identity carrying generation information; destroyed identities were not reused within the bounded qualification lifecycle",
+            "inode_used_as_identity": false,
+            "synthetic_same_cgroup_with_stale_nonce": "performed by binding_mismatch_matrix",
+            "claim_scope": "no claim of empirical kernel cgroup-id reuse when NOT_PERFORMED"
+        }))
+        .map_err(|error| error.to_string())?,
+    )
+    .map_err(|error| error.to_string())?;
+    write_b3_case_result(
+        &evidence,
+        &json!({
+            "case": "EXECUTION_GENERATION",
+            "identities": identities,
+            "fresh_nonce": true,
+            "same_backend_generation": true,
+            "actual_cgroup_id_reuse": actual_reuse,
+            "actual_reuse_scope": if actual_reuse { "PASS" } else { "NOT_PERFORMED" }
+        }),
+    )
+}
+
+async fn run_b3_binding_matrix(
+    root: &Path,
+    config: &Config,
+    sandbox: &Helper,
+    enforcer: &Helper,
+    outbound: Arc<AtomicUsize>,
+) -> Result<(), String> {
+    let evidence = root.join("cases/binding_mismatch_matrix");
+    fs::create_dir_all(&evidence).map_err(|error| error.to_string())?;
+    fs::write(root.join("current-case.txt"), "binding_mismatch_matrix\n")
+        .map_err(|error| error.to_string())?;
+    let mut cells = Vec::new();
+    for boundary in [
+        B3Boundary::Tuple,
+        B3Boundary::Cookie,
+        B3Boundary::Policy,
+        B3Boundary::LiveBinding,
+    ] {
+        for field in [
+            B3Field::CgroupId,
+            B3Field::ExecutionNonce,
+            B3Field::BackendGeneration,
+        ] {
+            cells.push(B3MatrixCell {
+                boundary,
+                field,
+                covered_by_b2: boundary == B3Boundary::Tuple
+                    && matches!(field, B3Field::ExecutionNonce | B3Field::BackendGeneration),
+            });
+        }
+    }
+    for boundary in [B3Boundary::Tuple, B3Boundary::Cookie] {
+        for field in [B3Field::OldComplete, B3Field::Mixed] {
+            cells.push(B3MatrixCell {
+                boundary,
+                field,
+                covered_by_b2: false,
+            });
+        }
+    }
+
+    let mut results = Vec::new();
+    for (index, cell) in cells.into_iter().enumerate() {
+        let cell_name = format!("{}-{}", cell.boundary.name(), cell.field.name());
+        let cell_evidence = evidence.join(&cell_name);
+        fs::create_dir_all(&cell_evidence).map_err(|error| error.to_string())?;
+        let before = b3_counters(config)?;
+        let lifecycle_table = Arc::new(AttributionTable::new());
+        let mut execution = prepare_b3_execution(
+            config,
+            &cell_evidence,
+            sandbox,
+            enforcer,
+            &lifecycle_table,
+            "binding-matrix",
+            0,
+        )
+        .await?;
+        let resolution_table = if cell.boundary == B3Boundary::LiveBinding {
+            let table = Arc::new(AttributionTable::new());
+            table
+                .bind_key(
+                    mutate_b3_binding(execution.binding, cell.field),
+                    execution.execution.id,
+                )
+                .map_err(|error| error.to_string())?;
+            table
+        } else {
+            Arc::clone(&lifecycle_table)
+        };
+        let observations = Arc::new(Mutex::new(Vec::new()));
+        let dns = Arc::new(AtomicUsize::new(0));
+        outbound.store(0, Ordering::SeqCst);
+        let health = Arc::new(Mutex::new(None));
+        let candidate = b3_candidate_attributor(
+            config,
+            enforcer,
+            Arc::clone(&resolution_table),
+            Arc::clone(&health),
+        )?;
+        let injected: Arc<dyn ConnectionAttributor> = if matches!(
+            cell.boundary,
+            B3Boundary::Tuple | B3Boundary::Cookie | B3Boundary::Policy
+        ) {
+            Arc::new(B3FaultAttributor {
+                inner: candidate,
+                config_state: config.runtime.state_dir.join("cgroup-bpf/state.json"),
+                bpftool: config.runtime.bpftool.clone(),
+                expected: execution.binding,
+                cell,
+                evidence: cell_evidence.clone(),
+            })
+        } else {
+            candidate
+        };
+        let proxy = start_b3_proxy(
+            config,
+            b3_recording_wrapper(
+                config,
+                injected,
+                Arc::clone(&observations),
+                Arc::clone(&dns),
+                Arc::clone(&outbound),
+                Arc::clone(&health),
+            ),
+            Arc::clone(&dns),
+        )
+        .await?;
+        sandbox
+            .call(SandboxRequest::Start {
+                id: execution.execution.id,
+            })
+            .await
+            .map_err(|error| error.to_string())?;
+        wait_b3_observations(&observations, 1, Duration::from_secs(10)).await?;
+        let report =
+            read_b3_report(execution.pid, "b3-report.jsonl", Duration::from_secs(10)).await?;
+        proxy.stop().await?;
+        let observation = observations
+            .lock()
+            .map_err(|_| "B3 observation lock poisoned".to_owned())?
+            .first()
+            .cloned()
+            .ok_or("binding matrix cell omitted Resolve")?;
+        let expected = b3_expected_mismatch(cell);
+        if (observation.outcome, observation.mismatch) != expected
+            || observation.resolved_execution.is_some()
+            || observation.recv_q_bytes == 0
+            || observation.dns_when_resolve_returned != 0
+            || observation.outbound_when_resolve_returned != 0
+            || observation.health_failure.is_some()
+        {
+            return Err(format!(
+                "binding matrix cell {cell_name} returned {:?}/{:?}, expected {:?}/{:?}",
+                observation.outcome, observation.mismatch, expected.0, expected.1
+            ));
+        }
+        if cell.boundary == B3Boundary::LiveBinding {
+            let injected_key = mutate_b3_binding(execution.binding, cell.field);
+            resolution_table.revoke_key(injected_key);
+            if !resolution_table.remove_key(injected_key, execution.execution.id) {
+                return Err(format!(
+                    "could not release injected live binding for {cell_name}"
+                ));
+            }
+        }
+        let cleanup = execution.execution.cleanup(Some(&lifecycle_table)).await;
+        if !cleanup.is_empty() {
+            return Err(format!(
+                "binding matrix {cell_name} cleanup failed: {cleanup:?}"
+            ));
+        }
+        let after = wait_b3_empty(config, Duration::from_secs(2)).await?;
+        write_b3_accounting(&cell_evidence, before, after, 1)?;
+        let result = json!({
+            "index": index,
+            "boundary": cell.boundary,
+            "field": cell.field,
+            "covered_by_b2": cell.covered_by_b2,
+            "expected": {"outcome": expected.0, "mismatch": expected.1},
+            "observation": observation,
+            "agent_report": report,
+            "single_boundary_mutation": true,
+            "production_code_modified": false,
+            "verdict": "PASS"
+        });
+        write_b3_case_result(&cell_evidence, &result)?;
+        results.push(result);
+    }
+    fs::write(
+        evidence.join("matrix.json"),
+        serde_json::to_vec_pretty(&json!({
+            "map_and_live_cells": results,
+            "durable_record_cells": "recorded after controlled Enforcer restart in backend_generation",
+            "b2_overlap": [
+                "tuple/execution_nonce",
+                "tuple/backend_generation",
+                "missing cookie was covered separately by B2"
+            ],
+            "required_classes": {
+                "current_cgroup_stale_nonce": "covered across tuple, cookie, policy and live_binding",
+                "current_cgroup_current_nonce_stale_generation": "covered across tuple, cookie, policy and live_binding",
+                "stale_cgroup_current_nonce_generation": "covered across tuple, cookie, policy and live_binding",
+                "old_complete_or_mixed_cookie_tuple": "covered by four additional cells"
+            }
+        }))
+        .map_err(|error| error.to_string())?,
+    )
+    .map_err(|error| error.to_string())?;
+    fs::write(evidence.join("verdict.txt"), "PENDING_DURABLE_RECORD\n")
+        .map_err(|error| error.to_string())
+}
+
+#[derive(Clone, Copy, Debug, Serialize)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+enum B3RaceOrdering {
+    ResolveFirst,
+    FreezeFirst,
+    Concurrent,
+}
+
+async fn run_b3_freeze_resolve_race(
+    root: &Path,
+    config: &Config,
+    sandbox: &Helper,
+    enforcer: &Helper,
+    outbound: Arc<AtomicUsize>,
+) -> Result<(), String> {
+    let evidence = root.join("cases/freeze_resolve_race");
+    fs::create_dir_all(&evidence).map_err(|error| error.to_string())?;
+    fs::write(root.join("current-case.txt"), "freeze_resolve_race\n")
+        .map_err(|error| error.to_string())?;
+    let mut iterations = Vec::with_capacity(B3_RACE_ITERATIONS + 2);
+    for iteration in 0..(B3_RACE_ITERATIONS + 2) {
+        let ordering = match iteration {
+            0 => B3RaceOrdering::ResolveFirst,
+            1 => B3RaceOrdering::FreezeFirst,
+            _ => B3RaceOrdering::Concurrent,
+        };
+        let iteration_evidence = evidence.join(format!("iteration-{iteration:03}"));
+        fs::create_dir_all(&iteration_evidence).map_err(|error| error.to_string())?;
+        let before = b3_counters(config)?;
+        let table = Arc::new(AttributionTable::new());
+        let mut execution = prepare_b3_execution(
+            config,
+            &iteration_evidence,
+            sandbox,
+            enforcer,
+            &table,
+            "race",
+            0,
+        )
+        .await?;
+        let dns = Arc::new(AtomicUsize::new(0));
+        outbound.store(0, Ordering::SeqCst);
+        let health = Arc::new(Mutex::new(None));
+        let entered = Arc::new(Notify::new());
+        let completed = Arc::new(Notify::new());
+        let release = Arc::new(Notify::new());
+        let concurrent = Arc::new(Barrier::new(2));
+        let result = Arc::new(Mutex::new(None));
+        let gate = match ordering {
+            B3RaceOrdering::ResolveFirst => B3RaceGate::Immediate,
+            B3RaceOrdering::FreezeFirst => B3RaceGate::Release(Arc::clone(&release)),
+            B3RaceOrdering::Concurrent => B3RaceGate::Concurrent(Arc::clone(&concurrent)),
+        };
+        let candidate =
+            b3_candidate_attributor(config, enforcer, Arc::clone(&table), Arc::clone(&health))?;
+        let proxy = start_b3_proxy(
+            config,
+            Arc::new(B3RaceAttributor {
+                inner: candidate,
+                gate,
+                entered: Arc::clone(&entered),
+                completed: Arc::clone(&completed),
+                result: Arc::clone(&result),
+            }),
+            Arc::clone(&dns),
+        )
+        .await?;
+        sandbox
+            .call(SandboxRequest::Start {
+                id: execution.execution.id,
+            })
+            .await
+            .map_err(|error| error.to_string())?;
+        tokio::time::timeout(Duration::from_secs(5), entered.notified())
+            .await
+            .map_err(|_| format!("race iteration {iteration} never entered Resolve"))?;
+
+        match ordering {
+            B3RaceOrdering::ResolveFirst => {
+                tokio::time::timeout(Duration::from_secs(5), completed.notified())
+                    .await
+                    .map_err(|_| format!("race iteration {iteration} did not resolve first"))?;
+                table.revoke_key(execution.binding);
+                enforcer
+                    .call(EnforcerRequest::Freeze {
+                        tag: execution.execution.id.tag(),
+                    })
+                    .await
+                    .map_err(|error| error.to_string())?;
+            }
+            B3RaceOrdering::FreezeFirst => {
+                table.revoke_key(execution.binding);
+                enforcer
+                    .call(EnforcerRequest::Freeze {
+                        tag: execution.execution.id.tag(),
+                    })
+                    .await
+                    .map_err(|error| error.to_string())?;
+                release.notify_one();
+                tokio::time::timeout(Duration::from_secs(5), completed.notified())
+                    .await
+                    .map_err(|_| format!("race iteration {iteration} did not finish"))?;
+            }
+            B3RaceOrdering::Concurrent => {
+                concurrent.wait().await;
+                table.revoke_key(execution.binding);
+                enforcer
+                    .call(EnforcerRequest::Freeze {
+                        tag: execution.execution.id.tag(),
+                    })
+                    .await
+                    .map_err(|error| error.to_string())?;
+                tokio::time::timeout(Duration::from_secs(5), completed.notified())
+                    .await
+                    .map_err(|_| format!("race iteration {iteration} did not finish"))?;
+            }
+        }
+        let effects_at_freeze = (dns.load(Ordering::SeqCst), outbound.load(Ordering::SeqCst));
+        tokio::time::sleep(Duration::from_millis(25)).await;
+        let effects_after_freeze = (dns.load(Ordering::SeqCst), outbound.load(Ordering::SeqCst));
+        if effects_at_freeze != effects_after_freeze {
+            return Err(format!(
+                "race iteration {iteration} caused an effect after freeze"
+            ));
+        }
+        let observed = result
+            .lock()
+            .map_err(|_| "B3 race result lock poisoned".to_owned())?
+            .ok_or_else(|| format!("race iteration {iteration} omitted its result"))?;
+        let valid = match ordering {
+            B3RaceOrdering::ResolveFirst => observed.0 == ObservedResolveOutcome::Resolved,
+            B3RaceOrdering::FreezeFirst => observed.0 == ObservedResolveOutcome::Revoked,
+            B3RaceOrdering::Concurrent => matches!(
+                observed.0,
+                ObservedResolveOutcome::Resolved | ObservedResolveOutcome::Revoked
+            ),
+        } && observed.1.is_none();
+        if !valid || health.lock().ok().and_then(|failure| *failure).is_some() {
+            return Err(format!(
+                "race iteration {iteration} returned invalid outcome {:?}/{:?}",
+                observed.0, observed.1
+            ));
+        }
+        let report = wait_b3_report_lines(
+            execution.pid,
+            "b3-report.jsonl",
+            if observed.0 == ObservedResolveOutcome::Resolved {
+                2
+            } else {
+                1
+            },
+            Duration::from_secs(5),
+        )
+        .await?;
+        proxy.stop().await?;
+        let cleanup = execution.execution.cleanup(Some(&table)).await;
+        if !cleanup.is_empty() {
+            return Err(format!(
+                "race iteration {iteration} cleanup failed: {cleanup:?}"
+            ));
+        }
+        let after = wait_b3_empty(config, Duration::from_secs(2)).await?;
+        write_b3_accounting(&iteration_evidence, before, after, 1)?;
+        let result = json!({
+            "iteration": iteration,
+            "ordering": ordering,
+            "outcome": observed.0,
+            "mismatch": observed.1,
+            "resolved_then_revoked": observed.0 == ObservedResolveOutcome::Resolved,
+            "effects_at_freeze": {"dns": effects_at_freeze.0, "outbound": effects_at_freeze.1},
+            "effects_after_freeze": {"dns": effects_after_freeze.0, "outbound": effects_after_freeze.1},
+            "agent_report": report,
+            "health_failure": health.lock().ok().and_then(|failure| *failure),
+            "verdict": "PASS"
+        });
+        write_b3_case_result(&iteration_evidence, &result)?;
+        iterations.push(result);
+    }
+    write_b3_case_result(
+        &evidence,
+        &json!({
+            "case": "FREEZE_RESOLVE_RACE",
+            "controlled_orderings": 2,
+            "genuine_concurrent_iterations": B3_RACE_ITERATIONS,
+            "iterations": iterations,
+            "invariant": "each outcome is Resolved followed by revocation or Revoked, with no effects after freeze"
+        }),
+    )
+}
+
+async fn run_b3_connect_tunnel_revocation(
+    root: &Path,
+    config: &Config,
+    sandbox: &Helper,
+    enforcer: &Helper,
+    outbound: Arc<AtomicUsize>,
+) -> Result<(), String> {
+    let evidence = root.join("cases/connect_tunnel_revocation");
+    fs::create_dir_all(&evidence).map_err(|error| error.to_string())?;
+    fs::write(root.join("current-case.txt"), "connect_tunnel_revocation\n")
+        .map_err(|error| error.to_string())?;
+    let before = b3_counters(config)?;
+    let table = Arc::new(AttributionTable::new());
+    let mut execution = prepare_b3_execution(
+        config,
+        &evidence,
+        sandbox,
+        enforcer,
+        &table,
+        "tunnel-revocation",
+        0,
+    )
+    .await?;
+    let observations = Arc::new(Mutex::new(Vec::new()));
+    let dns = Arc::new(AtomicUsize::new(0));
+    outbound.store(0, Ordering::SeqCst);
+    let health = Arc::new(Mutex::new(None));
+    let proxy = start_b3_proxy(
+        config,
+        b3_attributor(
+            config,
+            enforcer,
+            Arc::clone(&table),
+            Arc::clone(&observations),
+            Arc::clone(&dns),
+            Arc::clone(&outbound),
+            Arc::clone(&health),
+            None,
+        )?,
+        Arc::clone(&dns),
+    )
+    .await?;
+    sandbox
+        .call(SandboxRequest::Start {
+            id: execution.execution.id,
+        })
+        .await
+        .map_err(|error| error.to_string())?;
+    wait_b3_observations(&observations, 1, Duration::from_secs(10)).await?;
+    let established =
+        wait_b3_report_lines(execution.pid, "b3-report.jsonl", 1, Duration::from_secs(10)).await?;
+    let observation = observations
+        .lock()
+        .map_err(|_| "B3 observation lock poisoned".to_owned())?
+        .first()
+        .cloned()
+        .ok_or("CONNECT tunnel omitted Resolve")?;
+    if observation.outcome != ObservedResolveOutcome::Resolved
+        || observation.resolved_execution != Some(execution.execution.id)
+        || outbound.load(Ordering::SeqCst) != 1
+        || !established.contains("\"phase\":\"established\"")
+        || !established.contains("\"ok\":true")
+    {
+        return Err("CONNECT tunnel was not established through the exact Execution".to_owned());
+    }
+    table.revoke_key(execution.binding);
+    enforcer
+        .call(EnforcerRequest::Freeze {
+            tag: execution.execution.id.tag(),
+        })
+        .await
+        .map_err(|error| error.to_string())?;
+    let effects_at_freeze = (dns.load(Ordering::SeqCst), outbound.load(Ordering::SeqCst));
+    let closed =
+        wait_b3_report_lines(execution.pid, "b3-report.jsonl", 2, Duration::from_secs(5)).await?;
+    tokio::time::sleep(Duration::from_millis(25)).await;
+    let effects_after_freeze = (dns.load(Ordering::SeqCst), outbound.load(Ordering::SeqCst));
+    if effects_at_freeze != effects_after_freeze
+        || !closed.contains("proxy closed the tunnel")
+        || !closed.contains("\"phase\":\"closed\"")
+    {
+        return Err("revocation did not close the established CONNECT tunnel exactly".to_owned());
+    }
+    proxy.stop().await?;
+    let cleanup = execution.execution.cleanup(Some(&table)).await;
+    if !cleanup.is_empty() {
+        return Err(format!("CONNECT tunnel cleanup failed: {cleanup:?}"));
+    }
+    let after = wait_b3_empty(config, Duration::from_secs(2)).await?;
+    write_b3_accounting(&evidence, before, after, 1)?;
+    write_b3_case_result(
+        &evidence,
+        &json!({
+            "case": "CONNECT_TUNNEL_REVOCATION",
+            "execution_id": execution.execution.id,
+            "binding": execution.binding,
+            "observation": observation,
+            "report_before_revocation": established,
+            "report_after_revocation": closed,
+            "effects_at_freeze": {"dns": effects_at_freeze.0, "outbound": effects_at_freeze.1},
+            "effects_after_freeze": {"dns": effects_after_freeze.0, "outbound": effects_after_freeze.1},
+            "tunnel_closed_by_revocation": true,
+            "health_failure": health.lock().ok().and_then(|failure| *failure)
+        }),
+    )
+}
+
+fn mutate_b3_durable_record(
+    original: &[u8],
+    tag: &str,
+    field: B3Field,
+) -> Result<(Vec<u8>, BindingKey, BindingKey), String> {
+    let mut state: Value = serde_json::from_slice(original).map_err(|error| error.to_string())?;
+    let binding_value = state
+        .get_mut("executions")
+        .and_then(Value::as_object_mut)
+        .and_then(|executions| executions.get_mut(tag))
+        .and_then(|execution| execution.get_mut("binding"))
+        .ok_or_else(|| format!("durable state omitted binding for {tag}"))?;
+    let before: BindingKey =
+        serde_json::from_value(binding_value.clone()).map_err(|error| error.to_string())?;
+    let after = mutate_b3_binding(before, field);
+    *binding_value = serde_json::to_value(after).map_err(|error| error.to_string())?;
+    Ok((
+        serde_json::to_vec_pretty(&state).map_err(|error| error.to_string())?,
+        before,
+        after,
+    ))
+}
+
+async fn run_b3_backend_generation(
+    root: &Path,
+    config: &Config,
+    config_yaml: &str,
+    binary: &Path,
+    sandbox: &Helper,
+    enforcer: Helper,
+    outbound: Arc<AtomicUsize>,
+) -> Result<(), String> {
+    let evidence = root.join("cases/backend_generation");
+    fs::create_dir_all(&evidence).map_err(|error| error.to_string())?;
+    fs::write(root.join("current-case.txt"), "backend_generation\n")
+        .map_err(|error| error.to_string())?;
+    let matrix_evidence = root.join("cases/binding_mismatch_matrix");
+    let state_path = config.runtime.state_dir.join("cgroup-bpf/state.json");
+
+    // Leave one exact durable record behind through a controlled Enforcer stop. The helper's
+    // production Drop path freezes the record before it exits; the Sandbox then removes the
+    // paused subject so recovery can classify the record without live traffic.
+    let table = Arc::new(AttributionTable::new());
+    let prepared = prepare_b3_execution(
+        config,
+        &evidence.join("durable-source"),
+        sandbox,
+        &enforcer,
+        &table,
+        "frozen-teardown",
+        0,
+    )
+    .await?;
+    let old_id = prepared.execution.id;
+    let old_binding = prepared.binding;
+    drop(prepared);
+    drop(enforcer);
+    sandbox
+        .call(SandboxRequest::Kill { tag: old_id.tag() })
+        .await
+        .map_err(|error| error.to_string())?;
+    sandbox
+        .call(SandboxRequest::Destroy { tag: old_id.tag() })
+        .await
+        .map_err(|error| error.to_string())?;
+    table.revoke_key(old_binding);
+    if !table.remove_key(old_binding, old_id) {
+        return Err("controlled restart could not release the old live binding".to_owned());
+    }
+    let original = fs::read(&state_path).map_err(|error| error.to_string())?;
+    let original_value: Value =
+        serde_json::from_slice(&original).map_err(|error| error.to_string())?;
+    let old_generation = original_value
+        .get("generation")
+        .and_then(Value::as_u64)
+        .ok_or("durable state omitted its backend generation")?;
+    let mut durable_results = Vec::new();
+    for field in [
+        B3Field::CgroupId,
+        B3Field::ExecutionNonce,
+        B3Field::BackendGeneration,
+    ] {
+        let cell_evidence = matrix_evidence.join(format!(
+            "{}-{}",
+            B3Boundary::DurableRecord.name(),
+            field.name()
+        ));
+        fs::create_dir_all(&cell_evidence).map_err(|error| error.to_string())?;
+        let before_counters = b3_counters(config)?;
+        let (mutated, before, after) =
+            mutate_b3_durable_record(&original, &old_id.tag().to_string(), field)?;
+        fs::write(&state_path, &mutated).map_err(|error| error.to_string())?;
+        let rejected = Helper::spawn_enforcer(binary).map_err(|error| error.to_string())?;
+        let error = match rejected.hello(config_yaml) {
+            Err(error) => error.to_string(),
+            Ok(response) => {
+                let failure = json!({
+                    "boundary": B3Boundary::DurableRecord,
+                    "field": field,
+                    "binding_before": before,
+                    "binding_after": after,
+                    "startup_refused": false,
+                    "unexpected_response": format!("{response:?}"),
+                    "verdict": "FAIL"
+                });
+                fs::write(
+                    cell_evidence.join("result.json"),
+                    serde_json::to_vec_pretty(&failure).map_err(|error| error.to_string())?,
+                )
+                .map_err(|error| error.to_string())?;
+                fs::write(cell_evidence.join("verdict.txt"), "FAIL\n")
+                    .map_err(|error| error.to_string())?;
+                drop(rejected);
+                return Err(format!(
+                    "production accepted a durable-record {} mismatch; B3 requires a production fix",
+                    field.name()
+                ));
+            }
+        };
+        drop(rejected);
+        let preserved = fs::read(&state_path).map_err(|error| error.to_string())? == mutated;
+        if !preserved {
+            return Err(format!(
+                "durable record {} was changed during typed refusal",
+                field.name()
+            ));
+        }
+        fs::write(&state_path, &original).map_err(|error| error.to_string())?;
+        let after_counters = b3_counters(config)?;
+        write_b3_accounting(&cell_evidence, before_counters, after_counters, 0)?;
+        let result = json!({
+            "boundary": B3Boundary::DurableRecord,
+            "field": field,
+            "binding_before": before,
+            "binding_after": after,
+            "startup_refused": true,
+            "refusal": error,
+            "mismatched_record_preserved_byte_for_byte": preserved,
+            "original_record_restored_byte_for_byte": fs::read(&state_path).map_err(|error| error.to_string())? == original,
+            "production_code_modified": false,
+            "verdict": "PASS"
+        });
+        write_b3_case_result(&cell_evidence, &result)?;
+        durable_results.push(result);
+    }
+
+    let current = Helper::spawn_enforcer(binary).map_err(|error| error.to_string())?;
+    let swept = current
+        .hello(config_yaml)
+        .map_err(|error| format!("valid backend-generation recovery failed: {error}"))?;
+    current
+        .ensure_running()
+        .map_err(|error| error.to_string())?;
+    let recovered_state: Value =
+        serde_json::from_slice(&fs::read(&state_path).map_err(|error| error.to_string())?)
+            .map_err(|error| error.to_string())?;
+    let new_generation = recovered_state
+        .get("generation")
+        .and_then(Value::as_u64)
+        .ok_or("recovered state omitted generation")?;
+    if new_generation <= old_generation {
+        return Err(format!(
+            "backend generation did not advance: old={old_generation}, new={new_generation}"
+        ));
+    }
+
+    let mut generation_results = Vec::new();
+    for (index, stale) in [false, true].into_iter().enumerate() {
+        let run_evidence = evidence.join(if stale {
+            "stale-old-generation"
+        } else {
+            "fresh"
+        });
+        fs::create_dir_all(&run_evidence).map_err(|error| error.to_string())?;
+        let before = b3_counters(config)?;
+        let lifecycle_table = Arc::new(AttributionTable::new());
+        let mut execution = prepare_b3_execution(
+            config,
+            &run_evidence,
+            sandbox,
+            &current,
+            &lifecycle_table,
+            "backend-generation",
+            0,
+        )
+        .await?;
+        let observations = Arc::new(Mutex::new(Vec::new()));
+        let dns = Arc::new(AtomicUsize::new(0));
+        outbound.store(0, Ordering::SeqCst);
+        let health = Arc::new(Mutex::new(None));
+        let candidate = b3_candidate_attributor(
+            config,
+            &current,
+            Arc::clone(&lifecycle_table),
+            Arc::clone(&health),
+        )?;
+        let inner: Arc<dyn ConnectionAttributor> = if stale {
+            Arc::new(B3FaultAttributor {
+                inner: candidate,
+                config_state: state_path.clone(),
+                bpftool: config.runtime.bpftool.clone(),
+                expected: execution.binding,
+                cell: B3MatrixCell {
+                    boundary: B3Boundary::Tuple,
+                    field: B3Field::BackendGeneration,
+                    covered_by_b2: true,
+                },
+                evidence: run_evidence.clone(),
+            })
+        } else {
+            candidate
+        };
+        let proxy = start_b3_proxy(
+            config,
+            b3_recording_wrapper(
+                config,
+                inner,
+                Arc::clone(&observations),
+                Arc::clone(&dns),
+                Arc::clone(&outbound),
+                Arc::clone(&health),
+            ),
+            Arc::clone(&dns),
+        )
+        .await?;
+        sandbox
+            .call(SandboxRequest::Start {
+                id: execution.execution.id,
+            })
+            .await
+            .map_err(|error| error.to_string())?;
+        wait_b3_observations(&observations, 1, Duration::from_secs(10)).await?;
+        let report =
+            read_b3_report(execution.pid, "b3-report.jsonl", Duration::from_secs(10)).await?;
+        proxy.stop().await?;
+        let observation = observations
+            .lock()
+            .map_err(|_| "B3 observation lock poisoned".to_owned())?
+            .first()
+            .cloned()
+            .ok_or("backend-generation case omitted Resolve")?;
+        let valid = if stale {
+            observation.outcome == ObservedResolveOutcome::IdentityMismatch
+                && observation.mismatch == Some(ResolveMismatch::BackendGeneration)
+                && observation.resolved_execution.is_none()
+        } else {
+            observation.outcome == ObservedResolveOutcome::Resolved
+                && observation.resolved_execution == Some(execution.execution.id)
+                && execution.binding.backend_generation == new_generation
+        };
+        if !valid || health.lock().ok().and_then(|failure| *failure).is_some() {
+            return Err(format!(
+                "backend-generation subcase {index} returned the wrong result"
+            ));
+        }
+        let cleanup = execution.execution.cleanup(Some(&lifecycle_table)).await;
+        if !cleanup.is_empty() {
+            return Err(format!(
+                "backend-generation subcase cleanup failed: {cleanup:?}"
+            ));
+        }
+        let after = wait_b3_empty(config, Duration::from_secs(2)).await?;
+        write_b3_accounting(&run_evidence, before, after, 1)?;
+        let result = json!({
+            "stale_old_generation": stale,
+            "execution_id": execution.execution.id,
+            "binding": execution.binding,
+            "observation": observation,
+            "agent_report": report,
+            "verdict": "PASS"
+        });
+        write_b3_case_result(&run_evidence, &result)?;
+        generation_results.push(result);
+    }
+
+    fs::write(
+        matrix_evidence.join("durable-record.json"),
+        serde_json::to_vec_pretty(&durable_results).map_err(|error| error.to_string())?,
+    )
+    .map_err(|error| error.to_string())?;
+    fs::write(matrix_evidence.join("verdict.txt"), "PASS\n").map_err(|error| error.to_string())?;
+    write_b3_case_result(
+        &evidence,
+        &json!({
+            "case": "BACKEND_GENERATION",
+            "old_generation": old_generation,
+            "new_generation": new_generation,
+            "generation_advanced": true,
+            "startup_swept": swept,
+            "durable_record_matrix": durable_results,
+            "fresh_and_stale_generation_results": generation_results
+        }),
+    )?;
+    drop(current);
+    Ok(())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -2634,5 +4979,98 @@ mod tests {
 
         assert_eq!(counter_value(&dump, index).unwrap(), expected);
         assert!(counter_value(&dump, C_UNPUBLISHED).is_err());
+    }
+
+    #[test]
+    fn b3_single_field_mutations_change_exactly_one_binding_component() {
+        let binding = BindingKey {
+            cgroup_id: 17,
+            execution_nonce: ExecutionNonce::from_bytes([0x11; 16]),
+            backend_generation: 23,
+        };
+
+        let cgroup = mutate_b3_binding(binding, B3Field::CgroupId);
+        assert_ne!(cgroup.cgroup_id, binding.cgroup_id);
+        assert_eq!(cgroup.execution_nonce, binding.execution_nonce);
+        assert_eq!(cgroup.backend_generation, binding.backend_generation);
+
+        let nonce = mutate_b3_binding(binding, B3Field::ExecutionNonce);
+        assert_eq!(nonce.cgroup_id, binding.cgroup_id);
+        assert_ne!(nonce.execution_nonce, binding.execution_nonce);
+        assert_eq!(nonce.backend_generation, binding.backend_generation);
+
+        let generation = mutate_b3_binding(binding, B3Field::BackendGeneration);
+        assert_eq!(generation.cgroup_id, binding.cgroup_id);
+        assert_eq!(generation.execution_nonce, binding.execution_nonce);
+        assert_ne!(generation.backend_generation, binding.backend_generation);
+    }
+
+    #[test]
+    fn b3_old_and_mixed_bindings_have_the_required_shapes() {
+        let binding = BindingKey {
+            cgroup_id: 17,
+            execution_nonce: ExecutionNonce::from_bytes([0x11; 16]),
+            backend_generation: 23,
+        };
+
+        let old = mutate_b3_binding(binding, B3Field::OldComplete);
+        assert_ne!(old.cgroup_id, binding.cgroup_id);
+        assert_ne!(old.execution_nonce, binding.execution_nonce);
+        assert_ne!(old.backend_generation, binding.backend_generation);
+
+        let mixed = mutate_b3_binding(binding, B3Field::Mixed);
+        assert_ne!(mixed.cgroup_id, binding.cgroup_id);
+        assert_ne!(mixed.execution_nonce, binding.execution_nonce);
+        assert_eq!(mixed.backend_generation, binding.backend_generation);
+    }
+
+    #[test]
+    fn b3_boundary_classifier_keeps_boundary_specific_denials() {
+        let tuple_nonce = B3MatrixCell {
+            boundary: B3Boundary::Tuple,
+            field: B3Field::ExecutionNonce,
+            covered_by_b2: true,
+        };
+        let cookie_nonce = B3MatrixCell {
+            boundary: B3Boundary::Cookie,
+            field: B3Field::ExecutionNonce,
+            covered_by_b2: false,
+        };
+        let policy_nonce = B3MatrixCell {
+            boundary: B3Boundary::Policy,
+            field: B3Field::ExecutionNonce,
+            covered_by_b2: false,
+        };
+        let live_nonce = B3MatrixCell {
+            boundary: B3Boundary::LiveBinding,
+            field: B3Field::ExecutionNonce,
+            covered_by_b2: false,
+        };
+
+        assert_eq!(
+            b3_expected_mismatch(tuple_nonce),
+            (
+                ObservedResolveOutcome::IdentityMismatch,
+                Some(ResolveMismatch::ExecutionNonce)
+            )
+        );
+        assert_eq!(
+            b3_expected_mismatch(cookie_nonce),
+            (
+                ObservedResolveOutcome::IdentityMismatch,
+                Some(ResolveMismatch::Cookie)
+            )
+        );
+        assert_eq!(
+            b3_expected_mismatch(policy_nonce),
+            (
+                ObservedResolveOutcome::IdentityMismatch,
+                Some(ResolveMismatch::Policy)
+            )
+        );
+        assert_eq!(
+            b3_expected_mismatch(live_nonce),
+            (ObservedResolveOutcome::NotFound, None)
+        );
     }
 }

@@ -12,7 +12,7 @@
 
 #![forbid(unsafe_code)]
 
-use std::fs;
+use std::fs::{self, OpenOptions};
 use std::io::{BufRead, BufReader, Read, Write};
 use std::net::{
     Ipv4Addr, SocketAddr, SocketAddrV4, SocketAddrV6, TcpListener, TcpStream, UdpSocket,
@@ -111,6 +111,24 @@ fn run(command: &str, started: Instant) {
         ),
         "proxy-hold" => proxy(num(1, 1) as usize, num(2, 5)),
         "proxy-port" => proxy_port(num(1, 40000) as u16, arg(2) == "rst", num(3, 1)),
+        "proxy-connect-report" => proxy_connect_report(
+            arg(1),
+            num(2, 40_000) as u16,
+            arg(3),
+            arg(4),
+            num(5, 10),
+            num(6, 1) as usize,
+        ),
+        "proxy-connect-many-report" => proxy_connect_many_report(
+            arg(1),
+            num(2, 40_000) as u16,
+            num(3, 1) as usize,
+            arg(4),
+            num(5, 2),
+        ),
+        "proxy-reuse-report" => {
+            proxy_reuse_report(arg(1), num(2, 40_000) as u16, arg(3), num(4, 30))
+        }
         "hold-proxy" => hold_proxy(num(1, 30)),
         "listen4-once" => print(outcome(
             command,
@@ -373,6 +391,224 @@ fn proxy_port(port: u16, rst: bool, count: u64) {
             ),
         ));
     }
+}
+
+fn connect_from_port(port: u16) -> std::io::Result<TcpStream> {
+    let fd = rustix::net::socket(AddressFamily::INET, SocketType::STREAM, None).map_err(errno)?;
+    rustix::net::sockopt::set_socket_reuseaddr(&fd, true).map_err(errno)?;
+    rustix::net::bind(&fd, &SocketAddrV4::new(Ipv4Addr::UNSPECIFIED, port)).map_err(errno)?;
+    rustix::net::connect(&fd, &PROXY).map_err(errno)?;
+    Ok(TcpStream::from(OwnedFd::from(fd)))
+}
+
+fn establish_connect(stream: &mut TcpStream, target: &str) -> std::io::Result<String> {
+    stream.set_read_timeout(Some(Duration::from_secs(10)))?;
+    write!(
+        stream,
+        "CONNECT {target} HTTP/1.1\r\nHost: {target}\r\n\r\n"
+    )?;
+    let mut reader = BufReader::new(stream.try_clone()?);
+    let mut status = String::new();
+    if reader.read_line(&mut status)? == 0 {
+        return Err(std::io::Error::from_raw_os_error(104));
+    }
+    loop {
+        let mut line = String::new();
+        if reader.read_line(&mut line)? == 0 || line.trim().is_empty() {
+            break;
+        }
+    }
+    Ok(status.trim().to_owned())
+}
+
+fn append_report(path: &str, line: &str) -> std::io::Result<()> {
+    let mut output = OpenOptions::new().create(true).append(true).open(path)?;
+    writeln!(output, "{line}")?;
+    output.flush()
+}
+
+/// Opens deterministic Candidate-A connections and persists their lifecycle while the process is
+/// still alive, so the trusted harness can correlate kernel state with FIN, RST and agent kill.
+fn proxy_connect_report(
+    target: &str,
+    first_port: u16,
+    mode: &str,
+    report: &str,
+    hold_secs: u64,
+    count: usize,
+) {
+    let _ = fs::remove_file(report);
+    for index in 0..count {
+        let port = first_port.saturating_add(index as u16);
+        let started = Instant::now();
+        let mut stream = match connect_from_port(port) {
+            Ok(stream) => stream,
+            Err(error) => {
+                let line = outcome(
+                    "proxy-connect-report",
+                    Err(error),
+                    &format!(
+                        ",\"i\":{index},\"source_port\":{port},\"mode\":{} ,\"phase\":\"connect\"",
+                        quote(mode)
+                    ),
+                );
+                let _ = append_report(report, &line);
+                print(line);
+                continue;
+            }
+        };
+        let local = stream
+            .local_addr()
+            .map(|address| address.to_string())
+            .unwrap_or_default();
+        let established = establish_connect(&mut stream, target);
+        let established_ok = established.is_ok();
+        let established_line = outcome(
+            "proxy-connect-report",
+            established,
+            &format!(
+                ",\"i\":{index},\"source_port\":{port},\"local\":{},\"mode\":{},\"phase\":\"established\",\"elapsed_ms\":{}",
+                quote(&local),
+                quote(mode),
+                started.elapsed().as_millis()
+            ),
+        );
+        let _ = append_report(report, &established_line);
+        print(established_line);
+        if !established_ok {
+            continue;
+        }
+        match mode {
+            "fin" => {
+                let _ = stream.shutdown(std::net::Shutdown::Write);
+            }
+            "rst" => {
+                let _ = rustix::net::sockopt::set_socket_linger(&stream, Some(Duration::ZERO));
+            }
+            "hold" => {
+                let _ = stream.set_read_timeout(Some(Duration::from_secs(hold_secs)));
+                let mut byte = [0_u8; 1];
+                let result = match stream.read(&mut byte) {
+                    Ok(0) => Ok("proxy closed the tunnel".to_owned()),
+                    Ok(read) => Ok(format!("proxy sent {read} byte(s)")),
+                    Err(error) => Err(error),
+                };
+                let line = outcome(
+                    "proxy-connect-report",
+                    result,
+                    &format!(
+                        ",\"i\":{index},\"source_port\":{port},\"mode\":\"hold\",\"phase\":\"closed\",\"elapsed_ms\":{}",
+                        started.elapsed().as_millis()
+                    ),
+                );
+                let _ = append_report(report, &line);
+                print(line);
+            }
+            "close" => {}
+            _ => {
+                let line = outcome(
+                    "proxy-connect-report",
+                    Err(std::io::Error::from_raw_os_error(22)),
+                    &format!(",\"mode\":{} ,\"phase\":\"mode\"", quote(mode)),
+                );
+                let _ = append_report(report, &line);
+                print(line);
+            }
+        }
+        drop(stream);
+    }
+}
+
+/// Opens overlapping valid CONNECT tunnels from a deterministic source-port range.
+fn proxy_connect_many_report(
+    target: &str,
+    first_port: u16,
+    count: usize,
+    report: &str,
+    hold_secs: u64,
+) {
+    let _ = fs::remove_file(report);
+    let workers: Vec<_> = (0..count)
+        .map(|index| {
+            let target = target.to_owned();
+            thread::spawn(move || {
+                let port = first_port.saturating_add(index as u16);
+                let started = Instant::now();
+                let result = (|| -> std::io::Result<String> {
+                    let mut stream = connect_from_port(port)?;
+                    let local = stream.local_addr()?.to_string();
+                    let status = establish_connect(&mut stream, &target)?;
+                    thread::sleep(Duration::from_secs(hold_secs));
+                    Ok(format!("{status}; local={local}"))
+                })();
+                outcome(
+                    "proxy-connect-many-report",
+                    result,
+                    &format!(
+                        ",\"i\":{index},\"source_port\":{port},\"elapsed_ms\":{}",
+                        started.elapsed().as_millis()
+                    ),
+                )
+            })
+        })
+        .collect();
+    for worker in workers {
+        if let Ok(line) = worker.join() {
+            let _ = append_report(report, &line);
+            print(line);
+        }
+    }
+}
+
+/// Holds the first socket until the harness has installed and observed a cookie-mismatched tuple,
+/// then reuses the same source port only after the harness removes that owned injection.
+fn proxy_reuse_report(target: &str, port: u16, report: &str, timeout_secs: u64) {
+    let _ = fs::remove_file(report);
+    let close_gate = format!("{report}.close");
+    let second_gate = format!("{report}.second");
+    let first_closed = format!("{report}.first-closed");
+    let _ = fs::remove_file(&close_gate);
+    let _ = fs::remove_file(&second_gate);
+    let _ = fs::remove_file(&first_closed);
+    let wait = |path: &str| -> std::io::Result<()> {
+        let started = Instant::now();
+        while !Path::new(path).exists() {
+            if started.elapsed() >= Duration::from_secs(timeout_secs) {
+                return Err(std::io::Error::new(
+                    std::io::ErrorKind::TimedOut,
+                    format!("qualification gate {path} did not appear"),
+                ));
+            }
+            thread::sleep(Duration::from_millis(5));
+        }
+        Ok(())
+    };
+    let first = (|| -> std::io::Result<String> {
+        let mut stream = connect_from_port(port)?;
+        let status = establish_connect(&mut stream, target)?;
+        append_report(
+            report,
+            &format!(
+                "{{\"cmd\":\"proxy-reuse-report\",\"ok\":true,\"iteration\":1,\"phase\":\"established\",\"source_port\":{port},\"detail\":{}}}",
+                quote(&status)
+            ),
+        )?;
+        wait(&close_gate)?;
+        drop(stream);
+        fs::write(&first_closed, b"closed\n")?;
+        wait(&second_gate)?;
+        let mut second = connect_from_port(port)?;
+        let second_status = establish_connect(&mut second, target)?;
+        append_report(
+            report,
+            &format!(
+                "{{\"cmd\":\"proxy-reuse-report\",\"ok\":true,\"iteration\":2,\"phase\":\"established\",\"source_port\":{port},\"detail\":{}}}",
+                quote(&second_status)
+            ),
+        )?;
+        Ok(format!("{status}; {second_status}"))
+    })();
+    print(outcome("proxy-reuse-report", first, ""));
 }
 
 fn hold_proxy(secs: u64) {
