@@ -37,6 +37,9 @@ use tokio::sync::watch;
 const TIMEOUT_EARLY_TOLERANCE_MS: u64 = 100;
 const SINGLE_TIMEOUT_LATE_TOLERANCE_MS: u64 = 100;
 const CONCURRENT_TIMEOUT_LATE_TOLERANCE_MS: u64 = 250;
+const C_TUPLE_INSERT_FAILED: u32 = 2;
+const C_PUBLISHED: u32 = 3;
+const C_UNPUBLISHED: u32 = 4;
 
 const CASES: [Case; 9] = [
     Case::Positive,
@@ -291,6 +294,20 @@ impl ConnectionAttributor for ObservingAttributor {
                     }))
                     .unwrap_or_default(),
                 );
+            }
+            if self.case == Case::TupleByteOrder {
+                if let Err(error) = capture_tuple_before_lookup(
+                    &self.bpftool,
+                    &self.state,
+                    &self.evidence,
+                    peer,
+                    local,
+                    queried_peer,
+                    queried_local,
+                ) {
+                    let _ = fs::write(self.evidence.join("injection-error.txt"), error);
+                    return AttributionResult::IntegrityFailure;
+                }
             }
             let started = Instant::now();
             let resolved = self.inner.resolve(queried_peer, queried_local).await;
@@ -692,6 +709,7 @@ async fn run() -> Result<(), String> {
     )
     .map_err(|error| error.to_string())?;
     run_concurrent_timeout_case(&evidence, &config, &enforcer, Arc::clone(&outbound)).await?;
+    write_tuple_insert_failed_summary(&evidence)?;
     fs::write(evidence.join("current-case.txt"), "complete\n")
         .map_err(|error| error.to_string())?;
     outbound_task.abort();
@@ -963,6 +981,21 @@ async fn run_concurrent_timeout_case(
         .map_err(|error| error.to_string())?;
     clients.abort_all();
     while clients.join_next().await.is_some() {}
+    dump_maps(config, &case_dir, "post-case")?;
+    let tuple_insert_failed =
+        counter_value_from_evidence(&case_dir, "post-case", C_TUPLE_INSERT_FAILED)?;
+    fs::write(
+        case_dir.join("counter-invariant.json"),
+        serde_json::to_vec_pretty(&json!({
+            "counter": "C_TUPLE_INSERT_FAILED",
+            "index": C_TUPLE_INSERT_FAILED,
+            "value": tuple_insert_failed,
+            "expected": 0,
+            "holds": tuple_insert_failed == 0
+        }))
+        .map_err(|error| error.to_string())?,
+    )
+    .map_err(|error| error.to_string())?;
 
     let observations = observations
         .lock()
@@ -991,6 +1024,10 @@ async fn run_concurrent_timeout_case(
             )
     }) {
         Err("a concurrent Resolve violated timeout, no-read, no-effect or health bounds".to_owned())
+    } else if tuple_insert_failed != 0 {
+        Err(format!(
+            "C_TUPLE_INSERT_FAILED is {tuple_insert_failed}, expected 0"
+        ))
     } else if health_failure
         .lock()
         .map_err(|_| "health observation lock poisoned".to_owned())?
@@ -1337,6 +1374,9 @@ async fn run_case(
             .await
             .map_err(|_| "proxy did not stop".to_owned())?
             .map_err(|error| error.to_string())?;
+        if case == Case::TupleByteOrder {
+            wait_for_tuple_byte_order_counters(config, evidence)?;
+        }
         dump_maps(config, evidence, "after-resolve")?;
         Ok(())
     }
@@ -1355,6 +1395,8 @@ async fn run_case(
     dump_maps(config, evidence, "post-cleanup")?;
     let tuple_entries = map_dump_entry_count(evidence, "post-cleanup", "soglia_tuples")?;
     let cookie_entries = map_dump_entry_count(evidence, "post-cleanup", "soglia_cookie_a")?;
+    let tuple_insert_failed =
+        counter_value_from_evidence(evidence, "post-cleanup", C_TUPLE_INSERT_FAILED)?;
     let tuple_entries_before_cleanup = if evidence.join("after-resolve-soglia_tuples.json").exists()
     {
         Some(map_dump_entry_count(
@@ -1374,17 +1416,22 @@ async fn run_case(
             "tuple_entries_before_cleanup": tuple_entries_before_cleanup,
             "tuple_entries_after_cleanup": tuple_entries,
             "cookie_entries_after_cleanup": cookie_entries,
-            "execution_attribution_absent": tuple_entries == 0 && cookie_entries == 0
+            "execution_attribution_absent": tuple_entries == 0 && cookie_entries == 0,
+            "C_TUPLE_INSERT_FAILED": tuple_insert_failed,
+            "tuple_insert_failed_invariant": tuple_insert_failed == 0
         }))
         .map_err(|error| error.to_string())?,
     )
     .map_err(|error| error.to_string())?;
-    if case == Case::TupleByteOrder && tuple_entries_before_cleanup == Some(0) {
-        return Err("tuple_byte_order did not retain the real tuple until teardown".to_owned());
-    }
     if tuple_entries != 0 || cookie_entries != 0 {
         return Err(format!(
             "post-teardown Candidate-A state is not empty: tuples={tuple_entries}, cookies={cookie_entries}"
+        ));
+    }
+    if tuple_insert_failed != 0 {
+        return Err(format!(
+            "C_TUPLE_INSERT_FAILED is {tuple_insert_failed} after {}, expected 0",
+            case.name()
         ));
     }
     enforcer
@@ -1557,6 +1604,285 @@ fn dump_maps(config: &Config, evidence: &Path, stage: &str) -> Result<(), String
         )?;
     }
     Ok(())
+}
+
+fn encode_socket_tuple(peer: SocketAddr, local: SocketAddr) -> Result<[u8; 16], String> {
+    let (IpAddr::V4(source), IpAddr::V4(destination)) = (peer.ip(), local.ip()) else {
+        return Err("B2 Candidate-A tuple evidence requires IPv4 sockets".to_owned());
+    };
+    let mut key = [0_u8; 16];
+    key[0..4].copy_from_slice(&source.octets());
+    key[4..8].copy_from_slice(&destination.octets());
+    key[8..10].copy_from_slice(&peer.port().to_ne_bytes());
+    key[10..12].copy_from_slice(&local.port().to_ne_bytes());
+    Ok(key)
+}
+
+fn map_dump_value_for_key(dump: &Value, expected: &[u8]) -> Result<Option<Vec<u8>>, String> {
+    let mut value = None;
+    for entry in dump.as_array().ok_or("BPF map dump is not an array")? {
+        let key = entry
+            .get("key")
+            .ok_or_else(|| "BPF map entry omitted its key".to_owned())
+            .and_then(json_bytes)?;
+        if key != expected {
+            continue;
+        }
+        if value.is_some() {
+            return Err("BPF map dump contains a duplicate key".to_owned());
+        }
+        value = Some(
+            entry
+                .get("value")
+                .ok_or_else(|| "BPF map entry omitted its value".to_owned())
+                .and_then(json_bytes)?,
+        );
+    }
+    Ok(value)
+}
+
+fn counter_value(dump: &Value, index: u32) -> Result<u64, String> {
+    let key = index.to_ne_bytes();
+    let value = map_dump_value_for_key(dump, &key)?
+        .ok_or_else(|| format!("counter dump omitted index {index}"))?;
+    let bytes: [u8; 8] = value.try_into().map_err(|value: Vec<u8>| {
+        format!("counter {index} has {} bytes, expected 8", value.len())
+    })?;
+    Ok(u64::from_ne_bytes(bytes))
+}
+
+fn counter_value_from_evidence(evidence: &Path, stage: &str, index: u32) -> Result<u64, String> {
+    let dump: Value = serde_json::from_slice(
+        &fs::read(evidence.join(format!("{stage}-soglia_counters.json")))
+            .map_err(|error| error.to_string())?,
+    )
+    .map_err(|error| error.to_string())?;
+    counter_value(&dump, index)
+}
+
+fn capture_tuple_before_lookup(
+    bpftool: &Path,
+    state_path: &Path,
+    evidence: &Path,
+    peer: SocketAddr,
+    local: SocketAddr,
+    queried_peer: SocketAddr,
+    queried_local: SocketAddr,
+) -> Result<(), String> {
+    let state: Value =
+        serde_json::from_slice(&fs::read(state_path).map_err(|error| error.to_string())?)
+            .map_err(|error| error.to_string())?;
+    let tuple_pin = map_pin(&state, "soglia_tuples")?;
+    let counter_pin = map_pin(&state, "soglia_counters")?;
+    let real_key = encode_socket_tuple(peer, local)?;
+    let queried_key = encode_socket_tuple(queried_peer, queried_local)?;
+    if real_key == queried_key {
+        return Err("tuple_byte_order did not produce a distinct lookup key".to_owned());
+    }
+
+    let started = Instant::now();
+    let tuple_dump = loop {
+        let dump = dump_map(bpftool, &tuple_pin)?;
+        if map_dump_contains_key(&dump, &real_key)? {
+            break dump;
+        }
+        if started.elapsed() >= Duration::from_secs(1) {
+            fs::write(
+                evidence.join("pre-lookup-soglia_tuples.json"),
+                serde_json::to_vec_pretty(&dump).map_err(|error| error.to_string())?,
+            )
+            .map_err(|error| error.to_string())?;
+            return Err("real tuple was not published before the byte-swapped lookup".to_owned());
+        }
+        std::thread::sleep(Duration::from_millis(5));
+    };
+    let value = map_dump_value_for_key(&tuple_dump, &real_key)?
+        .ok_or("real tuple disappeared before its value could be captured")?;
+    if value.len() != 48 {
+        return Err(format!(
+            "real tuple value has {} bytes, expected 48",
+            value.len()
+        ));
+    }
+    let cookie = u64::from_ne_bytes(
+        value[0..8]
+            .try_into()
+            .map_err(|_| "tuple cookie has the wrong width")?,
+    );
+    let queried_key_present = map_dump_contains_key(&tuple_dump, &queried_key)?;
+    let counter_dump = dump_map(bpftool, &counter_pin)?;
+    let baseline_published = counter_value_from_evidence(evidence, "active", C_PUBLISHED)?;
+    let baseline_unpublished = counter_value_from_evidence(evidence, "active", C_UNPUBLISHED)?;
+    let published = counter_value(&counter_dump, C_PUBLISHED)?;
+    let unpublished = counter_value(&counter_dump, C_UNPUBLISHED)?;
+    let tuple_insert_failed = counter_value(&counter_dump, C_TUPLE_INSERT_FAILED)?;
+    fs::write(
+        evidence.join("pre-lookup-soglia_tuples.json"),
+        serde_json::to_vec_pretty(&tuple_dump).map_err(|error| error.to_string())?,
+    )
+    .map_err(|error| error.to_string())?;
+    fs::write(
+        evidence.join("pre-lookup-tuple.json"),
+        serde_json::to_vec_pretty(&json!({
+            "captured_while_socket_open": true,
+            "captured_before_userspace_lookup": true,
+            "real": {
+                "peer": peer,
+                "local": local,
+                "key_hex": hex(&real_key),
+                "present": true,
+                "cookie": cookie,
+                "cookie_nonzero": cookie != 0
+            },
+            "queried": {
+                "peer": queried_peer,
+                "local": queried_local,
+                "key_hex": hex(&queried_key),
+                "present": queried_key_present
+            },
+            "counters": {
+                "active_baseline": {
+                    "C_PUBLISHED": baseline_published,
+                    "C_UNPUBLISHED": baseline_unpublished
+                },
+                "pre_lookup": {
+                    "C_TUPLE_INSERT_FAILED": tuple_insert_failed,
+                    "C_PUBLISHED": published,
+                    "C_UNPUBLISHED": unpublished
+                },
+                "publication_delta": published.saturating_sub(baseline_published),
+                "unpublication_delta_before_lookup": unpublished.saturating_sub(baseline_unpublished)
+            }
+        }))
+        .map_err(|error| error.to_string())?,
+    )
+    .map_err(|error| error.to_string())?;
+    if cookie == 0 {
+        return Err("real tuple carried a zero socket cookie".to_owned());
+    }
+    if queried_key_present {
+        return Err("byte-swapped lookup key was already present before Resolve".to_owned());
+    }
+    if tuple_insert_failed != 0 {
+        return Err(format!(
+            "C_TUPLE_INSERT_FAILED is {tuple_insert_failed} before byte-swapped Resolve"
+        ));
+    }
+    if published != baseline_published + 1 || unpublished != baseline_unpublished {
+        return Err(format!(
+            "unexpected pre-lookup counter deltas: published {} -> {}, unpublished {} -> {}",
+            baseline_published, published, baseline_unpublished, unpublished
+        ));
+    }
+    Ok(())
+}
+
+fn wait_for_tuple_byte_order_counters(config: &Config, evidence: &Path) -> Result<(), String> {
+    let state: Value = serde_json::from_slice(
+        &fs::read(config.runtime.state_dir.join("cgroup-bpf/state.json"))
+            .map_err(|error| error.to_string())?,
+    )
+    .map_err(|error| error.to_string())?;
+    let counter_pin = map_pin(&state, "soglia_counters")?;
+    let baseline_insert_failed =
+        counter_value_from_evidence(evidence, "active", C_TUPLE_INSERT_FAILED)?;
+    let baseline_published = counter_value_from_evidence(evidence, "active", C_PUBLISHED)?;
+    let baseline_unpublished = counter_value_from_evidence(evidence, "active", C_UNPUBLISHED)?;
+    let started = Instant::now();
+    let final_dump = loop {
+        let dump = dump_map(&config.runtime.bpftool, &counter_pin)?;
+        let published = counter_value(&dump, C_PUBLISHED)?;
+        let unpublished = counter_value(&dump, C_UNPUBLISHED)?;
+        if published == baseline_published + 1 && unpublished == baseline_unpublished + 1 {
+            break dump;
+        }
+        if started.elapsed() >= Duration::from_secs(1) {
+            break dump;
+        }
+        std::thread::sleep(Duration::from_millis(5));
+    };
+    let final_insert_failed = counter_value(&final_dump, C_TUPLE_INSERT_FAILED)?;
+    let final_published = counter_value(&final_dump, C_PUBLISHED)?;
+    let final_unpublished = counter_value(&final_dump, C_UNPUBLISHED)?;
+    let published_delta = final_published.saturating_sub(baseline_published);
+    let unpublished_delta = final_unpublished.saturating_sub(baseline_unpublished);
+    fs::write(
+        evidence.join("tuple-byte-order-counters.json"),
+        serde_json::to_vec_pretty(&json!({
+            "source": "production Candidate-A BPF counters",
+            "lookup_and_delete_changes_counters": false,
+            "active_baseline": {
+                "C_TUPLE_INSERT_FAILED": baseline_insert_failed,
+                "C_PUBLISHED": baseline_published,
+                "C_UNPUBLISHED": baseline_unpublished
+            },
+            "after_socket_close": {
+                "C_TUPLE_INSERT_FAILED": final_insert_failed,
+                "C_PUBLISHED": final_published,
+                "C_UNPUBLISHED": final_unpublished
+            },
+            "delta": {
+                "C_TUPLE_INSERT_FAILED": final_insert_failed.saturating_sub(baseline_insert_failed),
+                "C_PUBLISHED": published_delta,
+                "C_UNPUBLISHED": unpublished_delta
+            },
+            "proves_sockops_unpublish": published_delta == 1 && unpublished_delta == 1,
+            "raw_after_socket_close": final_dump
+        }))
+        .map_err(|error| error.to_string())?,
+    )
+    .map_err(|error| error.to_string())?;
+    if baseline_insert_failed != 0 || final_insert_failed != 0 {
+        return Err(format!(
+            "C_TUPLE_INSERT_FAILED changed from {baseline_insert_failed} to {final_insert_failed}"
+        ));
+    }
+    if published_delta != 1 || unpublished_delta != 1 {
+        return Err(format!(
+            "tuple_byte_order counter deltas were published={published_delta}, unpublished={unpublished_delta}, expected 1/1"
+        ));
+    }
+    Ok(())
+}
+
+fn write_tuple_insert_failed_summary(evidence: &Path) -> Result<(), String> {
+    let mut observations = Vec::new();
+    for case in CASES {
+        let case_dir = evidence.join("cases").join(case.name());
+        let value = counter_value_from_evidence(&case_dir, "post-cleanup", C_TUPLE_INSERT_FAILED)?;
+        observations.push(json!({"case": case, "stage": "post-cleanup", "value": value}));
+        if value != 0 {
+            return Err(format!(
+                "C_TUPLE_INSERT_FAILED is {value} after {}",
+                case.name()
+            ));
+        }
+    }
+    let concurrent_dir = evidence.join("cases/concurrent_timeout");
+    let concurrent =
+        counter_value_from_evidence(&concurrent_dir, "post-case", C_TUPLE_INSERT_FAILED)?;
+    observations.push(json!({
+        "case": "CONCURRENT_TIMEOUT",
+        "stage": "post-case",
+        "value": concurrent
+    }));
+    if concurrent != 0 {
+        return Err(format!(
+            "C_TUPLE_INSERT_FAILED is {concurrent} after concurrent_timeout"
+        ));
+    }
+    fs::write(
+        evidence.join("tuple-insert-failed-summary.json"),
+        serde_json::to_vec_pretty(&json!({
+            "counter": "C_TUPLE_INSERT_FAILED",
+            "index": C_TUPLE_INSERT_FAILED,
+            "expected_throughout_run": 0,
+            "observations": observations,
+            "holds": true
+        }))
+        .map_err(|error| error.to_string())?,
+    )
+    .map_err(|error| error.to_string())
 }
 
 fn map_dump_entry_count(evidence: &Path, stage: &str, name: &str) -> Result<usize, String> {
@@ -1883,5 +2209,32 @@ mod tests {
         assert!(timeout_duration_is_bounded(1_900, 2_000, 250));
         assert!(timeout_duration_is_bounded(2_250, 2_000, 250));
         assert!(!timeout_duration_is_bounded(2_251, 2_000, 250));
+    }
+
+    #[test]
+    fn socket_tuple_encoding_matches_candidate_a_abi() {
+        let peer: SocketAddr = "10.201.0.1:40000".parse().unwrap();
+        let local: SocketAddr = "10.200.255.1:15001".parse().unwrap();
+
+        let encoded = encode_socket_tuple(peer, local).unwrap();
+
+        assert_eq!(&encoded[0..4], &[10, 201, 0, 1]);
+        assert_eq!(&encoded[4..8], &[10, 200, 255, 1]);
+        assert_eq!(&encoded[8..10], &40_000_u16.to_ne_bytes());
+        assert_eq!(&encoded[10..12], &15_001_u16.to_ne_bytes());
+        assert_eq!(&encoded[12..16], &[0, 0, 0, 0]);
+    }
+
+    #[test]
+    fn counter_dump_is_decoded_by_native_endian_key_and_value() {
+        let index = C_PUBLISHED;
+        let expected = 17_u64;
+        let dump = json!([{
+            "key": index.to_ne_bytes(),
+            "value": expected.to_ne_bytes()
+        }]);
+
+        assert_eq!(counter_value(&dump, index).unwrap(), expected);
+        assert!(counter_value(&dump, C_UNPUBLISHED).is_err());
     }
 }
