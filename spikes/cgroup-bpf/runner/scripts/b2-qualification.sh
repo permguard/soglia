@@ -355,7 +355,10 @@ cgroup_bpf:
 agents:
   probe:
     rootfs: $rootfs
-    command: ["/agent", "proxy-http allowed.test:443"]
+    # 40000 == 0x9c40 and byte-swaps to 16540 == 0x409c. Keeping this
+    # deterministic prevents the tuple-byte-order case from receiving a
+    # byte-symmetric ephemeral source port.
+    command: ["/agent", "proxy-http allowed.test:443 40000"]
     env: {}
     timeout_ms: 10000
 YAML

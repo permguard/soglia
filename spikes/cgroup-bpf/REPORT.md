@@ -815,3 +815,12 @@ The earlier authoritative B1 runs are retained but superseded:
 Neither superseded run counts as the current B1 qualification. B2 through B7
 for the typed-Resolve production revision remain `NOT_EXECUTED` at this
 checkpoint and require their own reviewed authoritative evidence.
+
+The earlier authoritative B2 run
+[`b2-20260928T060551Z-8414`](evidence/authoritative/b2-20260928T060551Z-8414/)
+is retained as historical evidence. Its `tuple_byte_order` case swapped both
+the source and destination ports, so it exercised the production proxy-
+destination guard rather than proving the tuple source-port byte-order
+invariant. It must not be cited as qualification of that invariant. The typed-
+Resolve B2 qualification adds a separate `wrong_destination` case and keeps the
+proxy destination unchanged in `tuple_byte_order`.

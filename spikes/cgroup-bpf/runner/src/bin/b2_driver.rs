@@ -34,13 +34,18 @@ use tokio::io::AsyncWriteExt;
 use tokio::net::{TcpListener, TcpStream};
 use tokio::sync::watch;
 
-const CASES: [Case; 8] = [
+const TIMEOUT_EARLY_TOLERANCE_MS: u64 = 100;
+const SINGLE_TIMEOUT_LATE_TOLERANCE_MS: u64 = 100;
+const CONCURRENT_TIMEOUT_LATE_TOLERANCE_MS: u64 = 250;
+
+const CASES: [Case; 9] = [
     Case::Positive,
     Case::WrongPid,
     Case::WrongCgroup,
     Case::NonceMismatch,
     Case::GenerationMismatch,
     Case::TupleByteOrder,
+    Case::WrongDestination,
     Case::MissingCookie,
     Case::IpOnly,
 ];
@@ -54,6 +59,7 @@ enum Case {
     NonceMismatch,
     GenerationMismatch,
     TupleByteOrder,
+    WrongDestination,
     MissingCookie,
     IpOnly,
 }
@@ -67,6 +73,7 @@ impl Case {
             Self::NonceMismatch => "nonce_mismatch",
             Self::GenerationMismatch => "generation_mismatch",
             Self::TupleByteOrder => "tuple_byte_order",
+            Self::WrongDestination => "wrong_destination",
             Self::MissingCookie => "missing_cookie",
             Self::IpOnly => "ip_only_identity",
         }
@@ -181,6 +188,43 @@ fn observed_result(
     }
 }
 
+fn qualification_query(
+    case: Case,
+    peer: SocketAddr,
+    local: SocketAddr,
+) -> Result<(SocketAddr, SocketAddr), String> {
+    match case {
+        Case::TupleByteOrder => {
+            let swapped = peer.port().swap_bytes();
+            if swapped == peer.port() {
+                return Err(format!(
+                    "source port {} is byte-symmetric and cannot qualify byte-order handling",
+                    peer.port()
+                ));
+            }
+            Ok((SocketAddr::new(peer.ip(), swapped), local))
+        }
+        Case::WrongDestination => {
+            let wrong_port = if local.port() == u16::MAX {
+                local.port() - 1
+            } else {
+                local.port() + 1
+            };
+            Ok((peer, SocketAddr::new(local.ip(), wrong_port)))
+        }
+        _ => Ok((peer, local)),
+    }
+}
+
+fn timeout_duration_is_bounded(
+    elapsed_ms: u64,
+    configured_timeout_ms: u64,
+    late_tolerance_ms: u64,
+) -> bool {
+    elapsed_ms >= configured_timeout_ms.saturating_sub(TIMEOUT_EARLY_TOLERANCE_MS)
+        && elapsed_ms <= configured_timeout_ms.saturating_add(late_tolerance_ms)
+}
+
 struct ObservingAttributor {
     inner: Arc<dyn ConnectionAttributor>,
     case: Case,
@@ -226,22 +270,23 @@ impl ConnectionAttributor for ObservingAttributor {
                 }
             }
 
-            let (queried_peer, queried_local) = if self.case == Case::TupleByteOrder {
-                (
-                    SocketAddr::new(peer.ip(), peer.port().swap_bytes()),
-                    SocketAddr::new(local.ip(), local.port().swap_bytes()),
-                )
-            } else {
-                (peer, local)
+            let (queried_peer, queried_local) = match qualification_query(self.case, peer, local) {
+                Ok(query) => query,
+                Err(error) => {
+                    let _ = fs::write(self.evidence.join("injection-error.txt"), error);
+                    return AttributionResult::IntegrityFailure;
+                }
             };
-            if self.case == Case::TupleByteOrder {
+            if matches!(self.case, Case::TupleByteOrder | Case::WrongDestination) {
                 let _ = fs::write(
                     self.evidence.join("fault-injection.json"),
                     serde_json::to_vec_pretty(&json!({
                         "actor": "b2_driver qualification wrapper",
-                        "fault": "TUPLE_BYTE_ORDER",
+                        "fault": self.case,
                         "original": {"peer": peer, "local": local},
                         "injected": {"peer": queried_peer, "local": queried_local},
+                        "source_port_changed": queried_peer.port() != peer.port(),
+                        "proxy_destination_unchanged": queried_local == local,
                         "production_code_modified": false
                     }))
                     .unwrap_or_default(),
@@ -474,6 +519,7 @@ async fn run() -> Result<(), String> {
             }
         })
     };
+    let mut observed_netns_inodes = Vec::new();
 
     for case in CASES {
         let case_dir = evidence.join("cases").join(case.name());
@@ -495,7 +541,20 @@ async fn run() -> Result<(), String> {
                 } else {
                     "qualification harness"
                 },
-                "production_code_modified": false
+                "production_code_modified": false,
+                "configured_timeout_ms": config.cgroup_bpf.resolve_timeout_ms,
+                "minimum_acceptable_elapsed_ms": if case == Case::TupleByteOrder {
+                    Some(config.cgroup_bpf.resolve_timeout_ms
+                        .saturating_sub(TIMEOUT_EARLY_TOLERANCE_MS))
+                } else {
+                    None
+                },
+                "maximum_acceptable_elapsed_ms": if case == Case::TupleByteOrder {
+                    Some(config.cgroup_bpf.resolve_timeout_ms
+                        .saturating_add(SINGLE_TIMEOUT_LATE_TOLERANCE_MS))
+                } else {
+                    None
+                }
             }))
             .map_err(|error| error.to_string())?,
         )
@@ -516,6 +575,35 @@ async fn run() -> Result<(), String> {
                 .map_err(|write| write.to_string())?;
             outbound_task.abort();
             return Err(format!("{}: {error}", case.name()));
+        }
+        let placement: Value = serde_json::from_slice(
+            &fs::read(case_dir.join("placement.json")).map_err(|error| error.to_string())?,
+        )
+        .map_err(|error| error.to_string())?;
+        let netns_inode = placement
+            .pointer("/netns/agent_inode")
+            .and_then(Value::as_u64)
+            .ok_or("placement evidence omitted the agent netns inode")?;
+        let fresh = !observed_netns_inodes.contains(&netns_inode);
+        if fresh {
+            observed_netns_inodes.push(netns_inode);
+        }
+        fs::write(
+            case_dir.join("netns-uniqueness.json"),
+            serde_json::to_vec_pretty(&json!({
+                "case": case,
+                "agent_netns_inode": netns_inode,
+                "fresh_across_b2_cases": fresh,
+                "observed_netns_inodes": observed_netns_inodes
+            }))
+            .map_err(|error| error.to_string())?,
+        )
+        .map_err(|error| error.to_string())?;
+        if !fresh {
+            return Err(format!(
+                "{} reused network namespace inode {netns_inode}",
+                case.name()
+            ));
         }
         fs::write(case_dir.join("verdict.txt"), "PASS\n").map_err(|error| error.to_string())?;
     }
@@ -692,7 +780,6 @@ async fn run_concurrent_timeout_case(
     outbound: Arc<AtomicUsize>,
 ) -> Result<(), String> {
     const CONCURRENT: usize = 4;
-    const MEASUREMENT_TOLERANCE_MS: u64 = 250;
     let case_dir = evidence.join("cases/concurrent_timeout");
     fs::create_dir_all(&case_dir).map_err(|error| error.to_string())?;
     fs::write(evidence.join("current-case.txt"), "concurrent_timeout\n")
@@ -704,6 +791,11 @@ async fn run_concurrent_timeout_case(
             "connections": CONCURRENT,
             "origin": "qualification host outside the executions cgroup subtree",
             "expected_tuple_publication": false,
+            "configured_timeout_ms": config.cgroup_bpf.resolve_timeout_ms,
+            "minimum_acceptable_elapsed_ms": config.cgroup_bpf.resolve_timeout_ms
+                .saturating_sub(TIMEOUT_EARLY_TOLERANCE_MS),
+            "maximum_acceptable_elapsed_ms": config.cgroup_bpf.resolve_timeout_ms
+                .saturating_add(CONCURRENT_TIMEOUT_LATE_TOLERANCE_MS),
             "production_code_modified": false
         }))
         .map_err(|error| error.to_string())?,
@@ -808,11 +900,11 @@ async fn run_concurrent_timeout_case(
             || observation.dns_when_resolve_returned != 0
             || observation.outbound_when_resolve_returned != 0
             || observation.health_failure.is_some()
-            || observation.resolve_elapsed_ms
-                > config
-                    .cgroup_bpf
-                    .resolve_timeout_ms
-                    .saturating_add(MEASUREMENT_TOLERANCE_MS)
+            || !timeout_duration_is_bounded(
+                observation.resolve_elapsed_ms,
+                config.cgroup_bpf.resolve_timeout_ms,
+                CONCURRENT_TIMEOUT_LATE_TOLERANCE_MS,
+            )
     }) {
         Err("a concurrent Resolve violated timeout, no-read, no-effect or health bounds".to_owned())
     } else if health_failure
@@ -856,6 +948,7 @@ fn assert_expected_resolve(
             Some(ResolveMismatch::BackendGeneration),
         ),
         Case::TupleByteOrder => (ObservedResolveOutcome::Timeout, None),
+        Case::WrongDestination => (ObservedResolveOutcome::NotFound, None),
         Case::MissingCookie => (
             ObservedResolveOutcome::IdentityMismatch,
             Some(ResolveMismatch::Cookie),
@@ -888,15 +981,17 @@ fn assert_expected_resolve(
         _ => {}
     }
     if case == Case::TupleByteOrder {
-        const SCHEDULING_AND_IPC_TOLERANCE_MS: u64 = 100;
-        let evidence_deadline =
-            configured_timeout_ms.saturating_add(SCHEDULING_AND_IPC_TOLERANCE_MS);
-        if observation.resolve_elapsed_ms > evidence_deadline {
+        if !timeout_duration_is_bounded(
+            observation.resolve_elapsed_ms,
+            configured_timeout_ms,
+            SINGLE_TIMEOUT_LATE_TOLERANCE_MS,
+        ) {
             return Err(format!(
-                "Resolve timeout took {} ms, beyond configured {} ms plus {} ms scheduling/IPC tolerance",
+                "Resolve timeout took {} ms, outside configured {} ms minus {} ms / plus {} ms tolerance",
                 observation.resolve_elapsed_ms,
                 configured_timeout_ms,
-                SCHEDULING_AND_IPC_TOLERANCE_MS
+                TIMEOUT_EARLY_TOLERANCE_MS,
+                SINGLE_TIMEOUT_LATE_TOLERANCE_MS
             ));
         }
     }
@@ -1173,6 +1268,41 @@ async fn run_case(
     if !cleanup.is_empty() {
         return Err(format!("execution cleanup failed: {cleanup:?}"));
     }
+    dump_maps(config, evidence, "post-cleanup")?;
+    let tuple_entries = map_dump_entry_count(evidence, "post-cleanup", "soglia_tuples")?;
+    let cookie_entries = map_dump_entry_count(evidence, "post-cleanup", "soglia_cookie_a")?;
+    let tuple_entries_before_cleanup = if evidence.join("after-resolve-soglia_tuples.json").exists()
+    {
+        Some(map_dump_entry_count(
+            evidence,
+            "after-resolve",
+            "soglia_tuples",
+        )?)
+    } else {
+        None
+    };
+    fs::write(
+        evidence.join("post-cleanup-attribution.json"),
+        serde_json::to_vec_pretty(&json!({
+            "case": case,
+            "execution_id": id,
+            "binding": execution.binding,
+            "tuple_entries_before_cleanup": tuple_entries_before_cleanup,
+            "tuple_entries_after_cleanup": tuple_entries,
+            "cookie_entries_after_cleanup": cookie_entries,
+            "execution_attribution_absent": tuple_entries == 0 && cookie_entries == 0
+        }))
+        .map_err(|error| error.to_string())?,
+    )
+    .map_err(|error| error.to_string())?;
+    if case == Case::TupleByteOrder && tuple_entries_before_cleanup == Some(0) {
+        return Err("tuple_byte_order did not retain the real tuple until teardown".to_owned());
+    }
+    if tuple_entries != 0 || cookie_entries != 0 {
+        return Err(format!(
+            "post-teardown Candidate-A state is not empty: tuples={tuple_entries}, cookies={cookie_entries}"
+        ));
+    }
     enforcer
         .call(EnforcerRequest::Health)
         .await
@@ -1296,6 +1426,17 @@ fn dump_maps(config: &Config, evidence: &Path, stage: &str) -> Result<(), String
         )?;
     }
     Ok(())
+}
+
+fn map_dump_entry_count(evidence: &Path, stage: &str, name: &str) -> Result<usize, String> {
+    let dump: Value = serde_json::from_slice(
+        &fs::read(evidence.join(format!("{stage}-{name}.json")))
+            .map_err(|error| error.to_string())?,
+    )
+    .map_err(|error| error.to_string())?;
+    dump.as_array()
+        .map(Vec::len)
+        .ok_or_else(|| format!("{stage} {name} dump is not an array"))
 }
 
 fn inject_map_fault(
@@ -1562,4 +1703,54 @@ async fn wait_for_count(
 
 fn hex(bytes: &[u8]) -> String {
     bytes.iter().map(|byte| format!("{byte:02x}")).collect()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn tuple_byte_order_changes_only_the_source_port() {
+        let peer: SocketAddr = "10.201.0.1:40000".parse().unwrap();
+        let local: SocketAddr = "10.200.255.1:15001".parse().unwrap();
+
+        let (queried_peer, queried_local) =
+            qualification_query(Case::TupleByteOrder, peer, local).unwrap();
+
+        assert_eq!(queried_peer.ip(), peer.ip());
+        assert_eq!(queried_peer.port(), 40000_u16.swap_bytes());
+        assert_ne!(queried_peer.port(), peer.port());
+        assert_eq!(queried_local, local);
+    }
+
+    #[test]
+    fn tuple_byte_order_rejects_a_byte_symmetric_source_port() {
+        let peer: SocketAddr = "10.201.0.1:39835".parse().unwrap();
+        let local: SocketAddr = "10.200.255.1:15001".parse().unwrap();
+
+        let error = qualification_query(Case::TupleByteOrder, peer, local).unwrap_err();
+
+        assert!(error.contains("byte-symmetric"));
+    }
+
+    #[test]
+    fn wrong_destination_preserves_the_source_and_changes_the_proxy_port() {
+        let peer: SocketAddr = "10.201.0.1:40000".parse().unwrap();
+        let local: SocketAddr = "10.200.255.1:15001".parse().unwrap();
+
+        let (queried_peer, queried_local) =
+            qualification_query(Case::WrongDestination, peer, local).unwrap();
+
+        assert_eq!(queried_peer, peer);
+        assert_eq!(queried_local.ip(), local.ip());
+        assert_ne!(queried_local.port(), local.port());
+    }
+
+    #[test]
+    fn timeout_bounds_reject_early_and_late_results() {
+        assert!(!timeout_duration_is_bounded(1_899, 2_000, 250));
+        assert!(timeout_duration_is_bounded(1_900, 2_000, 250));
+        assert!(timeout_duration_is_bounded(2_250, 2_000, 250));
+        assert!(!timeout_duration_is_bounded(2_251, 2_000, 250));
+    }
 }
