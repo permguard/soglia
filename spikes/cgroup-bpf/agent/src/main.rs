@@ -127,7 +127,13 @@ fn run(command: &str, started: Instant) {
             num(5, 2),
         ),
         "proxy-reuse-report" => {
-            proxy_reuse_report(arg(1), num(2, 40_000) as u16, arg(3), num(4, 30))
+            proxy_reuse_report(
+                arg(1),
+                num(2, 40_000) as u16,
+                arg(3),
+                num(4, 30),
+                num(5, 5),
+            )
         }
         "hold-proxy" => hold_proxy(num(1, 30)),
         "listen4-once" => print(outcome(
@@ -582,7 +588,13 @@ fn proxy_connect_many_report(
 
 /// Holds the first socket until the harness has installed and observed a cookie-mismatched tuple,
 /// then reuses the same source port only after the harness removes that owned injection.
-fn proxy_reuse_report(target: &str, port: u16, report: &str, timeout_secs: u64) {
+fn proxy_reuse_report(
+    target: &str,
+    port: u16,
+    report: &str,
+    timeout_secs: u64,
+    hold_secs: u64,
+) {
     let _ = fs::remove_file(report);
     let close_gate = format!("{report}.close");
     let second_gate = format!("{report}.second");
@@ -629,6 +641,7 @@ fn proxy_reuse_report(target: &str, port: u16, report: &str, timeout_secs: u64) 
         Ok(format!("{status}; {second_status}"))
     })();
     print(outcome("proxy-reuse-report", first, ""));
+    thread::sleep(Duration::from_secs(hold_secs));
 }
 
 fn hold_proxy(secs: u64) {

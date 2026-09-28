@@ -130,7 +130,10 @@ cleanup() {
     rmdir "$rootfs" 2>/dev/null
   fi
   : > "$evidence/final/program-settle.jsonl"
-  for attempt in $(seq 0 240); do
+  # runc's anonymous cgroup-device programs can remain visible briefly after
+  # their last container cgroup is gone. Keep the inventory comparison strict,
+  # but allow the kernel enough time to release those external objects.
+  for attempt in $(seq 0 720); do
     bpftool -j prog show > "$evidence/final/programs.json"
     program_classification=$(jq -nr \
       --slurpfile before "$evidence/baseline-programs.json" \
@@ -330,7 +333,7 @@ agents:
     timeout_ms: 35000
   source-reuse:
     rootfs: $rootfs
-    command: ["/agent", "proxy-reuse-report allowed.test:443 40000 /tmp/b3-reuse.jsonl 30"]
+    command: ["/agent", "proxy-reuse-report allowed.test:443 40000 /tmp/b3-reuse.jsonl 30 5"]
     env: {}
     timeout_ms: 35000
     tmpfs: [{ path: /tmp, size_bytes: 1048576 }]
