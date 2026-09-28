@@ -2838,7 +2838,10 @@ pub async fn run_b3() -> Result<(), String> {
         return run_b3_cleanup_recovery(&binary, &config_yaml, &evidence).await;
     }
     if let Some(mode) = mode {
-        return Err(format!("unknown B3 driver mode: {}", mode.to_string_lossy()));
+        return Err(format!(
+            "unknown B3 driver mode: {}",
+            mode.to_string_lossy()
+        ));
     }
     if config.runtime.max_concurrency < 2 {
         return Err("B3 requires a configured concurrent-Execution limit of at least two".into());
@@ -2981,12 +2984,16 @@ async fn run_b3_cleanup_recovery(
     let sandbox_swept = sandbox
         .hello(config_yaml)
         .map_err(|error| format!("cleanup Sandbox recovery failed: {error}"))?;
-    sandbox.ensure_running().map_err(|error| error.to_string())?;
+    sandbox
+        .ensure_running()
+        .map_err(|error| error.to_string())?;
     let enforcer = Helper::spawn_enforcer(binary).map_err(|error| error.to_string())?;
     let enforcer_swept = enforcer
         .hello(config_yaml)
         .map_err(|error| format!("cleanup Enforcer recovery failed: {error}"))?;
-    enforcer.ensure_running().map_err(|error| error.to_string())?;
+    enforcer
+        .ensure_running()
+        .map_err(|error| error.to_string())?;
     fs::write(
         evidence.join("result.json"),
         serde_json::to_vec_pretty(&json!({
