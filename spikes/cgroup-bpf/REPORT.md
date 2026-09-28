@@ -207,8 +207,8 @@ pristine marker. The captured runs have distinct run IDs and each records
 
 | Replay | Fresh VM | Evidence | Run result | Final audit |
 | --- | --- | --- | --- | --- |
-| #1 | `soglia-spike-replay-20260927T161150Z-98802-r1` | [`replay-1790525576624-5754`](evidence/replay/replay-1790525576624-5754/) | 16/16 PASS; terminal `COMPLETE/PASS` | PASS; 1,299 registry entries, zero live |
-| #2 | `soglia-spike-replay-20260927T161150Z-98802-r2` | [`replay-1790525780260-5753`](evidence/replay/replay-1790525780260-5753/) | 16/16 PASS; terminal `COMPLETE/PASS` | PASS; 1,299 registry entries, zero live |
+| #1 | `soglia-spike-replay-20260927T161150Z-98802-r1` | [`replay-1790525576624-5754`](evidence/authoritative/replay-1790525576624-5754/) | 16/16 PASS; terminal `COMPLETE/PASS` | PASS; 1,299 registry entries, zero live |
+| #2 | `soglia-spike-replay-20260927T161150Z-98802-r2` | [`replay-1790525780260-5753`](evidence/authoritative/replay-1790525780260-5753/) | 16/16 PASS; terminal `COMPLETE/PASS` | PASS; 1,299 registry entries, zero live |
 
 The final audits independently proved every registered resource and both
 run-owned roots absent. The complete evidence-tree manifests contain 11,849
@@ -357,8 +357,8 @@ decision.
 The authoritative basis is the final historical S0-S14 evidence selected in
 the provenance table above plus both final authoritative replay roots:
 
-- [`replay-1790525576624-5754`](evidence/replay/replay-1790525576624-5754/);
-- [`replay-1790525780260-5753`](evidence/replay/replay-1790525780260-5753/).
+- [`replay-1790525576624-5754`](evidence/authoritative/replay-1790525576624-5754/);
+- [`replay-1790525780260-5753`](evidence/authoritative/replay-1790525780260-5753/).
 
 Both replay summaries contain 16 PASS results and PASS cleanup, and their
 candidate-relevant observations reproduce the historical final results. The
