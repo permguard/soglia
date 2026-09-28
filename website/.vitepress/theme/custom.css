@@ -419,18 +419,24 @@
   display: block;
 }
 
-.soglia-permguard__items article {
-  padding: 22px 0;
-  border-top: 1px solid var(--band-border);
+/* The same cards as the principles band, stacked. */
+.soglia-permguard__items {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
 }
 
-.soglia-permguard__items article:last-child {
-  border-bottom: 1px solid var(--band-border);
+.soglia-permguard__items article {
+  padding: 20px 24px;
+  border: 1px solid var(--band-border);
+  border-radius: 14px;
+  background: var(--band-card);
 }
 
 .soglia-permguard h3 {
-  margin: 0 0 8px;
-  font-size: 20px;
+  margin: 0 0 6px;
+  font-size: 18px;
+  font-weight: 700;
   line-height: 1.25;
   color: var(--band-fg);
 }
@@ -662,7 +668,11 @@
     --uc-cols: 1;
   }
 
+  /* On phones the logo sits above the copy, so the rails stay within the logo's band. */
   .soglia-rails {
-    display: none;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 330px;
   }
 }
