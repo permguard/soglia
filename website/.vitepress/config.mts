@@ -1,28 +1,24 @@
+// Copyright (c) 2022 Nitro Agility S.r.l.
+// SPDX-License-Identifier: Apache-2.0
+
 import { defineConfig } from 'vitepress'
 
-// https://vitepress.dev/reference/site-config
+// GitHub Pages serves the site below the repository path; the deploy workflow passes it in.
+const base = `/${(process.env.VITEPRESS_BASE ?? '').replace(/^\/+|\/+$/g, '')}/`.replace(/^\/\/$/, '/')
+
 export default defineConfig({
-  title: "Soglia",
-  description: "Trusted execution for AI agents and mission-critical workloads under authority that never expands.",
+  base,
+  title: 'Soglia',
+  description: 'Trusted execution for AI agents and mission-critical workloads under authority that never expands.',
+  cleanUrls: true,
+  // Dark by default, like the rest of the Soglia material; the toggle still offers light.
+  appearance: 'dark',
   themeConfig: {
-    // https://vitepress.dev/reference/default-theme-config
     nav: [
-      { text: 'Home', link: '/' },
-      { text: 'Examples', link: '/markdown-examples' }
+      { text: 'Architecture', link: '/architecture' }
     ],
-
-    sidebar: [
-      {
-        text: 'Examples',
-        items: [
-          { text: 'Markdown Examples', link: '/markdown-examples' },
-          { text: 'Runtime API Examples', link: '/api-examples' }
-        ]
-      }
-    ],
-
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/vuejs/vitepress' }
+      { icon: 'github', link: 'https://github.com/permguard/soglia' }
     ]
   }
 })

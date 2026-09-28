@@ -1,0 +1,668 @@
+/* Copyright (c) 2022 Nitro Agility S.r.l. */
+/* SPDX-License-Identifier: Apache-2.0 */
+
+:root {
+  --soglia-green: #a7d63c;
+  --soglia-green-deep: #84b314;
+  --soglia-ink: #0b0c0f;
+  --soglia-muted: #5d6168;
+  --vp-c-brand-1: var(--soglia-green-deep);
+  --vp-c-brand-2: var(--soglia-green);
+  --vp-c-brand-3: var(--soglia-green);
+  --vp-c-brand-soft: rgba(167, 214, 60, 0.14);
+}
+
+.dark {
+  --vp-c-brand-1: #b7ea3d;
+  --vp-c-brand-2: #a7d63c;
+  --vp-c-brand-3: #9bc92e;
+  --vp-c-bg: #191a1c;
+  --vp-c-bg-alt: #1d1e23;
+  --vp-c-bg-elv: #1d1e23;
+  --vp-c-bg-soft: #1d1e23;
+}
+
+.soglia-home {
+  --home-bg: #ffffff;
+  --home-fg: #0b0c0f;
+  --home-muted: #5d6168;
+  --rail-line: rgba(15, 23, 32, 0.16);
+  --surface-soft: #f8faf7;
+  background: var(--home-bg);
+  color: var(--home-fg);
+  overflow: hidden;
+}
+
+.dark .soglia-home {
+  --home-bg: #191a1c;
+  --home-fg: #f7f7f3;
+  --home-muted: #b5b7bb;
+  --rail-line: rgba(238, 242, 232, 0.14);
+  --surface-soft: #1d1e23;
+}
+
+.soglia-section-inner {
+  width: min(1180px, calc(100% - 48px));
+  margin: 0 auto;
+}
+
+.soglia-hero {
+  position: relative;
+  isolation: isolate;
+  width: min(1240px, calc(100% - 48px));
+  min-height: 610px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  align-items: center;
+  gap: 54px;
+  padding: 82px 0 72px;
+}
+
+/* Abstract rails behind the hero: a car waits at a closed gate, the gate opens, the car passes.
+   Deliberately faint and slow, so it is only noticed when looked at. */
+.soglia-rails {
+  position: absolute;
+  z-index: -1;
+  top: 0;
+  right: -120px;
+  width: min(56vw, 720px);
+  height: 610px;
+  pointer-events: none;
+  color: var(--rail-line);
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 32%, #000 82%, transparent 100%);
+  mask-image: linear-gradient(90deg, transparent 0, #000 32%, #000 82%, transparent 100%);
+}
+
+.soglia-rail__rails {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1;
+  opacity: .6;
+}
+
+.soglia-rail__ties {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 14;
+  stroke-dasharray: 1 11;
+  opacity: .35;
+}
+
+.soglia-rail__post,
+.soglia-rail__arm {
+  fill: currentColor;
+}
+
+.soglia-rail__arm {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: soglia-gate 14s ease-in-out infinite;
+}
+
+.soglia-rail__car {
+  fill: var(--soglia-green);
+  opacity: .6;
+  animation: soglia-car 14s infinite;
+}
+
+.soglia-rail:nth-of-type(2) > * {
+  animation-delay: -4.7s;
+}
+
+.soglia-rail:nth-of-type(3) > * {
+  animation-delay: -9.3s;
+}
+
+@keyframes soglia-gate {
+  0%, 50% { transform: rotate(0deg); }
+  58%, 80% { transform: rotate(-90deg); }
+  88%, 100% { transform: rotate(0deg); }
+}
+
+@keyframes soglia-car {
+  0% { transform: translateX(-420px); animation-timing-function: ease-out; }
+  36% { transform: translateX(-16px); }
+  60% { transform: translateX(-16px); animation-timing-function: ease-in; }
+  100% { transform: translateX(420px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .soglia-rail__arm {
+    animation: none;
+  }
+
+  .soglia-rail__car {
+    display: none;
+  }
+}
+
+.soglia-hero__copy,
+.soglia-hero__brand {
+  position: relative;
+  z-index: 1;
+}
+
+.soglia-kicker {
+  display: inline-block;
+  margin-bottom: 18px;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--soglia-green-deep);
+}
+
+.dark .soglia-kicker {
+  color: var(--soglia-green);
+}
+
+.soglia-hero h1 {
+  max-width: 760px;
+  margin: 0 0 24px;
+  border: 0;
+  font-size: clamp(42px, 5.1vw, 72px);
+  line-height: 1.02;
+  letter-spacing: -0.045em;
+  font-weight: 760;
+  color: var(--home-fg);
+}
+
+.soglia-hero__copy > p {
+  max-width: 670px;
+  margin: 0;
+  font-size: 19px;
+  line-height: 1.6;
+  color: var(--home-muted);
+}
+
+.soglia-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 32px;
+}
+
+.soglia-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 19px;
+  border-radius: 9px;
+  font-weight: 700;
+  text-decoration: none !important;
+  transition: transform .16s ease, background-color .16s ease, color .16s ease, border-color .16s ease;
+}
+
+.soglia-btn:hover {
+  transform: translateY(-1px);
+}
+
+.soglia-btn--primary {
+  background: var(--soglia-green);
+  color: #0b0c0f !important;
+}
+
+.soglia-btn--ghost {
+  border: 1px solid rgba(127,127,127,.34);
+  color: var(--home-fg) !important;
+  background: color-mix(in srgb, var(--home-bg) 82%, transparent);
+  backdrop-filter: blur(5px);
+}
+
+.dark .soglia-btn--ghost {
+  border-color: rgba(255,255,255,.17);
+  background: #1d1e23;
+}
+
+.soglia-hero__brand {
+  min-height: 400px;
+  display: grid;
+  place-items: center;
+}
+
+.soglia-logo {
+  display: block;
+  width: min(100%, 560px);
+  max-height: 380px;
+  object-fit: contain;
+  user-select: none;
+  filter: drop-shadow(0 18px 38px rgba(0,0,0,.04));
+}
+
+.dark .soglia-logo {
+  filter: drop-shadow(0 22px 52px rgba(0,0,0,.24));
+}
+
+.soglia-logo--dark {
+  display: none;
+}
+
+.dark .soglia-logo--light {
+  display: none;
+}
+
+.dark .soglia-logo--dark {
+  display: block;
+}
+
+.soglia-threshold {
+  position: relative;
+  background: var(--soglia-green);
+  color: #0b0c0f;
+  padding: 64px 0 70px;
+}
+
+.soglia-threshold__inner {
+  text-align: center;
+  max-width: 900px;
+}
+
+.soglia-threshold h2 {
+  border: 0;
+  margin: 0 0 14px;
+  font-size: clamp(30px, 3.2vw, 44px);
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+}
+
+.soglia-threshold p {
+  margin: 0 auto;
+  max-width: 830px;
+  font-size: 20px;
+  line-height: 1.55;
+}
+
+.soglia-threshold__accent {
+  margin-top: 10px !important;
+  font-weight: 760;
+}
+
+/* A contrast band, like the green one above it: dark on the light theme, light on the dark one. */
+.soglia-principles,
+.soglia-permguard {
+  --band-bg: #191a1c;
+  --band-card: #1d1e23;
+  --band-fg: #ffffff;
+  --band-muted: #c7c9cc;
+  --band-border: rgba(255,255,255,.06);
+  --band-num: var(--soglia-green);
+  background: var(--band-bg);
+  color: var(--band-fg);
+}
+
+.soglia-principles {
+  padding: 82px 0 72px;
+}
+
+.soglia-principles__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 28px;
+}
+
+.soglia-principles article {
+  min-height: 210px;
+  padding: 28px;
+  border: 1px solid var(--band-border);
+  border-radius: 16px;
+  background: var(--band-card);
+}
+
+.soglia-num {
+  margin-bottom: 28px;
+  color: var(--band-num);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: .13em;
+}
+
+.dark .soglia-principles,
+.dark .soglia-permguard {
+  --band-bg: #f7f7f3;
+  --band-card: #ffffff;
+  --band-fg: #0b0c0f;
+  --band-muted: #5d6168;
+  --band-border: rgba(15,23,32,.08);
+  --band-num: var(--soglia-green-deep);
+}
+
+.soglia-principles h3 {
+  margin: 0 0 12px;
+  font-size: 24px;
+  line-height: 1.18;
+  color: var(--band-fg);
+}
+
+.soglia-principles p {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--band-muted);
+}
+
+.soglia-flows {
+  background: var(--home-bg);
+  color: var(--home-fg);
+  padding: 56px 0;
+}
+
+.soglia-flows__inner {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 28px;
+  text-align: center;
+}
+
+.soglia-flows p {
+  margin: 0;
+  font-size: 19px;
+  line-height: 1.5;
+  color: var(--home-muted);
+}
+
+.soglia-flows strong {
+  color: var(--home-fg);
+}
+
+.soglia-flows strong.soglia-flows__soglia {
+  color: var(--soglia-green-deep);
+}
+
+.dark .soglia-flows strong.soglia-flows__soglia {
+  color: var(--soglia-green);
+}
+
+.soglia-permguard {
+  padding: 82px 0;
+}
+
+.soglia-permguard__inner {
+  display: grid;
+  grid-template-columns: .9fr 1.1fr;
+  gap: 64px;
+  align-items: center;
+}
+
+.soglia-permguard h2 {
+  border: 0;
+  margin: 0 0 16px;
+  padding: 0;
+  font-size: clamp(30px, 3.2vw, 44px);
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+  color: var(--band-fg);
+}
+
+.soglia-permguard__intro > p {
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.6;
+  color: var(--band-muted);
+}
+
+/* Official Permguard artwork, used unmodified: white text on the dark band, dark text on the light one.
+   The artwork carries its own margin, so it is pulled left to align with the heading. */
+.soglia-permguard__logo {
+  display: block;
+  width: auto;
+  height: 64px;
+  margin: 0 0 20px -9px;
+}
+
+.soglia-permguard__logo--dark-txt,
+.dark .soglia-permguard__logo--white-txt {
+  display: none;
+}
+
+.dark .soglia-permguard__logo--dark-txt {
+  display: block;
+}
+
+.soglia-permguard__items article {
+  padding: 22px 0;
+  border-top: 1px solid var(--band-border);
+}
+
+.soglia-permguard__items article:last-child {
+  border-bottom: 1px solid var(--band-border);
+}
+
+.soglia-permguard h3 {
+  margin: 0 0 8px;
+  font-size: 20px;
+  line-height: 1.25;
+  color: var(--band-fg);
+}
+
+.soglia-permguard__items p {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--band-muted);
+}
+
+.soglia-section-head {
+  margin-bottom: 36px;
+}
+
+.soglia-section-head h2 {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  font-size: clamp(30px, 3.2vw, 44px);
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+  color: var(--home-fg);
+}
+
+.soglia-benefits,
+.soglia-usecases {
+  padding: 78px 0;
+  color: var(--home-fg);
+}
+
+.soglia-benefits {
+  background: var(--surface-soft);
+}
+
+.soglia-usecases {
+  background: var(--home-bg);
+  border-bottom: 1px solid rgba(127,127,127,.10);
+}
+
+.soglia-benefits__grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.soglia-benefits__grid article {
+  padding: 4px 28px 4px 24px;
+  border-left: 1px solid rgba(127,127,127,.22);
+}
+
+.soglia-usecases__grid {
+  --uc-cols: 5;
+  --uc-gap: 18px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--uc-gap);
+}
+
+.soglia-usecases__grid article {
+  flex: 0 0 calc((100% - (var(--uc-cols) - 1) * var(--uc-gap)) / var(--uc-cols));
+  box-sizing: border-box;
+}
+
+.soglia-usecases__grid article {
+  padding: 24px 22px;
+  border: 1px solid rgba(127,127,127,.16);
+  border-radius: 16px;
+  background: var(--surface-soft);
+}
+
+.soglia-icon {
+  display: block;
+  width: 30px;
+  height: 30px;
+  margin-bottom: 18px;
+  fill: none;
+  stroke: var(--soglia-green-deep);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.dark .soglia-icon {
+  stroke: var(--soglia-green);
+}
+
+.soglia-benefits h3,
+.soglia-usecases h3 {
+  margin: 0 0 10px;
+  font-size: 18px;
+  line-height: 1.25;
+  color: var(--home-fg);
+}
+
+.soglia-benefits p,
+.soglia-usecases p {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--home-muted);
+}
+
+.soglia-footer {
+  padding: 40px 0 34px;
+  background-color: #141517;
+  background-image: repeating-linear-gradient(135deg, rgba(255,255,255,.018) 0 1px, transparent 1px 7px);
+  color: #9a9ca1;
+  font-size: 14px;
+}
+
+.soglia-footer p {
+  margin: 0;
+}
+
+.soglia-footer strong {
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.soglia-footer a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: rgba(167, 214, 60, .6);
+  text-underline-offset: 3px;
+  transition: color .16s ease;
+}
+
+.soglia-footer a:hover {
+  color: var(--soglia-green);
+}
+
+.soglia-footer__top {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.soglia-footer__legal {
+  margin-top: 6px !important;
+}
+
+.soglia-footer__copy {
+  margin-top: 30px !important;
+  font-size: 13px;
+}
+
+@media (max-width: 1100px) {
+  .soglia-usecases__grid {
+    --uc-cols: 3;
+  }
+}
+
+@media (max-width: 900px) {
+  .soglia-hero {
+    grid-template-columns: 1fr;
+    min-height: auto;
+    padding: 58px 0 56px;
+    gap: 24px;
+  }
+
+  .soglia-rails {
+    right: -140px;
+    width: 560px;
+    height: 475px;
+  }
+
+  .soglia-hero__brand {
+    min-height: 250px;
+    order: -1;
+  }
+
+  .soglia-logo {
+    width: min(100%, 380px);
+    max-height: 260px;
+  }
+
+  .soglia-principles__grid,
+  .soglia-flows__inner {
+    grid-template-columns: 1fr;
+  }
+
+  .soglia-flows__inner {
+    gap: 12px;
+  }
+
+  .soglia-footer__top {
+    flex-direction: column;
+  }
+
+  .soglia-benefits__grid {
+    grid-template-columns: repeat(2, 1fr);
+    row-gap: 28px;
+  }
+
+  .soglia-usecases__grid {
+    --uc-cols: 2;
+  }
+
+  .soglia-permguard__inner {
+    grid-template-columns: 1fr;
+    gap: 36px;
+  }
+}
+
+@media (max-width: 560px) {
+  .soglia-section-inner,
+  .soglia-hero {
+    width: min(100% - 30px, 1180px);
+  }
+
+  .soglia-hero h1 {
+    font-size: 40px;
+  }
+
+  .soglia-actions {
+    flex-wrap: wrap;
+  }
+
+  .soglia-principles__grid {
+    gap: 16px;
+  }
+
+  .soglia-benefits__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .soglia-usecases__grid {
+    --uc-cols: 1;
+  }
+
+  .soglia-rails {
+    display: none;
+  }
+}
