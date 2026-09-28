@@ -287,13 +287,13 @@ agents:
     timeout_ms: 10000
   concurrent-0:
     rootfs: $rootfs
-    command: ["/agent", "proxy-connect-many-report allowed.test:443 40000 4 /tmp/b3-report.jsonl 2"]
+    command: ["/agent", "proxy-connect-many-report allowed.test:443 40000 4 /tmp/b3-report.jsonl 10"]
     env: {}
     timeout_ms: 15000
     tmpfs: [{ path: /tmp, size_bytes: 1048576 }]
   concurrent-1:
     rootfs: $rootfs
-    command: ["/agent", "proxy-connect-many-report allowed.test:443 40000 4 /tmp/b3-report.jsonl 2"]
+    command: ["/agent", "proxy-connect-many-report allowed.test:443 40000 4 /tmp/b3-report.jsonl 10"]
     env: {}
     timeout_ms: 15000
     tmpfs: [{ path: /tmp, size_bytes: 1048576 }]
