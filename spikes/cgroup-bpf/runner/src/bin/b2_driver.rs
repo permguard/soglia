@@ -2618,6 +2618,8 @@ impl ConnectionAttributor for B3RecordingAttributor {
             .ok();
             let started = Instant::now();
             let result = self.inner.resolve(peer, local).await;
+            let dns_when_resolve_returned = self.dns.load(Ordering::SeqCst);
+            let outbound_when_resolve_returned = self.outbound.load(Ordering::SeqCst);
             if let Some(barrier) = &self.completion_barrier {
                 barrier.wait().await;
             }
@@ -2633,8 +2635,8 @@ impl ConnectionAttributor for B3RecordingAttributor {
                 mismatch,
                 resolved_execution,
                 elapsed_ms: u64::try_from(started.elapsed().as_millis()).unwrap_or(u64::MAX),
-                dns_when_resolve_returned: self.dns.load(Ordering::SeqCst),
-                outbound_when_resolve_returned: self.outbound.load(Ordering::SeqCst),
+                dns_when_resolve_returned,
+                outbound_when_resolve_returned,
                 health_failure: self.health_failure.lock().ok().and_then(|failure| *failure),
             };
             if let Ok(mut observations) = self.observations.lock() {

@@ -101,21 +101,6 @@ cleanup() {
   systemctl reset-failed "$unit.service" >/dev/null 2>&1
   ip link delete b3-upstream >/dev/null 2>&1
 
-  # If the driver stopped between lifecycle operations, use the production recovery order and
-  # exact durable ownership records to sweep the partial Execution before inspecting residue.
-  if find "$runtime/sandbox" -maxdepth 1 -type f -name '*.json' -print -quit 2>/dev/null \
-    | grep -q .; then
-    systemd-run --unit="$unit" --property=Delegate=yes --property=Type=exec --pipe --wait --collect \
-      "$driver" "$binary" "$config" "$evidence/final/production-recovery" --cleanup-recovery \
-      > "$evidence/final/production-recovery-stdout.txt" \
-      2> "$evidence/final/production-recovery-stderr.txt"
-    recovery_status=$?
-    printf '%s\n' "$recovery_status" > "$evidence/final/production-recovery-status.txt"
-    if [[ $recovery_status -ne 0 ]]; then
-      printf 'production cleanup recovery exited %s\n' "$recovery_status" \
-        >> "$evidence/final/cleanup-errors.txt"
-    fi
-  fi
   if [[ -f "$state" ]] && jq -e '.pin_root and .links and .maps' "$state" >/dev/null 2>&1; then
     while IFS= read -r pin; do
       case "$pin" in
@@ -374,7 +359,8 @@ current_phase=RUNNING_CASES
 persist_state
 set +e
 systemd-run --unit="$unit" --property=Delegate=yes --property=Type=exec --pipe --wait --collect \
-  "$driver" "$binary" "$config" "$evidence/driver" \
+  /soglia/spikes/cgroup-bpf/runner/scripts/b3-driver-guard.sh \
+  "$driver" "$binary" "$config" "$evidence/driver" "$evidence/final/production-recovery" \
   > "$evidence/driver-stdout.txt" 2> "$evidence/driver-stderr.txt"
 driver_status=$?
 set -e
