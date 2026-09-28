@@ -511,6 +511,7 @@ fn proxy_connect_report(
                 );
                 let _ = append_report(report, &line);
                 print(line);
+                thread::sleep(Duration::from_secs(hold_secs));
             }
             "close" => {}
             _ => {
