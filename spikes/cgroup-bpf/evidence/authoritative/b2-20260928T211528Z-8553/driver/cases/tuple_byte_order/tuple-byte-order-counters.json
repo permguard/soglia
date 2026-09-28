@@ -1,0 +1,264 @@
+{
+  "active_baseline": {
+    "C_PUBLISHED": 3,
+    "C_TUPLE_INSERT_FAILED": 0,
+    "C_UNPUBLISHED": 0
+  },
+  "after_socket_close": {
+    "C_PUBLISHED": 4,
+    "C_TUPLE_INSERT_FAILED": 0,
+    "C_UNPUBLISHED": 1
+  },
+  "delta": {
+    "C_PUBLISHED": 1,
+    "C_TUPLE_INSERT_FAILED": 0,
+    "C_UNPUBLISHED": 1
+  },
+  "lookup_and_delete_changes_counters": false,
+  "proves_sockops_unpublish": true,
+  "raw_after_socket_close": [
+    {
+      "formatted": {
+        "key": 0,
+        "value": 0
+      },
+      "key": [
+        "0x00",
+        "0x00",
+        "0x00",
+        "0x00"
+      ],
+      "value": [
+        "0x00",
+        "0x00",
+        "0x00",
+        "0x00",
+        "0x00",
+        "0x00",
+        "0x00",
+        "0x00"
+      ]
+    },
+    {
+      "formatted": {
+        "key": 1,
+        "value": 0
+      },
+      "key": [
+        "0x01",
+        "0x00",
+        "0x00",
+        "0x00"
+      ],
+      "value": [
+        "0x00",
+        "0x00",
+        "0x00",
+        "0x00",
+        "0x00",
+        "0x00",
+        "0x00",
+        "0x00"
+      ]
+    },
+    {
+      "formatted": {
+        "key": 2,
+        "value": 0
+      },
+      "key": [
+        "0x02",
+        "0x00",
+        "0x00",
+        "0x00"
+      ],
+      "value": [
+        "0x00",
+        "0x00",
+        "0x00",
+        "0x00",
+        "0x00",
+        "0x00",
+        "0x00",
+        "0x00"
+      ]
+    },
+    {
+      "formatted": {
+        "key": 3,
+        "value": 4
+      },
+      "key": [
+        "0x03",
+        "0x00",
+        "0x00",
+        "0x00"
+      ],
+      "value": [
+        "0x04",
+        "0x00",
+        "0x00",
+        "0x00",
+        "0x00",
+        "0x00",
+        "0x00",
+        "0x00"
+      ]
+    },
+    {
+      "formatted": {
+        "key": 4,
+        "value": 1
+      },
+      "key": [
+        "0x04",
+        "0x00",
+        "0x00",
+        "0x00"
+      ],
+      "value": [
+        "0x01",
+        "0x00",
+        "0x00",
+        "0x00",
+        "0x00",
+        "0x00",
+        "0x00",
+        "0x00"
+      ]
+    },
+    {
+      "formatted": {
+        "key": 5,
+        "value": 0
+      },
+      "key": [
+        "0x05",
+        "0x00",
+        "0x00",
+        "0x00"
+      ],
+      "value": [
+        "0x00",
+        "0x00",
+        "0x00",
+        "0x00",
+        "0x00",
+        "0x00",
+        "0x00",
+        "0x00"
+      ]
+    },
+    {
+      "formatted": {
+        "key": 6,
+        "value": 0
+      },
+      "key": [
+        "0x06",
+        "0x00",
+        "0x00",
+        "0x00"
+      ],
+      "value": [
+        "0x00",
+        "0x00",
+        "0x00",
+        "0x00",
+        "0x00",
+        "0x00",
+        "0x00",
+        "0x00"
+      ]
+    },
+    {
+      "formatted": {
+        "key": 7,
+        "value": 0
+      },
+      "key": [
+        "0x07",
+        "0x00",
+        "0x00",
+        "0x00"
+      ],
+      "value": [
+        "0x00",
+        "0x00",
+        "0x00",
+        "0x00",
+        "0x00",
+        "0x00",
+        "0x00",
+        "0x00"
+      ]
+    },
+    {
+      "formatted": {
+        "key": 8,
+        "value": 0
+      },
+      "key": [
+        "0x08",
+        "0x00",
+        "0x00",
+        "0x00"
+      ],
+      "value": [
+        "0x00",
+        "0x00",
+        "0x00",
+        "0x00",
+        "0x00",
+        "0x00",
+        "0x00",
+        "0x00"
+      ]
+    },
+    {
+      "formatted": {
+        "key": 9,
+        "value": 0
+      },
+      "key": [
+        "0x09",
+        "0x00",
+        "0x00",
+        "0x00"
+      ],
+      "value": [
+        "0x00",
+        "0x00",
+        "0x00",
+        "0x00",
+        "0x00",
+        "0x00",
+        "0x00",
+        "0x00"
+      ]
+    },
+    {
+      "formatted": {
+        "key": 10,
+        "value": 0
+      },
+      "key": [
+        "0x0a",
+        "0x00",
+        "0x00",
+        "0x00"
+      ],
+      "value": [
+        "0x00",
+        "0x00",
+        "0x00",
+        "0x00",
+        "0x00",
+        "0x00",
+        "0x00",
+        "0x00"
+      ]
+    }
+  ],
+  "source": "production Candidate-A BPF counters"
+}

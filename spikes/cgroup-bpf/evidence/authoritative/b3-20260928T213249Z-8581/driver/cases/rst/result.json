@@ -1,0 +1,67 @@
+{
+  "agent_report": "{\"cmd\":\"proxy-connect-report\",\"ok\":true,\"detail\":\"HTTP/1.1 200 OK\",\"i\":0,\"source_port\":41002,\"local\":\"10.201.0.1:41002\",\"mode\":\"rst\",\"phase\":\"established\",\"elapsed_ms\":8}\n",
+  "binding": {
+    "backend_generation": 1,
+    "cgroup_id": 7804,
+    "execution_nonce": [
+      131,
+      37,
+      137,
+      144,
+      131,
+      43,
+      114,
+      11,
+      129,
+      107,
+      187,
+      1,
+      175,
+      62,
+      19,
+      89
+    ]
+  },
+  "case": "RST",
+  "cleanup_failures": [],
+  "execution_id": "0e54a280178f5c3f860eab1addc7bc73",
+  "health_failure": null,
+  "observations": [
+    {
+      "cookie": 12324,
+      "dns_when_resolve_returned": 0,
+      "elapsed_ms": 0,
+      "health_failure": null,
+      "index": 0,
+      "local": "10.200.255.1:15001",
+      "mismatch": null,
+      "outbound_when_resolve_returned": 0,
+      "outcome": "RESOLVED",
+      "peer": "10.201.0.1:41002",
+      "recv_q_bytes": 61,
+      "resolved_execution": "0e54a280178f5c3f860eab1addc7bc73",
+      "tuple_binding": {
+        "backend_generation": 1,
+        "cgroup_id": 7804,
+        "execution_nonce": [
+          131,
+          37,
+          137,
+          144,
+          131,
+          43,
+          114,
+          11,
+          129,
+          107,
+          187,
+          1,
+          175,
+          62,
+          19,
+          89
+        ]
+      }
+    }
+  ]
+}

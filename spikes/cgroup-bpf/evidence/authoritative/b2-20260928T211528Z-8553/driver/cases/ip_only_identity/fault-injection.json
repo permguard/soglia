@@ -1,0 +1,6 @@
+{
+  "BindingKey_installed": false,
+  "fault": "IP_ONLY_IDENTITY",
+  "ip": "10.201.0.1",
+  "legacy_ip_binding_installed": true
+}

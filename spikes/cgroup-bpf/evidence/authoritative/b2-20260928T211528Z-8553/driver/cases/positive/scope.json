@@ -1,0 +1,11 @@
+{
+  "case": "POSITIVE",
+  "configured_timeout_ms": 2000,
+  "injected_fault_count": 0,
+  "injection_owner": "none",
+  "maximum_acceptable_elapsed_ms": null,
+  "minimum_acceptable_elapsed_ms": null,
+  "production_code_modified": false,
+  "same_production_build": true,
+  "same_topology": true
+}

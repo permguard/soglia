@@ -793,10 +793,10 @@ was subsequently authorized under the normative production design; the existing
 ## Production qualification status
 
 The current authoritative B1 qualification is
-[`b1-20260928T113442Z-8393`](evidence/authoritative/b1-20260928T113442Z-8393/).
+[`b1-20260928T211104Z-8595`](evidence/authoritative/b1-20260928T211104Z-8595/).
 It qualifies the Candidate-A production implementation at production commit
-`d2a61480f1f771358fd8579ddd4d63191c552f10`; its complete source fingerprint is
-`2e95ce6f01fb97668a49e573f70bdb86ddea63de` with an empty working-tree diff.
+`bc55e76725c251a5ae3b89360b014563dd8249df`; its complete source fingerprint is
+`668562dd4a40570157eb92859efbb07f72eec508` with an empty working-tree diff.
 The run records `authoritative: true`, B1 `PASS`, all thirteen qualified
 properties true and cleanup `PASS`. Its BPF inventory result is
 `EXTERNAL_CHURN`: only systemd-owned `sd_*` program IDs changed while the full
@@ -810,15 +810,21 @@ The earlier authoritative B1 runs are retained but superseded:
   predates the production cleanup `ENOENT` correction;
 - [`b1-20260927T235134Z-8460`](evidence/authoritative/b1-20260927T235134Z-8460/)
   includes that correction but predates the typed, correlated one-shot Resolve
-  protocol qualified by the current run.
+  protocol;
+- [`b1-20260928T113442Z-8393`](evidence/authoritative/b1-20260928T113442Z-8393/)
+  qualifies the typed Resolve implementation before the durable-record policy
+  validation correction in `bc55e76`.
 
-Neither superseded run counts as the current B1 qualification.
+None of the superseded runs counts as the current B1 qualification.
+Simulation of a kernel missing a required feature remains `NOT_PERFORMED`:
+the qualification did not modify the production BPF object, so support remains
+limited to the exact recorded platform fingerprint.
 
 The current authoritative B2 qualification is
-[`b2-20260928T153155Z-8510`](evidence/authoritative/b2-20260928T153155Z-8510/).
+[`b2-20260928T211528Z-8553`](evidence/authoritative/b2-20260928T211528Z-8553/).
 It qualifies production commit
-`d2a61480f1f771358fd8579ddd4d63191c552f10` with the B2 harness and complete
-source fingerprint `a351ae77bab8ee4612cd0738dbae44dca65766e1`; the recorded
+`bc55e76725c251a5ae3b89360b014563dd8249df` with the B2 harness and complete
+source fingerprint `668562dd4a40570157eb92859efbb07f72eec508`; the recorded
 working-tree diff is empty. The run records `authoritative: true`, B2 `PASS`
 and all eleven cases `PASS`. In addition to the positive chain and the typed
 placement and Resolve refusals, it independently qualifies `wrong_destination`,
@@ -830,16 +836,46 @@ application read, DNS or outbound effect. Cleanup is `PASS`; programs are
 while links and maps are `MATCH` and no Soglia-owned object remains. All 356
 entries in `SHA256SUMS` verify.
 
-B3 through B7 for this production revision remain `NOT_EXECUTED` and require
-their own reviewed authoritative evidence.
+Capacity exhaustion and helper-loss cancellation remain `NOT_PERFORMED` in B2
+because they belong respectively to B4 and B6.
 
-The earlier authoritative B2 run
+The earlier authoritative B2 runs are retained but superseded:
+
+- [`b2-20260928T060551Z-8414`](evidence/authoritative/b2-20260928T060551Z-8414/)
+  predates typed Resolve and its `tuple_byte_order` case swapped both source and
+  destination ports, so it exercised the proxy-destination guard rather than
+  the source-port byte-order invariant;
+- [`b2-20260928T153155Z-8510`](evidence/authoritative/b2-20260928T153155Z-8510/)
+  qualifies the typed B2 chain before the durable-record policy validation
+  correction in `bc55e76`.
+
+Neither superseded run counts as the current B2 qualification.
+
+The current and first authoritative B3 qualification is
+[`b3-20260928T213249Z-8581`](evidence/authoritative/b3-20260928T213249Z-8581/).
+It qualifies production commit
+`bc55e76725c251a5ae3b89360b014563dd8249df` with source fingerprint
+`668562dd4a40570157eb92859efbb07f72eec508` and an empty working-tree diff.
+The run records `authoritative: true`, B3 `PASS`, all thirteen cases `PASS`,
+all sixteen ordinary binding-mismatch cells `PASS`, all three durable-record
+mismatch cells `PASS`, and all 202 freeze/Resolve race iterations `PASS` with
+no post-freeze effects. In particular, changing only the durable record's
+execution nonce now refuses startup as `UNKNOWN per-Execution ownership record`
+without changing a kernel object. Lifecycle cleanup, source-port reuse, old
+close cookie protection, generation advance, CONNECT tunnel revocation and
+counter accounting all pass. Cleanup is `PASS`; programs are
+`EXTERNAL_CHURN` only for equivalent systemd-owned replacements, links and maps
+are `MATCH`, and all 1914 `SHA256SUMS` entries verify.
+
+Actual cgroup-ID reuse is `NOT_PERFORMED`: the recorded kernel exposes a 64-bit
+kernfs identity carrying generation information and did not reuse a destroyed
+identity during the bounded lifecycle. The required stale-nonce and generation
+classes were nevertheless exercised deterministically by the mismatch matrix.
+
+B1, B2 and B3 are therefore qualified on production commit `bc55e76` and
+harness/source fingerprint `668562d`. B4 through B7 remain `NOT_EXECUTED` and
+require their own reviewed authoritative evidence.
+
+Historical note: the first authoritative B2 run
 [`b2-20260928T060551Z-8414`](evidence/authoritative/b2-20260928T060551Z-8414/)
-is retained as superseded historical evidence. Its `tuple_byte_order` case swapped both
-the source and destination ports, so it exercised the production proxy-
-destination guard rather than proving the tuple source-port byte-order
-invariant. It must not be cited as qualification of that invariant. The current
-typed-Resolve B2 qualification adds a separate `wrong_destination` case, keeps
-the proxy destination unchanged in `tuple_byte_order`, explicitly qualifies
-host-origin anti-spoofing, and executes the concurrent no-publication case from
-inside an Execution.
+must not be cited as qualification of the source-port byte-order invariant.

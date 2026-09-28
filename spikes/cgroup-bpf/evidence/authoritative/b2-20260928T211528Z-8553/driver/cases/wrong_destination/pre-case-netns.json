@@ -1,0 +1,5 @@
+{
+  "case": "WRONG_DESTINATION",
+  "previous_netns_path": "/run/netns/soglia-b365f85baf",
+  "previous_netns_path_absent": true
+}

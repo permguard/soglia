@@ -1,0 +1,337 @@
+Running as unit: soglia-b3.service
+event.name=cgroup_bpf.attach_probe result=PASS mode=single hooks=6 effective=true
+event.name=cgroup_bpf.ready generation=1 programs=6 links=6 maps=7 policy_capacity=3 socket_capacity=128 ring_bytes=65536
+2026-09-28T21:32:55.026947Z  INFO egress request allowed event.name="egress.allowed" execution_id=5a754514ac9753cc1916125a1dc8e057 method=CONNECT target=allowed.test:443 status=200
+2026-09-28T21:32:55.026950Z  INFO egress request allowed event.name="egress.allowed" execution_id=a366fa7f7d990933d79b42ba95a2f2bf method=CONNECT target=allowed.test:443 status=200
+2026-09-28T21:32:55.028027Z  INFO egress request allowed event.name="egress.allowed" execution_id=a366fa7f7d990933d79b42ba95a2f2bf method=CONNECT target=allowed.test:443 status=200
+2026-09-28T21:32:55.028153Z  INFO egress request allowed event.name="egress.allowed" execution_id=5a754514ac9753cc1916125a1dc8e057 method=CONNECT target=allowed.test:443 status=200
+2026-09-28T21:32:55.028333Z  INFO egress request allowed event.name="egress.allowed" execution_id=5a754514ac9753cc1916125a1dc8e057 method=CONNECT target=allowed.test:443 status=200
+2026-09-28T21:32:55.027888Z  INFO egress request allowed event.name="egress.allowed" execution_id=a366fa7f7d990933d79b42ba95a2f2bf method=CONNECT target=allowed.test:443 status=200
+2026-09-28T21:32:55.026966Z  INFO egress request allowed event.name="egress.allowed" execution_id=5a754514ac9753cc1916125a1dc8e057 method=CONNECT target=allowed.test:443 status=200
+2026-09-28T21:32:55.026980Z  INFO egress request allowed event.name="egress.allowed" execution_id=a366fa7f7d990933d79b42ba95a2f2bf method=CONNECT target=allowed.test:443 status=200
+2026-09-28T21:32:55.032499Z  INFO tunnel ended event.name="egress.tunnel_ended" execution_id=a366fa7f7d990933d79b42ba95a2f2bf end="runtime-shutdown"
+2026-09-28T21:32:55.032682Z  INFO tunnel ended event.name="egress.tunnel_ended" execution_id=a366fa7f7d990933d79b42ba95a2f2bf end="runtime-shutdown"
+2026-09-28T21:32:55.033350Z  INFO tunnel ended event.name="egress.tunnel_ended" execution_id=5a754514ac9753cc1916125a1dc8e057 end="runtime-shutdown"
+2026-09-28T21:32:55.032557Z  INFO tunnel ended event.name="egress.tunnel_ended" execution_id=a366fa7f7d990933d79b42ba95a2f2bf end="runtime-shutdown"
+2026-09-28T21:32:55.033552Z  INFO tunnel ended event.name="egress.tunnel_ended" execution_id=a366fa7f7d990933d79b42ba95a2f2bf end="runtime-shutdown"
+2026-09-28T21:32:55.032548Z  INFO tunnel ended event.name="egress.tunnel_ended" execution_id=5a754514ac9753cc1916125a1dc8e057 end="runtime-shutdown"
+2026-09-28T21:32:55.033478Z  INFO tunnel ended event.name="egress.tunnel_ended" execution_id=5a754514ac9753cc1916125a1dc8e057 end="runtime-shutdown"
+2026-09-28T21:32:55.032536Z  INFO tunnel ended event.name="egress.tunnel_ended" execution_id=5a754514ac9753cc1916125a1dc8e057 end="runtime-shutdown"
+2026-09-28T21:32:55.436989Z  INFO egress request allowed event.name="egress.allowed" execution_id=710228b87414a859d14fc1ada6967782 method=CONNECT target=allowed.test:443 status=200
+soglia-agent 2026-09-28T21:32:55.437461Z  INFO tunnel ended event.name="egress.tunnel_ended" execution_id=710228b87414a859d14fc1ada6967782 end="closed"
+710228b87414a859d14fc1ada6967782: {"cmd":"proxy-connect-report","ok":true,"detail":"HTTP/1.1 200 OK","i":0,"source_port":41000,"local":"10.201.0.1:41000","mode":"close","phase":"established","elapsed_ms":3}
+2026-09-28T21:32:55.685424Z  INFO egress request allowed event.name="egress.allowed" execution_id=fd4bdc28ae6bbe4a0d18d8763a75672a method=CONNECT target=allowed.test:443 status=200
+soglia-agent 2026-09-28T21:32:55.687631Z  INFO tunnel ended event.name="egress.tunnel_ended" execution_id=fd4bdc28ae6bbe4a0d18d8763a75672a end="closed"
+fd4bdc28ae6bbe4a0d18d8763a75672a: {"cmd":"proxy-connect-report","ok":true,"detail":"HTTP/1.1 200 OK","i":0,"source_port":41001,"local":"10.201.0.1:41001","mode":"fin","phase":"established","elapsed_ms":7}
+2026-09-28T21:32:55.949034Z  INFO egress request allowed event.name="egress.allowed" execution_id=0e54a280178f5c3f860eab1addc7bc73 method=CONNECT target=allowed.test:443 status=200
+soglia-agent 2026-09-28T21:32:55.950632Z  INFO tunnel ended event.name="egress.tunnel_ended" execution_id=0e54a280178f5c3f860eab1addc7bc73 end="failed"
+0e54a280178f5c3f860eab1addc7bc73: {"cmd":"proxy-connect-report","ok":true,"detail":"HTTP/1.1 200 OK","i":0,"source_port":41002,"local":"10.201.0.1:41002","mode":"rst","phase":"established","elapsed_ms":8}
+soglia-agent d452876e95d5146e3fa8a90902967be1: {"cmd":"proxy-connect-report","ok":false,"errno":111,"error":"Connection refused (os error 111)","i":0,"source_port":41003,"mode":"close" ,"phase":"connect"}
+2026-09-28T21:32:56.463705Z  INFO egress request allowed event.name="egress.allowed" execution_id=c307f1dd9c8985fb9e6445c035b62a65 method=CONNECT target=allowed.test:443 status=200
+soglia-agent c307f12026-09-28T21:32:56.469147Z  INFO tunnel ended event.name="egress.tunnel_ended" execution_id=c307f1dd9c8985fb9e6445c035b62a65 end="closed"
+dd9c8985fb9e6445c035b62a65: {"cmd":"proxy-connect-report","ok":true,"detail":"HTTP/1.1 200 OK","i":0,"source_port":41004,"local":"10.201.0.1:41004","mode":"hold","phase":"established","elapsed_ms":8}
+2026-09-28T21:32:56.956839Z  INFO egress request allowed event.name="egress.allowed" execution_id=d1a4d50460b9760c755c1b5a8809722a method=CONNECT target=allowed.test:443 status=200
+2026-09-28T21:32:56.967807Z  INFO tunnel ended event.name="egress.tunnel_ended" execution_id=d1a4d50460b9760c755c1b5a8809722a end="closed"
+2026-09-28T21:32:56.988720Z  INFO egress request allowed event.name="egress.allowed" execution_id=d1a4d50460b9760c755c1b5a8809722a method=CONNECT target=allowed.test:443 status=200
+soglia-agent 2026-09-28T21:32:56.988921Z  INFO tunnel ended event.name="egress.tunnel_ended" execution_id=d1a4d50460b9760c755c1b5a8809722a end="closed"
+d1a4d50460b9760c755c1b5a8809722a: {"cmd":"proxy-reuse-report","ok":true,"detail":"HTTP/1.1 200 OK; HTTP/1.1 200 OK"}
+2026-09-28T21:32:57.237545Z  INFO egress request allowed event.name="egress.allowed" execution_id=fe8317dbb5438e05b83ed9ce0b697c20 method=CONNECT target=allowed.test:443 status=200
+soglia-agent 2026-09-28T21:32:57.238257Z  INFO tunnel ended event.name="egress.tunnel_ended" execution_id=fe8317dbb5438e05b83ed9ce0b697c20 end="closed"
+fe8317dbb5438e05b83ed9ce0b697c20: {"cmd":"proxy-connect-report","ok":true,"detail":"HTTP/1.1 200 OK","i":0,"source_port":42000,"local":"10.201.0.1:42000","mode":"close","phase":"established","elapsed_ms":4}
+2026-09-28T21:32:57.497575Z  INFO egress request allowed event.name="egress.allowed" execution_id=cc081c99282986950a2dcb1f9c60b0f1 method=CONNECT target=allowed.test:443 status=200
+2026-09-28T21:32:57.499081Z  INFO tunnel ended event.name="egress.tunnel_ended" execution_id=cc081c99282986950a2dcb1f9c60b0f1 end="runtime-shutdown"
+soglia-agent cc081c99282986950a2dcb1f9c60b0f1: {"cmd":"proxy-connect-report","ok":true,"detail":"HTTP/1.1 200 OK","i":0,"source_port":42000,"local":"10.201.0.1:42000","mode":"close","phase":"established","elapsed_ms":6}
+2026-09-28T21:32:57.757531Z  WARN Candidate-A Resolve denied event.name="cgroup_bpf.resolve_identity_mismatch" reason=CgroupId
+2026-09-28T21:32:57.757604Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:43000 result=IdentityMismatch(CgroupId)
+soglia-agent e1c0f8cafe91ecd4c96be2f7a3e86541: {"cmd":"proxy-connect-report","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)","i":0,"source_port":43000,"local":"10.201.0.1:43000","mode":"close","phase":"established","elapsed_ms":12}
+2026-09-28T21:32:58.016814Z  WARN Candidate-A Resolve denied event.name="cgroup_bpf.resolve_identity_mismatch" reason=ExecutionNonce
+2026-09-28T21:32:58.020438Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:43000 result=IdentityMismatch(ExecutionNonce)
+soglia-agent 5da822a571f6738f3f5dc48a6d465470: {"cmd":"proxy-connect-report","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)","i":0,"source_port":43000,"local":"10.201.0.1:43000","mode":"close","phase":"established","elapsed_ms":12}
+2026-09-28T21:32:58.268931Z  WARN Candidate-A Resolve denied event.name="cgroup_bpf.resolve_identity_mismatch" reason=BackendGeneration
+2026-09-28T21:32:58.269009Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:43000 result=IdentityMismatch(BackendGeneration)
+soglia-agent 7a22f1776f1afb3b7b2586e621a7a266: {"cmd":"proxy-connect-report","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)","i":0,"source_port":43000,"local":"10.201.0.1:43000","mode":"close","phase":"established","elapsed_ms":10}
+2026-09-28T21:32:58.518326Z  WARN Candidate-A Resolve denied event.name="cgroup_bpf.resolve_identity_mismatch" reason=Cookie
+2026-09-28T21:32:58.531166Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:43000 result=IdentityMismatch(Cookie)
+soglia-agent 6f998e23981eb5bbb198a21028e5e81b: {"cmd":"proxy-connect-report","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)","i":0,"source_port":43000,"local":"10.201.0.1:43000","mode":"close","phase":"established","elapsed_ms":22}
+2026-09-28T21:32:58.786324Z  WARN Candidate-A Resolve denied event.name="cgroup_bpf.resolve_identity_mismatch" reason=Cookie
+2026-09-28T21:32:58.791133Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:43000 result=IdentityMismatch(Cookie)
+soglia-agent 68c86c295c2c8d73d4bd6449d96cb5d6: {"cmd":"proxy-connect-report","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)","i":0,"source_port":43000,"local":"10.201.0.1:43000","mode":"close","phase":"established","elapsed_ms":13}
+2026-09-28T21:32:59.039051Z  WARN Candidate-A Resolve denied event.name="cgroup_bpf.resolve_identity_mismatch" reason=Cookie
+2026-09-28T21:32:59.040714Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:43000 result=IdentityMismatch(Cookie)
+soglia-agent 2871191bf5c3aebd3b78c40680c46c0a: {"cmd":"proxy-connect-report","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)","i":0,"source_port":43000,"local":"10.201.0.1:43000","mode":"close","phase":"established","elapsed_ms":12}
+2026-09-28T21:32:59.296570Z  WARN Candidate-A Resolve denied event.name="cgroup_bpf.resolve_identity_mismatch" reason=Policy
+2026-09-28T21:32:59.298216Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:43000 result=IdentityMismatch(Policy)
+soglia-agent 05e20151a7ab5c2ea72ad9a0f7c5c806: {"cmd":"proxy-connect-report","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)","i":0,"source_port":43000,"local":"10.201.0.1:43000","mode":"close","phase":"established","elapsed_ms":14}
+2026-09-28T21:32:59.556290Z  WARN Candidate-A Resolve denied event.name="cgroup_bpf.resolve_identity_mismatch" reason=Policy
+2026-09-28T21:32:59.561139Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:43000 result=IdentityMismatch(Policy)
+soglia-agent 5157ba76d64036d93a5904c6f3b26334: {"cmd":"proxy-connect-report","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)","i":0,"source_port":43000,"local":"10.201.0.1:43000","mode":"close","phase":"established","elapsed_ms":15}
+2026-09-28T21:32:59.810666Z  WARN Candidate-A Resolve denied event.name="cgroup_bpf.resolve_identity_mismatch" reason=Policy
+2026-09-28T21:32:59.812623Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:43000 result=IdentityMismatch(Policy)
+soglia-agent f4f3548dc186f8c9140bbd95aa09f506: {"cmd":"proxy-connect-report","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)","i":0,"source_port":43000,"local":"10.201.0.1:43000","mode":"close","phase":"established","elapsed_ms":14}
+2026-09-28T21:33:00.059401Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:43000 result=NotFound
+soglia-agent 17f20e9190bb9cc38c124fe417423035: {"cmd":"proxy-connect-report","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)","i":0,"source_port":43000,"local":"10.201.0.1:43000","mode":"close","phase":"established","elapsed_ms":8}
+2026-09-28T21:33:00.319875Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:43000 result=NotFound
+soglia-agent 0f4e59b79c2ad17094a9e0621e22b2b7: {"cmd":"proxy-connect-report","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)","i":0,"source_port":43000,"local":"10.201.0.1:43000","mode":"close","phase":"established","elapsed_ms":6}
+2026-09-28T21:33:00.572361Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:43000 result=NotFound
+soglia-agent 38c8c41be0208422efede1250e490f76: {"cmd":"proxy-connect-report","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)","i":0,"source_port":43000,"local":"10.201.0.1:43000","mode":"close","phase":"established","elapsed_ms":3}
+2026-09-28T21:33:00.825634Z  WARN Candidate-A Resolve denied event.name="cgroup_bpf.resolve_identity_mismatch" reason=BackendGeneration
+2026-09-28T21:33:00.829207Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:43000 result=IdentityMismatch(BackendGeneration)
+soglia-agent a27b5650333c97650d536d8ef774d2d2: {"cmd":"proxy-connect-report","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)","i":0,"source_port":43000,"local":"10.201.0.1:43000","mode":"close","phase":"established","elapsed_ms":12}
+2026-09-28T21:33:01.092026Z  WARN Candidate-A Resolve denied event.name="cgroup_bpf.resolve_identity_mismatch" reason=OwnershipRecord
+2026-09-28T21:33:01.092119Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:43000 result=IdentityMismatch(OwnershipRecord)
+soglia-agent 7bb7522aab1f64281abc033efc6d18e0: {"cmd":"proxy-connect-report","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)","i":0,"source_port":43000,"local":"10.201.0.1:43000","mode":"close","phase":"established","elapsed_ms":11}
+2026-09-28T21:33:01.366555Z  WARN Candidate-A Resolve denied event.name="cgroup_bpf.resolve_identity_mismatch" reason=Cookie
+2026-09-28T21:33:01.367968Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:43000 result=IdentityMismatch(Cookie)
+soglia-agent 407b64bdc0dad7a4d6592ec47be66cfb: {"cmd":"proxy-connect-report","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)","i":0,"source_port":43000,"local":"10.201.0.1:43000","mode":"close","phase":"established","elapsed_ms":13}
+2026-09-28T21:33:01.633653Z  WARN Candidate-A Resolve denied event.name="cgroup_bpf.resolve_identity_mismatch" reason=Cookie
+2026-09-28T21:33:01.638943Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:43000 result=IdentityMismatch(Cookie)
+soglia-agent 479fb690d0f99a91b4c4c72d1795fa5c: {"cmd":"proxy-connect-report","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)","i":0,"source_port":43000,"local":"10.201.0.1:43000","mode":"close","phase":"established","elapsed_ms":15}
+2026-09-28T21:33:01.884647Z  INFO egress request allowed event.name="egress.allowed" execution_id=efef971437de1520dc6f9b1d0ce8e9e3 method=CONNECT target=allowed.test:443 status=200
+2026-09-28T21:33:01.886689Z  INFO tunnel ended event.name="egress.tunnel_ended" execution_id=efef971437de1520dc6f9b1d0ce8e9e3 end="execution-teardown"
+soglia-agent efef971437de1520dc6f9b1d0ce8e9e3: {"cmd":"proxy-connect-report","ok":true,"detail":"HTTP/1.1 200 OK","i":0,"source_port":44000,"local":"10.201.0.1:44000","mode":"hold","phase":"established","elapsed_ms":3}
+soglia-agent efef971437de1520dc6f9b1d0ce8e9e3: {"cmd":"proxy-connect-report","ok":true,"detail":"proxy closed the tunnel","i":0,"source_port":44000,"mode":"hold","phase":"closed","elapsed_ms":3}
+2026-09-28T21:33:02.158782Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:02.428726Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:02.692047Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:02.960487Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:03.230062Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+soglia-agent 552090e53e9b7df0921bc70bdcdbc755: {"cmd":"proxy-connect-report","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)","i":0,"source_port":44000,"local":"10.201.0.1:44000","mode":"hold","phase":"established","elapsed_ms":0}
+2026-09-28T21:33:03.510377Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:03.782916Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:04.059353Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:04.330736Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:04.599975Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:04.872884Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:05.126266Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+soglia-agent 1fde44dd5aee03402c11762cc4d060f7: {"cmd":"proxy-connect-report","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)","i":0,"source_port":44000,"local":"10.201.0.1:44000","mode":"hold","phase":"established","elapsed_ms":4}
+2026-09-28T21:33:05.418558Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:05.697510Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:05.968560Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:06.256000Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:06.520691Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+soglia-agent 846cc080a1a88f16dc6539385cfb2347: {"cmd":"proxy-connect-report","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)","i":0,"source_port":44000,"local":"10.201.0.1:44000","mode":"hold","phase":"established","elapsed_ms":4}
+2026-09-28T21:33:06.807019Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:07.076675Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:07.349931Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+soglia-agent 7c5126c52b269a02d9597c68da646229: {"cmd":"proxy-connect-report","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)","i":0,"source_port":44000,"local":"10.201.0.1:44000","mode":"hold","phase":"established","elapsed_ms":3}
+2026-09-28T21:33:07.633974Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:07.903853Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:08.179348Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:08.448953Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:08.722771Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:08.988297Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+soglia-agent 5888fa5c209b890f653af194ea32d14f: {"cmd":"proxy-connect-report","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)","i":0,"source_port":44000,"local":"10.201.0.1:44000","mode":"hold","phase":"established","elapsed_ms":0}
+2026-09-28T21:33:09.276779Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:09.538235Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+soglia-agent 9855b0a07a451f69a078fde0debf9eb2: {"cmd":"proxy-connect-report","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)","i":0,"source_port":44000,"local":"10.201.0.1:44000","mode":"hold","phase":"established","elapsed_ms":4}
+2026-09-28T21:33:09.817912Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:10.080221Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:10.344483Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:10.603967Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+soglia-agent b7cc041ac7caf3f22e6c17ed7820db99: {"cmd":"proxy-connect-report","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)","i":0,"source_port":44000,"local":"10.201.0.1:44000","mode":"hold","phase":"established","elapsed_ms":4}
+2026-09-28T21:33:10.875642Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:11.147712Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:11.426881Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:11.701541Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:11.980650Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:12.244734Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:12.508056Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:12.786779Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:13.076436Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:13.349544Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:13.631076Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:13.903538Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:14.166963Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+soglia-agent 4beae8171ec390323563592c5f899e04: {"cmd":"proxy-connect-report","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)","i":0,"source_port":44000,"local":"10.201.0.1:44000","mode":"hold","phase":"established","elapsed_ms":0}
+2026-09-28T21:33:14.446857Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:14.711351Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:15.008117Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:15.290510Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:15.568351Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:15.841080Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:16.107912Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:16.376739Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:16.641803Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:16.924362Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:17.195554Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:17.469591Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:17.743410Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:18.006306Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+soglia-agent 0e89f6cb409cafe7e4d2b6771530b04f: {"cmd":"proxy-connect-report","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)","i":0,"source_port":44000,"local":"10.201.0.1:44000","mode":"hold","phase":"established","elapsed_ms":3}
+2026-09-28T21:33:18.282626Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:18.547456Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:18.811641Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:19.076667Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:19.345305Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:19.617478Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+soglia-agent ec63d9f7aac9b2873a1332ff5ee31ae0: {"cmd":"proxy-connect-report","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)","i":0,"source_port":44000,"local":"10.201.0.1:44000","mode":"hold","phase":"established","elapsed_ms":0}
+2026-09-28T21:33:19.889234Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+soglia-agent 08f918c6cb2b3a9bd709cb27d270f142: {"cmd":"proxy-connect-report","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)","i":0,"source_port":44000,"local":"10.201.0.1:44000","mode":"hold","phase":"established","elapsed_ms":3}
+2026-09-28T21:33:20.177952Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:20.444555Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:20.714926Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:20.987744Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:21.255828Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+soglia-agent 35b27083a69e3a1cdcd35e44850983a9: {"cmd":"proxy-connect-report","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)","i":0,"source_port":44000,"local":"10.201.0.1:44000","mode":"hold","phase":"established","elapsed_ms":5}
+2026-09-28T21:33:21.532929Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:21.804385Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:22.076567Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:22.344602Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:22.624762Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:22.887883Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+soglia-agent f1e126d1d95381db89ac7f9a263de470: {"cmd":"proxy-connect-report","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)","i":0,"source_port":44000,"local":"10.201.0.1:44000","mode":"hold","phase":"established","elapsed_ms":4}
+2026-09-28T21:33:23.168565Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:23.440294Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:23.712872Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:23.981485Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:24.252514Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:24.521563Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:24.785949Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+soglia-agent 9ebb94fa997ef53754d9e2db5a74f4f6: {"cmd":"proxy-connect-report","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)","i":0,"source_port":44000,"local":"10.201.0.1:44000","mode":"hold","phase":"established","elapsed_ms":3}
+2026-09-28T21:33:25.066474Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:25.336426Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:25.601412Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:25.874945Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:26.142514Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:26.417361Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:26.680890Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:26.941942Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:27.208936Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:27.480545Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:27.760510Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:28.023998Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:28.292154Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:28.565541Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:28.826929Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:29.090717Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:29.357775Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:29.628634Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:29.907850Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:30.177168Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:30.449899Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:30.723709Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:30.988841Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:31.258300Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:31.525741Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:31.804627Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:32.067788Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+soglia-agent af1a6be540e9daabe4dd49e0807f92c2: {"cmd":"proxy-connect-report","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)","i":0,"source_port":44000,"local":"10.201.0.1:44000","mode":"hold","phase":"established","elapsed_ms":0}
+2026-09-28T21:33:32.351020Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:32.624560Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:32.898981Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+soglia-agent 9109d2cd119198d48b082d7c9fe8121a: {"cmd":"proxy-connect-report","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)","i":0,"source_port":44000,"local":"10.201.0.1:44000","mode":"hold","phase":"established","elapsed_ms":5}
+2026-09-28T21:33:33.192117Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:33.449009Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+soglia-agent 86824dc19e6aba3e93101fd6a1b467f0: {"cmd":"proxy-connect-report","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)","i":0,"source_port":44000,"local":"10.201.0.1:44000","mode":"hold","phase":"established","elapsed_ms":0}
+2026-09-28T21:33:33.734587Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:34.005375Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:34.278943Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:34.554636Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:34.821580Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:35.088017Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:35.359776Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:35.620936Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+soglia-agent 0c045c995600294d109e39793a89119c: {"cmd":"proxy-connect-report","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)","i":0,"source_port":44000,"local":"10.201.0.1:44000","mode":"hold","phase":"established","elapsed_ms":4}
+2026-09-28T21:33:35.895495Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:36.161656Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:36.431684Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:36.698779Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:36.966476Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:37.248626Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:37.512650Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:37.778519Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:38.046849Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:38.315951Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:38.580420Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:38.852534Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:39.127040Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:39.399648Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:39.663333Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:39.923699Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:40.189514Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:40.462502Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:40.730599Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:40.998858Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:41.270572Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:41.535869Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:41.802350Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:42.075701Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:42.339925Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:42.607791Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:42.876892Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:43.146575Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:43.417586Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:43.681727Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:43.946720Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:44.217025Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:44.484022Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:44.755770Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:45.021690Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:45.290488Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:45.555933Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+soglia-agent 43b2e0cabfa77259a0607cb6b75c78eb: {"cmd":"proxy-connect-report","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)","i":0,"source_port":44000,"local":"10.201.0.1:44000","mode":"hold","phase":"established","elapsed_ms":4}
+2026-09-28T21:33:45.852464Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:46.122389Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:46.393724Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:46.663674Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:46.933212Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:47.212610Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:47.474977Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+soglia-agent 9b06184683a3f2cf05092de0f24a8929: {"cmd":"proxy-connect-report","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)","i":0,"source_port":44000,"local":"10.201.0.1:44000","mode":"hold","phase":"established","elapsed_ms":3}
+2026-09-28T21:33:47.746699Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:48.027974Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:48.294395Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:48.569872Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:48.833827Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:49.095883Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+soglia-agent e97025b33e07f499d72f44b58693cf4b: {"cmd":"proxy-connect-report","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)","i":0,"source_port":44000,"local":"10.201.0.1:44000","mode":"hold","phase":"established","elapsed_ms":4}
+2026-09-28T21:33:49.369700Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:49.634636Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:49.892515Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:50.154910Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+soglia-agent 96369c267ab1fba9d62851c2c8ddff40: {"cmd":"proxy-connect-report","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)","i":0,"source_port":44000,"local":"10.201.0.1:44000","mode":"hold","phase":"established","elapsed_ms":3}
+2026-09-28T21:33:50.438759Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:50.708879Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:50.963678Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:51.233754Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:51.512635Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:51.780772Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:52.043805Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+soglia-agent e1fd5509c6a6b8e83689b944b4b61367: {"cmd":"proxy-connect-report","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)","i":0,"source_port":44000,"local":"10.201.0.1:44000","mode":"hold","phase":"established","elapsed_ms":1}
+2026-09-28T21:33:52.315692Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:52.585764Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:52.857507Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:53.120169Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:53.385649Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:53.652375Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:53.934601Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:54.207392Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:54.475908Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:54.745374Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:55.013921Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:55.280428Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:55.540587Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:55.800106Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:56.072258Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:56.344132Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+2026-09-28T21:33:56.605987Z  INFO egress request allowed event.name="egress.allowed" execution_id=1247eb9ebea7eebdd8b70c4f03a3813a method=CONNECT target=allowed.test:443 status=200
+soglia-agent 1247eb9e2026-09-28T21:33:56.613453Z  INFO tunnel ended event.name="egress.tunnel_ended" execution_id=1247eb9ebea7eebdd8b70c4f03a3813a end="execution-teardown"
+bea7eebdd8b70c4f03a3813a: {"cmd":"proxy-connect-report","ok":true,"detail":"HTTP/1.1 200 OK","i":0,"source_port":45000,"local":"10.201.0.1:45000","mode":"hold","phase":"established","elapsed_ms":7}
+soglia-agent 1247eb9ebea7eebdd8b70c4f03a3813a: {"cmd":"proxy-connect-report","ok":true,"detail":"proxy closed the tunnel","i":0,"source_port":45000,"mode":"hold","phase":"closed","elapsed_ms":11}
+soglia: the cgroup-bpf backend could not start: refused: UNKNOWN per-Execution ownership record; no kernel object was changed
+soglia: the cgroup-bpf backend could not start: refused: UNKNOWN per-Execution ownership record; no kernel object was changed
+soglia: the cgroup-bpf backend could not start: refused: UNKNOWN per-Execution ownership record; no kernel object was changed
+event.name=cgroup_bpf.attach_probe result=PASS mode=single hooks=6 effective=true
+event.name=cgroup_bpf.ready generation=2 programs=6 links=6 maps=7 policy_capacity=3 socket_capacity=128 ring_bytes=65536
+2026-09-28T21:33:57.431152Z  INFO egress request allowed event.name="egress.allowed" execution_id=12d33960243524ee2725674d5ed02e6f method=CONNECT target=allowed.test:443 status=200
+soglia-agent 2026-09-28T21:33:57.432109Z  INFO tunnel ended event.name="egress.tunnel_ended" execution_id=12d33960243524ee2725674d5ed02e6f end="closed"
+12d33960243524ee2725674d5ed02e6f: {"cmd":"proxy-connect-report","ok":true,"detail":"HTTP/1.1 200 OK","i":0,"source_port":46000,"local":"10.201.0.1:46000","mode":"close","phase":"established","elapsed_ms":4}
+2026-09-28T21:33:57.689589Z  WARN Candidate-A Resolve denied event.name="cgroup_bpf.resolve_identity_mismatch" reason=BackendGeneration
+2026-09-28T21:33:57.689667Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:46000 result=IdentityMismatch(BackendGeneration)
+soglia-agent 989a7990c77b4cd5bf9cceca68290850: {"cmd":"proxy-connect-report","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)","i":0,"source_port":46000,"local":"10.201.0.1:46000","mode":"close","phase":"established","elapsed_ms":12}
+Finished with result: success
+Main processes terminated with: code=exited/status=0
+Service runtime: 1min 3.187s
+CPU time consumed: 17.505s
+Memory peak: 4.4M
+Memory swap peak: 0B

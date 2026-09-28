@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "run_id": "b1-20260928T211104Z-8595",
+  "gate": "B1",
+  "authoritative": true,
+  "verdict": "PASS",
+  "qualified": {
+    "production_backend": true,
+    "production_bpf_object": true,
+    "true_effective_inventory": true,
+    "attach_plan": "six Aya Single links (kernel reports multi)",
+    "ready_last": true,
+    "actual_delegation": true,
+    "typed_exclusive_ancestor_refusal": true,
+    "synchronous_error_rollback": true,
+    "crash_recovery": true,
+    "missing_delegation_refusal": true,
+    "missing_dependency_refusal": true,
+    "unexpected_direct_attachment_refusal": true,
+    "unknown_state_preserved": true
+  },
+  "cleanup": {
+    "verdict": "PASS",
+    "program_inventory": "EXTERNAL_CHURN",
+    "links": "MATCH",
+    "maps": "MATCH",
+    "owned_resources_absent": true
+  },
+  "scope": {
+    "supported_platform": "the exact recorded environment fingerprint",
+    "missing_kernel_feature_simulation": "NOT_PERFORMED: production object was never modified"
+  },
+  "remaining_gates": {
+    "B2": "NOT_EXECUTED",
+    "B3": "NOT_EXECUTED",
+    "B4": "NOT_EXECUTED",
+    "B5": "NOT_EXECUTED",
+    "B6": "NOT_EXECUTED",
+    "B7": "NOT_EXECUTED"
+  }
+}

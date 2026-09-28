@@ -1,0 +1,24 @@
+{
+  "execution_id": "a27b5650333c97650d536d8ef774d2d2",
+  "host_pid": 11303,
+  "netns": {
+    "agent_inode": 4026532417,
+    "cookie": {
+      "errno": null,
+      "probe": "SO_NETNS_COOKIE",
+      "socket_opened_by": "soglia-spike-agent executed in the owned netns",
+      "supported": true,
+      "value": 12
+    },
+    "inode_used_as_identity": false,
+    "matches": true,
+    "owned_inode": 4026532417,
+    "owned_path": "/run/netns/soglia-a27b565033"
+  },
+  "pid_listed": true,
+  "proc_cgroup": "0::/system.slice/soglia-b3.service/executions/a27b565033\n",
+  "tag": "a27b565033",
+  "target": "/sys/fs/cgroup/system.slice/soglia-b3.service/executions/a27b565033",
+  "target_cgroup_procs": "11303\n",
+  "target_inode": 9571
+}

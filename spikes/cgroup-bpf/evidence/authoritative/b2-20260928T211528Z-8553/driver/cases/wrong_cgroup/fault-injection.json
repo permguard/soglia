@@ -1,0 +1,7 @@
+{
+  "actual_agent_pid": 9109,
+  "fault": "WRONG_CGROUP",
+  "refusal": "refused: paused pid 9109 is not in the exact Execution cgroup",
+  "submitted_pid_unchanged": true,
+  "temporary_cgroup": "/sys/fs/cgroup/system.slice/soglia-b2.service/executions/b2-wrong-cgroup"
+}

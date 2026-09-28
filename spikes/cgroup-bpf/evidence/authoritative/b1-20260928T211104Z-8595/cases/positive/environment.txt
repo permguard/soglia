@@ -1,0 +1,5 @@
+Linux lima-soglia-spike-b1-20260928T210917Z-28360 6.8.0-134-generic #134-Ubuntu SMP PREEMPT_DYNAMIC Fri Jun 26 18:28:11 UTC 2026 aarch64 aarch64 aarch64 GNU/Linux
+bpftool v7.4.0
+using libbpf v1.4
+features:
+systemd 255 (255.4-1ubuntu8.16)

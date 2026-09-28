@@ -1,0 +1,10 @@
+ControlGroup=/system.slice/soglia-b1.service
+Delegate=yes
+delegated_root path=/sys/fs/cgroup/system.slice/soglia-b1.service inode=6178 uid=0 gid=0 mode=755
+executions path=/sys/fs/cgroup/system.slice/soglia-b1.service/executions inode=6287 uid=0 gid=0 mode=755
+delegated_root.cgroup.procs=
+executions.cgroup.procs=
+delegated_root.controllers=cpuset cpu io memory pids
+delegated_root.subtree_control=cpu memory pids
+executions.controllers=cpu memory pids
+executions.subtree_control=cpu memory pids

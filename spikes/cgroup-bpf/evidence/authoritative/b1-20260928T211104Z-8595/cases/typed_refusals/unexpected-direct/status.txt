@@ -1,0 +1,14 @@
+× soglia-b1-direct-app.service - /var/tmp/soglia-b1-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b1-diagnostic-refusals-20260928T211112Z-9631/unexpected-direct/config.yaml
+     Loaded: loaded (/run/systemd/transient/soglia-b1-direct-app.service; transient)
+  Transient: yes
+     Active: failed (Result: exit-code) since Mon 2026-09-28 23:11:14 CEST; 6ms ago
+   Duration: 86ms
+    Process: 9754 ExecStart=/var/tmp/soglia-b1-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b1-diagnostic-refusals-20260928T211112Z-9631/unexpected-direct/config.yaml (code=exited, status=1/FAILURE)
+   Main PID: 9754 (code=exited, status=1/FAILURE)
+        CPU: 19ms
+
+Sep 28 23:11:13 lima-soglia-spike-b1-20260928T210917Z-28360 systemd[1]: Started soglia-b1-direct-app.service - /var/tmp/soglia-b1-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b1-diagnostic-refusals-20260928T211112Z-9631/unexpected-direct/config.yaml.
+Sep 28 23:11:14 lima-soglia-spike-b1-20260928T210917Z-28360 soglia[9757]: soglia: the cgroup-bpf backend could not start: refused: the executions cgroup has 1 unrecorded direct BPF attachment(s)
+Sep 28 23:11:14 lima-soglia-spike-b1-20260928T210917Z-28360 soglia[9754]: soglia: the enforcer did not start: the cgroup-bpf backend could not start: refused: the executions cgroup has 1 unrecorded direct BPF attachment(s)
+Sep 28 23:11:14 lima-soglia-spike-b1-20260928T210917Z-28360 systemd[1]: soglia-b1-direct-app.service: Main process exited, code=exited, status=1/FAILURE
+Sep 28 23:11:14 lima-soglia-spike-b1-20260928T210917Z-28360 systemd[1]: soglia-b1-direct-app.service: Failed with result 'exit-code'.

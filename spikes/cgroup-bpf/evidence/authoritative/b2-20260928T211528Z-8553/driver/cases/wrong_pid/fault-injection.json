@@ -1,0 +1,7 @@
+{
+  "actual_agent_pid": 8999,
+  "fault": "WRONG_PID",
+  "refusal": "refused: paused pid 8710 is not in the exact Execution cgroup",
+  "submitted_pid": 8710,
+  "target_cgroup_unchanged": true
+}

@@ -1,0 +1,35 @@
+{
+  "schema": 1,
+  "run_id": "b3-20260928T213249Z-8581",
+  "gate": "B3",
+  "authoritative": true,
+  "verdict": "PASS",
+  "driver_status": 0,
+  "cleanup": {
+    "verdict": "PASS",
+    "programs": "EXTERNAL_CHURN",
+    "links": "MATCH",
+    "maps": "MATCH"
+  },
+  "production_source_baseline": {
+    "commit": "bc55e76725c251a5ae3b89360b014563dd8249df",
+    "matches": true
+  },
+  "scope": {
+    "actual_cgroup_id_reuse": "NOT_PERFORMED",
+    "actual_cgroup_id_reuse_reason": "the recorded Linux kernel exposes a 64-bit kernfs cgroup identity carrying generation information; destroyed identities were not reused within the bounded qualification lifecycle",
+    "synthetic_same_cgroup_stale_nonce": "PERFORMED in binding_mismatch_matrix",
+    "supported_platform": "the exact recorded environment fingerprint",
+    "authoritative_fresh_vm": "PERFORMED",
+    "production_code_change": "NOT_PERFORMED: qualification harness only"
+  },
+  "authoritative_vm": {
+    "name": "soglia-spike-b3-20260928T212541Z-50733"
+  },
+  "remaining_gates": {
+    "B4": "NOT_EXECUTED",
+    "B5": "NOT_EXECUTED",
+    "B6": "NOT_EXECUTED",
+    "B7": "NOT_EXECUTED"
+  }
+}

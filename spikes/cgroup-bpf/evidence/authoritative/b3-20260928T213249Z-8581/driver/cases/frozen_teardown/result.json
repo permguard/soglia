@@ -1,0 +1,29 @@
+{
+  "binding": {
+    "backend_generation": 1,
+    "cgroup_id": 8083,
+    "execution_nonce": [
+      55,
+      231,
+      216,
+      87,
+      249,
+      89,
+      124,
+      119,
+      40,
+      108,
+      127,
+      80,
+      220,
+      13,
+      101,
+      205
+    ]
+  },
+  "case": "FROZEN_TEARDOWN",
+  "cleanup_failures": [],
+  "execution_id": "39081b338dc645d61031c01a6a38414a",
+  "freeze_before_sandbox_destroy": true,
+  "started": false
+}

@@ -1,0 +1,20 @@
+{
+  "agent_report": "{\"cmd\":\"proxy-connect-report\",\"ok\":false,\"errno\":104,\"error\":\"Connection reset by peer (os error 104)\",\"i\":0,\"source_port\":44000,\"local\":\"10.201.0.1:44000\",\"mode\":\"hold\",\"phase\":\"established\",\"elapsed_ms\":5}\n",
+  "agent_report_required": false,
+  "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+  "effects_after_freeze": {
+    "dns": 0,
+    "outbound": 0
+  },
+  "effects_at_freeze": {
+    "dns": 0,
+    "outbound": 0
+  },
+  "health_failure": null,
+  "iteration": 71,
+  "mismatch": null,
+  "ordering": "CONCURRENT",
+  "outcome": "REVOKED",
+  "resolved_then_revoked": false,
+  "verdict": "PASS"
+}

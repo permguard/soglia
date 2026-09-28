@@ -1,0 +1,8 @@
+{
+  "C_TUPLE_INSERT_FAILED": 0,
+  "accepted_connections_reaching_attributor": 0,
+  "dns_calls": 0,
+  "expected": 0,
+  "health_failure": null,
+  "outbound_accepts": 0
+}

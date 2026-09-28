@@ -1,0 +1,18 @@
+{
+  "agent": "concurrent",
+  "case": "CONCURRENT_TIMEOUT",
+  "configured_timeout_ms": 2000,
+  "connections": 4,
+  "expected_tuple_publication": true,
+  "lookup_fault": "byte-swap each source port while preserving both addresses and the proxy destination port",
+  "maximum_acceptable_elapsed_ms": 2250,
+  "minimum_acceptable_elapsed_ms": 1900,
+  "origin": "agent inside one verified production Execution",
+  "production_code_modified": false,
+  "source_ports": [
+    40000,
+    40001,
+    40002,
+    40003
+  ]
+}

@@ -1,0 +1,15 @@
+× soglia-b1-no-delegation.service - /var/tmp/soglia-b1-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b1-diagnostic-refusals-20260928T211112Z-9631/missing-delegation/config.yaml
+     Loaded: loaded (/run/systemd/transient/soglia-b1-no-delegation.service; transient)
+  Transient: yes
+     Active: failed (Result: exit-code) since Mon 2026-09-28 23:11:12 CEST; 14ms ago
+   Duration: 24ms
+    Process: 9648 ExecStart=/var/tmp/soglia-b1-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b1-diagnostic-refusals-20260928T211112Z-9631/missing-delegation/config.yaml (code=exited, status=1/FAILURE)
+   Main PID: 9648 (code=exited, status=1/FAILURE)
+        CPU: 3ms
+
+Sep 28 23:11:12 lima-soglia-spike-b1-20260928T210917Z-28360 systemd[1]: Started soglia-b1-no-delegation.service - /var/tmp/soglia-b1-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b1-diagnostic-refusals-20260928T211112Z-9631/missing-delegation/config.yaml.
+Sep 28 23:11:12 lima-soglia-spike-b1-20260928T210917Z-28360 soglia[9649]: soglia: the runc backend could not start: refused: /sys/fs/cgroup/system.slice/soglia-b1-absent-root.service is not a usable cgroup v2 directory: No such file or directory (os error 2)
+Sep 28 23:11:12 lima-soglia-spike-b1-20260928T210917Z-28360 soglia[9650]: soglia: the peer closed the channel
+Sep 28 23:11:12 lima-soglia-spike-b1-20260928T210917Z-28360 soglia[9648]: soglia: the sandboxd did not start: the runc backend could not start: refused: /sys/fs/cgroup/system.slice/soglia-b1-absent-root.service is not a usable cgroup v2 directory: No such file or directory (os error 2)
+Sep 28 23:11:12 lima-soglia-spike-b1-20260928T210917Z-28360 systemd[1]: soglia-b1-no-delegation.service: Main process exited, code=exited, status=1/FAILURE
+Sep 28 23:11:12 lima-soglia-spike-b1-20260928T210917Z-28360 systemd[1]: soglia-b1-no-delegation.service: Failed with result 'exit-code'.

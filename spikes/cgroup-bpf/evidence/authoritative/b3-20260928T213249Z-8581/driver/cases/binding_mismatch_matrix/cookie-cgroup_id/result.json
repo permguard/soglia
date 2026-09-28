@@ -1,0 +1,50 @@
+{
+  "agent_report": "{\"cmd\":\"proxy-connect-report\",\"ok\":false,\"errno\":104,\"error\":\"Connection reset by peer (os error 104)\",\"i\":0,\"source_port\":43000,\"local\":\"10.201.0.1:43000\",\"mode\":\"close\",\"phase\":\"established\",\"elapsed_ms\":22}\n",
+  "boundary": "COOKIE",
+  "covered_by_b2": false,
+  "expected": {
+    "mismatch": "COOKIE",
+    "outcome": "IDENTITY_MISMATCH"
+  },
+  "field": "CGROUP_ID",
+  "index": 3,
+  "observation": {
+    "cookie": 12335,
+    "dns_when_resolve_returned": 0,
+    "elapsed_ms": 18,
+    "health_failure": null,
+    "index": 0,
+    "local": "10.200.255.1:15001",
+    "mismatch": "COOKIE",
+    "outbound_when_resolve_returned": 0,
+    "outcome": "IDENTITY_MISMATCH",
+    "peer": "10.201.0.1:43000",
+    "recv_q_bytes": 61,
+    "resolved_execution": null,
+    "tuple_binding": {
+      "backend_generation": 1,
+      "cgroup_id": 8734,
+      "execution_nonce": [
+        17,
+        14,
+        139,
+        231,
+        26,
+        92,
+        17,
+        95,
+        161,
+        236,
+        172,
+        164,
+        204,
+        242,
+        143,
+        25
+      ]
+    }
+  },
+  "production_code_modified": false,
+  "single_boundary_mutation": true,
+  "verdict": "PASS"
+}
