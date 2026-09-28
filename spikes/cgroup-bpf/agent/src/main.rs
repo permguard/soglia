@@ -22,7 +22,16 @@ use std::path::Path;
 use std::thread;
 use std::time::{Duration, Instant};
 
+use nix::{getsockopt_impl, libc, sockopt_impl};
 use rustix::net::{AddressFamily, SocketType};
+
+sockopt_impl!(
+    NetnsCookie,
+    GetOnly,
+    nix::libc::SOL_SOCKET,
+    nix::libc::SO_NETNS_COOKIE,
+    u64
+);
 
 const PROXY: SocketAddrV4 = SocketAddrV4::new(Ipv4Addr::new(10, 200, 255, 1), 15001);
 const CONNECT_TIMEOUT: Duration = Duration::from_millis(1500);
@@ -93,6 +102,7 @@ fn run(command: &str, started: Instant) {
         "barrier" => barrier(command, arg(1), arg(2), num(3, 30)),
         "proxy" => proxy(num(1, 1) as usize, 0),
         "proxy-http" => proxy_http(arg(1), arg(2).parse().ok()),
+        "netns-cookie" => netns_cookie(),
         "proxy-fixed" => proxy_fixed(num(1, 40_000) as u16, num(2, 1) as usize),
         "proxy-hold" => proxy(num(1, 1) as usize, num(2, 5)),
         "proxy-port" => proxy_port(num(1, 40000) as u16, arg(2) == "rst", num(3, 1)),
@@ -149,6 +159,26 @@ fn run(command: &str, started: Instant) {
         "unix" => print(outcome(command, unix(), "")),
         "sleep" => thread::sleep(Duration::from_millis(num(1, 100))),
         other => print(format!("{{\"cmd\":{},\"unknown\":true}}", quote(other))),
+    }
+}
+
+/// Reads the stable identity of the network namespace from a socket created by this agent.
+fn netns_cookie() {
+    let result = (|| {
+        let fd =
+            rustix::net::socket(AddressFamily::INET, SocketType::STREAM, None).map_err(errno)?;
+        nix::sys::socket::getsockopt(&fd, NetnsCookie)
+            .map_err(|error| std::io::Error::from_raw_os_error(error as i32))
+    })();
+    match result {
+        Ok(cookie) => print(format!(
+            "{{\"cmd\":\"netns-cookie\",\"ok\":true,\"supported\":true,\"cookie\":{cookie}}}"
+        )),
+        Err(error) if error.raw_os_error() == Some(nix::libc::ENOPROTOOPT) => print(format!(
+            "{{\"cmd\":\"netns-cookie\",\"ok\":true,\"supported\":false,\"errno\":{}}}",
+            nix::libc::ENOPROTOOPT
+        )),
+        Err(error) => print(outcome("netns-cookie", Err(error), "")),
     }
 }
 

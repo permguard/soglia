@@ -519,11 +519,33 @@ async fn run() -> Result<(), String> {
             }
         })
     };
-    let mut observed_netns_inodes = Vec::new();
+    let mut observed_netns_cookies = Vec::new();
+    let mut observed_netns_paths = Vec::new();
+    let mut previous_netns_path: Option<PathBuf> = None;
+    let mut netns_cookie_unproven = false;
 
     for case in CASES {
         let case_dir = evidence.join("cases").join(case.name());
         fs::create_dir_all(&case_dir).map_err(|error| error.to_string())?;
+        let previous_path_absent = previous_netns_path
+            .as_ref()
+            .is_none_or(|path| !path.exists());
+        fs::write(
+            case_dir.join("pre-case-netns.json"),
+            serde_json::to_vec_pretty(&json!({
+                "case": case,
+                "previous_netns_path": previous_netns_path,
+                "previous_netns_path_absent": previous_path_absent
+            }))
+            .map_err(|error| error.to_string())?,
+        )
+        .map_err(|error| error.to_string())?;
+        if !previous_path_absent {
+            return Err(format!(
+                "{} started while the preceding owned netns path still existed",
+                case.name()
+            ));
+        }
         fs::write(
             evidence.join("current-case.txt"),
             format!("{}\n", case.name()),
@@ -580,33 +602,95 @@ async fn run() -> Result<(), String> {
             &fs::read(case_dir.join("placement.json")).map_err(|error| error.to_string())?,
         )
         .map_err(|error| error.to_string())?;
-        let netns_inode = placement
-            .pointer("/netns/agent_inode")
+        let netns = placement
+            .get("netns")
+            .ok_or("placement evidence omitted the netns object")?;
+        let netns_inode = netns
+            .get("agent_inode")
             .and_then(Value::as_u64)
-            .ok_or("placement evidence omitted the agent netns inode")?;
-        let fresh = !observed_netns_inodes.contains(&netns_inode);
-        if fresh {
-            observed_netns_inodes.push(netns_inode);
+            .ok_or("placement evidence omitted the informational agent netns inode")?;
+        let netns_path = netns
+            .get("owned_path")
+            .and_then(Value::as_str)
+            .map(PathBuf::from)
+            .ok_or("placement evidence omitted the owned netns path")?;
+        let agent_matches_owned_netns = netns
+            .get("matches")
+            .and_then(Value::as_bool)
+            .ok_or("placement evidence omitted the agent/owned netns comparison")?;
+        let path_unique = !observed_netns_paths.contains(&netns_path);
+        let current_path_absent_after_teardown = !netns_path.exists();
+        let cookie_supported = netns
+            .pointer("/cookie/supported")
+            .and_then(Value::as_bool)
+            .ok_or("placement evidence omitted netns-cookie support status")?;
+        let netns_cookie = netns.pointer("/cookie/value").and_then(Value::as_u64);
+        let cookie_unique = if cookie_supported {
+            let cookie = netns_cookie.ok_or("supported netns cookie omitted its value")?;
+            let unique = !observed_netns_cookies.contains(&cookie);
+            if unique {
+                observed_netns_cookies.push(cookie);
+            }
+            Some(unique)
+        } else {
+            netns_cookie_unproven = true;
+            None
+        };
+        if path_unique {
+            observed_netns_paths.push(netns_path.clone());
         }
         fs::write(
-            case_dir.join("netns-uniqueness.json"),
+            case_dir.join("netns-lifecycle.json"),
             serde_json::to_vec_pretty(&json!({
                 "case": case,
-                "agent_netns_inode": netns_inode,
-                "fresh_across_b2_cases": fresh,
-                "observed_netns_inodes": observed_netns_inodes
+                "owned_path": netns_path,
+                "owned_path_unique": path_unique,
+                "previous_owned_path_absent_before_case": previous_path_absent,
+                "current_owned_path_absent_after_teardown": current_path_absent_after_teardown,
+                "agent_matches_owned_netns": agent_matches_owned_netns,
+                "informational_inode": netns_inode,
+                "inode_used_as_identity": false,
+                "cookie": {
+                    "supported": cookie_supported,
+                    "value": netns_cookie,
+                    "unique_across_b2_cases": cookie_unique,
+                    "criterion": if cookie_supported { "PROVEN" } else { "UNPROVEN" }
+                },
+                "observed_netns_cookies": observed_netns_cookies,
+                "observed_netns_paths": observed_netns_paths
             }))
             .map_err(|error| error.to_string())?,
         )
         .map_err(|error| error.to_string())?;
-        if !fresh {
+        if !path_unique || !agent_matches_owned_netns || !current_path_absent_after_teardown {
             return Err(format!(
-                "{} reused network namespace inode {netns_inode}",
+                "{} did not prove the owned netns path lifecycle",
                 case.name()
             ));
         }
+        if cookie_unique == Some(false) {
+            return Err(format!(
+                "{} reused netns cookie {}",
+                case.name(),
+                netns_cookie.unwrap_or_default()
+            ));
+        }
+        previous_netns_path = Some(netns_path);
         fs::write(case_dir.join("verdict.txt"), "PASS\n").map_err(|error| error.to_string())?;
     }
+    fs::write(
+        evidence.join("netns-summary.json"),
+        serde_json::to_vec_pretty(&json!({
+            "identity_criterion": if netns_cookie_unproven { "UNPROVEN" } else { "PROVEN" },
+            "cookie_probe": "SO_NETNS_COOKIE",
+            "inode_used_as_identity": false,
+            "observed_unique_cookies": observed_netns_cookies,
+            "observed_unique_owned_paths": observed_netns_paths,
+            "lifecycle_criterion": "PROVEN"
+        }))
+        .map_err(|error| error.to_string())?,
+    )
+    .map_err(|error| error.to_string())?;
     run_concurrent_timeout_case(&evidence, &config, &enforcer, Arc::clone(&outbound)).await?;
     fs::write(evidence.join("current-case.txt"), "complete\n")
         .map_err(|error| error.to_string())?;
@@ -1351,8 +1435,9 @@ fn record_placement(
     .map_err(|error| error.to_string())?;
     let agent_net =
         fs::metadata(format!("/proc/{pid}/ns/net")).map_err(|error| error.to_string())?;
-    let owned_net = fs::metadata(Path::new("/run/netns").join(id.tag().netns_name()))
-        .map_err(|error| error.to_string())?;
+    let owned_net_path = Path::new("/run/netns").join(id.tag().netns_name());
+    let owned_net = fs::metadata(&owned_net_path).map_err(|error| error.to_string())?;
+    let netns_cookie = probe_netns_cookie(config, id)?;
     let membership =
         fs::read_to_string(format!("/proc/{pid}/cgroup")).map_err(|error| error.to_string())?;
     let procs =
@@ -1365,9 +1450,12 @@ fn record_placement(
             "proc_cgroup": membership,
             "target_cgroup_procs": procs,
             "pid_listed": procs.split_whitespace().any(|entry| entry.parse::<i32>() == Ok(pid)),
-            "netns": {"agent_inode": std::os::unix::fs::MetadataExt::ino(&agent_net),
+            "netns": {"owned_path": owned_net_path,
+                      "agent_inode": std::os::unix::fs::MetadataExt::ino(&agent_net),
                       "owned_inode": std::os::unix::fs::MetadataExt::ino(&owned_net),
-                      "matches": std::os::unix::fs::MetadataExt::ino(&agent_net) == std::os::unix::fs::MetadataExt::ino(&owned_net)}
+                      "matches": std::os::unix::fs::MetadataExt::ino(&agent_net) == std::os::unix::fs::MetadataExt::ino(&owned_net),
+                      "inode_used_as_identity": false,
+                      "cookie": netns_cookie}
         }))
         .map_err(|error| error.to_string())?,
     )
@@ -1393,6 +1481,49 @@ fn record_placement(
         ],
         &evidence.join("hooks-effective.json"),
     )
+}
+
+fn probe_netns_cookie(config: &Config, id: ExecutionId) -> Result<Value, String> {
+    let agent = config.agents.get("probe").ok_or("probe agent is absent")?;
+    let entry = agent
+        .command
+        .first()
+        .ok_or("probe agent command is empty")?
+        .strip_prefix('/')
+        .ok_or("probe agent entry point is not absolute")?;
+    let executable = agent.rootfs.join(entry);
+    let output = Command::new(&config.runtime.ip)
+        .args(["netns", "exec", &id.tag().netns_name()])
+        .arg(&executable)
+        .arg("netns-cookie")
+        .output()
+        .map_err(|error| format!("execute netns-cookie probe: {error}"))?;
+    if !output.status.success() {
+        return Err(format!(
+            "netns-cookie probe exited with {}: {}",
+            output.status,
+            String::from_utf8_lossy(&output.stderr).trim()
+        ));
+    }
+    let observation: Value =
+        serde_json::from_slice(&output.stdout).map_err(|error| error.to_string())?;
+    if observation.get("ok").and_then(Value::as_bool) != Some(true) {
+        return Err(format!("netns-cookie probe failed: {observation}"));
+    }
+    let supported = observation
+        .get("supported")
+        .and_then(Value::as_bool)
+        .ok_or("netns-cookie probe omitted support status")?;
+    if supported && observation.get("cookie").and_then(Value::as_u64).is_none() {
+        return Err("netns-cookie probe omitted the supported cookie".to_owned());
+    }
+    Ok(json!({
+        "probe": "SO_NETNS_COOKIE",
+        "socket_opened_by": "soglia-spike-agent executed in the owned netns",
+        "supported": supported,
+        "value": observation.get("cookie").and_then(Value::as_u64),
+        "errno": observation.get("errno").and_then(Value::as_i64)
+    }))
 }
 
 fn dump_maps(config: &Config, evidence: &Path, stage: &str) -> Result<(), String> {
