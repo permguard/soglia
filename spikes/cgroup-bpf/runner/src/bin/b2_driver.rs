@@ -4486,17 +4486,17 @@ async fn run_b3_freeze_resolve_race(
                 observed.0, observed.1
             ));
         }
-        // ResolveFirst can be revoked after attribution but before the proxy's
-        // CONNECT response reaches the agent, so the establishment result is
-        // the only mandatory line here. Established-tunnel closure is proven
+        // Freeze can revoke the request before the proxy's CONNECT response
+        // reaches the agent. The proxy-side outcome and effect counters are
+        // authoritative for this race; established-tunnel closure is proven
         // independently by connect_tunnel_revocation.
-        let report = wait_b3_report_lines(
-            execution.pid,
-            "b3-report.jsonl",
-            1,
-            Duration::from_secs(5),
-        )
-        .await?;
+        let report_path = PathBuf::from(format!(
+            "/proc/{}/root/tmp/b3-report.jsonl",
+            execution.pid
+        ));
+        let report = fs::read_to_string(&report_path)
+            .ok()
+            .filter(|contents| !contents.trim().is_empty());
         proxy.stop().await?;
         let cleanup = execution.execution.cleanup(Some(&table)).await;
         if !cleanup.is_empty() {
@@ -4515,6 +4515,8 @@ async fn run_b3_freeze_resolve_race(
             "effects_at_freeze": {"dns": effects_at_freeze.0, "outbound": effects_at_freeze.1},
             "effects_after_freeze": {"dns": effects_after_freeze.0, "outbound": effects_after_freeze.1},
             "agent_report": report,
+            "agent_report_required": false,
+            "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
             "health_failure": health.lock().ok().and_then(|failure| *failure),
             "verdict": "PASS"
         });
