@@ -20,6 +20,7 @@ use std::net::SocketAddr;
 use std::pin::Pin;
 use std::sync::Mutex;
 
+use soglia_core::helper::ResolveMismatch;
 use soglia_core::{BindingKey, ExecutionId};
 use tokio::sync::watch;
 
@@ -43,6 +44,27 @@ impl Binding {
         // Execution no longer exists, so the connection must close either way.
         let _ = self.revoked.wait_for(|revoked| *revoked).await;
     }
+}
+
+/// The typed result of resolving one accepted connection before reading application bytes.
+#[derive(Debug, Clone)]
+pub enum AttributionResult {
+    /// The connection belongs to this live, revocable Execution.
+    Resolved(Binding),
+    /// No trusted attribution state exists.
+    NotFound,
+    /// Trusted Candidate-A state exists but one boundary disagrees.
+    IdentityMismatch(ResolveMismatch),
+    /// The binding exists but teardown has already revoked it.
+    Revoked,
+    /// Tuple publication did not complete within the configured bound.
+    Timeout,
+    /// The bounded Supervisor-side Resolve queue had no capacity.
+    QueueFull,
+    /// The authenticated Enforcer Resolve channel is broken or unresponsive.
+    Unavailable,
+    /// Owned state could not be decoded or verified safely.
+    IntegrityFailure,
 }
 
 struct Entry {
@@ -89,7 +111,7 @@ pub trait ConnectionAttributor: Send + Sync {
         &'a self,
         peer: SocketAddr,
         local: SocketAddr,
-    ) -> Pin<Box<dyn Future<Output = Option<Binding>> + Send + 'a>>;
+    ) -> Pin<Box<dyn Future<Output = AttributionResult> + Send + 'a>>;
 }
 
 impl AttributionTable {
@@ -115,13 +137,25 @@ impl AttributionTable {
     /// A poisoned table attributes nothing either: failing closed is the only safe reading of a
     /// table whose last writer panicked.
     pub fn lookup(&self, address: IpAddr) -> Option<Binding> {
-        let entries = self.entries.lock().ok()?;
-        let entry = entries.get(&address)?;
+        match self.lookup_result(address) {
+            AttributionResult::Resolved(binding) => Some(binding),
+            _ => None,
+        }
+    }
+
+    /// Resolves an address while preserving absence, revocation and integrity failure.
+    pub fn lookup_result(&self, address: IpAddr) -> AttributionResult {
+        let Ok(entries) = self.entries.lock() else {
+            return AttributionResult::IntegrityFailure;
+        };
+        let Some(entry) = entries.get(&address) else {
+            return AttributionResult::NotFound;
+        };
         if *entry.revoked.borrow() {
-            return None;
+            return AttributionResult::Revoked;
         }
 
-        Some(Binding {
+        AttributionResult::Resolved(Binding {
             id: entry.id,
             revoked: entry.revoked.subscribe(),
         })
@@ -140,12 +174,24 @@ impl AttributionTable {
 
     /// Resolves only an exact whole Candidate-A key; partial fields are never indexed.
     pub fn lookup_key(&self, binding: BindingKey) -> Option<Binding> {
-        let entries = self.bindings.lock().ok()?;
-        let entry = entries.get(&binding)?;
-        if *entry.revoked.borrow() {
-            return None;
+        match self.lookup_key_result(binding) {
+            AttributionResult::Resolved(binding) => Some(binding),
+            _ => None,
         }
-        Some(Binding {
+    }
+
+    /// Resolves a complete Candidate-A identity without collapsing absence and revocation.
+    pub fn lookup_key_result(&self, binding: BindingKey) -> AttributionResult {
+        let Ok(entries) = self.bindings.lock() else {
+            return AttributionResult::IntegrityFailure;
+        };
+        let Some(entry) = entries.get(&binding) else {
+            return AttributionResult::NotFound;
+        };
+        if *entry.revoked.borrow() {
+            return AttributionResult::Revoked;
+        }
+        AttributionResult::Resolved(Binding {
             id: entry.id,
             revoked: entry.revoked.subscribe(),
         })
@@ -208,8 +254,8 @@ impl ConnectionAttributor for AttributionTable {
         &'a self,
         peer: SocketAddr,
         _local: SocketAddr,
-    ) -> Pin<Box<dyn Future<Output = Option<Binding>> + Send + 'a>> {
-        Box::pin(async move { self.lookup(peer.ip()) })
+    ) -> Pin<Box<dyn Future<Output = AttributionResult> + Send + 'a>> {
+        Box::pin(async move { self.lookup_result(peer.ip()) })
     }
 }
 
@@ -306,5 +352,18 @@ mod tests {
                 })
                 .is_none()
         );
+
+        assert!(matches!(
+            table.lookup_key_result(BindingKey {
+                backend_generation: 4,
+                ..key
+            }),
+            AttributionResult::NotFound
+        ));
+        table.revoke_key(key);
+        assert!(matches!(
+            table.lookup_key_result(key),
+            AttributionResult::Revoked
+        ));
     }
 }

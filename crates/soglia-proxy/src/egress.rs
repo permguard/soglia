@@ -39,7 +39,7 @@ use tokio::net::{TcpListener, TcpStream};
 use tokio::sync::watch;
 use tracing::{info, warn};
 
-use crate::attribution::{Binding, ConnectionAttributor};
+use crate::attribution::{AttributionResult, Binding, ConnectionAttributor};
 use crate::policy::{DestinationPolicy, Host, Target};
 use crate::resolver::Resolver;
 use crate::tunnel::{self, TunnelEnd, TunnelLimits};
@@ -178,13 +178,17 @@ impl EgressProxy {
                 return;
             }
         };
-        let Some(binding) = self.attribution.resolve(peer, local).await else {
-            warn!(
-                event.name = "egress.unattributed",
-                peer = %peer,
-                "a connection from an address no live Execution holds was closed"
-            );
-            return;
+        let binding = match self.attribution.resolve(peer, local).await {
+            AttributionResult::Resolved(binding) => binding,
+            denied => {
+                warn!(
+                    event.name = "egress.unattributed",
+                    peer = %peer,
+                    result = ?denied,
+                    "an unattributed connection was closed before application reads"
+                );
+                return;
+            }
         };
 
         let mut revoked = binding.clone();

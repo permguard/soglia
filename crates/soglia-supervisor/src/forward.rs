@@ -130,7 +130,7 @@ mod tests {
     use hyper::body::Incoming;
     use hyper::server::conn::http1;
     use hyper::service::service_fn;
-    use tokio::net::TcpListener;
+    use tokio::net::{TcpListener, TcpSocket};
 
     async fn agent(body: &'static [u8]) -> SocketAddr {
         let listener = TcpListener::bind("127.0.0.1:0").await.unwrap();
@@ -191,9 +191,9 @@ mod tests {
 
     #[tokio::test]
     async fn an_absent_listener_is_never_ready() {
-        let listener = TcpListener::bind("127.0.0.1:0").await.unwrap();
-        let address = listener.local_addr().unwrap();
-        drop(listener);
+        let socket = TcpSocket::new_v4().unwrap();
+        socket.bind("127.0.0.1:0".parse().unwrap()).unwrap();
+        let address = socket.local_addr().unwrap();
         assert!(!wait_ready(address, Duration::from_millis(200)).await);
     }
 }

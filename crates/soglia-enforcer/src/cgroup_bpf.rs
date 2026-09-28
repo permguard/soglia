@@ -23,7 +23,9 @@ use libbpf_rs::{MapCore, MapHandle};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use soglia_core::config::Config;
-use soglia_core::helper::SocketTupleV4;
+use soglia_core::helper::{
+    ResolveAttempt, ResolveMismatch, ResolvePending, ResolveResult, SocketTupleV4,
+};
 use soglia_core::id::{BindingKey, ExecutionId, ExecutionNonce, ResourceTag};
 use soglia_core::records;
 
@@ -110,7 +112,6 @@ struct Settings {
     policy_capacity: u32,
     socket_capacity: u32,
     ring_bytes: u32,
-    resolve_timeout: Duration,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -246,7 +247,6 @@ impl CgroupBpfBackend {
                 policy_capacity,
                 socket_capacity: config.cgroup_bpf.max_tracked_sockets,
                 ring_bytes: config.cgroup_bpf.ring_buffer_bytes,
-                resolve_timeout: Duration::from_millis(config.cgroup_bpf.resolve_timeout_ms),
             },
             tuple_consumer: None,
             bpf: None,
@@ -1254,7 +1254,9 @@ impl CgroupBpfBackend {
         let entries = HashMap::<_, u64, [u8; 32]>::try_from(map)
             .map_err(|error| BackendError::Failed(format!("open cookie map: {error:#}")))?;
         match entries.get(&cookie, 0) {
-            Ok(value) => Ok(decode_binding(&value)),
+            Ok(value) => decode_binding(&value)
+                .map(Some)
+                .ok_or_else(|| BackendError::Failed("cookie value has an invalid ABI".to_owned())),
             Err(aya::maps::MapError::KeyNotFound) => Ok(None),
             Err(error) => Err(BackendError::Failed(format!("lookup cookie: {error:#}"))),
         }
@@ -1297,10 +1299,6 @@ impl CgroupBpfBackend {
             );
         }
         Ok(())
-    }
-
-    fn policy_is_active(&mut self, binding: BindingKey) -> Result<bool, BackendError> {
-        Ok(self.policy(binding)? == Some((POLICY_ACTIVE, binding)))
     }
 
     fn consume_tuple(
@@ -1634,38 +1632,63 @@ impl EnforcementBackend for CgroupBpfBackend {
         self.update_execution(active)
     }
 
-    fn resolve(&mut self, tuple: SocketTupleV4) -> Result<Option<BindingKey>, BackendError> {
+    fn resolve_once(&mut self, tuple: SocketTupleV4) -> Result<ResolveAttempt, BackendError> {
         if tuple.destination_address != self.settings.proxy_ip.octets()
             || tuple.destination_port != self.settings.proxy_port
         {
-            return Ok(None);
+            return Ok(ResolveAttempt::Complete {
+                result: ResolveResult::NotFound,
+            });
         }
-        let deadline = Instant::now() + self.settings.resolve_timeout;
-        loop {
-            if let Some((cookie, binding)) = self.consume_tuple(tuple)? {
-                let generation = self
-                    .state
-                    .as_ref()
-                    .map(|state| state.generation)
-                    .unwrap_or(0);
-                let record_matches = binding.backend_generation == generation
-                    && self.live.values().any(|execution| {
-                        execution.binding == binding && execution.phase == ExecutionPhase::Active
-                    });
-                let cookie_matches = self.lookup_cookie(cookie)? == Some(binding);
-                let policy_matches = self.policy_is_active(binding)?;
-                if record_matches && cookie_matches && policy_matches {
-                    return Ok(Some(binding));
-                }
-                return Err(BackendError::Refused(
-                    "tuple, cookie, policy and ownership record disagree".to_owned(),
+        let Some((cookie, binding)) = self.consume_tuple(tuple)? else {
+            return Ok(ResolveAttempt::Pending {
+                reason: ResolvePending::TupleAbsent,
+            });
+        };
+
+        // Structural integrity is checked before any semantic mismatch or revocation outcome.
+        if cookie == 0 {
+            return Err(BackendError::Failed(
+                "tuple contains an invalid zero socket cookie".to_owned(),
+            ));
+        }
+        let generation = self
+            .state
+            .as_ref()
+            .map(|state| state.generation)
+            .unwrap_or(0);
+        if generation == 0 {
+            return Err(BackendError::Failed(
+                "the live backend generation is unavailable".to_owned(),
+            ));
+        }
+        let execution = {
+            let mut correlated = self.live.values().filter(|execution| {
+                execution.binding.cgroup_id == binding.cgroup_id
+                    || execution.binding.execution_nonce == binding.execution_nonce
+            });
+            let first = correlated.next().cloned();
+            if correlated.next().is_some() {
+                return Err(BackendError::Failed(
+                    "multiple live ownership records correlate with one tuple".to_owned(),
                 ));
             }
-            if Instant::now() >= deadline {
-                return Ok(None);
-            }
-            thread::sleep(Duration::from_millis(2));
+            first
+        };
+        let cookie_binding = self.lookup_cookie(cookie)?;
+        let policy = self.policy(binding)?;
+        if let Some((state, _)) = policy
+            && state != POLICY_ACTIVE
+            && state != POLICY_FROZEN
+        {
+            return Err(BackendError::Failed(format!(
+                "policy contains invalid state {state}"
+            )));
         }
+
+        let result =
+            classify_resolve_snapshot(binding, generation, execution, cookie_binding, policy);
+        Ok(ResolveAttempt::Complete { result })
     }
 
     fn freeze(&mut self, tag: &ResourceTag) -> Result<(), BackendError> {
@@ -1743,6 +1766,79 @@ fn delegated_root(configured: Option<&Path>) -> Result<PathBuf, BackendError> {
         .ok_or_else(|| BackendError::Refused("not in a cgroup v2 hierarchy".to_owned()))?;
     let path = path.strip_suffix("/runtime").unwrap_or(path);
     Ok(Path::new("/sys/fs/cgroup").join(path.trim_start_matches('/')))
+}
+
+fn binding_mismatch(observed: BindingKey, expected: BindingKey) -> Option<ResolveMismatch> {
+    if observed == expected {
+        return None;
+    }
+    let differences = [
+        (
+            observed.cgroup_id != expected.cgroup_id,
+            ResolveMismatch::CgroupId,
+        ),
+        (
+            observed.execution_nonce != expected.execution_nonce,
+            ResolveMismatch::ExecutionNonce,
+        ),
+        (
+            observed.backend_generation != expected.backend_generation,
+            ResolveMismatch::BackendGeneration,
+        ),
+    ];
+    let mut mismatches = differences
+        .into_iter()
+        .filter_map(|(different, reason)| different.then_some(reason));
+    let first = mismatches.next()?;
+    if mismatches.next().is_some() {
+        Some(ResolveMismatch::Multiple)
+    } else {
+        Some(first)
+    }
+}
+
+fn classify_resolve_snapshot(
+    binding: BindingKey,
+    generation: u64,
+    execution: Option<ExecutionState>,
+    cookie_binding: Option<BindingKey>,
+    policy: Option<(u32, BindingKey)>,
+) -> ResolveResult {
+    if binding.backend_generation != generation {
+        return ResolveResult::IdentityMismatch {
+            reason: ResolveMismatch::BackendGeneration,
+        };
+    }
+    let Some(execution) = execution else {
+        return ResolveResult::IdentityMismatch {
+            reason: ResolveMismatch::OwnershipRecord,
+        };
+    };
+    if let Some(reason) = binding_mismatch(binding, execution.binding) {
+        return ResolveResult::IdentityMismatch { reason };
+    }
+    if execution.phase != ExecutionPhase::Active {
+        return ResolveResult::Revoked { binding };
+    }
+    if cookie_binding != Some(binding) {
+        return ResolveResult::IdentityMismatch {
+            reason: ResolveMismatch::Cookie,
+        };
+    }
+    match policy {
+        Some((POLICY_ACTIVE, policy_binding)) if policy_binding == binding => {
+            ResolveResult::Resolved { binding }
+        }
+        Some((POLICY_FROZEN, policy_binding)) if policy_binding == binding => {
+            ResolveResult::Revoked { binding }
+        }
+        Some((POLICY_ACTIVE, _)) | Some((POLICY_FROZEN, _)) | None => {
+            ResolveResult::IdentityMismatch {
+                reason: ResolveMismatch::Policy,
+            }
+        }
+        Some(_) => unreachable!("invalid policy state was rejected before classification"),
+    }
 }
 
 fn encode_binding(binding: BindingKey) -> [u8; 32] {
@@ -2271,6 +2367,81 @@ mod tests {
         let wrong_call = map_syscall_error("bpf_map_lookup_elem", rustix::io::Errno::NOENT);
         assert!(!map_delete_was_already_absent(&wrong_call));
         assert!(!map_delete_was_already_absent(&MapError::KeyNotFound));
+    }
+
+    #[test]
+    fn mismatch_diagnostics_follow_only_a_failed_whole_binding_comparison() {
+        let expected = BindingKey {
+            cgroup_id: 41,
+            execution_nonce: ExecutionNonce::generate().unwrap(),
+            backend_generation: 7,
+        };
+        assert_eq!(binding_mismatch(expected, expected), None);
+
+        let different_nonce = BindingKey {
+            execution_nonce: ExecutionNonce::generate().unwrap(),
+            ..expected
+        };
+        assert_eq!(
+            binding_mismatch(different_nonce, expected),
+            Some(ResolveMismatch::ExecutionNonce)
+        );
+        assert_eq!(
+            binding_mismatch(
+                BindingKey {
+                    backend_generation: 8,
+                    ..expected
+                },
+                expected
+            ),
+            Some(ResolveMismatch::BackendGeneration)
+        );
+        assert_eq!(
+            binding_mismatch(
+                BindingKey {
+                    cgroup_id: 42,
+                    execution_nonce: different_nonce.execution_nonce,
+                    ..expected
+                },
+                expected
+            ),
+            Some(ResolveMismatch::Multiple)
+        );
+    }
+
+    #[test]
+    fn a_stale_tuple_cannot_resolve_after_the_same_four_tuple_is_reused() {
+        let stale = BindingKey {
+            cgroup_id: 41,
+            execution_nonce: ExecutionNonce::generate().unwrap(),
+            backend_generation: 7,
+        };
+        let current = BindingKey {
+            execution_nonce: ExecutionNonce::generate().unwrap(),
+            ..stale
+        };
+        let id = ExecutionId::generate().unwrap();
+        let current_execution = ExecutionState {
+            id,
+            tag: id.tag(),
+            slot: 0,
+            cgroup_inode: current.cgroup_id,
+            binding: current,
+            phase: ExecutionPhase::Active,
+        };
+        let result = classify_resolve_snapshot(
+            stale,
+            current.backend_generation,
+            Some(current_execution),
+            Some(stale),
+            Some((POLICY_ACTIVE, current)),
+        );
+        assert_eq!(
+            result,
+            ResolveResult::IdentityMismatch {
+                reason: ResolveMismatch::ExecutionNonce
+            }
+        );
     }
 
     #[test]

@@ -13,11 +13,14 @@
 //! start's sweep: network policy lives in the kernel, so nothing opens up in the meantime.
 
 use std::os::unix::net::UnixStream;
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc, Mutex, TryLockError};
 use std::thread;
 
 use soglia_core::config::{Config, NetworkBackend};
-use soglia_core::helper::{EnforcerRequest, Hello, HelperResponse, ResolverRequest};
+use soglia_core::helper::{
+    EnforcerRequest, Hello, HelperResponse, ResolveAttempt, ResolvePending, ResolveResult,
+    ResolverReply, ResolverRequest,
+};
 use soglia_core::ipc::{FrameError, read_frame, write_frame};
 
 #[cfg(feature = "cgroup-bpf")]
@@ -164,18 +167,27 @@ fn resolve_loop(backend: Arc<Mutex<Box<dyn EnforcementBackend + Send>>>, channel
                 std::process::exit(1);
             }
         };
-        let response = match backend.lock() {
-            Ok(mut backend) => match request {
-                ResolverRequest::Resolve { tuple } => match backend.resolve(tuple) {
-                    Ok(binding) => HelperResponse::Resolved { binding },
-                    Err(error) => HelperResponse::Failed {
-                        reason: error.to_string(),
-                    },
-                },
+        let ResolverRequest::Resolve { request_id, tuple } = request;
+        let attempt = match backend.try_lock() {
+            Ok(mut backend) => backend.resolve_once(tuple).unwrap_or_else(|error| {
+                eprintln!("soglia __enforcer: Resolve integrity failure: {error}");
+                ResolveAttempt::Complete {
+                    result: ResolveResult::IntegrityFailure,
+                }
+            }),
+            Err(TryLockError::WouldBlock) => ResolveAttempt::Pending {
+                reason: ResolvePending::BackendBusy,
             },
-            Err(_) => HelperResponse::Failed {
-                reason: "the Enforcer backend lock is poisoned".to_owned(),
-            },
+            Err(TryLockError::Poisoned(_)) => {
+                eprintln!("soglia __enforcer: Resolve backend lock is poisoned");
+                ResolveAttempt::Complete {
+                    result: ResolveResult::IntegrityFailure,
+                }
+            }
+        };
+        let response = ResolverReply {
+            request_id,
+            attempt,
         };
         if let Err(error) = write_frame(&mut writer, &response) {
             eprintln!("soglia __enforcer: Resolve response failed: {error}");

@@ -18,7 +18,7 @@ use std::path::PathBuf;
 
 use serde::{Deserialize, Serialize};
 use soglia_core::config::Config;
-use soglia_core::helper::SocketTupleV4;
+use soglia_core::helper::{ResolveAttempt, SocketTupleV4};
 use soglia_core::id::{BindingKey, ExecutionId, ExecutionNonce, ResourceTag};
 use soglia_core::net::{ExecutionPool, SlotAddresses};
 #[cfg(not(feature = "cgroup-bpf"))]
@@ -111,8 +111,8 @@ pub trait EnforcementBackend {
         binding: Option<BindingKey>,
     ) -> Result<(), BackendError>;
 
-    /// Consumes and validates one canonical proxy-accepted tuple.
-    fn resolve(&mut self, tuple: SocketTupleV4) -> Result<Option<BindingKey>, BackendError>;
+    /// Makes one non-blocking attempt to consume and validate a canonical proxy tuple.
+    fn resolve_once(&mut self, tuple: SocketTupleV4) -> Result<ResolveAttempt, BackendError>;
 
     /// Denies every packet of the Execution from now on.
     fn freeze(&mut self, tag: &ResourceTag) -> Result<(), BackendError>;
@@ -188,7 +188,7 @@ impl EnforcementBackend for CgroupBpfBackend {
         self.refuse()
     }
 
-    fn resolve(&mut self, _: SocketTupleV4) -> Result<Option<BindingKey>, BackendError> {
+    fn resolve_once(&mut self, _: SocketTupleV4) -> Result<ResolveAttempt, BackendError> {
         self.refuse()
     }
 
@@ -667,7 +667,7 @@ mod linux {
             Ok(())
         }
 
-        fn resolve(&mut self, _: SocketTupleV4) -> Result<Option<BindingKey>, BackendError> {
+        fn resolve_once(&mut self, _: SocketTupleV4) -> Result<ResolveAttempt, BackendError> {
             Err(BackendError::Refused(
                 "Candidate-A Resolve is unavailable on netns-nft".to_owned(),
             ))

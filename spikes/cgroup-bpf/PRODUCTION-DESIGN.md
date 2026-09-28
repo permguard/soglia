@@ -177,8 +177,14 @@ Failure to enumerate, delete or prove absence quarantines the Execution and stop
 The proxy accepts a TCP connection and derives the canonical tuple from `peer_addr` and `local_addr` before constructing an HTTP connection or reading a byte.
 It sends only that tuple over the inherited attribution channel.
 
-Resolve retries lookup only inside a bounded publication window, initially no more than the two seconds qualified by S1b.
+Resolve retries a non-blocking one-shot lookup only inside a bounded publication window, initially no more than the two seconds qualified by S1b.
 The bound must be configurable only within a safe implementation-defined maximum and must be included in the startup fingerprint.
+The publication deadline starts when the proxy begins Resolve and includes bounded-queue and IPC-gate waiting.
+Each accepted request carries a process-monotonic `request_id` that the Enforcer must echo; a missing or different ID poisons the channel and is `Unavailable`.
+The one-shot exchange watchdog is a fixed one second, independent of the publication time remaining, because an exchange performs only an Enforcer `try_lock` and at most one BPF map lookup; its socket read/write timeouts use the same fixed bound. Retries are spaced by two milliseconds, preserving the qualified publication cadence without retaining either the IPC gate or backend lock between attempts.
+The publication deadline decides only whether another attempt may begin. If an exchange started before the deadline completes after it, `Pending` becomes a connection-local `Timeout`, while `Complete` is consumed as returned because the Enforcer may already have atomically consumed the tuple.
+The task doing the blocking write/read owns the IPC gate until the correlated response is consumed, even if its async caller is cancelled.
+An exchange watchdog, framing error or correlation failure permanently poisons and shuts down that channel; recovery is only by the S8 restart and sweep path.
 
 A successful Resolve atomically consumes the tuple entry and validates all of the following:
 
@@ -191,12 +197,26 @@ A successful Resolve atomically consumes the tuple entry and validates all of th
 
 Every identity comparison is a whole-`BindingKey` equality check.
 A reused cgroup ID with a different nonce, a reused nonce in a different backend generation, a stale cookie or tuple from an older generation, or any mixed/torn triple is a mismatch and cannot yield an `ExecutionId`.
-Any miss, timeout, malformed value, identity disagreement, stale generation, inactive policy, channel error or duplicate consumption returns no identity.
-The proxy then closes the accepted socket without parsing application data, DNS, outbound connect or IP-derived fallback.
+The comparison fails before a diagnostic `ResolveMismatch` enum identifies cgroup ID, nonce, generation, cookie, tuple, ownership-record or policy disagreement; no decision is ever made from that diagnostic field or from error text.
+The trusted Resolve channel returns `Resolved`, `NotFound`, `IdentityMismatch`, `Revoked`, `Timeout` or `IntegrityFailure`.
+The Supervisor adds `QueueFull` and `Unavailable` for its bounded queue and authenticated channel.
+Only `Resolved` yields an identity; every other result closes the accepted socket without parsing application data, DNS, outbound connect or IP-derived fallback.
+
+`Timeout` means tuple publication did not finish within the configured wait and denies only that connection.
+Trusted timeout telemetry distinguishes at least one observed `TupleAbsent` from `BackendBusy` throughout the whole window; this distinction is never sent to the agent.
+A broken channel or an active one-shot exchange that exceeds its watchdog is `Unavailable`, not `Timeout`, and enters the S8 one-way fail-closed transition.
+`IdentityMismatch` denies and emits a trusted diagnostic event but does not change runtime health because old generation state may still be awaiting exact cleanup.
+`Revoked` means live-binding revocation or policy freeze won the Resolve/freeze race and denies without being confused with absence or helper loss.
+`IntegrityFailure` is reserved for owned state that cannot be decoded or verified, including malformed map values, a zero socket cookie in a published tuple, incompatible runtime ABI, multiple live ownership records correlating with one tuple or another unverifiable ownership record.
+It denies, stops admission, cancels effect-producing work, marks the runtime not ready and requires process restart with the normal sweep-before-READY sequence.
+Mismatch details remain in trusted logs and qualification evidence and are never returned to the agent.
 
 After successful Resolve, the per-connection proxy binding carries `ExecutionId` plus a revocation receiver.
 Freeze or runtime cancellation closes HTTP work and open tunnels through that receiver even though the tuple entry has already been consumed.
 The cookie entry remains until the client socket closes or exact Execution cleanup removes it.
+A tuple published after a Resolve timeout remains fail-closed: the sockops close callback deletes it only when its cookie matches, and exact Execution destroy sweeps every tuple and cookie carrying that BindingKey.
+If a stale entry is encountered first by a later connection, atomic lookup-and-delete consumes it and the complete cookie/policy/ownership `BindingKey` validation denies it; TCP cannot concurrently establish the identical four-tuple while the old socket remains live.
+A stale tuple carrying an earlier Execution identity must never resolve a later Execution even when the four-tuple and cgroup ID are reused.
 
 ## Startup capability probe
 
@@ -462,7 +482,10 @@ PASS requires no listener/readiness before the durable READY manifest and live r
 B2 creates a production Execution through the staged reserve, frozen prepare, paused create, independent membership proof, activation and start sequence.
 It records the actual host PID, `/proc/<pid>/cgroup`, target `cgroup.procs`, target inode, netns identity, direct/effective hooks, policy value, cookie value, canonical tuple, accepted proxy tuple and Resolve result.
 Exactly one controlled connection must resolve to the correct `ExecutionId` before any application byte is read.
-Wrong cgroup, PID, nonce, generation, tuple byte order, missing cookie or IP-only identity must deny.
+Wrong cgroup and PID must be typed placement refusals and must never reach Resolve.
+The Resolve cases must assert their exact typed result: nonce and generation faults are their corresponding `IdentityMismatch`, a missing referenced cookie is `IdentityMismatch(Cookie)`, the wrong tuple byte order is bounded `Timeout`, and IP-only identity is `NotFound`.
+B2 records the measured timeout duration and the configured publication deadline and verifies the wait remains within that deadline with only an explicit bounded scheduling/IPC measurement tolerance; none of these expected denials may change runtime health.
+B2 also opens multiple simultaneous connections for which no tuple can be published and requires every one to return bounded `Timeout`, with no `Unavailable`, application read, DNS, outbound effect or health transition.
 
 ### B3 — concurrency, lifecycle and identity reuse
 

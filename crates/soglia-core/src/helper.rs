@@ -84,9 +84,99 @@ pub enum EnforcerRequest {
 pub enum ResolverRequest {
     /// Consume and validate one proxy-accepted tuple.
     Resolve {
+        /// Monotonic identifier that must be echoed by the matching response.
+        request_id: u64,
         /// Tuple derived from kernel peer/local socket addresses before application reads.
         tuple: SocketTupleV4,
     },
+}
+
+/// One non-blocking lookup attempt performed by the Enforcer.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+pub enum ResolveAttempt {
+    /// No final answer exists yet; the Supervisor may retry within its deadline.
+    Pending {
+        /// Trusted internal reason used only for timeout telemetry.
+        reason: ResolvePending,
+    },
+    /// The Enforcer reached one of the six final Resolve outcomes.
+    Complete {
+        /// Final trusted result of this Resolve.
+        result: ResolveResult,
+    },
+}
+
+/// Why one non-blocking Resolve attempt could not yet produce a final answer.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+pub enum ResolvePending {
+    /// The BPF tuple has not been published.
+    TupleAbsent,
+    /// A lifecycle operation currently owns the backend lock.
+    BackendBusy,
+}
+
+/// Correlated response on the dedicated Candidate-A Resolve channel.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct ResolverReply {
+    /// Exact identifier from the request this response answers.
+    pub request_id: u64,
+    /// One non-blocking lookup attempt.
+    pub attempt: ResolveAttempt,
+}
+
+/// Which trusted attribution boundary disagreed with the complete Candidate-A identity.
+///
+/// This is diagnostic metadata only. Authorization always compares the complete [`BindingKey`]
+/// first and never authorizes from a per-field comparison.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+pub enum ResolveMismatch {
+    /// The kernel cgroup identity differs.
+    CgroupId,
+    /// The Execution incarnation nonce differs.
+    ExecutionNonce,
+    /// The host-wide backend generation differs.
+    BackendGeneration,
+    /// The cookie map is absent or disagrees with the consumed tuple.
+    Cookie,
+    /// The tuple state disagrees with the current owned identity.
+    Tuple,
+    /// No current root-owned Execution record agrees with the observed identity.
+    OwnershipRecord,
+    /// The policy map is absent or disagrees with the current owned identity.
+    Policy,
+    /// More than one identity component differs.
+    Multiple,
+}
+
+/// The Enforcer's typed answer on the dedicated Candidate-A Resolve channel.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+pub enum ResolveResult {
+    /// Every privileged boundary agreed on this complete identity.
+    Resolved {
+        /// The complete identity validated by the Enforcer.
+        binding: BindingKey,
+    },
+    /// No attribution state exists for this request.
+    NotFound,
+    /// Attribution state exists but a trusted boundary disagrees.
+    IdentityMismatch {
+        /// The single differing boundary, or [`ResolveMismatch::Multiple`].
+        reason: ResolveMismatch,
+    },
+    /// The complete identity was found but its Execution is already frozen.
+    Revoked {
+        /// The identity whose revocation was observed.
+        binding: BindingKey,
+    },
+    /// Tuple publication did not complete within the configured bounded wait.
+    Timeout,
+    /// Owned state could not be decoded or verified safely.
+    IntegrityFailure,
 }
 
 /// What the Supervisor asks the sandbox helper to do.
@@ -150,11 +240,6 @@ pub enum HelperResponse {
         /// Candidate-A identity; all fields must be compared together.
         binding: BindingKey,
     },
-    /// A privileged bounded tuple lookup consumed and validated a Candidate-A tuple.
-    Resolved {
-        /// `None` is a fail-closed miss, timeout or identity disagreement.
-        binding: Option<BindingKey>,
-    },
     /// The agent of a started Execution exited.
     Exited {
         /// How it ended.
@@ -210,6 +295,58 @@ mod tests {
                 id.tag()
             ))
             .is_err()
+        );
+    }
+
+    #[test]
+    fn resolve_results_round_trip_without_text_classification() {
+        let binding = BindingKey {
+            cgroup_id: 37,
+            execution_nonce: ExecutionNonce::generate().unwrap(),
+            backend_generation: 9,
+        };
+        let results = [
+            ResolveResult::Resolved { binding },
+            ResolveResult::NotFound,
+            ResolveResult::IdentityMismatch {
+                reason: ResolveMismatch::ExecutionNonce,
+            },
+            ResolveResult::Revoked { binding },
+            ResolveResult::Timeout,
+            ResolveResult::IntegrityFailure,
+        ];
+        for result in results {
+            let encoded = serde_json::to_vec(&result).unwrap();
+            assert_eq!(
+                serde_json::from_slice::<ResolveResult>(&encoded).unwrap(),
+                result
+            );
+        }
+
+        let request = ResolverRequest::Resolve {
+            request_id: 17,
+            tuple: SocketTupleV4 {
+                source_address: [10, 0, 0, 2],
+                destination_address: [10, 0, 0, 1],
+                source_port: 40_000,
+                destination_port: 15_001,
+            },
+        };
+        let encoded = serde_json::to_vec(&request).unwrap();
+        assert_eq!(
+            serde_json::from_slice::<ResolverRequest>(&encoded).unwrap(),
+            request
+        );
+        let reply = ResolverReply {
+            request_id: 17,
+            attempt: ResolveAttempt::Complete {
+                result: ResolveResult::Timeout,
+            },
+        };
+        let encoded = serde_json::to_vec(&reply).unwrap();
+        assert_eq!(
+            serde_json::from_slice::<ResolverReply>(&encoded).unwrap(),
+            reply
         );
     }
 }

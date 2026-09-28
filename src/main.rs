@@ -92,7 +92,7 @@ mod runtime {
     use soglia_proxy::policy::DestinationPolicy;
     use soglia_proxy::resolver::SystemResolver;
     use soglia_supervisor::Supervisor;
-    use soglia_supervisor::helpers::{CandidateAAttributor, Helper};
+    use soglia_supervisor::helpers::{CandidateAAttributor, Helper, ResolveHealthFailure};
     use soglia_supervisor::privilege;
     use tokio::net::TcpListener;
     use tokio::signal::unix::{SignalKind, signal};
@@ -214,7 +214,16 @@ mod runtime {
                     Arc::clone(&attribution),
                     Duration::from_millis(config.cgroup_bpf.resolve_timeout_ms),
                     usize::try_from(config.runtime.max_concurrency).unwrap_or(usize::MAX),
-                    Arc::new(move |reason| observed.helper_exited("enforcer-resolve", reason)),
+                    Arc::new(move |failure| match failure {
+                        ResolveHealthFailure::Unavailable => observed.helper_exited(
+                            "enforcer-resolve",
+                            "the authenticated Resolve channel is unavailable",
+                        ),
+                        ResolveHealthFailure::IntegrityFailure => observed.helper_exited(
+                            "enforcer-resolve-integrity",
+                            "owned Candidate-A state failed integrity validation",
+                        ),
+                    }),
                 ))
             }
             None => Arc::clone(&attribution) as Arc<dyn ConnectionAttributor>,
