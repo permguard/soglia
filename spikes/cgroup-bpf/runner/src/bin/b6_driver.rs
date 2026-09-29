@@ -118,6 +118,14 @@ fn run() -> Result<(), String> {
         .ok_or("missing B6 mode")?
         .into_string()
         .map_err(|_| "B6 mode is not UTF-8")?;
+    let case = arguments
+        .next()
+        .map(|value| {
+            value
+                .into_string()
+                .map_err(|_| "B6 case is not UTF-8".to_owned())
+        })
+        .transpose()?;
     if arguments.next().is_some() {
         return Err("too many B6 driver arguments".to_owned());
     }
@@ -134,6 +142,22 @@ fn run() -> Result<(), String> {
         "recovery-interrupted" => {
             run_recovery_interrupted(&binary, &config_yaml, &config, &tracer, &evidence)
         }
+        "systemd-host-boundary" => run_systemd_host_boundary(
+            &binary,
+            &config_yaml,
+            &config,
+            &tracer,
+            &evidence,
+            case.as_deref().ok_or("missing systemd host boundary")?,
+        ),
+        "systemd-execution-boundary" => run_systemd_execution_boundary(
+            &binary,
+            &config_yaml,
+            &config,
+            &tracer,
+            &evidence,
+            case.as_deref().ok_or("missing systemd Execution boundary")?,
+        ),
         other => Err(format!("unknown B6 mode: {other}")),
     }
 }
@@ -192,7 +216,15 @@ fn run_execution_boundaries(
             format!("{}\n", boundary.name()),
         )
         .map_err(|error| error.to_string())?;
-        run_execution_boundary(binary, config_yaml, config, tracer, &evidence, boundary)?;
+        run_execution_boundary(
+            binary,
+            config_yaml,
+            config,
+            tracer,
+            &evidence,
+            boundary,
+            false,
+        )?;
         pass(&evidence)?;
     }
     fs::write(root.join("current-case.txt"), "complete\n").map_err(|error| error.to_string())?;
@@ -206,6 +238,7 @@ fn run_execution_boundary(
     tracer: &Path,
     evidence: &Path,
     boundary: ExecutionBoundary,
+    systemd_restart: bool,
 ) -> Result<(), String> {
     let sandbox = start_sandbox(binary, config_yaml)?;
     let enforcer = start_enforcer(binary, config_yaml)?;
@@ -245,7 +278,15 @@ fn run_execution_boundary(
                     .map(|_| ())
                 },
             )?;
-            finish_crashed_case(binary, config_yaml, config, sandbox, enforcer, evidence)?;
+            finish_crashed_case(
+                binary,
+                config_yaml,
+                config,
+                sandbox,
+                enforcer,
+                evidence,
+                systemd_restart,
+            )?;
             return Ok(());
         }
         block_on(enforcer.call(EnforcerRequest::Prepare {
@@ -319,7 +360,15 @@ fn run_execution_boundary(
                 boundary.trace_boundary(),
                 || block_on(enforcer.call(EnforcerRequest::Activate { id, binding })).map(|_| ()),
             )?;
-            finish_crashed_case(binary, config_yaml, config, sandbox, enforcer, evidence)?;
+            finish_crashed_case(
+                binary,
+                config_yaml,
+                config,
+                sandbox,
+                enforcer,
+                evidence,
+                systemd_restart,
+            )?;
             return Ok(());
         }
         block_on(enforcer.call(EnforcerRequest::Activate { id, binding }))?;
@@ -341,7 +390,15 @@ fn run_execution_boundary(
                 boundary.trace_boundary(),
                 || block_on(enforcer.call(EnforcerRequest::Freeze { tag: id.tag() })).map(|_| ()),
             )?;
-            finish_crashed_case(binary, config_yaml, config, sandbox, enforcer, evidence)?;
+            finish_crashed_case(
+                binary,
+                config_yaml,
+                config,
+                sandbox,
+                enforcer,
+                evidence,
+                systemd_restart,
+            )?;
             return Ok(());
         }
         block_on(enforcer.call(EnforcerRequest::Freeze { tag: id.tag() }))?;
@@ -378,7 +435,15 @@ fn run_execution_boundary(
                 boundary.trace_boundary(),
                 || block_on(enforcer.call(EnforcerRequest::Destroy { tag: id.tag() })).map(|_| ()),
             )?;
-            finish_crashed_case(binary, config_yaml, config, sandbox, enforcer, evidence)?;
+            finish_crashed_case(
+                binary,
+                config_yaml,
+                config,
+                sandbox,
+                enforcer,
+                evidence,
+                systemd_restart,
+            )?;
             return Ok(());
         }
     }
@@ -405,7 +470,15 @@ fn run_execution_boundary(
         .map_err(|error| error.to_string())?,
     )
     .map_err(|error| error.to_string())?;
-    finish_crashed_case(binary, config_yaml, config, sandbox, enforcer, evidence)
+    finish_crashed_case(
+        binary,
+        config_yaml,
+        config,
+        sandbox,
+        enforcer,
+        evidence,
+        systemd_restart,
+    )
 }
 
 fn run_recovery_interrupted(
@@ -453,13 +526,20 @@ fn finish_crashed_case(
     sandbox: Helper,
     enforcer: Helper,
     evidence: &Path,
+    systemd_restart: bool,
 ) -> Result<(), String> {
     if enforcer.ensure_running().is_ok() {
         return Err("the boundary tracer left the Enforcer alive".to_owned());
     }
     drop(enforcer);
     drop(sandbox);
-    recover_and_record(binary, config_yaml, config, evidence)
+    if systemd_restart {
+        fs::write(evidence.join("restart-phase.txt"), "RECOVER\n")
+            .map_err(|error| error.to_string())?;
+        Err("SYSTEMD_RESTART_REQUIRED".to_owned())
+    } else {
+        recover_and_record(binary, config_yaml, config, evidence)
+    }
 }
 
 fn start_sandbox(binary: &Path, config_yaml: &str) -> Result<Helper, String> {
