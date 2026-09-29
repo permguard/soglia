@@ -4079,3 +4079,13 @@
     z-index: 26;
   }
 }
+
+/* The line under the navigation bar: a hairline, like the Docs sidebar edge, instead of the
+   solid black VitePress draws on the dark theme. */
+:root {
+  --vp-nav-divider-color: rgba(15, 23, 32, .08);
+}
+
+.dark {
+  --vp-nav-divider-color: rgba(255, 255, 255, .06);
+}
