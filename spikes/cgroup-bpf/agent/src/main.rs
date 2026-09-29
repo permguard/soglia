@@ -342,7 +342,12 @@ fn proxy_http(target: &str, source_port: Option<u16>) {
 
 /// Announces this exact agent PID, then waits for the trusted harness to release one operation.
 fn barrier(command: &str, ready: &str, go: &str, timeout_secs: u64) {
-    let result = (|| -> std::io::Result<String> {
+    let result = wait_at_barrier(ready, go, timeout_secs);
+    print(outcome(command, result, ""));
+}
+
+fn wait_at_barrier(ready: &str, go: &str, timeout_secs: u64) -> std::io::Result<String> {
+    (|| {
         fs::write(ready, format!("{}\n", std::process::id()))?;
         let started = Instant::now();
         while !Path::new(go).exists() {
@@ -355,8 +360,7 @@ fn barrier(command: &str, ready: &str, go: &str, timeout_secs: u64) {
             thread::sleep(Duration::from_millis(10));
         }
         Ok(format!("released pid={}", std::process::id()))
-    })();
-    print(outcome(command, result, ""));
+    })()
 }
 
 /// One connection to the proxy: say hello, read the proxy's one-line verdict, optionally hold.
@@ -1176,6 +1180,24 @@ fn answer(mut stream: TcpStream) {
             let millis = words.get(1).and_then(|s| s.parse().ok()).unwrap_or(0);
             thread::sleep(Duration::from_millis(millis));
             format!("{{\"slept_ms\":{millis}}}")
+        }
+        Some("proxy-fixed-report") => {
+            let first_port = words.get(1).and_then(|s| s.parse().ok()).unwrap_or(40_000);
+            let count = words.get(2).and_then(|s| s.parse().ok()).unwrap_or(1);
+            let report = words.get(3).copied().unwrap_or("/tmp/proxy-fixed.jsonl");
+            let hold_secs = words.get(4).and_then(|s| s.parse().ok()).unwrap_or(10);
+            proxy_fixed(first_port, count, Some((report, hold_secs)));
+            format!("{{\"proxy_fixed_count\":{count}}}")
+        }
+        Some("delayed-proxy-fixed-report") => {
+            let delay_ms = words.get(1).and_then(|s| s.parse().ok()).unwrap_or(3_000);
+            let first_port = words.get(2).and_then(|s| s.parse().ok()).unwrap_or(40_000);
+            let count = words.get(3).and_then(|s| s.parse().ok()).unwrap_or(1);
+            let report = words.get(4).copied().unwrap_or("/tmp/proxy-fixed.jsonl");
+            let hold_secs = words.get(5).and_then(|s| s.parse().ok()).unwrap_or(10);
+            thread::sleep(Duration::from_millis(delay_ms));
+            proxy_fixed(first_port, count, Some((report, hold_secs)));
+            format!("{{\"proxy_fixed_count\":{count},\"continued\":true}}")
         }
         _ => format!("{{\"unknown\":{}}}", quote(&command)),
     };

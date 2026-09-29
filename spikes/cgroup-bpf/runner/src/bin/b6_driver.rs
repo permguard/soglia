@@ -13,9 +13,11 @@ use std::time::{Duration, Instant};
 use serde::Serialize;
 use serde_json::{Value, json};
 use soglia_core::config::Config;
-use soglia_core::helper::{EnforcerRequest, HelperResponse, SandboxRequest};
+use soglia_core::helper::{
+    EnforcerRequest, HelperFailure, HelperResponse, RefusalClass, SandboxRequest,
+};
 use soglia_core::{ExecutionId, ExecutionNonce};
-use soglia_supervisor::helpers::Helper;
+use soglia_supervisor::helpers::{Helper, HelperError};
 
 const HOST_BOUNDARIES: [&str; 4] = [
     "host_intent",
@@ -76,6 +78,13 @@ impl ExecutionBoundary {
             Self::SandboxDestroyed => "frozen_complete",
             Self::PolicyRemovedBeforeRecord => "destroy_policy_before_record",
         }
+    }
+
+    fn parse(value: &str) -> Result<Self, String> {
+        Self::ALL
+            .into_iter()
+            .find(|boundary| boundary.name() == value)
+            .ok_or_else(|| format!("unknown B6 Execution boundary: {value}"))
     }
 }
 
@@ -142,6 +151,12 @@ fn run() -> Result<(), String> {
         "recovery-interrupted" => {
             run_recovery_interrupted(&binary, &config_yaml, &config, &tracer, &evidence)
         }
+        "target-released-nonempty" => {
+            run_target_released_nonempty(&binary, &config_yaml, &evidence)
+        }
+        "target-released-outside" => {
+            expect_target_released_unknown(&binary, &config_yaml, &evidence)
+        }
         "systemd-host-boundary" => run_systemd_host_boundary(
             &binary,
             &config_yaml,
@@ -156,10 +171,65 @@ fn run() -> Result<(), String> {
             &config,
             &tracer,
             &evidence,
-            case.as_deref().ok_or("missing systemd Execution boundary")?,
+            case.as_deref()
+                .ok_or("missing systemd Execution boundary")?,
         ),
         other => Err(format!("unknown B6 mode: {other}")),
     }
+}
+
+fn run_target_released_nonempty(
+    binary: &Path,
+    config_yaml: &str,
+    evidence: &Path,
+) -> Result<(), String> {
+    let sandbox = start_sandbox(binary, config_yaml)?;
+    fs::write(evidence.join("sandbox-ready"), "READY\n").map_err(|error| error.to_string())?;
+    let injected = evidence.join("injection-complete");
+    let started = Instant::now();
+    while !injected.is_file() {
+        if started.elapsed() >= Duration::from_secs(10) {
+            return Err("UNPROVEN: non-empty target was not injected".to_owned());
+        }
+        std::thread::sleep(Duration::from_millis(10));
+    }
+    expect_target_released_unknown(binary, config_yaml, evidence)?;
+    drop(sandbox);
+    Ok(())
+}
+
+fn expect_target_released_unknown(
+    binary: &Path,
+    config_yaml: &str,
+    evidence: &Path,
+) -> Result<(), String> {
+    let enforcer = Helper::spawn_enforcer(binary).map_err(|error| error.to_string())?;
+    let failure = match enforcer.hello(config_yaml) {
+        Err(HelperError::Failed(
+            failure @ HelperFailure::Refused {
+                class: RefusalClass::Unknown,
+                ..
+            },
+        )) => failure,
+        other => {
+            return Err(format!(
+                "expected typed UNKNOWN from non-empty target, got {other:?}"
+            ));
+        }
+    };
+    fs::write(
+        evidence.join("helper-refusal.json"),
+        serde_json::to_vec_pretty(&json!({
+            "class": failure.event_class(),
+            "exit_code": failure.exit_code(),
+            "detail": failure.detail(),
+            "verdict": "PASS"
+        }))
+        .map_err(|error| error.to_string())?,
+    )
+    .map_err(|error| error.to_string())?;
+    drop(enforcer);
+    pass(evidence)
 }
 
 fn run_host_boundaries(
@@ -199,6 +269,101 @@ fn run_host_boundaries(
     }
     fs::write(root.join("current-case.txt"), "complete\n").map_err(|error| error.to_string())?;
     fs::write(root.join("verdict.txt"), "PASS\n").map_err(|error| error.to_string())
+}
+
+fn run_systemd_host_boundary(
+    binary: &Path,
+    config_yaml: &str,
+    config: &Config,
+    tracer: &Path,
+    evidence: &Path,
+    boundary: &str,
+) -> Result<(), String> {
+    if !HOST_BOUNDARIES.contains(&boundary) {
+        return Err(format!("unknown B6 host boundary: {boundary}"));
+    }
+    if restart_recovery_pending(evidence)? {
+        recover_and_record(binary, config_yaml, config, evidence)?;
+        fs::write(evidence.join("restart-phase.txt"), "COMPLETE\n")
+            .map_err(|error| error.to_string())?;
+        pass(evidence)?;
+        return wait_for_systemd_inspection(evidence);
+    }
+
+    fs::write(evidence.join("restart-phase.txt"), "BOUNDARY\n")
+        .map_err(|error| error.to_string())?;
+    let sandbox = start_sandbox(binary, config_yaml)?;
+    let enforcer = Helper::spawn_enforcer(binary).map_err(|error| error.to_string())?;
+    let enforcer_pid = helper_pid(binary, "__enforcer")?;
+    let mut trace = start_trace(
+        tracer,
+        enforcer_pid,
+        state_path(config),
+        &config.runtime.bpftool,
+        boundary,
+        evidence,
+    )?;
+    let hello = enforcer.hello(config_yaml);
+    fs::write(evidence.join("hello-result.txt"), format!("{hello:?}\n"))
+        .map_err(|error| error.to_string())?;
+    require_trace_success(&mut trace, boundary)?;
+    if enforcer.ensure_running().is_ok() {
+        return Err(format!("{boundary}: tracer did not kill the Enforcer"));
+    }
+    drop(enforcer);
+    drop(sandbox);
+    fs::write(evidence.join("restart-phase.txt"), "RECOVER\n")
+        .map_err(|error| error.to_string())?;
+    Err("SYSTEMD_RESTART_REQUIRED".to_owned())
+}
+
+fn run_systemd_execution_boundary(
+    binary: &Path,
+    config_yaml: &str,
+    config: &Config,
+    tracer: &Path,
+    evidence: &Path,
+    boundary: &str,
+) -> Result<(), String> {
+    let boundary = ExecutionBoundary::parse(boundary)?;
+    if restart_recovery_pending(evidence)? {
+        recover_and_record(binary, config_yaml, config, evidence)?;
+        fs::write(evidence.join("restart-phase.txt"), "COMPLETE\n")
+            .map_err(|error| error.to_string())?;
+        pass(evidence)?;
+        return wait_for_systemd_inspection(evidence);
+    }
+    fs::write(evidence.join("restart-phase.txt"), "BOUNDARY\n")
+        .map_err(|error| error.to_string())?;
+    run_execution_boundary(
+        binary,
+        config_yaml,
+        config,
+        tracer,
+        evidence,
+        boundary,
+        true,
+    )
+}
+
+fn restart_recovery_pending(evidence: &Path) -> Result<bool, String> {
+    match fs::read_to_string(evidence.join("restart-phase.txt")) {
+        Ok(value) => Ok(value.trim() == "RECOVER"),
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => Ok(false),
+        Err(error) => Err(error.to_string()),
+    }
+}
+
+fn wait_for_systemd_inspection(evidence: &Path) -> Result<(), String> {
+    let marker = evidence.join("inspection-complete");
+    let started = Instant::now();
+    while !marker.is_file() {
+        if started.elapsed() >= Duration::from_secs(30) {
+            return Err("UNPROVEN: systemd evidence was not captured while READY".to_owned());
+        }
+        std::thread::sleep(Duration::from_millis(10));
+    }
+    Ok(())
 }
 
 fn run_execution_boundaries(

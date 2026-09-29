@@ -286,6 +286,31 @@ tasks:
     cmds:
       - ./spikes/cgroup-bpf/host/run-b5-diagnostic.sh
 
+  spike:b6:
+    interactive: true
+    desc: Run authoritative production B6 once on a newly created Lima VM.
+    summary: |
+      Create one fresh VM named `soglia-spike-b6-<id>`, verify the production baseline and
+      execute B6 only. B7 is never started. Run only after explicit authorization.
+
+      Example:
+        task spike:b6
+    cmds:
+      - ./spikes/cgroup-bpf/host/run-b6-fresh.sh
+
+  spike:b6:diagnostic:
+    interactive: true
+    desc: Run diagnostic production B6 on the reusable development VM.
+    summary: |
+      Create or reuse `soglia-spike-dev`, build the production Candidate-A backend and B6
+      harness, then execute B6 diagnostically. This never creates authoritative evidence and
+      never starts B7.
+
+      Example:
+        task spike:b6:diagnostic
+    cmds:
+      - ./spikes/cgroup-bpf/host/run-b6-diagnostic.sh
+
   spike:replay:
     interactive: true
     desc: Run the authoritative S0-S14 replay on two newly created VMs, one after the other.

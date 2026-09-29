@@ -28,6 +28,30 @@ config="$evidence/config.yaml"
 unit_cgroup="/sys/fs/cgroup/system.slice/$unit.service"
 mkdir -p "$evidence" "$rootfs"/{proc,dev,sys,tmp}
 install -m 0755 "$agent" "$rootfs/agent"
+runc_path=/usr/sbin/runc
+if [[ "$case_name" == sandbox_sigkill ]]; then
+  runc_path="/var/tmp/$unit-runc-wrapper"
+  cat > "$runc_path" <<EOF
+#!/usr/bin/env bash
+set -euo pipefail
+args=("\$@")
+create_index=-1
+for index in "\${!args[@]}"; do
+  [[ "\${args[\$index]}" == create ]] && create_index=\$index
+done
+/usr/sbin/runc "\${args[@]}"
+if [[ \$create_index -ge 0 && -f '$runtime/b6-hold-next-create' ]]; then
+  container=\${!#}
+  prefix=("\${args[@]:0:\$create_index}")
+  /usr/sbin/runc "\${prefix[@]}" state "\$container" \
+    > '$evidence/created-not-started-runc-state.json'
+  awk '{print \$1}' /proc/uptime > '$evidence/created-not-started-boottime.txt'
+  printf '%s\n' "\$container" > '$evidence/created-not-started-marker'
+  while [[ ! -f '$runtime/b6-release-create' ]]; do sleep 0.01; done
+fi
+EOF
+  chmod 0755 "$runc_path"
+fi
 
 boot_now() { awk '{print $1}' /proc/uptime; }
 proc_alive() { [[ -d /proc/$1 ]]; }
@@ -51,13 +75,25 @@ wait_for() {
   echo "timed out waiting for $description" >&2
   return 1
 }
+two_agents_running() {
+  [[ $(journalctl -u "$unit.service" --after-cursor "$journal_cursor" -o cat --no-pager \
+    | grep -c 'execution phase.*Running') -ge 2 ]]
+}
 
 cleanup() {
   local status=$?
   set +e
+  if [[ -d $unit_cgroup/executions ]]; then
+    find "$unit_cgroup/executions" -mindepth 1 -maxdepth 1 -type d -exec sh -c \
+      'echo 0 > "$1/cgroup.freeze" 2>/dev/null || true' _ {} \;
+  fi
   systemctl stop "$unit.service" >/dev/null 2>&1
   systemctl reset-failed "$unit.service" >/dev/null 2>&1
   if [[ -f $runtime/cgroup-bpf/state.json ]]; then
+    jq -r '.executions[].tag // empty' "$runtime/cgroup-bpf/state.json" | while read -r tag; do
+      ip netns delete "soglia-${tag:0:10}" >/dev/null 2>&1
+      ip link delete "sgh-${tag:0:10}" >/dev/null 2>&1
+    done
     jq -r '.links[].pin,.maps[].pin' "$runtime/cgroup-bpf/state.json" | while read -r owned; do
       case "$owned" in "$pin_parent"/*) rm -f "$owned" ;; esac
     done
@@ -72,6 +108,7 @@ cleanup() {
     ip link delete soglia0 >/dev/null 2>&1
   fi
   rm -rf "$runtime" "$rootfs"
+  [[ "$runc_path" != /usr/sbin/runc ]] && rm -f "$runc_path"
   rmdir "$pin_parent" 2>/dev/null
   nft delete table inet soglia_b6_observe >/dev/null 2>&1
   exit "$status"
@@ -87,7 +124,7 @@ runtime:
   max_queue: 4
   cleanup_failure_threshold: 1
   teardown_timeout_ms: 5000
-  runc: /usr/sbin/runc
+  runc: $runc_path
   nft: /usr/sbin/nft
   ip: /usr/sbin/ip
   bpftool: /usr/sbin/bpftool
@@ -127,6 +164,9 @@ nft add rule inet soglia_b6_observe output meta skuid 65534 tcp dport 53 counter
 nft add rule inet soglia_b6_observe output meta skuid 65534 ip daddr != 10.200.255.1 counter comment b6_outbound
 nft -j list table inet soglia_b6_observe > "$evidence/effects-before.json"
 
+journal_cursor=$(journalctl -n 0 --show-cursor --no-pager \
+  | sed -n 's/^-- cursor: //p')
+[[ -n "$journal_cursor" ]]
 started=$(boot_now)
 systemd-run --unit="$unit" --property=Type=simple --property=Delegate=yes \
   --property=KillMode=mixed --property=Restart=on-failure --property=RestartSec=100ms \
@@ -148,14 +188,53 @@ curl --silent --show-error --max-time 45 -X POST --data-binary 'sleep 30000' \
 sleep_client=$!
 wait_for first-execution "find '$unit_cgroup/executions' -mindepth 1 -maxdepth 1 -type d | grep -q ."
 
+proxy_command='proxy-fixed-report 40000 1 /tmp/b6-unresolved.jsonl 30'
+staged_lifecycle=false
+created_pid=0
+first_cgroup=
 if [[ "$case_name" == resolve_channel_watchdog ]]; then
-  kill -STOP "$enforcer"
+  proxy_command='delayed-proxy-fixed-report 3000 40000 1 /tmp/b6-unresolved.jsonl 30'
+fi
+if [[ "$case_name" == sandbox_sigkill ]]; then
+  staged_lifecycle=true
+  wait_for first-running "[[ \$(SYSTEMD_COLORS=0 journalctl -u '$unit.service' --after-cursor '$journal_cursor' -o cat --no-pager | grep -c 'execution phase.*Running') -ge 1 ]]"
+  first_cgroup=$(find "$unit_cgroup/executions" -mindepth 1 -maxdepth 1 -type d | head -1)
+  echo 1 > "$first_cgroup/cgroup.freeze"
+  wait_for first-frozen "grep -q '^frozen 1$' '$first_cgroup/cgroup.events'"
+  {
+    printf 'cgroup=%s\n' "$first_cgroup"
+    cat "$first_cgroup/cgroup.events"
+    printf 'procs:\n'
+    cat "$first_cgroup/cgroup.procs"
+  } > "$evidence/frozen-execution-before-loss.txt"
+  : > "$runtime/b6-hold-next-create"
+  proxy_command='sleep 30000'
 fi
 curl --silent --show-error --max-time 45 -X POST \
-  --data-binary 'proxy-fixed-report 40000 1 /tmp/b6-unresolved.jsonl 30' \
+  --data-binary "$proxy_command" \
   http://127.0.0.1:18106/v1/execute/probe > "$evidence/proxy-client.txt" 2>&1 &
 proxy_client=$!
 wait_for two-executions "[[ \$(find '$unit_cgroup/executions' -mindepth 1 -maxdepth 1 -type d | wc -l) -ge 2 ]]"
+wait_for two-execution-agents "[[ \$(cat '$unit_cgroup'/executions/*/cgroup.procs 2>/dev/null | sed '/^$/d' | wc -l) -ge 2 ]]"
+if [[ "$case_name" == sandbox_sigkill ]]; then
+  wait_for created-not-started "[[ -f '$evidence/created-not-started-marker' ]]"
+  rm "$runtime/b6-hold-next-create"
+  jq -e '.status == "created" and (.pid | type == "number")' \
+    "$evidence/created-not-started-runc-state.json"
+  created_pid=$(jq -r .pid "$evidence/created-not-started-runc-state.json")
+  created_cgroup=$(grep -l -x "$created_pid" "$unit_cgroup"/executions/*/cgroup.procs \
+    | xargs -r -n1 dirname)
+  [[ -n "$created_cgroup" && "$created_cgroup" != "$first_cgroup" ]]
+  {
+    printf 'cgroup=%s\n' "$created_cgroup"
+    cat "$created_cgroup/cgroup.events"
+    printf 'procs:\n'
+    cat "$created_cgroup/cgroup.procs"
+  } > "$evidence/created-not-started-before-loss.txt"
+  ! grep -q '^frozen 1$' "$created_cgroup/cgroup.events"
+else
+  wait_for two-running-executions two_agents_running
+fi
 
 mapfile -t execution_cgroups < <(find "$unit_cgroup/executions" -mindepth 1 -maxdepth 1 -type d | sort)
 old_agents=()
@@ -168,13 +247,19 @@ done
 printf '%s\n' "${old_agents[@]}" > "$evidence/old-agent-pids.txt"
 ss -H -n -t -a > "$evidence/sockets-before-loss.txt"
 nft -j list table inet soglia_b6_observe > "$evidence/effects-at-loss.json"
+cp "$runtime/cgroup-bpf/state.json" "$evidence/state-before-loss.json"
+old_generation=$(jq -r .generation "$evidence/state-before-loss.json")
+old_attachment_inode=$(jq -r .attachment_inode "$evidence/state-before-loss.json")
 
 loss_at=$(boot_now)
 case "$case_name" in
   enforcer_sigkill) kill -KILL "$enforcer" ;;
   supervisor_sigkill) kill -KILL "$old_main" ;;
   sandbox_sigkill) kill -KILL "$sandbox" ;;
-  resolve_channel_watchdog) : ;;
+  resolve_channel_watchdog)
+    kill -STOP "$enforcer"
+    wait_for enforcer-stopped "grep -q '^State:[[:space:]]*T' '/proc/$enforcer/status'"
+    ;;
 esac
 
 : > "$evidence/timeline.jsonl"
@@ -215,12 +300,61 @@ done
 ! grep -q '^populated 1$' "$evidence/execution-cgroup-events-before-new-main.txt"
 wait_for restarted-ready "ss -H -ltn 'sport = :18106' | grep -q ."
 
-journalctl -u "$unit.service" -o json --no-pager > "$evidence/journal.jsonl"
+journalctl -u "$unit.service" --after-cursor "$journal_cursor" -o json --no-pager \
+  > "$evidence/journal.jsonl"
+journalctl -u "$unit.service" --after-cursor "$journal_cursor" -o short-monotonic --no-pager \
+  > "$evidence/journal.txt"
 jq -e 'all(.[]; has("__MONOTONIC_TIMESTAMP"))' < <(jq -s . "$evidence/journal.jsonl")
-grep -q 'startup.swept' "$evidence/journal.jsonl"
-grep -q 'startup.ready' "$evidence/journal.jsonl"
+grep -q 'event.name=cgroup_bpf.target_released result=PASS' "$evidence/journal.txt"
+[[ $(grep -c 'event.name=cgroup_bpf.target_released_link_observation' "$evidence/journal.txt") -eq 6 ]]
+! grep 'event.name=cgroup_bpf.target_released_link_observation' "$evidence/journal.txt" \
+  | grep -Ev 'cgroup_id=0([^0-9]|$)'
+grep -q 'event.name=cgroup_bpf.recovery_cleanup_observation' "$evidence/journal.txt"
+grep -q 'event.name=cgroup_bpf.ready generation=2' "$evidence/journal.txt"
+target_released_line=$(grep -n -m1 'event.name=cgroup_bpf.target_released result=PASS' \
+  "$evidence/journal.txt" | cut -d: -f1)
+cleanup_observed_line=$(grep -n -m1 'event.name=cgroup_bpf.recovery_cleanup_observation' \
+  "$evidence/journal.txt" | cut -d: -f1)
+ready_line=$(grep -n -m1 'event.name=cgroup_bpf.ready generation=2' \
+  "$evidence/journal.txt" | cut -d: -f1)
+[[ "$target_released_line" -lt "$cleanup_observed_line" ]]
+[[ "$cleanup_observed_line" -lt "$ready_line" ]]
 nft -j list table inet soglia_b6_observe > "$evidence/effects-after-restart.json"
 ss -H -n -t -a > "$evidence/sockets-after-restart.txt"
+cp "$runtime/cgroup-bpf/state.json" "$evidence/state-after-restart.json"
+new_generation=$(jq -r .generation "$evidence/state-after-restart.json")
+new_attachment_inode=$(jq -r .attachment_inode "$evidence/state-after-restart.json")
+[[ "$new_generation" -gt "$old_generation" ]]
+[[ "$new_attachment_inode" != "$old_attachment_inode" ]]
+for map in soglia_policy soglia_cookie_a soglia_tuples; do
+  pin=$(jq -r --arg map "$map" '.maps[] | select(.name == $map) | .pin' \
+    "$evidence/state-after-restart.json")
+  bpftool -j map dump pinned "$pin" > "$evidence/new-$map.json"
+  jq -e 'length == 0' "$evidence/new-$map.json"
+done
+bpftool -j prog show > "$evidence/programs-after-restart.json"
+bpftool -j link show > "$evidence/links-after-restart.json"
+bpftool -j map show > "$evidence/maps-after-restart.json"
+jq -e --slurpfile current "$evidence/programs-after-restart.json" \
+  'all(.programs[]; .id as $id | $id == 0 or ([ $current[0][].id ] | index($id)) == null)' \
+  "$evidence/state-before-loss.json"
+jq -e --slurpfile current "$evidence/links-after-restart.json" \
+  'all(.links[]; .id as $id | $id == 0 or ([ $current[0][].id ] | index($id)) == null)' \
+  "$evidence/state-before-loss.json"
+jq -e --slurpfile current "$evidence/maps-after-restart.json" \
+  'all(.maps[]; .id as $id | $id == 0 or ([ $current[0][].id ] | index($id)) == null)' \
+  "$evidence/state-before-loss.json"
+
+effect_packets() {
+  local file=$1 comment=$2
+  jq --arg comment "$comment" '[.. | objects |
+    select(.comment? == $comment) | .counter.packets // 0] | add // 0' "$file"
+}
+for comment in b6_dns b6_dns_tcp b6_outbound; do
+  before=$(effect_packets "$evidence/effects-at-loss.json" "$comment")
+  after=$(effect_packets "$evidence/effects-after-restart.json" "$comment")
+  [[ "$after" -eq "$before" ]]
+done
 
 barrier=SYSTEMD_KILL_BARRIER
 if [[ "$case_name" == enforcer_sigkill ]]; then
@@ -230,10 +364,23 @@ fi
 jq -n --arg case "$case_name" --argjson old_main "$old_main" --argjson new_main "$new_main" \
   --argjson old_restarts "$old_restarts" --argjson new_restarts "$new_restarts" \
   --arg loss_at "$loss_at" --arg barrier "$barrier" --argjson agents "$(printf '%s\n' "${old_agents[@]}" | jq -Rsc 'split("\n")|map(select(length>0)|tonumber)')" \
+  --argjson old_generation "$old_generation" --argjson new_generation "$new_generation" \
+  --argjson old_attachment_inode "$old_attachment_inode" \
+  --argjson new_attachment_inode "$new_attachment_inode" \
+  --argjson staged_lifecycle "$staged_lifecycle" --argjson created_pid "$created_pid" \
+  --arg frozen_cgroup "$first_cgroup" \
   '{case:$case,old_main_pid:$old_main,new_main_pid:$new_main,nrestarts_before:$old_restarts,
     nrestarts_after:$new_restarts,loss_boottime_seconds:($loss_at|tonumber),old_agent_pids:$agents,
     old_agents_absent_before_new_main:true,barrier_attribution:$barrier,
-    unit:{Delegate:true,KillMode:"mixed",Restart:"on-failure"},verdict:"PASS"}' \
+    unit:{Delegate:true,KillMode:"mixed",Restart:"on-failure"},
+    lifecycle_preconditions:{frozen_execution:$staged_lifecycle,
+      frozen_cgroup:(if $staged_lifecycle then $frozen_cgroup else null end),
+      created_not_started:$staged_lifecycle,
+      created_not_started_pid:(if $staged_lifecycle then $created_pid else null end)},
+    target_released:{old_generation:$old_generation,new_generation:$new_generation,
+      old_attachment_inode:$old_attachment_inode,new_attachment_inode:$new_attachment_inode,
+      links_observed_detached:6,detach_timeout_ms:5000,poll_interval_ms:10,
+      old_ids_absent:true,new_authorization_maps_empty:true},verdict:"PASS"}' \
   > "$evidence/result.json"
 printf '%s\n' PASS > "$evidence/verdict.txt"
 

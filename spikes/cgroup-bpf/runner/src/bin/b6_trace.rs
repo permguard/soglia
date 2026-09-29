@@ -7,9 +7,11 @@ use std::collections::{BTreeSet, HashMap};
 use std::env;
 use std::fs;
 use std::fs::OpenOptions;
-use std::io::Write;
+use std::io::{Read, Write};
+use std::net::{Ipv4Addr, SocketAddr, SocketAddrV4, TcpStream};
 use std::path::{Path, PathBuf};
 use std::process::Command;
+use std::sync::mpsc;
 use std::time::{Duration, Instant};
 
 use nix::sys::ptrace::{self, Options};
@@ -118,6 +120,29 @@ fn run() -> Result<(), String> {
                 let slot = pending.entry(tid).or_insert(None);
                 if let Some(entry) = slot.take() {
                     let result = syscall_result(tid)?;
+                    if result == 0
+                        && entry.number == libc::SYS_listen
+                        && startup_listener_port(&boundary).is_some_and(|port| {
+                            listener_has_port(tid, entry.arguments[0], port).unwrap_or(false)
+                        })
+                    {
+                        let port = startup_listener_port(&boundary)
+                            .ok_or("startup listener boundary omitted its port")?;
+                        return qualify_startup_listener_boundary(
+                            root_pid,
+                            tid,
+                            &tracees,
+                            entry.arguments[0],
+                            port,
+                            yama.trim(),
+                            &evidence,
+                            deadline,
+                        );
+                    }
+                    if startup_listener_port(&boundary).is_some() {
+                        resume(tid)?;
+                        continue;
+                    }
                     if result == 0 && is_state_rename(tid, &entry, &state_path)? {
                         renamed = true;
                     }
@@ -355,6 +380,168 @@ fn read_c_string(pid: Pid, address: u64) -> Result<Vec<u8>, String> {
         }
     }
     Err("tracee path exceeds 4096 bytes".to_owned())
+}
+
+fn startup_listener_port(boundary: &str) -> Option<u16> {
+    boundary
+        .strip_prefix("startup_listener_bound:")?
+        .parse()
+        .ok()
+}
+
+fn listener_has_port(pid: Pid, fd: u64, expected_port: u16) -> Result<bool, String> {
+    let fd = i32::try_from(fd).map_err(|_| "listener fd overflow")?;
+    let target = fs::read_link(format!("/proc/{pid}/fd/{fd}"))
+        .map_err(|error| format!("read listener fd target: {error}"))?;
+    let target = target.to_string_lossy();
+    let inode = target
+        .strip_prefix("socket:[")
+        .and_then(|value| value.strip_suffix(']'))
+        .ok_or_else(|| format!("listener fd did not name a socket: {target}"))?;
+    let tcp = fs::read_to_string(format!("/proc/{pid}/net/tcp"))
+        .map_err(|error| format!("read tracee TCP table: {error}"))?;
+    for line in tcp.lines().skip(1) {
+        let fields = line.split_whitespace().collect::<Vec<_>>();
+        if fields.len() < 10 || fields[3] != "0A" || fields[9] != inode {
+            continue;
+        }
+        let Some((_, port)) = fields[1].split_once(':') else {
+            continue;
+        };
+        return Ok(u16::from_str_radix(port, 16).ok() == Some(expected_port));
+    }
+    Ok(false)
+}
+
+fn qualify_startup_listener_boundary(
+    root_pid: Pid,
+    matched_tid: Pid,
+    tracees: &BTreeSet<Pid>,
+    listener_fd: u64,
+    port: u16,
+    yama: &str,
+    evidence: &Path,
+    deadline: Instant,
+) -> Result<(), String> {
+    for other in tracees
+        .iter()
+        .copied()
+        .filter(|other| *other != matched_tid)
+    {
+        let _ = ptrace::detach(other, None);
+    }
+
+    let (response_tx, response_rx) = mpsc::channel();
+    std::thread::spawn(move || {
+        loop {
+            match startup_admission_probe(port) {
+                Ok(response) => {
+                    let _ = response_tx.send(response);
+                    break;
+                }
+                Err(_) => std::thread::sleep(Duration::from_millis(2)),
+            }
+        }
+    });
+
+    let response = loop {
+        if Instant::now() >= deadline {
+            let _ = ptrace::detach(matched_tid, None);
+            return Err(
+                "UNPROVEN: no admission response was observed before startup.ready".to_owned(),
+            );
+        }
+        ptrace::step(matched_tid, None)
+            .map_err(|error| format!("single-step startup listener thread: {error}"))?;
+        loop {
+            match waitpid(
+                matched_tid,
+                Some(WaitPidFlag::__WALL | WaitPidFlag::WNOHANG),
+            )
+            .map_err(|error| format!("wait for startup single-step: {error}"))?
+            {
+                WaitStatus::StillAlive => std::thread::sleep(Duration::from_micros(100)),
+                WaitStatus::Stopped(_, _) | WaitStatus::PtraceEvent(_, _, _) => break,
+                status => {
+                    return Err(format!(
+                        "startup listener thread exited during qualification: {status:?}"
+                    ));
+                }
+            }
+        }
+        if let Ok(response) = response_rx.try_recv() {
+            break response;
+        }
+    };
+
+    let verdict = if response.0 == 503 { "MATCHED" } else { "FAIL" };
+    fs::write(
+        evidence,
+        serde_json::to_vec_pretty(&json!({
+            "schema": 1,
+            "boundary": "startup_listener_bound",
+            "root_pid": root_pid.as_raw(),
+            "matched_tid": matched_tid.as_raw(),
+            "listener_fd": listener_fd,
+            "listener_port": port,
+            "traced_threads": tracees.iter().map(|pid| pid.as_raw()).collect::<Vec<_>>(),
+            "yama_ptrace_scope": yama,
+            "request": "POST /v1/execute/probe",
+            "response_status": response.0,
+            "response_head": response.1,
+            "matched_at_boottime_seconds": boottime_seconds()?,
+            "verdict": verdict
+        }))
+        .map_err(|error| error.to_string())?,
+    )
+    .map_err(|error| error.to_string())?;
+    if response.0 != 503 {
+        let _ = ptrace::detach(matched_tid, None);
+        return Err(format!(
+            "FAIL: pre-READY admission returned HTTP {} instead of 503",
+            response.0
+        ));
+    }
+
+    let release = evidence.with_extension("release");
+    while !release.is_file() {
+        if Instant::now() >= deadline {
+            let _ = ptrace::detach(matched_tid, None);
+            return Err("UNPROVEN: startup listener boundary was not released".to_owned());
+        }
+        std::thread::sleep(Duration::from_millis(2));
+    }
+    ptrace::detach(matched_tid, None)
+        .map_err(|error| format!("release startup listener thread: {error}"))
+}
+
+fn startup_admission_probe(port: u16) -> Result<(u16, String), String> {
+    let address = SocketAddr::V4(SocketAddrV4::new(Ipv4Addr::LOCALHOST, port));
+    let mut stream = TcpStream::connect_timeout(&address, Duration::from_millis(50))
+        .map_err(|error| error.to_string())?;
+    stream
+        .set_read_timeout(Some(Duration::from_millis(100)))
+        .map_err(|error| error.to_string())?;
+    let body = b"sleep 1";
+    write!(
+        stream,
+        "POST /v1/execute/probe HTTP/1.1\r\nHost: 127.0.0.1\r\nContent-Length: {}\r\nConnection: close\r\n\r\n",
+        body.len()
+    )
+    .map_err(|error| error.to_string())?;
+    stream.write_all(body).map_err(|error| error.to_string())?;
+    let mut response = String::new();
+    stream
+        .read_to_string(&mut response)
+        .map_err(|error| error.to_string())?;
+    let head = response.lines().next().unwrap_or_default().to_owned();
+    let status = head
+        .split_whitespace()
+        .nth(1)
+        .ok_or_else(|| format!("HTTP response omitted status: {head:?}"))?
+        .parse::<u16>()
+        .map_err(|error| error.to_string())?;
+    Ok((status, head))
 }
 
 fn boundary_matches(
