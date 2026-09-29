@@ -48,6 +48,8 @@ install -m 0755 "$cargo_target/release/b2_driver" "$artifacts/bin/b2-driver"
 install -m 0755 "$cargo_target/release/b3_driver" "$artifacts/bin/b3-driver"
 install -m 0755 "$cargo_target/release/b4_driver" "$artifacts/bin/b4-driver"
 install -m 0755 "$cargo_target/release/b5_driver" "$artifacts/bin/b5-driver"
+install -m 0755 "$cargo_target/release/b6_driver" "$artifacts/bin/b6-driver"
+install -m 0755 "$cargo_target/release/b6_trace" "$artifacts/bin/b6-trace"
 install -m 0755 "$cargo_target/release/b1_attach_diag" "$artifacts/bin/b1-attach-diag"
 install -m 0755 \
     "$cargo_target/$musl_target/release/soglia-spike-agent" \

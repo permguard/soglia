@@ -24,8 +24,23 @@ export default defineConfig({
       { text: 'Gateways', link: '/gateways' },
       { text: 'AI Agents', link: '/agents' },
       { text: 'Cloud & Infrastructure', link: '/providers' },
-      { text: 'Use cases', link: '/use-cases' }
+      { text: 'Use cases', link: '/use-cases' },
+      { text: 'Permguard', link: 'https://permguard.com' },
+      // Not `/docs/`: a nav link ending with a slash is taken for Home and hidden on the home page.
+      { text: 'Docs', link: '/docs/introduction', activeMatch: '^/docs/' }
     ],
+    // The documentation keeps VitePress's classic layout: Markdown pages with this sidebar.
+    sidebar: {
+      '/docs/': [
+        {
+          text: 'Getting started',
+          items: [
+            { text: 'Introduction', link: '/docs/introduction' },
+            { text: 'Run Soglia', link: '/docs/running' }
+          ]
+        }
+      ]
+    },
     socialLinks: [
       { icon: 'github', link: 'https://github.com/permguard/soglia' }
     ]

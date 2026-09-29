@@ -1820,7 +1820,7 @@ fn typed_placement_refusal(
     case: &str,
 ) -> Result<String, String> {
     match result {
-        Err(HelperError::Failed(reason)) => Ok(reason),
+        Err(HelperError::Failed(failure)) => Ok(failure.detail().to_owned()),
         Err(other) => Err(format!(
             "{case} produced the wrong refusal class: {other:?}"
         )),

@@ -4050,3 +4050,32 @@
 .arch-guard .arch-quote {
   --band-muted: var(--home-muted);
 }
+
+/* Docs ----------------------------------------------------------------------------------------
+   The sidebar takes the footer's deeper black instead of VitePress's grey, with a hairline edge;
+   on the light theme it takes the cream of the site's bands. */
+:root {
+  --vp-sidebar-bg-color: #f7f7f3;
+}
+
+.dark {
+  --vp-sidebar-bg-color: #141517;
+  --vp-code-block-bg: #141517;
+}
+
+.VPSidebar {
+  border-right: 1px solid rgba(15, 23, 32, .08);
+}
+
+.dark .VPSidebar {
+  border-right-color: rgba(255, 255, 255, .06);
+}
+
+/* The footer runs the full width of every page: on desktop it passes over the fixed sidebar
+   instead of being cut by it. On phones the sidebar is an overlay and stays above everything. */
+@media (min-width: 960px) {
+  .soglia-footer {
+    position: relative;
+    z-index: 26;
+  }
+}

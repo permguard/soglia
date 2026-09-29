@@ -1,0 +1,117 @@
+---
+title: Run Soglia
+description: Build Soglia, give it a delegated cgroup subtree, start it and send it a first call.
+---
+
+<!-- Copyright (c) 2022 Nitro Agility S.r.l. -->
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+
+# Run Soglia
+
+This page takes you from a Linux host to a first call answered by a fresh Execution.
+
+## Requirements
+
+Soglia runs only on Linux, and the `soglia` binary builds only for Linux.
+
+| Requirement                  | Why                                                   |
+| ---------------------------- | ----------------------------------------------------- |
+| Rust 1.97+                   | Build Soglia                                          |
+| cgroup v2, delegated subtree | Per-Execution resource limits and teardown            |
+| `nft` (nftables)             | Network policy for each Execution                     |
+| `ip` (iproute2)              | Network namespaces, veth pairs, addresses and routes  |
+| `runc`                       | Start each Execution from an OCI bundle               |
+| Task or Make                 | Run the project workflows                             |
+
+On macOS or Windows, build and run Soglia inside the Linux development container of the repository, in [`.devcontainer/`](https://github.com/permguard/soglia/tree/main/.devcontainer).
+
+## Build
+
+From a clone of [permguard/soglia](https://github.com/permguard/soglia):
+
+```sh
+task build RELEASE=1
+```
+
+The binary is `target/release/soglia`.
+
+## Configure
+
+A configuration names the unprivileged user Soglia drops to, the ingress address, the destinations agents may reach and the agents themselves.
+Start from the minimal example in the repository, [`examples/soglia.yaml`](https://github.com/permguard/soglia/blob/main/examples/soglia.yaml):
+
+```yaml
+runtime:
+  # The unprivileged user the Supervisor, ingress and egress proxy run as after startup.
+  uid: 990
+  gid: 990
+  max_concurrency: 4
+  max_queue: 16
+
+ingress:
+  listen: 127.0.0.1:8088
+
+egress:
+  allow:
+    - host: api.example.com
+      ports: [443]
+
+agents:
+  echo:
+    # A read-only root filesystem holding the agent and the directories /proc, /dev, /sys and /tmp.
+    rootfs: /var/lib/soglia/rootfs/echo
+    command: ["/agent"]
+    env:
+      AGENT_PORT: "8080"
+    port: 8080
+```
+
+Every field not written takes its default.
+Unknown fields are refused, so a misspelt setting stops the runtime instead of being ignored.
+
+## Give Soglia a delegated cgroup
+
+Soglia creates each Execution's cgroup below a cgroup v2 subtree delegated to it.
+With systemd, run it as a unit with `Delegate=yes`, like the one in the repository, [`dev/systemd/soglia.service`](https://github.com/permguard/soglia/blob/main/dev/systemd/soglia.service):
+
+```ini
+[Unit]
+Description=Soglia Runtime
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/soglia run -f /etc/soglia/soglia.yaml
+Delegate=yes
+KillMode=mixed
+TimeoutStopSec=90
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Start it
+
+`soglia run` starts as root, starts its two privileged helpers, and then drops to the unprivileged user the configuration names.
+
+```sh
+soglia run -f examples/soglia.yaml
+```
+
+Soglia admits calls only once it logs `startup.ready`.
+
+## Send a first call
+
+```sh
+curl -X POST --data 'echo hello' http://127.0.0.1:8088/v1/execute/echo
+```
+
+The call runs in a fresh Execution of the `echo` agent.
+By the time the response reaches you, that Execution has been destroyed.
+
+## Next
+
+- [How it works](../how-it-works): what happens between the call and the response.
+- [Use cases](../use-cases): where the same pattern applies.

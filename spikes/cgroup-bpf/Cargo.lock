@@ -552,6 +552,7 @@ name = "soglia-spike-runner"
 version = "0.0.0"
 dependencies = [
  "aya",
+ "libc",
  "nix",
  "serde",
  "serde_json",
