@@ -3108,6 +3108,7 @@ pub async fn run_b5() -> Result<(), String> {
     )
     .await?;
     b5_alias_case(&evidence, "successful_close", "proxy_positive")?;
+    b5_record_proxy_steering_boundary(&config, &evidence)?;
 
     run_b5_fd_boundary(&evidence, &config, &sandbox, &enforcer).await?;
     for (name, agent) in [
@@ -3274,6 +3275,119 @@ fn b5_record_fd_boundary_source(evidence: &Path) -> Result<(), String> {
         .map_err(|error| error.to_string())?,
     )
     .map_err(|error| error.to_string())
+}
+
+fn b5_record_proxy_steering_boundary(config: &Config, evidence: &Path) -> Result<(), String> {
+    let source_path = Path::new("/soglia/crates/soglia-enforcer/bpf/candidate_a.c");
+    let source = fs::read_to_string(source_path).map_err(|error| error.to_string())?;
+    let expected_reads = [
+        (
+            "user_port",
+            "__u32 dport = bpf_ntohs((__u16)ctx->user_port);",
+        ),
+        (
+            "user_ip4",
+            "else if (ctx->user_ip4 != proxy_ip4 || dport != proxy_port)",
+        ),
+    ];
+    let fields = ["user_ip4", "user_ip6", "user_port"];
+    let mut accesses = Vec::new();
+    let mut unexpected_accesses = Vec::new();
+    for (index, line) in source.lines().enumerate() {
+        for field in fields {
+            if !line.contains(&format!("ctx->{field}")) {
+                continue;
+            }
+            let expected = expected_reads
+                .iter()
+                .any(|(expected_field, expected_line)| {
+                    field == *expected_field && line.trim() == *expected_line
+                });
+            let access = json!({
+                "field": field,
+                "line": index + 1,
+                "source": line.trim(),
+                "classification": if expected { "READ" } else { "UNEXPECTED" }
+            });
+            accesses.push(access.clone());
+            if !expected {
+                unexpected_accesses.push(access);
+            }
+        }
+    }
+    let expected_reads_complete = expected_reads.iter().all(|(field, expected_line)| {
+        accesses.iter().any(|access| {
+            access.get("field").and_then(Value::as_str) == Some(*field)
+                && access.get("source").and_then(Value::as_str) == Some(*expected_line)
+                && access.get("classification").and_then(Value::as_str) == Some("READ")
+        })
+    });
+    let bpf_bind_absent = !source.contains("bpf_bind");
+    let no_destination_writes = unexpected_accesses.is_empty() && accesses.len() == 2;
+
+    let positive_path = evidence.join("cases/proxy_positive/result.json");
+    let positive: Value =
+        serde_json::from_slice(&fs::read(&positive_path).map_err(|error| error.to_string())?)
+            .map_err(|error| error.to_string())?;
+    let agent_report = positive
+        .get("agent_report")
+        .and_then(Value::as_str)
+        .ok_or("B5 proxy-positive evidence omitted the agent report")?;
+    let agent: Value = agent_report
+        .lines()
+        .find(|line| !line.trim().is_empty())
+        .ok_or_else(|| "B5 proxy-positive agent report was empty".to_owned())
+        .and_then(|line| serde_json::from_str(line).map_err(|error| error.to_string()))?;
+    let agent_requested = agent
+        .get("proxy_destination")
+        .and_then(Value::as_str)
+        .ok_or("B5 proxy-positive agent report omitted proxy_destination")?;
+    let proxy_observed = positive
+        .get("observations")
+        .and_then(Value::as_array)
+        .and_then(|observations| observations.first())
+        .and_then(|observation| observation.get("local"))
+        .and_then(Value::as_str)
+        .ok_or("B5 proxy-positive evidence omitted the proxy local address")?;
+    let expected_destination = format!(
+        "{}:{}",
+        config.network.proxy_address, config.network.proxy_port
+    );
+    let runtime_match = agent_requested == expected_destination
+        && proxy_observed == expected_destination
+        && agent_requested == proxy_observed;
+    let pass = expected_reads_complete && no_destination_writes && bpf_bind_absent && runtime_match;
+    let result = json!({
+        "schema": 1,
+        "source": source_path,
+        "sha256": format!("{:x}", Sha256::digest(source.as_bytes())),
+        "audited_destination_fields": fields,
+        "access_points": accesses,
+        "unexpected_accesses": unexpected_accesses,
+        "expected_reads_complete": expected_reads_complete,
+        "no_writes_to_destination_fields": no_destination_writes,
+        "bpf_bind_absent": bpf_bind_absent,
+        "runtime": {
+            "agent_requested_destination": agent_requested,
+            "proxy_observed_destination": proxy_observed,
+            "configured_destination": expected_destination,
+            "destinations_match": runtime_match,
+            "source_evidence": positive_path
+        },
+        "proxy_steering_layer": "outside BPF",
+        "verdict": if pass { "PASS" } else { "FAIL" }
+    });
+    fs::write(
+        evidence.join("proxy-steering-boundary.json"),
+        serde_json::to_vec_pretty(&result).map_err(|error| error.to_string())?,
+    )
+    .map_err(|error| error.to_string())?;
+    if !pass {
+        return Err(format!(
+            "production proxy-steering boundary audit failed: {result}"
+        ));
+    }
+    Ok(())
 }
 
 fn b5_state(config: &Config) -> Result<Value, String> {

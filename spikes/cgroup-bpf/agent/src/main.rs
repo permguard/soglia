@@ -599,8 +599,9 @@ fn proxy_connect_report(
             "proxy-connect-report",
             established,
             &format!(
-                ",\"i\":{index},\"source_port\":{port},\"local\":{},\"mode\":{},\"phase\":\"established\",\"elapsed_ms\":{}",
+                ",\"i\":{index},\"source_port\":{port},\"local\":{},\"proxy_destination\":{},\"mode\":{},\"phase\":\"established\",\"elapsed_ms\":{}",
                 quote(&local),
+                quote(&PROXY.to_string()),
                 quote(mode),
                 started.elapsed().as_millis()
             ),
