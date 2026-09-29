@@ -1,0 +1,5 @@
+ba8fbb412a677e990cb48a4c6cc24ad53907e5911330f131e92fefe7c465c970  /var/tmp/soglia-b5-production-target/release/soglia
+9b91b622ec78ce0699811de53b5241b5f89baa133bd070f283a50bea0a0609ad  /var/tmp/soglia-spike-2/bin/b5-driver
+ff4c4f28892fbe55807a239ddc271857205deeefc976c5bd8d3f26f65b140d02  /var/tmp/soglia-spike-2/bin/soglia-spike-agent
+3e44d04cf66fb344d824311a6c2176f990b520e52c234e4a9d8d18942c9967b5  /var/tmp/soglia-spike-2/bin/b1-attach-diag
+4dedf3e14f0ce772300b17034527c9bc2ee36d79583ae4282ac7c561c979f610  /var/tmp/soglia-b5-production-target/release/build/soglia-enforcer-ff36c77224ec0f29/out/soglia-cgroup-bpf.o

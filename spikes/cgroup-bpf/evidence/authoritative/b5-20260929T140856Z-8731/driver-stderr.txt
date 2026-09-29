@@ -1,0 +1,26 @@
+Running as unit: soglia-b5-driver.service
+event.name=cgroup_bpf.attach_probe result=PASS mode=single hooks=6 effective=true
+event.name=cgroup_bpf.ready generation=1 programs=6 links=6 maps=7 policy_capacity=5 socket_capacity=128 ring_bytes=65536
+2026-09-29T14:09:00.827509Z  INFO egress request allowed event.name="egress.allowed" execution_id=d9677d2b1d401b5f152da5c5497fb54b method=CONNECT target=allowed.test:443 status=200
+soglia-agent 2026-09-29T14:09:00.830619Z  INFO tunnel ended event.name="egress.tunnel_ended" execution_id=d9677d2b1d401b5f152da5c5497fb54b end="closed"
+d9677d2b1d401b5f152da5c5497fb54b: {"cmd":"proxy-connect-report","ok":true,"detail":"HTTP/1.1 200 OK","i":0,"source_port":40000,"local":"10.201.0.1:40000","proxy_destination":"10.200.255.1:15001","mode":"close","phase":"established","elapsed_ms":8}
+soglia-agent 39aa9c99b179d31bf5017d749059b07e: {"cmd":"fd_table","ok":true,"detail":"descriptors=[0=/dev/null,1=pipe:[23977],2=pipe:[23977]] sockets=[]","elapsed_ms":0}
+soglia-agent a943411c07fc33b22dff0b2218c54f83: {"cmd":"ipv6_stream","ok":false,"errno":1,"error":"Operation not permitted (os error 1)","elapsed_ms":0}
+soglia-agent 79e54cd94fdd12791bd212571821de40: {"cmd":"ipv4_datagram","ok":false,"errno":1,"error":"Operation not permitted (os error 1)","elapsed_ms":0}
+soglia-agent dcffc3fbccf8cdf2c96861d941fcbd73: {"cmd":"ipv6_datagram","ok":false,"errno":1,"error":"Operation not permitted (os error 1)","elapsed_ms":0}
+soglia-agent 9c816e54c527de67103c3c35f4ab266c: {"cmd":"direct_ipv4","ok":false,"errno":1,"error":"Operation not permitted (os error 1)","elapsed_ms":0}
+soglia-agent 713d4c94254dbffec3cbf5cb68a509cf: {"cmd":"direct_ipv4","ok":false,"errno":1,"error":"Operation not permitted (os error 1)","elapsed_ms":0}
+event.name=cgroup_bpf.attach_probe result=PASS mode=single hooks=6 effective=true
+event.name=cgroup_bpf.ready generation=1 programs=6 links=6 maps=7 policy_capacity=5 socket_capacity=128 ring_bytes=65536
+2026-09-29T14:09:02.943671Z  INFO egress request allowed event.name="egress.allowed" execution_id=79401609ff165ac0191398d087210abe method=CONNECT target=allowed.test:443 status=200
+soglia-agent 2026-09-29T14:09:02.945895Z  INFO tunnel ended event.name="egress.tunnel_ended" execution_id=79401609ff165ac0191398d087210abe end="closed"
+79401609ff165ac0191398d087210abe: {"cmd":"proxy-connect-report","ok":true,"detail":"HTTP/1.1 200 OK","i":0,"source_port":40001,"local":"10.201.0.1:40001","proxy_destination":"10.200.255.1:15001","mode":"fin","phase":"established","elapsed_ms":8}
+event.name=cgroup_bpf.attach_probe result=PASS mode=single hooks=6 effective=true
+event.name=cgroup_bpf.ready generation=1 programs=6 links=6 maps=7 policy_capacity=5 socket_capacity=128 ring_bytes=65536
+soglia-agent 1988a516a08fa3637ad67997c0db2897: {"cmd":"foreign_rewrite","ok":false,"errno":-1,"error":"connection timed out","elapsed_ms":1501}
+Finished with result: success
+Main processes terminated with: code=exited/status=0
+Service runtime: 4.534s
+CPU time consumed: 1.126s
+Memory peak: 3.6M
+Memory swap peak: 0B

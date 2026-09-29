@@ -1,0 +1,183 @@
+{
+  "ancestor_direct": [
+    {
+      "attach_btf_id": 0,
+      "attach_btf_name": "",
+      "attach_btf_obj_id": 0,
+      "attach_flags": "multi",
+      "attach_type": "cgroup_inet4_connect",
+      "id": 169,
+      "name": "foreign_allow"
+    }
+  ],
+  "case": "FOREIGN_ANCESTOR_ALLOW",
+  "child_effective": [
+    {
+      "attach_btf_id": 0,
+      "attach_btf_name": "",
+      "attach_btf_obj_id": 0,
+      "attach_type": "cgroup_inet_sock_create",
+      "id": 182,
+      "name": "soglia_sock_create"
+    },
+    {
+      "attach_btf_id": 0,
+      "attach_btf_name": "",
+      "attach_btf_obj_id": 0,
+      "attach_type": "cgroup_inet4_connect",
+      "id": 183,
+      "name": "soglia_connect4"
+    },
+    {
+      "attach_btf_id": 0,
+      "attach_btf_name": "",
+      "attach_btf_obj_id": 0,
+      "attach_type": "cgroup_inet4_connect",
+      "id": 169,
+      "name": "foreign_allow"
+    },
+    {
+      "attach_btf_id": 0,
+      "attach_btf_name": "",
+      "attach_btf_obj_id": 0,
+      "attach_type": "cgroup_inet6_connect",
+      "id": 184,
+      "name": "soglia_connect6"
+    },
+    {
+      "attach_btf_id": 0,
+      "attach_btf_name": "",
+      "attach_btf_obj_id": 0,
+      "attach_type": "cgroup_udp4_sendmsg",
+      "id": 185,
+      "name": "soglia_sendmsg4"
+    },
+    {
+      "attach_btf_id": 0,
+      "attach_btf_name": "",
+      "attach_btf_obj_id": 0,
+      "attach_type": "cgroup_udp6_sendmsg",
+      "id": 186,
+      "name": "soglia_sendmsg6"
+    },
+    {
+      "attach_btf_id": 0,
+      "attach_btf_name": "",
+      "attach_btf_obj_id": 0,
+      "attach_type": "cgroup_sock_ops",
+      "id": 187,
+      "name": "soglia_sockops"
+    }
+  ],
+  "foreign_after": {
+    "btf_id": 126,
+    "bytes_jited": 240,
+    "bytes_memlock": 4096,
+    "bytes_xlated": 184,
+    "gpl_compatible": false,
+    "id": 169,
+    "jited": true,
+    "loaded_at": 1790690942,
+    "map_ids": [
+      49,
+      51
+    ],
+    "name": "foreign_allow",
+    "orphaned": false,
+    "tag": "824ab03dccc4ea22",
+    "type": "cgroup_sock_addr",
+    "uid": 0
+  },
+  "foreign_before": {
+    "pin": "/sys/fs/bpf/soglia-b5-foreign-allow/foreign_allow",
+    "program": {
+      "btf_id": 126,
+      "bytes_jited": 240,
+      "bytes_memlock": 4096,
+      "bytes_xlated": 184,
+      "gpl_compatible": false,
+      "id": 169,
+      "jited": true,
+      "loaded_at": 1790690942,
+      "map_ids": [
+        49,
+        51
+      ],
+      "name": "foreign_allow",
+      "orphaned": false,
+      "tag": "824ab03dccc4ea22",
+      "type": "cgroup_sock_addr",
+      "uid": 0
+    },
+    "root": "/sys/fs/bpf/soglia-b5-foreign-allow"
+  },
+  "foreign_preserved": true,
+  "ordering_claim": "NONE",
+  "production_proxy_control": {
+    "agent_report": "{\"cmd\":\"proxy-connect-report\",\"ok\":true,\"detail\":\"HTTP/1.1 200 OK\",\"i\":0,\"source_port\":40001,\"local\":\"10.201.0.1:40001\",\"proxy_destination\":\"10.200.255.1:15001\",\"mode\":\"fin\",\"phase\":\"established\",\"elapsed_ms\":8}\n",
+    "binding": {
+      "backend_generation": 1,
+      "cgroup_id": 8745,
+      "execution_nonce": [
+        181,
+        11,
+        158,
+        237,
+        162,
+        4,
+        238,
+        227,
+        129,
+        184,
+        56,
+        83,
+        112,
+        199,
+        215,
+        51
+      ]
+    },
+    "case": "FIN",
+    "cleanup_failures": [],
+    "execution_id": "79401609ff165ac0191398d087210abe",
+    "health_failure": null,
+    "observations": [
+      {
+        "cookie": 4106,
+        "dns_when_resolve_returned": 0,
+        "elapsed_ms": 0,
+        "health_failure": null,
+        "index": 0,
+        "local": "10.200.255.1:15001",
+        "mismatch": null,
+        "outbound_when_resolve_returned": 0,
+        "outcome": "RESOLVED",
+        "peer": "10.201.0.1:40001",
+        "recv_q_bytes": 61,
+        "resolved_execution": "79401609ff165ac0191398d087210abe",
+        "tuple_binding": {
+          "backend_generation": 1,
+          "cgroup_id": 8745,
+          "execution_nonce": [
+            181,
+            11,
+            158,
+            237,
+            162,
+            4,
+            238,
+            227,
+            129,
+            184,
+            56,
+            83,
+            112,
+            199,
+            215,
+            51
+          ]
+        }
+      }
+    ]
+  }
+}

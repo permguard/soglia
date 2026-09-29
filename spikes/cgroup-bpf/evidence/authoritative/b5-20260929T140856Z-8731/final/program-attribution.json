@@ -1,0 +1,234 @@
+{
+  "cgroup_subtree": "/sys/fs/cgroup/system.slice/soglia-b5-root.service/executions",
+  "classification": "EXTERNAL_CHURN",
+  "exact_inventory_match": false,
+  "external_churn_match": true,
+  "production_programs": [
+    {
+      "id": 125,
+      "name": "soglia_connect4",
+      "tag": "d01455bc35a8ad4d",
+      "type": "cgroup_sock_addr"
+    },
+    {
+      "id": 131,
+      "name": "soglia_connect4",
+      "tag": "d01455bc35a8ad4d",
+      "type": "cgroup_sock_addr"
+    },
+    {
+      "id": 137,
+      "name": "soglia_connect4",
+      "tag": "d01455bc35a8ad4d",
+      "type": "cgroup_sock_addr"
+    },
+    {
+      "id": 177,
+      "name": "soglia_connect4",
+      "tag": "d01455bc35a8ad4d",
+      "type": "cgroup_sock_addr"
+    },
+    {
+      "id": 183,
+      "name": "soglia_connect4",
+      "tag": "d01455bc35a8ad4d",
+      "type": "cgroup_sock_addr"
+    },
+    {
+      "id": 205,
+      "name": "soglia_connect4",
+      "tag": "d01455bc35a8ad4d",
+      "type": "cgroup_sock_addr"
+    },
+    {
+      "id": 211,
+      "name": "soglia_connect4",
+      "tag": "d01455bc35a8ad4d",
+      "type": "cgroup_sock_addr"
+    },
+    {
+      "id": 132,
+      "name": "soglia_connect6",
+      "tag": "892a9fc728053ed1",
+      "type": "cgroup_sock_addr"
+    },
+    {
+      "id": 138,
+      "name": "soglia_connect6",
+      "tag": "892a9fc728053ed1",
+      "type": "cgroup_sock_addr"
+    },
+    {
+      "id": 178,
+      "name": "soglia_connect6",
+      "tag": "892a9fc728053ed1",
+      "type": "cgroup_sock_addr"
+    },
+    {
+      "id": 184,
+      "name": "soglia_connect6",
+      "tag": "892a9fc728053ed1",
+      "type": "cgroup_sock_addr"
+    },
+    {
+      "id": 206,
+      "name": "soglia_connect6",
+      "tag": "892a9fc728053ed1",
+      "type": "cgroup_sock_addr"
+    },
+    {
+      "id": 212,
+      "name": "soglia_connect6",
+      "tag": "892a9fc728053ed1",
+      "type": "cgroup_sock_addr"
+    },
+    {
+      "id": 133,
+      "name": "soglia_sendmsg4",
+      "tag": "5feb6292cba97aa7",
+      "type": "cgroup_sock_addr"
+    },
+    {
+      "id": 139,
+      "name": "soglia_sendmsg4",
+      "tag": "5feb6292cba97aa7",
+      "type": "cgroup_sock_addr"
+    },
+    {
+      "id": 179,
+      "name": "soglia_sendmsg4",
+      "tag": "5feb6292cba97aa7",
+      "type": "cgroup_sock_addr"
+    },
+    {
+      "id": 185,
+      "name": "soglia_sendmsg4",
+      "tag": "5feb6292cba97aa7",
+      "type": "cgroup_sock_addr"
+    },
+    {
+      "id": 207,
+      "name": "soglia_sendmsg4",
+      "tag": "5feb6292cba97aa7",
+      "type": "cgroup_sock_addr"
+    },
+    {
+      "id": 213,
+      "name": "soglia_sendmsg4",
+      "tag": "5feb6292cba97aa7",
+      "type": "cgroup_sock_addr"
+    },
+    {
+      "id": 134,
+      "name": "soglia_sendmsg6",
+      "tag": "24d47ab510d9a616",
+      "type": "cgroup_sock_addr"
+    },
+    {
+      "id": 140,
+      "name": "soglia_sendmsg6",
+      "tag": "24d47ab510d9a616",
+      "type": "cgroup_sock_addr"
+    },
+    {
+      "id": 180,
+      "name": "soglia_sendmsg6",
+      "tag": "24d47ab510d9a616",
+      "type": "cgroup_sock_addr"
+    },
+    {
+      "id": 186,
+      "name": "soglia_sendmsg6",
+      "tag": "24d47ab510d9a616",
+      "type": "cgroup_sock_addr"
+    },
+    {
+      "id": 208,
+      "name": "soglia_sendmsg6",
+      "tag": "24d47ab510d9a616",
+      "type": "cgroup_sock_addr"
+    },
+    {
+      "id": 214,
+      "name": "soglia_sendmsg6",
+      "tag": "24d47ab510d9a616",
+      "type": "cgroup_sock_addr"
+    },
+    {
+      "id": 130,
+      "name": "soglia_sock_create",
+      "tag": "ecc6248ab7e1479f",
+      "type": "cgroup_sock"
+    },
+    {
+      "id": 136,
+      "name": "soglia_sock_create",
+      "tag": "ecc6248ab7e1479f",
+      "type": "cgroup_sock"
+    },
+    {
+      "id": 176,
+      "name": "soglia_sock_create",
+      "tag": "ecc6248ab7e1479f",
+      "type": "cgroup_sock"
+    },
+    {
+      "id": 182,
+      "name": "soglia_sock_create",
+      "tag": "ecc6248ab7e1479f",
+      "type": "cgroup_sock"
+    },
+    {
+      "id": 204,
+      "name": "soglia_sock_create",
+      "tag": "ecc6248ab7e1479f",
+      "type": "cgroup_sock"
+    },
+    {
+      "id": 210,
+      "name": "soglia_sock_create",
+      "tag": "ecc6248ab7e1479f",
+      "type": "cgroup_sock"
+    },
+    {
+      "id": 135,
+      "name": "soglia_sockops",
+      "tag": "f59c21b83072fe1c",
+      "type": "sock_ops"
+    },
+    {
+      "id": 141,
+      "name": "soglia_sockops",
+      "tag": "f59c21b83072fe1c",
+      "type": "sock_ops"
+    },
+    {
+      "id": 181,
+      "name": "soglia_sockops",
+      "tag": "f59c21b83072fe1c",
+      "type": "sock_ops"
+    },
+    {
+      "id": 187,
+      "name": "soglia_sockops",
+      "tag": "f59c21b83072fe1c",
+      "type": "sock_ops"
+    },
+    {
+      "id": 209,
+      "name": "soglia_sockops",
+      "tag": "f59c21b83072fe1c",
+      "type": "sock_ops"
+    },
+    {
+      "id": 215,
+      "name": "soglia_sockops",
+      "tag": "f59c21b83072fe1c",
+      "type": "sock_ops"
+    }
+  ],
+  "production_tags_complete": true,
+  "programs_added": [],
+  "programs_removed": [],
+  "schema": 1
+}

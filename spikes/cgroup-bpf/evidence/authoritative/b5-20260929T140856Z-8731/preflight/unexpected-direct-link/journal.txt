@@ -1,0 +1,6 @@
+Sep 29 16:09:00 lima-soglia-spike-b5-20260929T140650Z-65940 systemd[1]: Starting soglia-b5-unexpected-link.service - /var/tmp/soglia-b5-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b5-20260929T140856Z-8731/config.yaml...
+Sep 29 16:09:00 lima-soglia-spike-b5-20260929T140650Z-65940 systemd[1]: Started soglia-b5-unexpected-link.service - /var/tmp/soglia-b5-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b5-20260929T140856Z-8731/config.yaml.
+Sep 29 16:09:00 lima-soglia-spike-b5-20260929T140650Z-65940 soglia[9041]: soglia: the cgroup-bpf backend could not start: refused: the executions cgroup has 1 unrecorded direct BPF attachment(s)
+Sep 29 16:09:00 lima-soglia-spike-b5-20260929T140650Z-65940 soglia[9039]: soglia: the enforcer did not start: the cgroup-bpf backend could not start: refused: the executions cgroup has 1 unrecorded direct BPF attachment(s)
+Sep 29 16:09:00 lima-soglia-spike-b5-20260929T140650Z-65940 systemd[1]: soglia-b5-unexpected-link.service: Main process exited, code=exited, status=1/FAILURE
+Sep 29 16:09:00 lima-soglia-spike-b5-20260929T140650Z-65940 systemd[1]: soglia-b5-unexpected-link.service: Failed with result 'exit-code'.

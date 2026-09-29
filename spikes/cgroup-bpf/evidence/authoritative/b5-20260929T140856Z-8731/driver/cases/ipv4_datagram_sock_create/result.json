@@ -1,0 +1,22 @@
+{
+  "agent": {
+    "cmd": "ipv4_datagram",
+    "elapsed_ms": 0,
+    "errno": 1,
+    "error": "Operation not permitted (os error 1)",
+    "ok": false
+  },
+  "case": "ipv4_datagram_sock_create",
+  "counter_after": 2,
+  "counter_before": 1,
+  "counter_delta": 1,
+  "events": [
+    {
+      "cgroup_id": 0,
+      "cookie": 0,
+      "raw_hex": "05000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000060aab31f1e000000",
+      "reason": 5
+    }
+  ],
+  "health": "UNCHANGED"
+}

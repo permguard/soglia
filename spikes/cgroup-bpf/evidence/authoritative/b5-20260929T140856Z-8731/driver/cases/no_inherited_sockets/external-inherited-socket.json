@@ -1,0 +1,1 @@
+{"cmd":"b5-inherited-fd-report","ok":true,"stdin_target":"socket:[24599]","inherited_netns_cookie":1,"current_netns_cookie":12289,"external_to_current_netns":true}

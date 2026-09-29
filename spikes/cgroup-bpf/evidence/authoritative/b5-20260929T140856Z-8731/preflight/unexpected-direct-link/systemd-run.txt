@@ -1,0 +1,7 @@
+Running as unit: soglia-b5-unexpected-link.service; invocation ID: 5689692f473b4cd0b8231ee665a73430
+Finished with result: exit-code
+Main processes terminated with: code=exited/status=1
+Service runtime: 81ms
+CPU time consumed: 19ms
+Memory peak: 644.0K
+Memory swap peak: 0B

@@ -901,9 +901,40 @@ Unattached programs, programs inside the Soglia subtree, production-tag
 matches and incomplete evidence remain cleanup failures. Five focused tests
 cover the accepted external addition/removal and the required negative cases.
 
+The current and first authoritative B5 qualification is
+[`b5-20260929T140856Z-8731`](evidence/authoritative/b5-20260929T140856Z-8731/).
+It qualifies production commit
+`bc55e76725c251a5ae3b89360b014563dd8249df` with harness commit
+`caa9293093281b137d549a487f55d207d63e92b7` and an empty working-tree diff.
+The run records `authoritative: true`, B5 `PASS` and all eleven cases `PASS`.
+Cleanup is `PASS`; programs are `EXTERNAL_CHURN` only for equivalent
+systemd-owned replacements, links and maps are `MATCH`, and all 152 entries in
+`SHA256SUMS` verify.
+
+The dedicated proxy-steering boundary evidence performs a static
+production-source audit of `candidate_a.c`: the only accesses to
+`ctx->user_ip4`, `ctx->user_ip6` or `ctx->user_port` are the expected reads of
+`user_port` and `user_ip4`, there is no `bpf_bind` call, and the production
+source SHA-256 matches the qualified baseline. At runtime the agent-requested,
+configured and proxy-observed destinations are all `10.200.255.1:15001`.
+Proxy steering therefore remains outside BPF.
+
+The foreign-ancestor rewrite case records no program-order claim. In the
+observed topology the production child `connect4` admits the original proxy
+destination, the ancestor then rewrites it to `10.201.0.2:16001`, and the
+Execution namespace nft output policy is the final post-rewrite barrier. The
+counter-only nft observer records two rewritten packets, the target listener
+accepts none, and both the Execution and host rulesets are restored exactly.
+
+Runtime execution of `connect6`, `sendmsg4` and `sendmsg6` remains
+`NOT_PERFORMED`: production `sock_create` admits only IPv4/TCP sockets and a
+socket's cgroup is fixed at creation, making those later hooks unreachable by
+construction. The optional direct TCP Fast Open extension is also
+`NOT_PERFORMED` and is not required for B5 PASS.
+
 B1, B2 and B3 remain qualified on production commit `bc55e76`: each passed
-under the earlier, more restrictive inventory rule. B1 through B4 are therefore
-qualified; B5 through B7 remain `NOT_EXECUTED` and require their own reviewed
+under the earlier, more restrictive inventory rule. B1 through B5 are therefore
+qualified; B6 and B7 remain `NOT_EXECUTED` and require their own reviewed
 authoritative evidence.
 
 Historical note: the first authoritative B2 run
