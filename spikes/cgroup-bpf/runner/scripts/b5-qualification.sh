@@ -83,7 +83,7 @@ write_summary() {
       production_source_baseline:{commit:$baseline,matches:$production_source_matches},
       scope:{
         proxy_path:"PERFORMED",
-        proxy_steering_outside_bpf:"PERFORMED: static production-object audit and runtime destination correlation",
+        proxy_steering_outside_bpf:"PERFORMED: static production-source audit of candidate_a.c and runtime destination correlation",
         ipv6_stream_sock_create:"PERFORMED",
         ipv4_datagram_sock_create:"PERFORMED",
         ipv6_datagram_sock_create:"PERFORMED",
