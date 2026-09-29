@@ -15,11 +15,15 @@ use std::path::{Path, PathBuf};
 use std::thread;
 use std::time::{Duration, Instant};
 
-use aya::maps::{Array, HashMap, Map as AyaMap, MapData, MapError, MapInfo};
-use aya::programs::links::{FdLink, PinnedLink};
-use aya::programs::{CgroupAttachMode, CgroupSock, CgroupSockAddr, ProgramError, SockOps};
+use aya::maps::{Array, HashMap, Map as AyaMap, MapData, MapError, MapInfo, loaded_maps};
+use aya::programs::links::{FdLink, LinkError, PinnedLink};
+use aya::programs::{
+    CgroupAttachMode, CgroupSock, CgroupSockAddr, ProgramError, SockOps, loaded_links,
+    loaded_programs,
+};
 use aya::{Ebpf, EbpfLoader};
-use libbpf_rs::{MapCore, MapHandle};
+use libbpf_rs::query::LinkTypeInfo;
+use libbpf_rs::{Link, MapCore, MapHandle, ProgramAttachType, ProgramHandle, ProgramType};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use soglia_core::config::Config;
@@ -40,6 +44,11 @@ const META_MAGIC: u64 = 0x534f_474c_4941_4250;
 const POLICY_FROZEN: u32 = 0;
 const POLICY_ACTIVE: u32 = 1;
 const BPF_NOEXIST: u64 = 1;
+// Target release can become visible asynchronously after systemd removes the old cgroup. These
+// production constants are intentionally not configuration knobs: every supported environment is
+// qualified against the same bounded convergence contract.
+const TARGET_RELEASED_DETACH_TIMEOUT: Duration = Duration::from_secs(5);
+const TARGET_RELEASED_POLL_INTERVAL: Duration = Duration::from_millis(10);
 const PROGRAMS: [ProgramSpec; 6] = [
     ProgramSpec::single("soglia_sock_create", "sock_create"),
     ProgramSpec::single("soglia_connect4", "connect4"),
@@ -112,6 +121,7 @@ struct Settings {
     policy_capacity: u32,
     socket_capacity: u32,
     ring_bytes: u32,
+    required_controllers: Vec<&'static str>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -174,6 +184,28 @@ struct LinkManifest {
     pin: PathBuf,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+struct RecordedLinkInfo {
+    link_id: u32,
+    program_id: u32,
+    attach_type: u32,
+    cgroup_id: u64,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+struct ReplacementTargetState {
+    recorded_inode: u64,
+    current_inode: u64,
+    owner_uid: u32,
+    owner_gid: u32,
+    mode: u32,
+    has_processes: bool,
+    has_children: bool,
+    controllers_ready: bool,
+    below_current_unit: bool,
+    old_inode_is_live: bool,
+}
+
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 struct AttachmentFingerprint {
@@ -230,6 +262,14 @@ impl CgroupBpfBackend {
     pub fn from_config(config: &Config) -> Result<Self, BackendError> {
         let network = NetnsNftBackend::new(NetworkSettings::from_config(config)?);
         let delegated = delegated_root(config.cgroup.root.as_deref())?;
+        let mut required_controllers = vec!["memory", "pids"];
+        if config
+            .agents
+            .values()
+            .any(|agent| agent.limits.cpu_max.is_some())
+        {
+            required_controllers.push("cpu");
+        }
         let policy_capacity = config
             .runtime
             .max_concurrency
@@ -247,6 +287,7 @@ impl CgroupBpfBackend {
                 policy_capacity,
                 socket_capacity: config.cgroup_bpf.max_tracked_sockets,
                 ring_bytes: config.cgroup_bpf.ring_buffer_bytes,
+                required_controllers,
             },
             tuple_consumer: None,
             bpf: None,
@@ -273,14 +314,15 @@ impl CgroupBpfBackend {
 
     fn config_hash(&self) -> String {
         let input = format!(
-            "{}:{}:{}:{}:{}:{}:{}",
+            "{}:{}:{}:{}:{}:{}:{}:{}",
             self.settings.executions.display(),
             self.settings.bpftool.display(),
             self.settings.proxy_ip,
             self.settings.proxy_port,
             self.settings.policy_capacity,
             self.settings.socket_capacity,
-            self.settings.ring_bytes
+            self.settings.ring_bytes,
+            self.settings.required_controllers.join(",")
         );
         hex(&Sha256::digest(input.as_bytes()))
     }
@@ -376,25 +418,25 @@ impl CgroupBpfBackend {
                 "UNKNOWN cgroup-BPF generation exists outside the recorded pin root".to_owned(),
             ));
         }
-        let current_inode = fs::metadata(&self.settings.executions)?.ino();
-        if current_inode != state.attachment_inode {
-            return Err(BackendError::Unknown(
-                "UNKNOWN attachment-target inode; kernel objects were left untouched".to_owned(),
-            ));
-        }
         self.validate_manifest_structure(&state)?;
         self.validate_recorded_pins(&state)?;
         self.validate_recovery_policy(&state)?;
-        if let Some(current) =
-            self.validate_attachment_inventory(&state, state.phase == ManifestPhase::Ready)?
-        {
-            state.ancestor_bpf = current;
-            self.publish_state(&state)?;
-        }
-        if has_child_cgroup(&self.settings.executions)? {
-            return Err(BackendError::Unknown(
-                "Execution cgroups remain after the mandatory Sandbox sweep".to_owned(),
-            ));
+        let current_inode = fs::metadata(&self.settings.executions)?.ino();
+        let target_released = current_inode != state.attachment_inode;
+        if target_released {
+            self.validate_target_released(&state, current_inode)?;
+        } else {
+            if let Some(current) =
+                self.validate_attachment_inventory(&state, state.phase == ManifestPhase::Ready)?
+            {
+                state.ancestor_bpf = current;
+                self.publish_state(&state)?;
+            }
+            if has_child_cgroup(&self.settings.executions)? {
+                return Err(BackendError::Unknown(
+                    "Execution cgroups remain after the mandatory Sandbox sweep".to_owned(),
+                ));
+            }
         }
         if state.phase == ManifestPhase::Ready {
             // Durable recovery intent precedes every unlink. A crash after any individual unlink
@@ -404,14 +446,20 @@ impl CgroupBpfBackend {
             self.publish_state(&state)?;
         }
         self.remove_recorded_pins(&state)?;
+        self.verify_recorded_objects_absent(&state)?;
         let next = state
             .generation
             .checked_add(1)
             .ok_or_else(|| BackendError::Refused("backend generation exhausted".to_owned()))?;
+        let classification = if target_released {
+            "TargetReleased cgroup-BPF generation"
+        } else {
+            "cgroup-BPF generation"
+        };
         Ok((
             state.state_id,
             next,
-            vec![format!("cgroup-BPF generation {}", state.generation)],
+            vec![format!("{classification} {}", state.generation)],
         ))
     }
 
@@ -459,16 +507,24 @@ impl CgroupBpfBackend {
             .collect();
         let programs_valid = state.programs.is_empty()
             || (state.programs.len() == PROGRAMS.len() && programs == expected_programs);
+        let map_ids: BTreeSet<u32> = state.maps.iter().map(|map| map.id).collect();
         if state.maps.len() != MAPS.len()
             || maps != expected_maps
             || state.links.len() != PROGRAMS.len()
             || links != expected_links
             || !programs_valid
             || (state.phase == ManifestPhase::Ready && state.programs.len() != PROGRAMS.len())
-            || state
-                .links
-                .iter()
-                .any(|link| link.target_inode != state.attachment_inode)
+            || (state.phase == ManifestPhase::Ready
+                && (map_ids.len() != MAPS.len() || map_ids.contains(&0)))
+            || state.links.iter().any(|link| {
+                link.target_inode != state.attachment_inode
+                    || match state.phase {
+                        ManifestPhase::Ready => link.link_type != "Cgroup",
+                        ManifestPhase::Intent => {
+                            !link.link_type.is_empty() && link.link_type != "Cgroup"
+                        }
+                    }
+            })
         {
             return Err(BackendError::Unknown(
                 "UNKNOWN ownership manifest structure; no kernel object was changed".to_owned(),
@@ -484,6 +540,28 @@ impl CgroupBpfBackend {
             {
                 return Err(BackendError::Unknown(
                     "UNKNOWN per-Execution ownership record; no kernel object was changed"
+                        .to_owned(),
+                ));
+            }
+        }
+        if !state.programs.is_empty() {
+            let program_ids: BTreeSet<u32> =
+                state.programs.iter().map(|program| program.id).collect();
+            let link_ids: BTreeSet<u32> = state.links.iter().map(|link| link.id).collect();
+            if program_ids.len() != PROGRAMS.len()
+                || link_ids.len() != PROGRAMS.len()
+                || state.links.iter().any(|link| {
+                    expected_link_contract(&link.name).is_none_or(|(spec, _)| {
+                        state
+                            .programs
+                            .iter()
+                            .find(|program| program.symbol == spec.symbol)
+                            .is_none_or(|program| program.id != link.program_id)
+                    })
+                })
+            {
+                return Err(BackendError::Unknown(
+                    "UNKNOWN program/link ownership relationship; no kernel object was changed"
                         .to_owned(),
                 ));
             }
@@ -787,25 +865,198 @@ impl CgroupBpfBackend {
             }
         }
         for link in state.links.iter().filter(|link| actual.contains(&link.pin)) {
-            let pinned = PinnedLink::from_pin(&link.pin).map_err(|error| {
-                BackendError::Failed(format!("inspect {}: {error:#}", link.pin.display()))
-            })?;
-            let fd: FdLink = pinned.into();
-            let info = fd.info().map_err(|error| {
-                BackendError::Failed(format!("inspect {}: {error:#}", link.pin.display()))
-            })?;
-            if link.id == 0
-                || link.program_id == 0
-                || info.id() != link.id
-                || info.program_id() != link.program_id
-            {
-                return Err(BackendError::Unknown(format!(
-                    "UNKNOWN link identity at {}; no object was changed",
-                    link.pin.display()
-                )));
-            }
+            let observed = inspect_recorded_link(link)?;
+            validate_recorded_link_identity(link, observed)?;
+        }
+        for program in &state.programs {
+            validate_recorded_program(program)?;
         }
         Ok(())
+    }
+
+    fn validate_target_released(
+        &self,
+        state: &HostState,
+        current_inode: u64,
+    ) -> Result<(), BackendError> {
+        let actual = recursive_files(&state.pin_root, false)?;
+        if actual != Self::expected_pins(state)
+            || state.programs.len() != PROGRAMS.len()
+            || state.links.len() != PROGRAMS.len()
+            || state.maps.iter().any(|map| map.id == 0)
+            || state.programs.iter().any(|program| program.id == 0)
+            || state
+                .links
+                .iter()
+                .any(|link| link.id == 0 || link.program_id == 0 || link.link_type != "Cgroup")
+        {
+            return Err(BackendError::Unknown(
+                "UNKNOWN released-target inventory is incomplete; no object was changed".to_owned(),
+            ));
+        }
+
+        self.wait_for_released_links(state)?;
+        let target = self.replacement_target_state(state, current_inode)?;
+        validate_replacement_target(target)?;
+
+        let direct = self.cgroup_attachments(false)?;
+        if !direct.is_empty() {
+            return Err(BackendError::Unknown(
+                "UNKNOWN replacement target has a direct BPF attachment; no object was changed"
+                    .to_owned(),
+            ));
+        }
+        let owned: BTreeSet<u32> = state.programs.iter().map(|program| program.id).collect();
+        let effective = self.cgroup_attachments(true)?;
+        if effective
+            .iter()
+            .any(|attachment| owned.contains(&attachment.id))
+        {
+            return Err(BackendError::Unknown(
+                "UNKNOWN old production program is effective on the replacement target; no object was changed"
+                    .to_owned(),
+            ));
+        }
+        let current_ancestors = self.foreign_effective_fingerprint(&owned)?;
+        if current_ancestors != state.ancestor_bpf
+            && !systemd_external_churn(&state.ancestor_bpf, &current_ancestors)
+        {
+            return Err(BackendError::Unknown(
+                "UNKNOWN non-owned ancestor BPF inventory changed during released-target recovery"
+                    .to_owned(),
+            ));
+        }
+
+        eprintln!(
+            "event.name=cgroup_bpf.target_released result=PASS recorded_cgroup_id={} current_cgroup_id={} detach_timeout_ms={} poll_interval_ms={}",
+            state.attachment_inode,
+            current_inode,
+            TARGET_RELEASED_DETACH_TIMEOUT.as_millis(),
+            TARGET_RELEASED_POLL_INTERVAL.as_millis()
+        );
+        Ok(())
+    }
+
+    fn wait_for_released_links(&self, state: &HostState) -> Result<(), BackendError> {
+        let started = Instant::now();
+        loop {
+            let elapsed = started.elapsed();
+            let mut observations = Vec::with_capacity(state.links.len());
+            for link in &state.links {
+                let observed = inspect_recorded_link(link)?;
+                validate_recorded_link_identity(link, observed)?;
+                eprintln!(
+                    "event.name=cgroup_bpf.target_released_link_observation elapsed_ms={} link={} link_id={} program_id={} attach_type={} cgroup_id={}",
+                    elapsed.as_millis(),
+                    link.name,
+                    observed.link_id,
+                    observed.program_id,
+                    observed.attach_type,
+                    observed.cgroup_id
+                );
+                observations.push(observed);
+            }
+            if all_recorded_links_released(&observations, PROGRAMS.len()) {
+                return Ok(());
+            }
+            if elapsed >= TARGET_RELEASED_DETACH_TIMEOUT {
+                return Err(BackendError::Unknown(
+                    "UNKNOWN recorded BPF link remained attached after the released-target observation window; no object was changed"
+                        .to_owned(),
+                ));
+            }
+            thread::sleep(TARGET_RELEASED_POLL_INTERVAL);
+        }
+    }
+
+    fn replacement_target_state(
+        &self,
+        state: &HostState,
+        current_inode: u64,
+    ) -> Result<ReplacementTargetState, BackendError> {
+        let target = fs::symlink_metadata(&self.settings.executions).map_err(|error| {
+            BackendError::Unknown(format!(
+                "UNKNOWN replacement attachment target cannot be inspected: {error}"
+            ))
+        })?;
+        if !target.file_type().is_dir() {
+            return Err(BackendError::Unknown(
+                "UNKNOWN replacement attachment target is not a real cgroup directory".to_owned(),
+            ));
+        }
+        let current_unit = delegated_root(None).map_err(|error| {
+            BackendError::Unknown(format!(
+                "UNKNOWN current systemd unit cgroup cannot be established: {error}"
+            ))
+        })?;
+        let parent = self.settings.executions.parent().ok_or_else(|| {
+            BackendError::Unknown(
+                "UNKNOWN replacement attachment target has no delegated parent".to_owned(),
+            )
+        })?;
+        let parent_metadata = fs::metadata(parent)?;
+        let unit_metadata = fs::metadata(&current_unit)?;
+        let below_current_unit = parent_metadata.dev() == unit_metadata.dev()
+            && parent_metadata.ino() == unit_metadata.ino();
+        let old_inode_is_live =
+            cgroup_id_is_live(Path::new("/sys/fs/cgroup"), state.attachment_inode).map_err(
+                |error| {
+                    BackendError::Unknown(format!(
+                        "UNKNOWN old attachment target identity could not be resolved: {error}"
+                    ))
+                },
+            )?;
+        let controllers = fs::read_to_string(self.settings.executions.join("cgroup.controllers"))?;
+        let subtree = fs::read_to_string(self.settings.executions.join("cgroup.subtree_control"))?;
+        let controllers: BTreeSet<&str> = controllers.split_whitespace().collect();
+        let subtree: BTreeSet<&str> = subtree.split_whitespace().collect();
+        let controllers_ready = self
+            .settings
+            .required_controllers
+            .iter()
+            .all(|controller| controllers.contains(controller) && subtree.contains(controller));
+        Ok(ReplacementTargetState {
+            recorded_inode: state.attachment_inode,
+            current_inode,
+            owner_uid: target.uid(),
+            owner_gid: target.gid(),
+            mode: target.mode() & 0o777,
+            has_processes: !fs::read_to_string(self.settings.executions.join("cgroup.procs"))?
+                .trim()
+                .is_empty(),
+            has_children: has_child_cgroup(&self.settings.executions)?,
+            controllers_ready,
+            below_current_unit,
+            old_inode_is_live,
+        })
+    }
+
+    fn verify_recorded_objects_absent(&self, state: &HostState) -> Result<(), BackendError> {
+        if Self::expected_pins(state).iter().any(|pin| pin.exists()) || state.pin_root.exists() {
+            return Err(BackendError::Failed(
+                "a recorded BPF pin survived recovery cleanup".to_owned(),
+            ));
+        }
+        let started = Instant::now();
+        loop {
+            let surviving = recorded_kernel_objects_present(state)?;
+            if surviving.is_empty() {
+                return Ok(());
+            }
+            let elapsed = started.elapsed();
+            eprintln!(
+                "event.name=cgroup_bpf.recovery_cleanup_observation elapsed_ms={} surviving={}",
+                elapsed.as_millis(),
+                surviving.join(",")
+            );
+            if elapsed >= TARGET_RELEASED_DETACH_TIMEOUT {
+                return Err(BackendError::Failed(format!(
+                    "recorded BPF kernel objects survived recovery cleanup: {}",
+                    surviving.join(", ")
+                )));
+            }
+            thread::sleep(TARGET_RELEASED_POLL_INTERVAL);
+        }
     }
 
     fn remove_recorded_pins(&self, state: &HostState) -> Result<(), BackendError> {
@@ -1419,6 +1670,108 @@ fn map_delete_was_already_absent(error: &MapError) -> bool {
     )
 }
 
+fn recorded_kernel_objects_present(state: &HostState) -> Result<Vec<String>, BackendError> {
+    let mut program_ids = BTreeSet::new();
+    for info in loaded_programs() {
+        match info {
+            Ok(info) => {
+                program_ids.insert(info.id());
+            }
+            Err(error) if program_disappeared_during_inventory(&error) => {}
+            Err(error) => {
+                return Err(BackendError::Failed(format!(
+                    "enumerate programs after recovery: {error:#}"
+                )));
+            }
+        }
+    }
+    let mut map_ids = BTreeSet::new();
+    for info in loaded_maps() {
+        match info {
+            Ok(info) => {
+                map_ids.insert(info.id());
+            }
+            Err(error) if map_disappeared_during_inventory(&error) => {}
+            Err(error) => {
+                return Err(BackendError::Failed(format!(
+                    "enumerate maps after recovery: {error:#}"
+                )));
+            }
+        }
+    }
+    let mut link_ids = BTreeSet::new();
+    for info in loaded_links() {
+        match info {
+            Ok(info) => {
+                link_ids.insert(info.id());
+            }
+            Err(error) if link_disappeared_during_inventory(&error) => {}
+            Err(error) => {
+                return Err(BackendError::Failed(format!(
+                    "enumerate links after recovery: {error:#}"
+                )));
+            }
+        }
+    }
+
+    let mut surviving = Vec::new();
+    surviving.extend(
+        state
+            .programs
+            .iter()
+            .filter(|program| program_ids.contains(&program.id))
+            .map(|program| format!("program:{}", program.id)),
+    );
+    surviving.extend(
+        state
+            .maps
+            .iter()
+            .filter(|map| map_ids.contains(&map.id))
+            .map(|map| format!("map:{}", map.id)),
+    );
+    surviving.extend(
+        state
+            .links
+            .iter()
+            .filter(|link| link_ids.contains(&link.id))
+            .map(|link| format!("link:{}", link.id)),
+    );
+    Ok(surviving)
+}
+
+/// Aya inventories kernel objects in two syscalls: it obtains the next ID and then opens that ID.
+/// Recovery has just removed the recorded objects, so an object may legitimately disappear between
+/// those calls. Only `ENOENT` from the exact get-FD-by-ID syscall is benign; every other inventory
+/// error still makes cleanup unproven.
+fn program_disappeared_during_inventory(error: &ProgramError) -> bool {
+    matches!(
+        error,
+        ProgramError::SyscallError(error)
+            if syscall_reports_absent(error, "bpf_prog_get_fd_by_id")
+    )
+}
+
+fn map_disappeared_during_inventory(error: &MapError) -> bool {
+    matches!(
+        error,
+        MapError::SyscallError(error)
+            if syscall_reports_absent(error, "bpf_map_get_fd_by_id")
+    )
+}
+
+fn link_disappeared_during_inventory(error: &LinkError) -> bool {
+    matches!(
+        error,
+        LinkError::SyscallError(error)
+            if syscall_reports_absent(error, "bpf_link_get_fd_by_id")
+    )
+}
+
+fn syscall_reports_absent(error: &aya::sys::SyscallError, expected_call: &str) -> bool {
+    error.call == expected_call
+        && error.io_error.raw_os_error() == Some(rustix::io::Errno::NOENT.raw_os_error())
+}
+
 impl EnforcementBackend for CgroupBpfBackend {
     fn name(&self) -> &'static str {
         "cgroup-bpf"
@@ -1889,6 +2242,153 @@ fn delegated_root(configured: Option<&Path>) -> Result<PathBuf, BackendError> {
         .ok_or_else(|| BackendError::Unsupported("not in a cgroup v2 hierarchy".to_owned()))?;
     let path = path.strip_suffix("/runtime").unwrap_or(path);
     Ok(Path::new("/sys/fs/cgroup").join(path.trim_start_matches('/')))
+}
+
+fn expected_link_contract(name: &str) -> Option<(&'static ProgramSpec, ProgramAttachType)> {
+    let program = PROGRAMS.iter().find(|program| program.pin == name)?;
+    let attach_type = match program.pin {
+        "sock_create" => ProgramAttachType::CgroupInetSockCreate,
+        "connect4" => ProgramAttachType::CgroupInet4Connect,
+        "connect6" => ProgramAttachType::CgroupInet6Connect,
+        "sendmsg4" => ProgramAttachType::CgroupUdp4Sendmsg,
+        "sendmsg6" => ProgramAttachType::CgroupUdp6Sendmsg,
+        "sock_ops" => ProgramAttachType::CgroupSockOps,
+        _ => return None,
+    };
+    Some((program, attach_type))
+}
+
+fn expected_program_contract(symbol: &str) -> Option<(ProgramType, &'static str)> {
+    match symbol {
+        "soglia_sock_create" => Some((ProgramType::CgroupSock, "BPF_PROG_TYPE_CGROUP_SOCK")),
+        "soglia_connect4" | "soglia_connect6" | "soglia_sendmsg4" | "soglia_sendmsg6" => Some((
+            ProgramType::CgroupSockAddr,
+            "BPF_PROG_TYPE_CGROUP_SOCK_ADDR",
+        )),
+        "soglia_sockops" => Some((ProgramType::SockOps, "BPF_PROG_TYPE_SOCK_OPS")),
+        _ => None,
+    }
+}
+
+fn inspect_recorded_link(link: &LinkManifest) -> Result<RecordedLinkInfo, BackendError> {
+    let pinned = Link::open(&link.pin).map_err(|error| {
+        BackendError::Unknown(format!(
+            "UNKNOWN recorded link at {} cannot be opened: {error:#}; no object was changed",
+            link.pin.display()
+        ))
+    })?;
+    let info = pinned.info().map_err(|error| {
+        BackendError::Unknown(format!(
+            "UNKNOWN recorded link at {} cannot be inspected: {error:#}; no object was changed",
+            link.pin.display()
+        ))
+    })?;
+    let LinkTypeInfo::Cgroup(cgroup) = info.info else {
+        return Err(BackendError::Unknown(format!(
+            "UNKNOWN link type at {}; no object was changed",
+            link.pin.display()
+        )));
+    };
+    Ok(RecordedLinkInfo {
+        link_id: info.id,
+        program_id: info.prog_id,
+        attach_type: cgroup.attach_type as u32,
+        cgroup_id: cgroup.cgroup_id,
+    })
+}
+
+fn validate_recorded_link_identity(
+    link: &LinkManifest,
+    observed: RecordedLinkInfo,
+) -> Result<(), BackendError> {
+    let Some((_, attach_type)) = expected_link_contract(&link.name) else {
+        return Err(BackendError::Unknown(
+            "UNKNOWN link name in the ownership manifest; no object was changed".to_owned(),
+        ));
+    };
+    if link.id == 0
+        || link.program_id == 0
+        || observed.link_id != link.id
+        || observed.program_id != link.program_id
+        || observed.attach_type != attach_type as u32
+    {
+        return Err(BackendError::Unknown(format!(
+            "UNKNOWN link identity at {}; no object was changed",
+            link.pin.display()
+        )));
+    }
+    Ok(())
+}
+
+fn validate_recorded_program(program: &ProgramManifest) -> Result<(), BackendError> {
+    let Some((expected_type, manifest_type)) = expected_program_contract(&program.symbol) else {
+        return Err(BackendError::Unknown(
+            "UNKNOWN program name in the ownership manifest; no object was changed".to_owned(),
+        ));
+    };
+    let handle = ProgramHandle::from_prog_id(program.id).map_err(|error| {
+        BackendError::Unknown(format!(
+            "UNKNOWN recorded program {} cannot be opened: {error:#}; no object was changed",
+            program.id
+        ))
+    })?;
+    let kernel_name = handle.name().to_str().unwrap_or("");
+    if program.id == 0
+        || handle.id() != program.id
+        || program.kernel_name != program.symbol
+        || kernel_name.is_empty()
+        || !program.symbol.starts_with(kernel_name)
+        || program.program_type != manifest_type
+        || handle.prog_type() != expected_type
+        || u64::from_be_bytes(handle.tag()) != program.tag
+    {
+        return Err(BackendError::Unknown(format!(
+            "UNKNOWN program identity for {}; no object was changed",
+            program.symbol
+        )));
+    }
+    Ok(())
+}
+
+fn validate_replacement_target(target: ReplacementTargetState) -> Result<(), BackendError> {
+    if target.recorded_inode == 0
+        || target.current_inode == target.recorded_inode
+        || target.owner_uid != 0
+        || target.owner_gid != 0
+        || target.mode != 0o755
+        || target.has_processes
+        || target.has_children
+        || !target.controllers_ready
+        || !target.below_current_unit
+        || target.old_inode_is_live
+    {
+        return Err(BackendError::Unknown(
+            "UNKNOWN replacement attachment target failed the released-target contract; no object was changed"
+                .to_owned(),
+        ));
+    }
+    Ok(())
+}
+
+fn all_recorded_links_released(observations: &[RecordedLinkInfo], expected: usize) -> bool {
+    observations.len() == expected && observations.iter().all(|link| link.cgroup_id == 0)
+}
+
+fn cgroup_id_is_live(root: &Path, id: u64) -> io::Result<bool> {
+    let mut pending = vec![root.to_path_buf()];
+    while let Some(path) = pending.pop() {
+        let metadata = fs::symlink_metadata(&path)?;
+        if metadata.file_type().is_dir() && metadata.ino() == id {
+            return Ok(true);
+        }
+        for entry in fs::read_dir(path)? {
+            let entry = entry?;
+            if entry.file_type()?.is_dir() {
+                pending.push(entry.path());
+            }
+        }
+    }
+    Ok(false)
 }
 
 fn binding_mismatch(observed: BindingKey, expected: BindingKey) -> Option<ResolveMismatch> {
@@ -2500,6 +3000,130 @@ mod tests {
         ));
     }
 
+    fn released_target() -> ReplacementTargetState {
+        ReplacementTargetState {
+            recorded_inode: 41,
+            current_inode: 42,
+            owner_uid: 0,
+            owner_gid: 0,
+            mode: 0o755,
+            has_processes: false,
+            has_children: false,
+            controllers_ready: true,
+            below_current_unit: true,
+            old_inode_is_live: false,
+        }
+    }
+
+    fn recorded_connect4_link() -> LinkManifest {
+        LinkManifest {
+            name: "connect4".to_owned(),
+            id: 11,
+            program_id: 21,
+            link_type: "Cgroup".to_owned(),
+            target_inode: 41,
+            pin: PathBuf::from("/sys/fs/bpf/soglia/test/links/connect4"),
+        }
+    }
+
+    fn released_connect4_info() -> RecordedLinkInfo {
+        RecordedLinkInfo {
+            link_id: 11,
+            program_id: 21,
+            attach_type: ProgramAttachType::CgroupInet4Connect as u32,
+            cgroup_id: 0,
+        }
+    }
+
+    #[test]
+    fn target_released_requires_every_replacement_target_predicate() {
+        assert!(validate_replacement_target(released_target()).is_ok());
+
+        for invalid in [
+            ReplacementTargetState {
+                recorded_inode: 0,
+                ..released_target()
+            },
+            ReplacementTargetState {
+                current_inode: 41,
+                ..released_target()
+            },
+            ReplacementTargetState {
+                owner_uid: 1000,
+                ..released_target()
+            },
+            ReplacementTargetState {
+                owner_gid: 1000,
+                ..released_target()
+            },
+            ReplacementTargetState {
+                mode: 0o775,
+                ..released_target()
+            },
+            ReplacementTargetState {
+                has_processes: true,
+                ..released_target()
+            },
+            ReplacementTargetState {
+                has_children: true,
+                ..released_target()
+            },
+            ReplacementTargetState {
+                controllers_ready: false,
+                ..released_target()
+            },
+            ReplacementTargetState {
+                below_current_unit: false,
+                ..released_target()
+            },
+            ReplacementTargetState {
+                old_inode_is_live: true,
+                ..released_target()
+            },
+        ] {
+            assert!(matches!(
+                validate_replacement_target(invalid),
+                Err(BackendError::Unknown(_))
+            ));
+        }
+    }
+
+    #[test]
+    fn target_released_rejects_attached_and_mixed_link_sets() {
+        assert_eq!(TARGET_RELEASED_DETACH_TIMEOUT, Duration::from_secs(5));
+        assert_eq!(TARGET_RELEASED_POLL_INTERVAL, Duration::from_millis(10));
+        let released = released_connect4_info();
+        let mut attached = released;
+        attached.cgroup_id = 41;
+        assert!(!all_recorded_links_released(&[attached], 1));
+        assert!(!all_recorded_links_released(&[released, attached], 2));
+        assert!(all_recorded_links_released(&[released, released], 2));
+        assert!(!all_recorded_links_released(&[released], 2));
+    }
+
+    #[test]
+    fn target_released_rejects_every_recorded_link_identity_mismatch() {
+        let manifest = recorded_connect4_link();
+        assert!(validate_recorded_link_identity(&manifest, released_connect4_info()).is_ok());
+
+        let mut mismatches = Vec::new();
+        let mut wrong_link = released_connect4_info();
+        wrong_link.link_id += 1;
+        mismatches.push(wrong_link);
+        let mut wrong_program = released_connect4_info();
+        wrong_program.program_id += 1;
+        mismatches.push(wrong_program);
+        let mut wrong_attach = released_connect4_info();
+        wrong_attach.attach_type = ProgramAttachType::CgroupInet6Connect as u32;
+        mismatches.push(wrong_attach);
+        for mismatch in mismatches {
+            assert!(matches!(
+                validate_recorded_link_identity(&manifest, mismatch),
+                Err(BackendError::Unknown(_))
+            ));
+        }
+    }
+
     #[test]
     fn real_recovery_refusals_keep_their_class_across_the_helper_boundary() {
         let unknown = unknown_execution_record()
@@ -2675,11 +3299,15 @@ mod tests {
         ));
     }
 
-    fn map_syscall_error(call: &'static str, errno: rustix::io::Errno) -> MapError {
-        MapError::SyscallError(aya::sys::SyscallError {
+    fn syscall_error(call: &'static str, errno: rustix::io::Errno) -> aya::sys::SyscallError {
+        aya::sys::SyscallError {
             call,
             io_error: io::Error::from_raw_os_error(errno.raw_os_error()),
-        })
+        }
+    }
+
+    fn map_syscall_error(call: &'static str, errno: rustix::io::Errno) -> MapError {
+        MapError::SyscallError(syscall_error(call, errno))
     }
 
     #[test]
@@ -2698,6 +3326,36 @@ mod tests {
         let wrong_call = map_syscall_error("bpf_map_lookup_elem", rustix::io::Errno::NOENT);
         assert!(!map_delete_was_already_absent(&wrong_call));
         assert!(!map_delete_was_already_absent(&MapError::KeyNotFound));
+    }
+
+    #[test]
+    fn recovery_inventory_accepts_only_get_fd_by_id_enoent() {
+        assert!(program_disappeared_during_inventory(
+            &ProgramError::SyscallError(syscall_error(
+                "bpf_prog_get_fd_by_id",
+                rustix::io::Errno::NOENT,
+            )),
+        ));
+        assert!(map_disappeared_during_inventory(&MapError::SyscallError(
+            syscall_error("bpf_map_get_fd_by_id", rustix::io::Errno::NOENT,)
+        ),));
+        assert!(link_disappeared_during_inventory(&LinkError::SyscallError(
+            syscall_error("bpf_link_get_fd_by_id", rustix::io::Errno::NOENT,)
+        ),));
+
+        assert!(!link_disappeared_during_inventory(
+            &LinkError::SyscallError(syscall_error(
+                "bpf_link_get_fd_by_id",
+                rustix::io::Errno::PERM,
+            )),
+        ));
+        assert!(!link_disappeared_during_inventory(
+            &LinkError::SyscallError(syscall_error(
+                "bpf_obj_get_info_by_fd",
+                rustix::io::Errno::NOENT,
+            )),
+        ));
+        assert!(!link_disappeared_during_inventory(&LinkError::InvalidLink,));
     }
 
     #[test]
