@@ -13,7 +13,10 @@ export default defineConfig({
   cleanUrls: true,
   // Dark by default, like the rest of the Soglia material; the toggle still offers light.
   appearance: 'dark',
+  // The Soglia symbol, cut unmodified from the official logo, as the tab icon.
+  head: [['link', { rel: 'icon', type: 'image/png', href: `${base}soglia-symbol.png` }]],
   themeConfig: {
+    logo: '/soglia-symbol.png',
     // `Home` is listed first, and the home page hides it (see `soglia-page-home` in custom.css).
     nav: [
       { text: 'Home', link: '/' },
