@@ -15,7 +15,13 @@ const zoomed = ref(false)
 const close = () => { zoomed.value = false }
 const onKey = (event) => { if (event.key === 'Escape') close() }
 watch(zoomed, (open) => { document.documentElement.style.overflow = open ? 'hidden' : '' })
-onMounted(() => window.addEventListener('keydown', onKey))
+onMounted(() => {
+  window.addEventListener('keydown', onKey)
+  // The guardrail diagram animates with SMIL, which CSS cannot stop: pause it for reduced motion.
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    document.querySelectorAll('.gd-svg').forEach((svg) => svg.pauseAnimations())
+  }
+})
 onBeforeUnmount(() => {
   window.removeEventListener('keydown', onKey)
   document.documentElement.style.overflow = ''
@@ -30,6 +36,29 @@ onBeforeUnmount(() => {
       <p>Soglia changes the unit of security from the <strong>service</strong> to the <strong>execution occurrence</strong>, and enforces it with the kernel, not with the code running inside.</p>
       <div class="arch-equation" aria-label="One request equals one authority context equals one fresh isolated Execution">
         <span>one request</span><b>=</b><span>one authority context</span><b>=</b><span class="arch-equation__soglia">one fresh isolated Execution</span>
+      </div>
+    </div>
+  </section>
+  <section class="soglia-principles uc-pattern">
+    <div class="soglia-section-inner">
+      <div class="soglia-section-head">
+        <div class="soglia-kicker">One pattern</div>
+        <h2>Every call takes the same path.</h2>
+      </div>
+      <ol class="uc-path" aria-label="Call, Ingress, Execution Context, Sandboxed Invocation inside a kernel-enforced boundary, Execution Context, Egress">
+        <li class="uc-path__step"><span class="uc-path__tag">Call</span><small>a request, an event, a trigger</small></li>
+        <li class="uc-path__step uc-path__step--traffic"><span class="uc-path__tag">Ingress</span><small>traffic in</small></li>
+        <li class="uc-path__step uc-path__step--ctx"><span class="uc-path__tag">Execution Context</span><small>validates on the way in</small></li>
+        <li class="uc-path__step uc-path__step--core">
+          <span class="uc-path__kernel"><span class="uc-path__tag">Sandboxed Invocation</span></span>
+          <small>AI agent or mission-critical workload</small>
+        </li>
+        <li class="uc-path__step uc-path__step--ctx"><span class="uc-path__tag">Execution Context</span><small>validates on the way out</small></li>
+        <li class="uc-path__step uc-path__step--traffic"><span class="uc-path__tag">Egress</span><small>traffic out</small></li>
+      </ol>
+      <div class="uc-define">
+        <h3>What is a sandboxed invocation?</h3>
+        <p>One run of a mission-critical process: an AI agent reasoning over a ticket, a control loop deciding a setpoint, a job moving money. It is started for one call, confined for its whole life, and destroyed when it ends. What it may touch is decided by its Execution Context, not by the process itself.</p>
       </div>
     </div>
   </section>
@@ -56,6 +85,63 @@ onBeforeUnmount(() => {
           <p>Confines <strong>the code that actually exercises that authority</strong>: the one boundary that was still left.</p>
         </article>
       </div>
+    </div>
+  </section>
+  <section class="arch-guard">
+    <div class="soglia-section-inner">
+      <div class="soglia-section-head">
+        <div class="soglia-kicker">Policies and guardrails</div>
+        <h2>An execution can skip a guardrail. Its successor will not accept it.</h2>
+        <p class="arch-guard__lead">Not every policy does the same job. Some shape where an execution may run and what it may touch. Others decide whether the authority it carries may continue. Soglia enforces the first inside the Execution Context. PIC carries the second, with trust anchors as guardrails.</p>
+      </div>
+      <div class="arch-policies">
+        <article>
+          <div class="arch-policies__kind">Execution policies</div>
+          <h3>Infrastructure and application</h3>
+          <p>Where the execution may connect, which resources it may use, which calls may leave and under which labels. Soglia enforces them in the Execution Context, for this execution, on this node.</p>
+        </article>
+        <article class="arch-policies__pic">
+          <div class="arch-policies__kind">Security policies</div>
+          <h3>Authority, with PIC</h3>
+          <p>Whether the authority an execution carries may continue to the next step. Guardrails are trust anchors: their answer becomes part of the continuation itself, intersected with the authority that was carried, so the next step can only receive less.</p>
+        </article>
+      </div>
+      <figure class="gd-figure">
+        <figcaption class="soglia-kicker">The trust anchor is part of the protocol</figcaption>
+        <svg class="gd-svg gd-svg--wide" viewBox="0 0 800 270" role="img" aria-label="An execution continues through the trust anchor, whose answer is intersected with its authority, and the next execution accepts it. The same execution going around the trust anchor reaches the next execution, which rejects it.">
+          <path class="gd-bypass" d="M130 118 C130 26 670 26 670 118"><animate attributeName="stroke-opacity" values=".35;.35;1;1;.35;.35" keyTimes="0;.52;.53;.78;.82;1" dur="10s" repeatCount="indefinite"/></path>
+          <text class="gd-note" x="400" y="34">around the trust anchor</text>
+          <line class="gd-link" x1="220" y1="150" x2="580" y2="150"/>
+          <circle class="gd-token" r="6"><animateMotion path="M220 150 L580 150" keyPoints="0;.25;.75;1;1" keyTimes="0;.1;.2;.3;1" calcMode="linear" dur="10s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;.01;.3;.31;1" dur="10s" repeatCount="indefinite"/></circle>
+          <circle class="gd-token gd-token--bad" r="6" opacity="0"><animateMotion path="M130 118 C130 26 670 26 670 118" keyPoints="0;0;1;1" keyTimes="0;.52;.76;1" calcMode="linear" dur="10s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;.52;.53;.76;.77;1" dur="10s" repeatCount="indefinite"/></circle>
+          <g class="gd-node"><rect x="40" y="118" width="180" height="64" rx="12"/><text class="gd-title" x="130" y="146">Execution</text><text class="gd-sub" x="130" y="166">carries its authority</text></g>
+          <rect class="gd-ring" x="303" y="111" width="194" height="78" rx="16" opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;.1;.15;.24;1" dur="10s" repeatCount="indefinite"/></rect>
+          <g class="gd-node gd-node--anchor"><rect x="310" y="118" width="180" height="64" rx="12"/><text class="gd-title" x="400" y="146">Trust anchor</text><text class="gd-sub" x="400" y="166">the guardrail</text></g>
+          <g class="gd-meet" opacity="0"><circle cx="490" cy="118" r="14"/><text x="490" y="124">∩</text><animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;.12;.15;.3;.34;1" dur="10s" repeatCount="indefinite"/></g>
+          <g class="gd-node"><rect x="580" y="118" width="180" height="64" rx="12"/><text class="gd-title" x="670" y="146">Next execution</text><text class="gd-sub" x="670" y="166">verifies the continuation</text></g>
+          <g class="gd-ok" opacity="0"><circle cx="630" cy="222" r="11"/><path d="M625 222 l4 4 l7 -8"/><text x="648" y="227">accepted</text><animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;.3;.32;.44;.47;1" dur="10s" repeatCount="indefinite"/></g>
+          <g class="gd-ko" opacity="0"><circle cx="630" cy="222" r="11"/><path d="M625 217 l10 10 M635 217 l-10 10"/><text x="648" y="227">rejected</text><animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;.76;.78;.92;.95;1" dur="10s" repeatCount="indefinite"/></g>
+        </svg>
+        <svg class="gd-svg gd-svg--tall" viewBox="0 0 360 600" role="img" aria-label="An execution continues through the trust anchor, whose answer is intersected with its authority, and the next execution accepts it. The same execution going around the trust anchor reaches the next execution, which rejects it.">
+          <path class="gd-bypass" d="M280 62 C352 62 352 518 280 518"><animate attributeName="stroke-opacity" values=".35;.35;1;1;.35;.35" keyTimes="0;.52;.53;.78;.82;1" dur="10s" repeatCount="indefinite"/></path>
+          <text class="gd-note" x="350" y="290" transform="rotate(90 350 290)">around the trust anchor</text>
+          <line class="gd-link" x1="180" y1="94" x2="180" y2="486"/>
+          <circle class="gd-token" r="6"><animateMotion path="M180 94 L180 486" keyPoints="0;.418;.582;1;1" keyTimes="0;.1;.2;.3;1" calcMode="linear" dur="10s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;.01;.3;.31;1" dur="10s" repeatCount="indefinite"/></circle>
+          <circle class="gd-token gd-token--bad" r="6" opacity="0"><animateMotion path="M280 62 C352 62 352 518 280 518" keyPoints="0;0;1;1" keyTimes="0;.52;.76;1" calcMode="linear" dur="10s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;.52;.53;.76;.77;1" dur="10s" repeatCount="indefinite"/></circle>
+          <g class="gd-node"><rect x="80" y="30" width="200" height="64" rx="12"/><text class="gd-title" x="180" y="58">Execution</text><text class="gd-sub" x="180" y="78">carries its authority</text></g>
+          <rect class="gd-ring" x="73" y="251" width="214" height="78" rx="16" opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;.1;.15;.24;1" dur="10s" repeatCount="indefinite"/></rect>
+          <g class="gd-node gd-node--anchor"><rect x="80" y="258" width="200" height="64" rx="12"/><text class="gd-title" x="180" y="286">Trust anchor</text><text class="gd-sub" x="180" y="306">the guardrail</text></g>
+          <g class="gd-meet" opacity="0"><circle cx="80" cy="258" r="14"/><text x="80" y="264">∩</text><animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;.12;.15;.3;.34;1" dur="10s" repeatCount="indefinite"/></g>
+          <g class="gd-node"><rect x="80" y="486" width="200" height="64" rx="12"/><text class="gd-title" x="180" y="514">Next execution</text><text class="gd-sub" x="180" y="534">verifies the continuation</text></g>
+          <g class="gd-ok" opacity="0"><circle cx="146" cy="578" r="11"/><path d="M141 578 l4 4 l7 -8"/><text x="164" y="583">accepted</text><animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;.3;.32;.44;.47;1" dur="10s" repeatCount="indefinite"/></g>
+          <g class="gd-ko" opacity="0"><circle cx="146" cy="578" r="11"/><path d="M141 573 l10 10 M151 573 l-10 10"/><text x="164" y="583">rejected</text><animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;.76;.78;.92;.95;1" dur="10s" repeatCount="indefinite"/></g>
+        </svg>
+        <ul class="gd-legend">
+          <li class="gd-legend__ok"><strong>Through the trust anchor.</strong> Its answer is intersected with the authority carried, and the result becomes the continuation. The next execution accepts it.</li>
+          <li class="gd-legend__ko"><strong>Around it.</strong> The path reaches the next execution, but the continuation lacks the trust anchor's part. The next execution rejects it.</li>
+        </ul>
+      </figure>
+      <blockquote class="arch-quote">The execution can leave the guardrail behind. <strong>Its authority cannot.</strong><span class="arch-quote__more">PIC does not make a bypass physically impossible: it makes the bypassed path invalid, so no conforming successor accepts it. Soglia adds the physical side, with the kernel keeping every execution on the mediated path.</span></blockquote>
     </div>
   </section>
   <section class="soglia-principles arch-leap">
@@ -99,8 +185,7 @@ onBeforeUnmount(() => {
           </ul>
         </article>
       </div>
-      <blockquote class="arch-quote">Do not ask untrusted code to carry the security context correctly. <strong>Make the execution boundary carry it.</strong></blockquote>
-      <p class="arch-note">Serverless popularized the per-invocation execution model as a unit of scaling. Soglia uses it as a <strong>security primitive</strong>.</p>
+      <blockquote class="arch-quote">Do not ask untrusted code to carry the security context correctly. <strong>Make the execution boundary carry it.</strong><span class="arch-quote__more">Serverless popularized the per-invocation execution model as a unit of scaling. Soglia uses it as a <strong>security primitive</strong>.</span></blockquote>
     </div>
   </section>
   <section id="permguard-flow" class="arch-physical">

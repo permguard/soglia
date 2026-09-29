@@ -109,23 +109,26 @@ import { withBase } from 'vitepress'
   <section class="pv-split">
     <div class="soglia-section-inner">
       <div class="soglia-section-head">
-        <div class="soglia-kicker">Where each responsibility lives</div>
+        <div class="soglia-kicker">What you keep, what you gain</div>
         <h2>Nothing is taken from you. Something is added above.</h2>
+        <p class="kp-lead">Soglia stands on the infrastructure you run, and competes with none of it. Everything you offer today stays; the right column only grows.</p>
       </div>
-      <div class="pv-table-wrap">
-        <table class="pv-table">
-          <thead><tr><th>Responsibility</th><th>Infrastructure provider</th><th>Soglia</th></tr></thead>
+      <div class="kp-table-wrap">
+        <table class="kp-table" aria-label="What the infrastructure keeps, and what Soglia adds on top of it">
+          <thead><tr><th>Capability</th><th>Your infrastructure today</th><th>With Soglia on top</th></tr></thead>
           <tbody>
-            <tr><td>Physical and virtual network, routing</td><td class="pv-yes">yours</td><td>runs on it</td></tr>
-            <tr><td>Network ACLs, segmentation, firewalls</td><td class="pv-yes">yours</td><td>relies on them</td></tr>
-            <tr><td>Compute, hypervisor, host operating system</td><td class="pv-yes">yours</td><td>runs on it</td></tr>
-            <tr><td>Encryption in transit between nodes</td><td class="pv-yes">yours</td><td>uses it</td></tr>
-            <tr><td>A boundary around every execution inside the host</td><td>—</td><td class="pv-yes">Soglia</td></tr>
-            <tr><td>Authority, policy evaluation and IFC labels per execution</td><td>—</td><td class="pv-yes">Soglia, with Permguard</td></tr>
-            <tr><td>Real credentials that never reach the workload</td><td>—</td><td class="pv-yes">Soglia</td></tr>
-            <tr><td>Execution lifecycle and verified teardown</td><td>—</td><td class="pv-yes">Soglia</td></tr>
+            <tr><td>Physical and virtual network, routing</td><td><span class="kp-keep">yours</span></td><td><span class="kp-keep">yours, unchanged</span></td></tr>
+            <tr><td>Network ACLs, segmentation, firewalls</td><td><span class="kp-keep">yours</span></td><td><span class="kp-keep">yours, unchanged</span></td></tr>
+            <tr><td>Compute, hypervisor, host operating system</td><td><span class="kp-keep">yours</span></td><td><span class="kp-keep">yours, unchanged</span></td></tr>
+            <tr><td>The isolation you offer between tenants</td><td><span class="kp-keep">yours</span></td><td><span class="kp-keep">yours, unchanged</span></td></tr>
+            <tr><td>Encryption in transit between nodes</td><td><span class="kp-keep">yours</span></td><td><span class="kp-keep">yours, unchanged</span></td></tr>
+            <tr class="kp-added kp-first-added"><td>A boundary around every execution inside the host</td><td><span class="kp-none">—</span></td><td><span class="kp-add">Soglia</span></td></tr>
+            <tr class="kp-added"><td>Authority, policy evaluation and IFC labels per execution</td><td><span class="kp-none">—</span></td><td><span class="kp-add">Soglia, with Permguard</span></td></tr>
+            <tr class="kp-added"><td>Real credentials that never reach the workload</td><td><span class="kp-none">—</span></td><td><span class="kp-add">Soglia</span></td></tr>
+            <tr class="kp-added"><td>Execution lifecycle and verified teardown</td><td><span class="kp-none">—</span></td><td><span class="kp-add">Soglia</span></td></tr>
           </tbody>
         </table>
+        <div class="tbl-foot kp-sum"><span>Kept: <strong>5</strong></span><span class="kp-sum__lost">Lost: <strong>none</strong></span><span>Added: <strong>4</strong></span></div>
       </div>
     </div>
   </section>

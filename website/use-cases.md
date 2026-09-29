@@ -20,27 +20,27 @@ import { withBase } from 'vitepress'
       <p>An AI agent in the cloud or a control workload on a machine: Soglia runs it the same way, as a <strong>sandboxed invocation</strong> between two Execution Contexts, on the Linux servers and devices where it already lives.</p>
     </div>
   </section>
-  <section class="soglia-principles uc-pattern">
+  <section class="soglia-principles uc-nodes">
     <div class="soglia-section-inner">
       <div class="soglia-section-head">
-        <div class="soglia-kicker">One pattern</div>
-        <h2>Every call takes the same path.</h2>
+        <div class="soglia-kicker">One boundary, any node</div>
+        <h2>Wherever the kernel can build the sandbox, Soglia can run.</h2>
       </div>
-      <ol class="uc-path" aria-label="Call, Ingress, Execution Context, Sandboxed Invocation, Execution Context, Egress">
-        <li class="uc-path__step"><span class="uc-path__tag">Call</span><small>a request, an event, a trigger</small></li>
-        <li class="uc-path__step uc-path__step--traffic"><span class="uc-path__tag">Ingress</span><small>traffic in</small></li>
-        <li class="uc-path__step uc-path__step--ctx"><span class="uc-path__tag">Execution Context</span><small>validates on the way in</small></li>
-        <li class="uc-path__step uc-path__step--core">
-          <span class="uc-path__tag">Sandboxed Invocation</span>
-          <small>AI agent or mission-critical workload</small>
-        </li>
-        <li class="uc-path__step uc-path__step--ctx"><span class="uc-path__tag">Execution Context</span><small>validates on the way out</small></li>
-        <li class="uc-path__step uc-path__step--traffic"><span class="uc-path__tag">Egress</span><small>traffic out</small></li>
-      </ol>
-      <div class="uc-define">
-        <h3>What is a sandboxed invocation?</h3>
-        <p>One run of a mission-critical process: an AI agent reasoning over a ticket, a control loop deciding a setpoint, a job moving money. It is started for one call, confined for its whole life, and destroyed when it ends. What it may touch is decided by its Execution Context, not by the process itself.</p>
+      <div class="uc-unit" aria-label="An Execution Context on the way in, a sandboxed invocation inside a kernel-enforced boundary, an Execution Context on the way out">
+        <span class="uc-unit__ctx">Execution Context</span>
+        <span class="uc-path__kernel uc-unit__kernel"><span class="uc-unit__core">Sandboxed Invocation</span></span>
+        <span class="uc-unit__ctx">Execution Context</span>
       </div>
+      <div class="uc-fan" aria-hidden="true"><span>runs on any Linux node</span></div>
+      <ul class="uc-hosts" aria-label="Nodes that can run it: a cloud virtual machine, a Kubernetes node, an on-premise server, a GPU server, an edge gateway, a machine or device">
+        <li>Cloud VM</li>
+        <li>Kubernetes node</li>
+        <li>On-premise server</li>
+        <li>GPU server</li>
+        <li>Edge gateway</li>
+        <li>Machine or device</li>
+      </ul>
+      <p class="uc-nodes__lead">The same sandboxed invocation, the same Execution Contexts, the same kernel-enforced boundary, on every node. See <a :href="withBase('/how-it-works')">How it works</a> for the full path of a call.</p>
     </div>
   </section>
   <section class="uc-kinds">

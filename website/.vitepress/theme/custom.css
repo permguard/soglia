@@ -2256,6 +2256,38 @@
   font-weight: 600;
 }
 
+/* The sandbox is built by the kernel: a dashed line around the invocation says so. */
+.uc-path__kernel {
+  position: relative;
+  display: inline-flex;
+  margin: -10px 0;
+  padding: 9px;
+  border: 1.5px dashed var(--soglia-green);
+  border-radius: 18px;
+  background: var(--band-bg);
+}
+
+.uc-path__kernel::before {
+  content: "kernel-enforced";
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0 8px;
+  background: var(--band-bg);
+  font-size: 10.5px;
+  font-weight: 800;
+  line-height: 14px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--band-num);
+}
+
+.uc-path__kernel + small {
+  margin-top: 10px;
+}
+
 @keyframes uc-glow {
   from { box-shadow: 0 0 0 4px color-mix(in srgb, var(--soglia-green) 18%, transparent); }
   to { box-shadow: 0 0 26px 6px color-mix(in srgb, var(--soglia-green) 38%, transparent); }
@@ -2268,6 +2300,197 @@
 
   .uc-path__step--core .uc-path__tag {
     animation: none;
+  }
+}
+
+/* Use cases: the same unit, compressed, on every kind of node. */
+.uc-nodes {
+  padding: 86px 0;
+}
+
+.uc-unit {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 30px;
+  width: fit-content;
+  margin: 18px auto 0;
+}
+
+.uc-unit::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 2px;
+  background: linear-gradient(90deg, var(--band-border), var(--soglia-green) 50%, var(--band-border));
+}
+
+.uc-unit__ctx {
+  position: relative;
+  padding: 12px 16px;
+  border: 1.5px solid var(--soglia-green);
+  border-radius: 12px;
+  background: var(--band-card);
+  font-size: 13.5px;
+  font-weight: 700;
+  white-space: nowrap;
+  color: var(--band-fg);
+}
+
+.uc-unit__kernel {
+  margin: 0;
+  padding: 11px;
+}
+
+.uc-unit__core {
+  padding: 18px 28px;
+  border-radius: 12px;
+  background: var(--soglia-green);
+  font-size: 17px;
+  font-weight: 760;
+  white-space: nowrap;
+  color: #0b0c0f;
+  animation: uc-glow 3.2s ease-in-out infinite alternate;
+}
+
+/* From the unit down to the nodes it can run on. */
+.uc-fan {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  height: 64px;
+}
+
+.uc-fan::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  border-left: 1.5px dashed color-mix(in srgb, var(--soglia-green) 60%, transparent);
+}
+
+.uc-fan span {
+  position: relative;
+  align-self: center;
+  padding: 2px 12px;
+  background: var(--band-bg);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--band-num);
+}
+
+.uc-hosts {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 14px;
+  margin: 0;
+  padding: 20px 0 0;
+  list-style: none;
+}
+
+.uc-hosts::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: calc(100% / 12);
+  right: calc(100% / 12);
+  border-top: 1.5px dashed color-mix(in srgb, var(--soglia-green) 60%, transparent);
+}
+
+.uc-hosts li {
+  position: relative;
+  margin: 0;
+  padding: 14px 8px;
+  border: 1px solid var(--band-border);
+  border-radius: 12px;
+  background: var(--band-card);
+  font-size: 14px;
+  font-weight: 700;
+  text-align: center;
+  color: var(--band-fg);
+  animation: uc-host 9s ease-out infinite;
+}
+
+.uc-hosts li::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: -21px;
+  height: 20px;
+  border-left: 1.5px dashed color-mix(in srgb, var(--soglia-green) 60%, transparent);
+}
+
+/* The sandbox is built on one node after another. */
+.uc-hosts li:nth-child(2) { animation-delay: 1.5s; }
+.uc-hosts li:nth-child(3) { animation-delay: 3s; }
+.uc-hosts li:nth-child(4) { animation-delay: 4.5s; }
+.uc-hosts li:nth-child(5) { animation-delay: 6s; }
+.uc-hosts li:nth-child(6) { animation-delay: 7.5s; }
+
+@keyframes uc-host {
+  0%, 20%, 100% { border-color: var(--band-border); box-shadow: none; }
+  5%, 12% { border-color: var(--soglia-green); box-shadow: 0 0 0 4px color-mix(in srgb, var(--soglia-green) 16%, transparent); }
+}
+
+.soglia-principles .uc-nodes__lead {
+  max-width: 760px;
+  margin: 30px auto 0;
+  font-size: 16.5px;
+  text-align: center;
+  color: var(--band-muted);
+}
+
+.uc-nodes__lead a {
+  color: var(--band-fg);
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-color: var(--soglia-green);
+  text-underline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .uc-unit__core,
+  .uc-hosts li {
+    animation: none;
+  }
+}
+
+@media (max-width: 900px) {
+  .uc-hosts {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .uc-hosts::before,
+  .uc-hosts li::before {
+    display: none;
+  }
+}
+
+@media (max-width: 700px) {
+  .uc-unit {
+    flex-direction: column;
+    gap: 22px;
+  }
+
+  .uc-unit::before {
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    right: auto;
+    width: 2px;
+    height: auto;
+    background: linear-gradient(180deg, var(--band-border), var(--soglia-green) 50%, var(--band-border));
+  }
+
+  .uc-hosts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
@@ -2371,6 +2594,11 @@
   .uc-path__step small {
     padding: 2px 8px;
     background: var(--band-bg);
+  }
+
+  /* Room for the kernel label above the invocation. */
+  .uc-path__step--core {
+    margin-top: 12px;
   }
 }
 
@@ -2834,4 +3062,991 @@
   .pv-nodes {
     grid-template-columns: 1fr;
   }
+}
+
+/* Gateways page -------------------------------------------------------------------------- */
+
+.gw-stack-sec {
+  padding: 86px 0;
+}
+
+.gw-stack-head p {
+  max-width: 860px;
+  margin: 18px 0 0;
+  font-size: 17.5px;
+  line-height: 1.6;
+  color: var(--band-muted);
+}
+
+.gw-layer__role a {
+  color: var(--band-fg);
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-color: var(--soglia-green);
+  text-underline-offset: 3px;
+}
+
+/* The boundaries one execution crosses, and the one layer beneath all of them. */
+.gw-arch {
+  --drop: 44px;
+  display: grid;
+}
+
+.gw-arch__caption {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 6px 18px;
+  margin-bottom: 14px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--band-muted);
+}
+
+.gw-arch__one {
+  color: var(--band-num);
+}
+
+.gw-arch__row {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: var(--drop);
+}
+
+/* The execution: one line through every boundary, with a light running along it. */
+.gw-arch__row::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  border-top: 2px solid color-mix(in srgb, var(--soglia-green) 60%, transparent);
+}
+
+/* The light runs behind the boundaries, which light up as it crosses them. */
+.gw-arch__row::after {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  top: calc(50% - 5px);
+  left: 0;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--soglia-green);
+  box-shadow: 0 0 14px var(--soglia-green);
+  animation: gw-run 6s linear infinite;
+}
+
+@keyframes gw-run {
+  from { left: 0; opacity: 0; }
+  3% { opacity: 1; }
+  97% { opacity: 1; }
+  to { left: calc(100% - 10px); opacity: 0; }
+}
+
+.gw-bnd {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 58px;
+  padding: 10px 8px;
+  border: 1.5px dashed color-mix(in srgb, var(--soglia-green) 70%, transparent);
+  border-radius: 12px;
+  background: var(--band-card);
+  font-size: 13.5px;
+  font-weight: 700;
+  text-align: center;
+  color: var(--band-fg);
+  animation: gw-cross 6s ease-out infinite;
+}
+
+/* Each boundary lights up as the execution crosses it. */
+.gw-bnd:nth-child(1) { animation-delay: .25s; }
+.gw-bnd:nth-child(2) { animation-delay: 1.25s; }
+.gw-bnd:nth-child(3) { animation-delay: 2.25s; }
+.gw-bnd:nth-child(4) { animation-delay: 3.25s; }
+.gw-bnd:nth-child(5) { animation-delay: 4.25s; }
+.gw-bnd:nth-child(6) { animation-delay: 5.25s; }
+
+@keyframes gw-cross {
+  0%, 18%, 100% { box-shadow: none; }
+  4% { box-shadow: 0 0 0 5px color-mix(in srgb, var(--soglia-green) 22%, transparent); }
+}
+
+/* Every boundary stands on the same layer. */
+.gw-bnd::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  height: var(--drop);
+  border-left: 1.5px dashed color-mix(in srgb, var(--soglia-green) 55%, transparent);
+}
+
+.gw-arch__layer .pv-layer__owner {
+  color: var(--band-num);
+}
+
+.gw-layer__role {
+  margin-top: 12px;
+  font-size: 13.5px;
+  font-style: italic;
+  color: var(--band-fg);
+}
+
+.gw-seam {
+  position: relative;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gw-seam span {
+  position: relative;
+  padding: 2px 12px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--band-muted);
+}
+
+.gw-types {
+  padding: 78px 0;
+  background: var(--surface-soft);
+}
+
+.gw-types .pv-table td:first-child {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.gw-shift {
+  padding: 86px 0;
+  background: var(--home-bg);
+}
+
+/* The same chain twice: once with a checkpoint at the edge, once with every execution bounded. */
+.gw-model {
+  display: grid;
+  gap: 22px;
+}
+
+.gw-model__row {
+  display: grid;
+  grid-template-columns: minmax(0, 300px) minmax(0, 1fr);
+  gap: 40px;
+  align-items: center;
+  padding: 26px 28px;
+  border: 1px solid rgba(127,127,127,.18);
+  border-radius: 16px;
+  background: var(--surface-soft);
+}
+
+.gw-model__text p {
+  margin: 0;
+  font-size: 15.5px;
+  line-height: 1.6;
+  color: var(--home-muted);
+}
+
+.gw-chain {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr) 26px) minmax(0, 1fr);
+  align-items: center;
+  row-gap: 14px;
+}
+
+.gw-hop {
+  padding: 12px 6px;
+  border: 1px solid rgba(127,127,127,.3);
+  border-radius: 10px;
+  background: var(--home-bg);
+  font-size: 13px;
+  font-weight: 700;
+  text-align: center;
+  color: var(--home-fg);
+}
+
+.gw-hop--gate {
+  border: 1.5px solid var(--home-fg);
+}
+
+.gw-hop--dim {
+  border-style: dashed;
+  border-color: rgba(127,127,127,.5);
+  background: transparent;
+  color: var(--home-muted);
+  opacity: .8;
+}
+
+.gw-hop--exec {
+  border: 1.5px solid var(--soglia-green);
+  background: color-mix(in srgb, var(--soglia-green) 8%, var(--home-bg));
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--soglia-green) 10%, transparent);
+}
+
+.gw-arrow {
+  position: relative;
+  height: 2px;
+  margin: 0 4px 0 2px;
+  background: rgba(127,127,127,.55);
+}
+
+.gw-arrow::after {
+  content: "";
+  position: absolute;
+  right: -4px;
+  top: -4px;
+  border: 5px solid transparent;
+  border-left-color: rgba(127,127,127,.55);
+  border-right: 0;
+}
+
+.gw-arrow--dim {
+  opacity: .45;
+}
+
+/* A bracket under the hops after the gateway: out of sight, or carried by authority. */
+.gw-span {
+  position: relative;
+  grid-column: 5 / -1;
+  display: flex;
+  justify-content: center;
+  padding-top: 12px;
+  border-top: 1.5px dashed rgba(127,127,127,.45);
+}
+
+.gw-span span {
+  font-size: 12.5px;
+  text-align: center;
+  color: var(--home-muted);
+}
+
+.gw-span--unseen span {
+  font-style: italic;
+}
+
+.gw-span--authority {
+  border-top-color: rgba(217, 70, 239, .6);
+}
+
+.gw-span--authority span {
+  padding: 3px 12px;
+  border: 1px solid rgba(217, 70, 239, .55);
+  border-radius: 999px;
+  color: var(--home-fg);
+}
+
+.gw-span--authority::before {
+  content: "";
+  position: absolute;
+  top: -5px;
+  left: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #d946ef;
+  box-shadow: 0 0 10px #d946ef;
+  animation: gw-authority 6s linear infinite;
+}
+
+@keyframes gw-authority {
+  from { left: 0; opacity: 0; }
+  8% { opacity: 1; }
+  88% { opacity: 1; }
+  to { left: calc(100% - 8px); opacity: 0; }
+}
+
+.gw-cases {
+  padding: 82px 0;
+}
+
+@keyframes gw-run-down {
+  from { top: 0; opacity: 0; }
+  3% { opacity: 1; }
+  97% { opacity: 1; }
+  to { top: calc(100% - 10px); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gw-bnd,
+  .gw-arch__row::after,
+  .gw-span--authority::before {
+    animation: none;
+  }
+}
+
+@media (max-width: 900px) {
+  .gw-model__row {
+    grid-template-columns: 1fr;
+  }
+
+  /* The boundaries stack, and the execution runs down through them. */
+  .gw-arch__row {
+    grid-template-columns: minmax(0, 260px);
+    justify-content: center;
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+
+  .gw-arch__row::before {
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    right: auto;
+    border-top: 0;
+    border-left: 2px solid color-mix(in srgb, var(--soglia-green) 60%, transparent);
+  }
+
+  .gw-arch__row::after {
+    left: calc(50% - 4px);
+    animation-name: gw-run-down;
+  }
+
+  .gw-bnd {
+    min-height: 48px;
+  }
+
+  .gw-bnd::after {
+    display: none;
+  }
+
+  .gw-model__row {
+    gap: 22px;
+  }
+}
+
+/* On phones the chain runs top to bottom. */
+@media (max-width: 640px) {
+  .gw-chain {
+    grid-template-columns: 1fr;
+    row-gap: 0;
+  }
+
+  .gw-arrow {
+    justify-self: center;
+    width: 2px;
+    height: 18px;
+    margin: 2px 0 6px;
+  }
+
+  .gw-arrow::after {
+    right: -4px;
+    top: auto;
+    bottom: -5px;
+    border: 5px solid transparent;
+    border-top-color: rgba(127,127,127,.55);
+    border-bottom: 0;
+  }
+
+  .gw-span {
+    grid-column: 1;
+    margin-top: 14px;
+  }
+
+  /* Each gateway becomes a card, its columns labelled inside it. */
+  .gw-types .pv-table,
+  .gw-types .pv-table tbody,
+  .gw-types .pv-table tr,
+  .gw-types .pv-table td {
+    display: block;
+  }
+
+  .gw-types .pv-table thead {
+    display: none;
+  }
+
+  .gw-types .pv-table tr {
+    padding: 16px 20px;
+    border-bottom: 1px solid rgba(127,127,127,.14);
+  }
+
+  .gw-types .pv-table tbody tr:last-child {
+    border-bottom: 0;
+  }
+
+  .gw-types .pv-table td {
+    padding: 0;
+    border: 0;
+  }
+
+  .gw-types .pv-table td:first-child {
+    margin-bottom: 8px;
+    font-size: 16px;
+  }
+
+  .gw-types .pv-table td + td {
+    margin-top: 8px;
+  }
+
+  .gw-types .pv-table td:nth-child(2)::before,
+  .gw-types .pv-table td:nth-child(3)::before {
+    display: block;
+    margin-bottom: 2px;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--band-num);
+  }
+
+  .gw-types .pv-table td:nth-child(2)::before {
+    content: "The path it guards";
+  }
+
+  .gw-types .pv-table td:nth-child(3)::before {
+    content: "What it cannot see";
+  }
+}
+
+/* How it works: policies and guardrails --------------------------------------------------- */
+
+/* The guardrail in Soglia green; the path around it in an orange that warns without alarming. */
+.arch-guard {
+  --pic: var(--soglia-green-deep);
+  --bypass: #e8590c;
+  padding: 86px 0;
+  background: var(--home-bg);
+}
+
+.dark .arch-guard {
+  --pic: var(--soglia-green);
+  --bypass: #fb7a2e;
+}
+
+.soglia-section-head .arch-guard__lead {
+  max-width: 860px;
+  margin: 18px 0 0;
+  font-size: 17.5px;
+  line-height: 1.6;
+  color: var(--home-muted);
+}
+
+.arch-policies {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  margin-bottom: 26px;
+}
+
+.arch-policies article {
+  padding: 24px 26px;
+  border: 1px solid rgba(127,127,127,.18);
+  border-radius: 16px;
+  background: var(--surface-soft);
+}
+
+.arch-policies .arch-policies__pic {
+  border: 1.5px solid color-mix(in srgb, var(--pic) 60%, transparent);
+  box-shadow: 0 0 0 5px color-mix(in srgb, var(--pic) 8%, transparent);
+}
+
+.arch-policies__kind {
+  margin-bottom: 10px;
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--band-num);
+}
+
+.arch-policies__pic .arch-policies__kind {
+  color: var(--pic);
+}
+
+.arch-policies p {
+  margin: 0;
+  font-size: 15.5px;
+  line-height: 1.6;
+  color: var(--home-muted);
+}
+
+/* The guardrail: one path through the trust anchor, accepted; one around it, rejected. */
+.gd-figure {
+  margin: 0;
+  padding: 24px 26px 20px;
+  border: 1px solid rgba(127,127,127,.18);
+  border-radius: 18px;
+  background: var(--surface-soft);
+}
+
+.gd-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin: 8px 0 4px;
+  font-family: inherit;
+}
+
+.gd-svg--tall {
+  display: none;
+  max-width: 360px;
+  margin: 8px auto 4px;
+}
+
+.gd-node rect {
+  fill: var(--home-bg);
+  stroke: rgba(127,127,127,.45);
+  stroke-width: 1.5;
+}
+
+.gd-node--anchor rect {
+  stroke: var(--pic);
+  stroke-width: 2;
+}
+
+.gd-title {
+  font-size: 15px;
+  font-weight: 700;
+  text-anchor: middle;
+  fill: var(--home-fg);
+}
+
+.gd-sub {
+  font-size: 12px;
+  text-anchor: middle;
+  fill: var(--home-muted);
+}
+
+.gd-link {
+  stroke: color-mix(in srgb, var(--soglia-green) 70%, transparent);
+  stroke-width: 2;
+}
+
+.gd-bypass {
+  fill: none;
+  stroke: var(--bypass);
+  stroke-width: 1.8;
+  stroke-dasharray: 6 6;
+}
+
+/* The orange marks the path; the words on it stay in the page's text colour. */
+.gd-note {
+  font-size: 12.5px;
+  font-weight: 400;
+  text-anchor: middle;
+  fill: var(--home-fg);
+}
+
+.gd-token {
+  fill: var(--soglia-green);
+  filter: drop-shadow(0 0 5px var(--soglia-green));
+}
+
+.gd-token--bad {
+  fill: var(--bypass);
+  filter: drop-shadow(0 0 5px var(--bypass));
+}
+
+.gd-ring {
+  fill: none;
+  stroke: var(--pic);
+  stroke-width: 2;
+}
+
+.gd-meet circle {
+  fill: var(--pic);
+}
+
+.gd-meet text {
+  font-size: 16px;
+  font-weight: 800;
+  text-anchor: middle;
+  fill: #0b0c0f;
+}
+
+.gd-ok circle {
+  fill: var(--soglia-green);
+}
+
+.gd-ok path,
+.gd-ko path {
+  fill: none;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.gd-ok path {
+  stroke: #0b0c0f;
+}
+
+.gd-ko circle {
+  fill: var(--bypass);
+}
+
+.gd-ko path {
+  stroke: #ffffff;
+}
+
+.gd-ok text,
+.gd-ko text {
+  font-size: 13px;
+  font-weight: 400;
+  fill: var(--home-fg);
+}
+
+.gd-legend {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px 26px;
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.gd-legend li {
+  position: relative;
+  margin: 0;
+  padding-left: 20px;
+  font-size: 14.5px;
+  line-height: 1.55;
+  color: var(--home-muted);
+}
+
+.gd-legend li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 7px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.gd-legend__ok::before {
+  background: var(--soglia-green);
+}
+
+.gd-legend__ko::before {
+  background: var(--bypass);
+}
+
+.gd-legend strong {
+  color: var(--home-fg);
+}
+
+.arch-guard .arch-quote {
+  --band-card: var(--surface-soft);
+  --band-fg: var(--home-fg);
+  margin-top: 26px;
+}
+
+@media (max-width: 700px) {
+  .arch-policies,
+  .gd-legend {
+    grid-template-columns: 1fr;
+  }
+
+  .gd-figure {
+    padding: 20px 16px 18px;
+  }
+
+  .gd-svg--wide {
+    display: none;
+  }
+
+  .gd-svg--tall {
+    display: block;
+  }
+}
+
+/* Keep and add: the comparison used by Gateways, AI Agents and Cloud & Infrastructure --------
+   The right column is always complete: everything kept, plus what Soglia adds. */
+
+.kp-table-wrap {
+  overflow-x: auto;
+  border: 1px solid rgba(127,127,127,.18);
+  border-radius: 16px;
+  background: var(--home-bg);
+}
+
+.kp-table {
+  display: table;
+  width: 100%;
+  margin: 0;
+  border-collapse: collapse;
+  font-size: 15px;
+}
+
+.kp-table th,
+.kp-table td {
+  padding: 14px 20px;
+  border: 0;
+  border-bottom: 1px solid rgba(127,127,127,.14);
+  text-align: left;
+  vertical-align: middle;
+  color: var(--home-muted);
+  background: transparent;
+}
+
+.kp-table tr {
+  border: 0;
+  background: transparent;
+}
+
+.kp-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.kp-table th {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--home-muted);
+}
+
+.kp-table th:last-child {
+  color: var(--band-num);
+}
+
+.kp-table td:first-child {
+  color: var(--home-fg);
+}
+
+.kp-table td:not(:first-child) {
+  width: 22%;
+  white-space: nowrap;
+}
+
+.kp-table th:last-child,
+.kp-table td:last-child {
+  background: color-mix(in srgb, var(--soglia-green) 6%, transparent);
+}
+
+/* The rows Soglia adds, set apart from the ones that stay as they are. */
+.kp-table .kp-added td {
+  border-bottom-color: color-mix(in srgb, var(--soglia-green) 22%, transparent);
+}
+
+.kp-table .kp-first-added td {
+  border-top: 1.5px solid color-mix(in srgb, var(--soglia-green) 45%, transparent);
+}
+
+.kp-keep,
+.kp-add {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+}
+
+.kp-keep {
+  color: var(--home-fg);
+}
+
+.kp-keep::before,
+.kp-add::before {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.kp-keep::before {
+  content: "✓";
+  border: 1px solid rgba(127,127,127,.45);
+  color: var(--home-muted);
+}
+
+.kp-add {
+  color: var(--home-fg);
+}
+
+.kp-add::before {
+  content: "+";
+  background: var(--soglia-green);
+  color: #0b0c0f;
+}
+
+.kp-none {
+  color: rgba(127,127,127,.7);
+}
+
+.kp-sum {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 26px;
+}
+
+.kp-sum strong {
+  color: var(--home-fg);
+}
+
+.kp-sum .kp-sum__lost strong {
+  color: var(--band-num);
+}
+
+/* On phones the middle column goes: the last one already lists everything kept and added. */
+@media (max-width: 640px) {
+  .kp-table th,
+  .kp-table td {
+    padding: 12px 14px;
+  }
+
+  .kp-table th:nth-child(2),
+  .kp-table td:nth-child(2) {
+    display: none;
+  }
+
+  .kp-table td:last-child {
+    width: 44%;
+    white-space: normal;
+  }
+}
+
+.soglia-section-head .kp-lead {
+  max-width: 820px;
+  margin: 16px 0 0;
+  font-size: 17px;
+  line-height: 1.6;
+  color: var(--home-muted);
+}
+
+/* Gateways: the slice a gateway sees, and the rest it hands off. */
+.gw-slice {
+  padding: 82px 0;
+}
+
+.gw-slice__view {
+  margin-bottom: 26px;
+}
+
+.gw-slice__steps {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.gw-slice__steps::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  border-top: 2px solid var(--band-border);
+}
+
+.gw-slice__steps span {
+  position: relative;
+  padding: 12px 6px;
+  border: 1px dashed var(--band-border);
+  border-radius: 10px;
+  background: var(--band-bg);
+  font-size: 13.5px;
+  font-weight: 600;
+  text-align: center;
+  color: var(--band-muted);
+}
+
+.gw-slice__steps .gw-slice__seen {
+  border: 1.5px solid var(--band-fg);
+  background: var(--band-card);
+  font-weight: 700;
+  color: var(--band-fg);
+}
+
+/* A window over the first step: what the gateway sees. The rest fades out of it. */
+.gw-slice__marks {
+  display: grid;
+  grid-template-columns: 1fr 5fr;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.gw-slice__mark {
+  padding-top: 10px;
+  border-top: 1.5px solid var(--band-fg);
+  font-size: 12.5px;
+  text-align: center;
+  color: var(--band-fg);
+}
+
+.gw-slice__mark--rest {
+  border-top: 1.5px dashed var(--band-border);
+  font-style: italic;
+  color: var(--band-muted);
+}
+
+@media (max-width: 760px) {
+  .gw-slice__steps {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .gw-slice__steps::before {
+    display: none;
+  }
+
+  .gw-slice__marks {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .gw-slice__mark {
+    padding-top: 6px;
+    border-top: 0;
+    text-align: left;
+  }
+
+  .gw-slice__mark--seen::before {
+    content: "■ ";
+  }
+
+  .gw-slice__mark--rest::before {
+    content: "□ ";
+    font-style: normal;
+  }
+}
+
+/* A line that belongs to a box sits inside it, never loose underneath. ----------------------- */
+
+/* The footer of a table: its summary or its closing remark. */
+.tbl-foot {
+  padding: 14px 20px;
+  border-top: 1px solid rgba(127,127,127,.14);
+  background: color-mix(in srgb, var(--home-fg) 3%, transparent);
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--home-muted);
+}
+
+/* The second line of a quote: a quieter remark under the claim. */
+.arch-quote__more {
+  display: block;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(127,127,127,.2);
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--band-muted, var(--home-muted));
+}
+
+.arch-quote__more strong {
+  color: var(--band-fg, var(--home-fg));
+}
+
+.gw-layer__role--muted {
+  font-style: normal;
+  color: var(--band-muted);
+}
+
+.arch-guard .arch-quote {
+  --band-muted: var(--home-muted);
 }

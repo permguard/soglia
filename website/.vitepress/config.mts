@@ -18,6 +18,7 @@ export default defineConfig({
     nav: [
       { text: 'Home', link: '/' },
       { text: 'How it works', link: '/how-it-works' },
+      { text: 'Gateways', link: '/gateways' },
       { text: 'AI Agents', link: '/agents' },
       { text: 'Cloud & Infrastructure', link: '/providers' },
       { text: 'Use cases', link: '/use-cases' }

@@ -124,7 +124,34 @@ import { withBase } from 'vitepress'
       </aside>
     </div>
   </section>
-  <section class="arch-status">
+  <section class="pv-split">
+    <div class="soglia-section-inner">
+      <div class="soglia-section-head">
+        <div class="soglia-kicker">What you keep, what you gain</div>
+        <h2>Keep everything your agent is. Soglia adds where it runs.</h2>
+        <p class="kp-lead">Use the framework, the model and the tools you like. The agent stays yours; it simply runs inside a Soglia sandbox, and the right column only grows.</p>
+      </div>
+      <div class="kp-table-wrap">
+        <table class="kp-table" aria-label="What your agent keeps, and what Soglia adds around it">
+          <thead><tr><th>Capability</th><th>Your agent today</th><th>Your agent in Soglia</th></tr></thead>
+          <tbody>
+            <tr><td>Agent framework and code</td><td><span class="kp-keep">yours</span></td><td><span class="kp-keep">yours, unchanged</span></td></tr>
+            <tr><td>Model and prompts</td><td><span class="kp-keep">yours</span></td><td><span class="kp-keep">yours, unchanged</span></td></tr>
+            <tr><td>Tools, and the way the agent calls them</td><td><span class="kp-keep">yours</span></td><td><span class="kp-keep">yours, unchanged</span></td></tr>
+            <tr><td>Memory and reasoning loop</td><td><span class="kp-keep">yours</span></td><td><span class="kp-keep">yours, unchanged</span></td></tr>
+            <tr><td>Packaging and delivery</td><td><span class="kp-keep">yours</span></td><td><span class="kp-keep">yours, unchanged</span></td></tr>
+            <tr class="kp-added kp-first-added"><td>A fresh, kernel-enforced sandbox for every call</td><td><span class="kp-none">—</span></td><td><span class="kp-add">Soglia</span></td></tr>
+            <tr class="kp-added"><td>A VPCA in place of real credentials</td><td><span class="kp-none">—</span></td><td><span class="kp-add">Soglia</span></td></tr>
+            <tr class="kp-added"><td>Egress only to declared destinations</td><td><span class="kp-none">—</span></td><td><span class="kp-add">Soglia</span></td></tr>
+            <tr class="kp-added"><td>PIC, policy evaluation and IFC labels on every call in and out</td><td><span class="kp-none">—</span></td><td><span class="kp-add">Soglia, with Permguard</span></td></tr>
+            <tr class="kp-added"><td>Teardown verified before the response is released</td><td><span class="kp-none">—</span></td><td><span class="kp-add">Soglia</span></td></tr>
+          </tbody>
+        </table>
+        <div class="tbl-foot kp-sum"><span>Kept: <strong>5</strong></span><span class="kp-sum__lost">Lost: <strong>none</strong></span><span>Added: <strong>5</strong></span></div>
+      </div>
+    </div>
+  </section>
+  <section class="arch-status pv-status">
     <div class="soglia-section-inner">
       <div class="arch-status__box">
         <div class="soglia-kicker">Status</div>
