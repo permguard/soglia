@@ -45,7 +45,7 @@ YES ?=
 scope   = $(if $(PKG),-p $(PKG),--workspace)
 profile = $(if $(RELEASE),--release)
 
-.PHONY: help build check check-headers check-notices check-phase0-deps check-supply-chain check-systems clean coverage coverage-html coverage-lcov dev-image fmt lint notices spike-b1 spike-b2 spike-b2-diagnostic spike-b3 spike-b3-diagnostic spike-b4 spike-b4-diagnostic spike-delete-vms spike-doctor spike-replay spike-run spike-vms test test-acceptance test-portable
+.PHONY: help build check check-headers check-notices check-phase0-deps check-supply-chain check-systems clean coverage coverage-html coverage-lcov dev-image fmt lint notices spike-b1 spike-b2 spike-b2-diagnostic spike-b3 spike-b3-diagnostic spike-b4 spike-b4-diagnostic spike-b5 spike-b5-diagnostic spike-delete-vms spike-doctor spike-replay spike-run spike-vms test test-acceptance test-portable
 
 help: ## List the targets.
 	@grep -E '^[a-z0-9-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-20s %s\n", $$1, $$2}'
@@ -124,6 +124,12 @@ spike-b4: ## Run authoritative production B4 once on a newly created Lima VM.
 
 spike-b4-diagnostic: ## Run diagnostic production B4 on the reusable development VM.
 	./spikes/cgroup-bpf/host/run-b4-diagnostic.sh
+
+spike-b5: ## Run authoritative production B5 once on a newly created Lima VM.
+	./spikes/cgroup-bpf/host/run-b5-fresh.sh
+
+spike-b5-diagnostic: ## Run diagnostic production B5 on the reusable development VM.
+	./spikes/cgroup-bpf/host/run-b5-diagnostic.sh
 
 spike-delete-vms: ## Stop and delete every soglia-spike* Lima VM (asks first; YES=1 skips the question).
 	./spikes/cgroup-bpf/host/delete-vms.sh $(if $(YES),--yes)

@@ -111,6 +111,8 @@ fn run(command: &str, started: Instant) {
         "proxy" => proxy(num(1, 1) as usize, 0),
         "proxy-http" => proxy_http(arg(1), arg(2).parse().ok()),
         "netns-cookie" => netns_cookie(),
+        "b5-probe-report" => b5_probe_report(arg(1), arg(2), num(3, 5)),
+        "b5-inherited-fd-report" => b5_inherited_fd_report(arg(1)),
         "proxy-fixed" => proxy_fixed(num(1, 40_000) as u16, num(2, 1) as usize, None),
         "proxy-fixed-report" => proxy_fixed(
             num(1, 40_000) as u16,
@@ -202,6 +204,92 @@ fn run(command: &str, started: Instant) {
         "sleep" => thread::sleep(Duration::from_millis(num(1, 100))),
         other => print(format!("{{\"cmd\":{},\"unknown\":true}}", quote(other))),
     }
+}
+
+/// Runs one B5 socket-boundary stimulus, records it while the process is still alive, then keeps
+/// the process available long enough for the privileged harness to inspect its cgroup/netns state.
+fn b5_probe_report(case: &str, report: &str, hold_secs: u64) {
+    let started = Instant::now();
+    let result = match case {
+        "fd_table" => b5_fd_table(),
+        "ipv6_stream" => sock("inet6", "stream"),
+        "ipv4_datagram" => sock("inet", "dgram"),
+        "ipv6_datagram" => sock("inet6", "dgram"),
+        "direct_ipv4" => direct("10.201.0.2:16001".parse().unwrap()),
+        "foreign_rewrite" => direct(PROXY),
+        other => Err(std::io::Error::new(
+            std::io::ErrorKind::InvalidInput,
+            format!("unknown B5 probe {other}"),
+        )),
+    };
+    let line = outcome(
+        case,
+        result,
+        &format!(",\"elapsed_ms\":{}", started.elapsed().as_millis()),
+    );
+    let write = fs::write(report, format!("{line}\n"));
+    print(match write {
+        Ok(()) => line,
+        Err(error) => outcome(case, Err(error), ",\"stage\":\"report\""),
+    });
+    thread::sleep(Duration::from_secs(hold_secs));
+}
+
+fn b5_fd_table() -> std::io::Result<String> {
+    let mut descriptors = Vec::new();
+    let mut sockets = Vec::new();
+    for fd in 0..64 {
+        let path = format!("/proc/self/fd/{fd}");
+        match fs::read_link(&path) {
+            Ok(target) => {
+                let target = target.to_string_lossy().into_owned();
+                if target.starts_with("socket:[") {
+                    sockets.push(fd);
+                }
+                descriptors.push(format!("{fd}={target}"));
+            }
+            Err(error) if error.kind() == std::io::ErrorKind::NotFound => {}
+            Err(error) => return Err(error),
+        }
+    }
+    Ok(format!(
+        "descriptors=[{}] sockets=[{}]",
+        descriptors.join(","),
+        sockets
+            .iter()
+            .map(i32::to_string)
+            .collect::<Vec<_>>()
+            .join(",")
+    ))
+}
+
+/// Characterizes a deliberately inherited socket created before entering the Execution netns.
+/// Production never invokes this command; it is the negative control proving why passing socket
+/// descriptors across the boundary would be unsafe.
+fn b5_inherited_fd_report(report: &str) {
+    let stdin = std::io::stdin();
+    let inherited_cookie = nix::sys::socket::getsockopt(&stdin, NetnsCookie).ok();
+    let current_cookie = rustix::net::socket(AddressFamily::INET, SocketType::STREAM, None)
+        .map_err(errno)
+        .and_then(|fd| {
+            nix::sys::socket::getsockopt(&fd, NetnsCookie)
+                .map_err(|error| std::io::Error::from_raw_os_error(error as i32))
+        })
+        .ok();
+    let stdin_target = fs::read_link("/proc/self/fd/0")
+        .map(|path| path.to_string_lossy().into_owned())
+        .unwrap_or_else(|error| format!("unreadable:{error}"));
+    let different = inherited_cookie
+        .zip(current_cookie)
+        .is_some_and(|(inherited, current)| inherited != current);
+    let line = format!(
+        "{{\"cmd\":\"b5-inherited-fd-report\",\"ok\":true,\"stdin_target\":{},\"inherited_netns_cookie\":{},\"current_netns_cookie\":{},\"external_to_current_netns\":{different}}}",
+        quote(&stdin_target),
+        inherited_cookie.map_or_else(|| "null".to_owned(), |value| value.to_string()),
+        current_cookie.map_or_else(|| "null".to_owned(), |value| value.to_string()),
+    );
+    let _ = fs::write(report, format!("{line}\n"));
+    print(line);
 }
 
 /// Reads the stable identity of the network namespace from a socket created by this agent.

@@ -21,6 +21,7 @@ apt-get install -y \
     llvm \
     musl-tools \
     nftables \
+    tcpdump \
     pkg-config \
     runc
 

@@ -8,20 +8,23 @@
 //! named fault per negative case without changing production code.
 
 use std::future::Future;
-use std::net::{IpAddr, Ipv4Addr, SocketAddr};
+use std::net::{IpAddr, Ipv4Addr, SocketAddr, TcpListener as StdTcpListener};
 use std::path::{Path, PathBuf};
 use std::pin::Pin;
-use std::process::Command;
+use std::process::{Child, Command, Stdio};
 use std::str::FromStr;
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
 use std::{env, fs, io};
 
+use aya::maps::{Map, MapData, RingBuf};
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
+use sha2::{Digest, Sha256};
 use soglia_core::config::Config;
 use soglia_core::helper::{EnforcerRequest, HelperResponse, ResolveMismatch, SandboxRequest};
+use soglia_core::net::ExecutionPool;
 use soglia_core::{BindingKey, ExecutionId, ExecutionNonce};
 use soglia_proxy::attribution::{AttributionResult, AttributionTable, ConnectionAttributor};
 use soglia_proxy::egress::{EgressLimits, EgressProxy};
@@ -39,6 +42,10 @@ const CONCURRENT_TIMEOUT_LATE_TOLERANCE_MS: u64 = 250;
 const C_TUPLE_INSERT_FAILED: u32 = 2;
 const C_PUBLISHED: u32 = 3;
 const C_UNPUBLISHED: u32 = 4;
+const C_SOCK_CREATE_DENY: u32 = 5;
+const C_CONNECT4_DENY: u32 = 6;
+const B5_REASON_NOT_PROXY: u32 = 3;
+const B5_REASON_FAMILY: u32 = 5;
 
 const CASES: [Case; 9] = [
     Case::Positive,
@@ -541,7 +548,6 @@ async fn run() -> Result<(), String> {
         .map_err(|error| error.to_string())?,
     )
     .map_err(|error| error.to_string())?;
-
     if cleanup_probe {
         return run_cleanup_probe(&evidence, &config, &sandbox, &enforcer).await;
     }
@@ -3014,6 +3020,1577 @@ async fn run_b3_cleanup_recovery(
     fs::write(evidence.join("verdict.txt"), "PASS\n").map_err(|error| error.to_string())
 }
 
+#[derive(Clone, Debug, Serialize)]
+struct B5Event {
+    reason: u32,
+    cgroup_id: u64,
+    cookie: u64,
+    raw_hex: String,
+}
+
+/// Runs B5 over the unchanged production Candidate-A backend and object. The wrapper binary imports
+/// this module so the placement, proxy and cleanup helpers are exactly those already qualified by
+/// B2/B3 rather than a second implementation of the lifecycle.
+pub async fn run_b5() -> Result<(), String> {
+    let mut arguments = env::args_os().skip(1);
+    let binary = PathBuf::from(arguments.next().ok_or("missing production binary")?);
+    let config_path = PathBuf::from(arguments.next().ok_or("missing configuration")?);
+    let evidence = PathBuf::from(arguments.next().ok_or("missing evidence directory")?);
+    let mode = arguments.next();
+    if arguments.next().is_some() {
+        return Err("too many arguments".to_owned());
+    }
+    fs::create_dir_all(&evidence).map_err(|error| error.to_string())?;
+    let config_yaml = fs::read_to_string(&config_path).map_err(|error| error.to_string())?;
+    let config = Config::from_yaml(&config_yaml).map_err(|error| error.to_string())?;
+    if mode.as_deref() == Some(std::ffi::OsStr::new("--cleanup-recovery")) {
+        return run_b3_cleanup_recovery(&binary, &config_yaml, &evidence).await;
+    }
+    if let Some(mode) = mode {
+        return Err(format!(
+            "unknown B5 driver mode: {}",
+            mode.to_string_lossy()
+        ));
+    }
+
+    let sandbox = Helper::spawn(&binary, "sandboxd").map_err(|error| error.to_string())?;
+    let enforcer = Helper::spawn_enforcer(&binary).map_err(|error| error.to_string())?;
+    let sandbox_swept = sandbox
+        .hello(&config_yaml)
+        .map_err(|error| error.to_string())?;
+    let enforcer_swept = enforcer
+        .hello(&config_yaml)
+        .map_err(|error| error.to_string())?;
+    sandbox
+        .ensure_running()
+        .map_err(|error| error.to_string())?;
+    enforcer
+        .ensure_running()
+        .map_err(|error| error.to_string())?;
+    fs::write(
+        evidence.join("startup.json"),
+        serde_json::to_vec_pretty(&json!({
+            "sandbox_swept": sandbox_swept,
+            "enforcer_swept": enforcer_swept,
+            "production_binary": binary,
+            "production_backend": "cgroup-bpf",
+            "production_object_modified": false
+        }))
+        .map_err(|error| error.to_string())?,
+    )
+    .map_err(|error| error.to_string())?;
+    b5_record_hook_inventory(&config, &evidence)?;
+    b5_record_fd_boundary_source(&evidence)?;
+
+    prepare_b3_upstream().map_err(|error| error.to_string())?;
+    let upstream = TcpListener::bind((Ipv4Addr::new(11, 0, 0, 1), 443))
+        .await
+        .map_err(|error| format!("bind B5 upstream: {error}"))?;
+    let outbound = Arc::new(AtomicUsize::new(0));
+    let outbound_task = {
+        let outbound = Arc::clone(&outbound);
+        tokio::spawn(async move {
+            while let Ok((_stream, _)) = upstream.accept().await {
+                outbound.fetch_add(1, Ordering::SeqCst);
+            }
+        })
+    };
+
+    fs::write(evidence.join("current-case.txt"), "proxy_positive\n")
+        .map_err(|error| error.to_string())?;
+    run_b3_single_lifecycle(
+        B3SingleMode::SuccessfulClose,
+        &evidence,
+        &config,
+        &sandbox,
+        &enforcer,
+        Arc::clone(&outbound),
+    )
+    .await?;
+    b5_alias_case(&evidence, "successful_close", "proxy_positive")?;
+
+    run_b5_fd_boundary(&evidence, &config, &sandbox, &enforcer).await?;
+    for (name, agent) in [
+        ("ipv6_stream_sock_create", "b5-ipv6-stream"),
+        ("ipv4_datagram_sock_create", "b5-ipv4-datagram"),
+        ("ipv6_datagram_sock_create", "b5-ipv6-datagram"),
+    ] {
+        run_b5_sock_create_case(name, agent, &evidence, &config, &sandbox, &enforcer).await?;
+    }
+    run_b5_direct_early_deny(&evidence, &config, &sandbox, &enforcer).await?;
+    run_b5_nft_relaxation(&evidence, &config, &sandbox, &enforcer).await?;
+    enforcer
+        .call(EnforcerRequest::Health)
+        .await
+        .map_err(|error| format!("pre-foreign B5 backend health: {error}"))?;
+    drop(enforcer);
+    b5_release_generation_for_topology(
+        &config,
+        &evidence.join("topology-transitions/base-to-foreign-allow"),
+        "base-to-foreign-allow",
+    )?;
+    run_b5_foreign_allow(
+        &evidence,
+        &config,
+        &config_yaml,
+        &binary,
+        &sandbox,
+        Arc::clone(&outbound),
+    )
+    .await?;
+    run_b5_foreign_rewrite(&evidence, &config, &config_yaml, &binary, &sandbox).await?;
+    outbound_task.abort();
+    fs::write(evidence.join("current-case.txt"), "complete\n")
+        .map_err(|error| error.to_string())?;
+    fs::write(evidence.join("verdict.txt"), "PASS\n").map_err(|error| error.to_string())
+}
+
+fn b5_alias_case(root: &Path, existing: &str, alias: &str) -> Result<(), String> {
+    let source = root.join("cases").join(existing).join("result.json");
+    let destination = root.join("cases").join(alias);
+    fs::create_dir_all(&destination).map_err(|error| error.to_string())?;
+    fs::copy(source, destination.join("result.json")).map_err(|error| error.to_string())?;
+    fs::write(destination.join("verdict.txt"), "PASS\n").map_err(|error| error.to_string())
+}
+
+fn b5_record_hook_inventory(config: &Config, evidence: &Path) -> Result<(), String> {
+    let executions = config
+        .cgroup
+        .root
+        .as_ref()
+        .ok_or("B5 configuration omitted cgroup root")?
+        .join("executions");
+    run_to_file(
+        &config.runtime.bpftool,
+        &[
+            "-j",
+            "cgroup",
+            "show",
+            executions.to_str().ok_or("non-UTF8 cgroup")?,
+        ],
+        &evidence.join("production-hooks-direct.json"),
+    )?;
+    run_to_file(
+        &config.runtime.bpftool,
+        &[
+            "-j",
+            "cgroup",
+            "show",
+            executions.to_str().ok_or("non-UTF8 cgroup")?,
+            "effective",
+        ],
+        &evidence.join("production-hooks-effective.json"),
+    )?;
+    let hooks: Value = serde_json::from_slice(
+        &fs::read(evidence.join("production-hooks-direct.json"))
+            .map_err(|error| error.to_string())?,
+    )
+    .map_err(|error| error.to_string())?;
+    let state = b5_state(config)?;
+    fs::write(
+        evidence.join("production-state-inventory.json"),
+        serde_json::to_vec_pretty(&state).map_err(|error| error.to_string())?,
+    )
+    .map_err(|error| error.to_string())?;
+    let expected = [
+        ("soglia_sock_create", "cgroup_inet_sock_create"),
+        ("soglia_connect4", "cgroup_inet4_connect"),
+        ("soglia_connect6", "cgroup_inet6_connect"),
+        ("soglia_sendmsg4", "cgroup_udp4_sendmsg"),
+        ("soglia_sendmsg6", "cgroup_udp6_sendmsg"),
+        ("soglia_sockops", "cgroup_sock_ops"),
+    ];
+    let rows = hooks
+        .as_array()
+        .ok_or("B5 direct hook inventory is not an array")?;
+    let programs = state
+        .get("programs")
+        .and_then(Value::as_array)
+        .ok_or("production state omitted programs")?;
+    for (name, attach_type) in expected {
+        let direct = rows.iter().find(|row| {
+            row.get("name").and_then(Value::as_str) == Some(name)
+                && row.get("attach_type").and_then(Value::as_str) == Some(attach_type)
+        });
+        let recorded = programs.iter().find(|program| {
+            program.get("symbol").and_then(Value::as_str) == Some(name)
+                && program
+                    .get("tag")
+                    .and_then(Value::as_u64)
+                    .is_some_and(|tag| tag != 0)
+        });
+        if direct.is_none()
+            || recorded.is_none()
+            || direct.and_then(|row| row.get("id")).and_then(Value::as_u64)
+                != recorded
+                    .and_then(|program| program.get("id"))
+                    .and_then(Value::as_u64)
+        {
+            return Err(format!(
+                "production hook {name}/{attach_type} missing in B5"
+            ));
+        }
+    }
+    fs::write(
+        evidence.join("hook-reachability.json"),
+        serde_json::to_vec_pretty(&json!({
+            "sock_create": "PERFORMED",
+            "connect4": "PERFORMED",
+            "sockops": "PERFORMED by proxy positive control",
+            "connect6": "NOT_PERFORMED: unreachable by construction because sock_create admits only IPv4/TCP and the socket cgroup is fixed at creation",
+            "sendmsg4": "NOT_PERFORMED: unreachable by construction because sock_create admits only IPv4/TCP and the socket cgroup is fixed at creation",
+            "sendmsg6": "NOT_PERFORMED: unreachable by construction because sock_create admits only IPv4/TCP and the socket cgroup is fixed at creation"
+        }))
+        .map_err(|error| error.to_string())?,
+    )
+    .map_err(|error| error.to_string())
+}
+
+fn b5_record_fd_boundary_source(evidence: &Path) -> Result<(), String> {
+    let path = Path::new("/soglia/crates/soglia-sandbox/src/backend.rs");
+    let source = fs::read_to_string(path).map_err(|error| error.to_string())?;
+    let required = [
+        ".stdin(Stdio::null())",
+        ".stdout(input.try_clone()?)",
+        ".stderr(input)",
+    ];
+    let required_present = required.iter().all(|needle| source.contains(needle));
+    let forbidden = ["--preserve-fds", "SCM_RIGHTS"];
+    let forbidden_absent = forbidden.iter().all(|needle| !source.contains(needle));
+    if !required_present || !forbidden_absent {
+        return Err("production Sandbox FD-boundary source audit failed".to_owned());
+    }
+    fs::write(
+        evidence.join("runtime-fd-boundary.json"),
+        serde_json::to_vec_pretty(&json!({
+            "source": path,
+            "sha256": format!("{:x}", Sha256::digest(source.as_bytes())),
+            "runc_stdio": {"stdin":"null","stdout":"bounded pipe","stderr":"bounded pipe"},
+            "required_fragments": required,
+            "forbidden_fd_passing_fragments": forbidden,
+            "forbidden_absent": forbidden_absent,
+            "production_runtime_passes_socket_fds": false
+        }))
+        .map_err(|error| error.to_string())?,
+    )
+    .map_err(|error| error.to_string())
+}
+
+fn b5_state(config: &Config) -> Result<Value, String> {
+    serde_json::from_slice(
+        &fs::read(config.runtime.state_dir.join("cgroup-bpf/state.json"))
+            .map_err(|error| error.to_string())?,
+    )
+    .map_err(|error| error.to_string())
+}
+
+fn b5_release_generation_for_topology(
+    config: &Config,
+    evidence: &Path,
+    transition: &str,
+) -> Result<(), String> {
+    fs::create_dir_all(evidence).map_err(|error| error.to_string())?;
+    let state_path = config.runtime.state_dir.join("cgroup-bpf/state.json");
+    let state = b5_state(config)?;
+    if state.get("phase").and_then(Value::as_str) != Some("READY")
+        || state
+            .get("executions")
+            .and_then(Value::as_object)
+            .is_none_or(|executions| !executions.is_empty())
+    {
+        return Err(format!(
+            "B5 topology transition {transition} requires READY with zero Execution records"
+        ));
+    }
+    let pin_root = PathBuf::from(
+        state
+            .get("pin_root")
+            .and_then(Value::as_str)
+            .ok_or("B5 state omitted pin_root")?,
+    );
+    if !pin_root.starts_with(&config.cgroup_bpf.pin_root) || pin_root == config.cgroup_bpf.pin_root {
+        return Err(format!(
+            "B5 topology transition rejected pin root {}",
+            pin_root.display()
+        ));
+    }
+    let pins = state
+        .get("links")
+        .and_then(Value::as_array)
+        .into_iter()
+        .flatten()
+        .chain(
+            state
+                .get("maps")
+                .and_then(Value::as_array)
+                .into_iter()
+                .flatten(),
+        )
+        .map(|entry| {
+            entry
+                .get("pin")
+                .and_then(Value::as_str)
+                .map(PathBuf::from)
+                .ok_or("B5 generation entry omitted its pin")
+        })
+        .collect::<Result<Vec<_>, _>>()?;
+    if pins.iter().any(|pin| !pin.starts_with(&pin_root)) {
+        return Err("B5 generation manifest contained a pin outside its owned root".to_owned());
+    }
+    fs::write(
+        evidence.join("owned-state-before.json"),
+        serde_json::to_vec_pretty(&state).map_err(|error| error.to_string())?,
+    )
+    .map_err(|error| error.to_string())?;
+    fs::write(
+        evidence.join("direct-before.json"),
+        command_output(
+            &config.runtime.bpftool,
+            &[
+                "-j",
+                "cgroup",
+                "show",
+                config
+                    .cgroup
+                    .root
+                    .as_ref()
+                    .ok_or("B5 cgroup root missing")?
+                    .join("executions")
+                    .to_str()
+                    .ok_or("non-UTF8 executions")?,
+            ],
+        )?,
+    )
+    .map_err(|error| error.to_string())?;
+    for pin in &pins {
+        match fs::remove_file(pin) {
+            Ok(()) => {}
+            Err(error) if error.kind() == io::ErrorKind::NotFound => {}
+            Err(error) => return Err(format!("remove owned pin {}: {error}", pin.display())),
+        }
+    }
+    for directory in [pin_root.join("links"), pin_root.join("maps"), pin_root.clone()] {
+        match fs::remove_dir(&directory) {
+            Ok(()) => {}
+            Err(error) if error.kind() == io::ErrorKind::NotFound => {}
+            Err(error) => {
+                return Err(format!(
+                    "remove owned generation directory {}: {error}",
+                    directory.display()
+                ));
+            }
+        }
+    }
+    fs::remove_file(&state_path).map_err(|error| {
+        format!(
+            "remove owned generation manifest {}: {error}",
+            state_path.display()
+        )
+    })?;
+
+    let executions = config
+        .cgroup
+        .root
+        .as_ref()
+        .ok_or("B5 cgroup root missing")?
+        .join("executions");
+    let started = Instant::now();
+    let (direct, programs) = loop {
+        let direct_output = command_output(
+            &config.runtime.bpftool,
+            &[
+                "-j",
+                "cgroup",
+                "show",
+                executions.to_str().ok_or("non-UTF8 executions")?,
+            ],
+        )?;
+        let direct: Value = if direct_output.iter().all(u8::is_ascii_whitespace) {
+            json!([])
+        } else {
+            serde_json::from_slice(&direct_output).map_err(|error| error.to_string())?
+        };
+        let programs: Value = serde_json::from_slice(&command_output(
+            &config.runtime.bpftool,
+            &["-j", "prog", "show"],
+        )?)
+        .map_err(|error| error.to_string())?;
+        let direct_empty = direct.as_array().is_some_and(Vec::is_empty);
+        let no_soglia = programs.as_array().is_some_and(|rows| {
+            rows.iter().all(|row| {
+                !row.get("name")
+                    .and_then(Value::as_str)
+                    .is_some_and(|name| name.starts_with("soglia_"))
+            })
+        });
+        if direct_empty && no_soglia {
+            break (direct, programs);
+        }
+        if started.elapsed() >= Duration::from_secs(2) {
+            return Err(format!(
+                "B5 topology transition {transition} left production BPF objects"
+            ));
+        }
+        std::thread::sleep(Duration::from_millis(10));
+    };
+    if state_path.exists() || pin_root.exists() || pins.iter().any(|pin| pin.exists()) {
+        return Err(format!(
+            "B5 topology transition {transition} did not remove its exact owned generation"
+        ));
+    }
+    fs::write(
+        evidence.join("result.json"),
+        serde_json::to_vec_pretty(&json!({
+            "transition":transition,
+            "owner":"qualification harness",
+            "precondition":"production Enforcer exited; READY generation; zero Execution records",
+            "removed_manifest":state_path,
+            "removed_pin_root":pin_root,
+            "removed_pins":pins,
+            "direct_after":direct,
+            "programs_after":programs,
+            "network_state_preserved":true,
+            "verdict":"PASS"
+        }))
+        .map_err(|error| error.to_string())?,
+    )
+    .map_err(|error| error.to_string())
+}
+
+fn b5_counter(config: &Config, index: u32) -> Result<u64, String> {
+    let state = b5_state(config)?;
+    counter_value(
+        &dump_map(
+            &config.runtime.bpftool,
+            &map_pin(&state, "soglia_counters")?,
+        )?,
+        index,
+    )
+}
+
+fn b5_drain_events(config: &Config) -> Result<Vec<B5Event>, String> {
+    let state = b5_state(config)?;
+    let pin = map_pin(&state, "soglia_events")?;
+    let data = MapData::from_pin(&pin)
+        .map_err(|error| format!("open production event ring {}: {error:#}", pin.display()))?;
+    let map = Map::from_map_data(data)
+        .map_err(|error| format!("classify production event map: {error:#}"))?;
+    let mut ring = RingBuf::try_from(map)
+        .map_err(|error| format!("classify production event ring: {error:#}"))?;
+    let mut events = Vec::new();
+    while let Some(raw) = ring.next() {
+        if raw.len() != 56 {
+            return Err(format!(
+                "production event has width {}, expected 56",
+                raw.len()
+            ));
+        }
+        events.push(B5Event {
+            reason: u32::from_ne_bytes(raw[0..4].try_into().map_err(|_| "event reason width")?),
+            cgroup_id: u64::from_ne_bytes(raw[8..16].try_into().map_err(|_| "event cgroup width")?),
+            cookie: u64::from_ne_bytes(raw[40..48].try_into().map_err(|_| "event cookie width")?),
+            raw_hex: hex(&raw),
+        });
+    }
+    Ok(events)
+}
+
+fn b5_agent_report(pid: i32) -> PathBuf {
+    PathBuf::from(format!("/proc/{pid}/root/tmp/b5-report.json"))
+}
+
+async fn b5_read_agent_report(pid: i32) -> Result<Value, String> {
+    let path = b5_agent_report(pid);
+    wait_for_file(&path, Duration::from_secs(5)).await?;
+    let line = fs::read_to_string(path).map_err(|error| error.to_string())?;
+    serde_json::from_str(line.trim()).map_err(|error| error.to_string())
+}
+
+async fn b5_cleanup_execution(
+    prepared: &mut B3Prepared<'_>,
+    table: &AttributionTable,
+) -> Result<(), String> {
+    let failures = prepared.execution.cleanup(Some(table)).await;
+    if failures.is_empty() {
+        Ok(())
+    } else {
+        Err(format!("B5 execution cleanup failed: {failures:?}"))
+    }
+}
+
+async fn run_b5_fd_boundary(
+    root: &Path,
+    config: &Config,
+    sandbox: &Helper,
+    enforcer: &Helper,
+) -> Result<(), String> {
+    let evidence = root.join("cases/no_inherited_sockets");
+    fs::create_dir_all(&evidence).map_err(|error| error.to_string())?;
+    fs::write(root.join("current-case.txt"), "no_inherited_sockets\n")
+        .map_err(|error| error.to_string())?;
+    let table = Arc::new(AttributionTable::new());
+    let mut prepared = prepare_b3_execution(
+        config,
+        &evidence,
+        sandbox,
+        enforcer,
+        &table,
+        "b5-fd-table",
+        0,
+    )
+    .await?;
+    b5_record_namespace(config, &evidence, &prepared)?;
+
+    let listener = StdTcpListener::bind((Ipv4Addr::LOCALHOST, 19055))
+        .map_err(|error| format!("bind inherited-FD control listener: {error}"))?;
+    let control = evidence.join("external-inherited-socket.json");
+    let netns = prepared.execution.id.tag().netns_name();
+    let agent = config
+        .agents
+        .get("probe")
+        .ok_or("B5 probe agent missing")?
+        .rootfs
+        .join("agent");
+    let child = Command::new("/bin/bash")
+        .arg("-c")
+        .arg("exec 0<>/dev/tcp/127.0.0.1/19055; exec \"$1\" netns exec \"$2\" \"$3\" \"$4\"")
+        .arg("b5-inherited-control")
+        .arg(&config.runtime.ip)
+        .arg(&netns)
+        .arg(&agent)
+        .arg(format!(
+            "b5-inherited-fd-report {}",
+            control.display()
+        ))
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+        .map_err(|error| format!("spawn inherited-FD control: {error}"))?;
+    listener
+        .set_nonblocking(true)
+        .map_err(|error| error.to_string())?;
+    let started = Instant::now();
+    let accepted = loop {
+        match listener.accept() {
+            Ok((stream, _)) => break Some(stream),
+            Err(error) if error.kind() == io::ErrorKind::WouldBlock => {
+                if started.elapsed() >= Duration::from_secs(2) {
+                    break None;
+                }
+                std::thread::sleep(Duration::from_millis(5));
+            }
+            Err(error) => return Err(error.to_string()),
+        }
+    };
+    let output = child
+        .wait_with_output()
+        .map_err(|error| error.to_string())?;
+    drop(accepted);
+    fs::write(evidence.join("external-control.stdout"), &output.stdout)
+        .map_err(|error| error.to_string())?;
+    fs::write(evidence.join("external-control.stderr"), &output.stderr)
+        .map_err(|error| error.to_string())?;
+    if !output.status.success() {
+        return Err(format!("inherited-FD control exited {}", output.status));
+    }
+    let inherited: Value = serde_json::from_slice(
+        &fs::read(&control).map_err(|error| format!("read inherited-FD evidence: {error}"))?,
+    )
+    .map_err(|error| error.to_string())?;
+    if inherited
+        .get("external_to_current_netns")
+        .and_then(Value::as_bool)
+        != Some(true)
+    {
+        return Err("artificial inherited socket was not proven external to the netns".to_owned());
+    }
+
+    sandbox
+        .call(SandboxRequest::Start {
+            id: prepared.execution.id,
+        })
+        .await
+        .map_err(|error| error.to_string())?;
+    let report = b5_read_agent_report(prepared.pid).await?;
+    let detail = report
+        .get("detail")
+        .and_then(Value::as_str)
+        .unwrap_or_default();
+    if report.get("ok").and_then(Value::as_bool) != Some(true) || !detail.contains("sockets=[]") {
+        return Err(format!(
+            "production agent inherited a socket descriptor: {report}"
+        ));
+    }
+    b5_cleanup_execution(&mut prepared, &table).await?;
+    write_b3_case_result(
+        &evidence,
+        &json!({
+            "case":"NO_INHERITED_SOCKETS",
+            "agent_start_fd_table":report,
+            "artificial_external_control":inherited,
+            "runtime_fd_path_audit":root.join("runtime-fd-boundary.json"),
+            "production_passes_socket_fds":false
+        }),
+    )
+}
+
+fn b5_record_namespace(
+    config: &Config,
+    evidence: &Path,
+    prepared: &B3Prepared<'_>,
+) -> Result<(), String> {
+    let netns = prepared.execution.id.tag().netns_name();
+    let addresses = command_output(&config.runtime.ip, &["-j", "-n", &netns, "addr", "show"])?;
+    let routes = command_output(&config.runtime.ip, &["-j", "-n", &netns, "route", "show"])?;
+    let nft = command_output(
+        &config.runtime.ip,
+        &[
+            "netns",
+            "exec",
+            &netns,
+            "/usr/sbin/nft",
+            "-j",
+            "list",
+            "ruleset",
+        ],
+    )?;
+    let ipv6 = command_output(
+        &config.runtime.ip,
+        &[
+            "netns",
+            "exec",
+            &netns,
+            "/bin/cat",
+            "/proc/sys/net/ipv6/conf/all/disable_ipv6",
+        ],
+    )?;
+    let address_json: Value =
+        serde_json::from_slice(&addresses).map_err(|error| error.to_string())?;
+    let names = address_json
+        .as_array()
+        .ok_or("netns address inventory is not an array")?
+        .iter()
+        .filter_map(|row| row.get("ifname").and_then(Value::as_str))
+        .collect::<Vec<_>>();
+    let ipv6_disabled = String::from_utf8_lossy(&ipv6).trim() == "1";
+    if names.iter().any(|name| *name != "lo" && *name != "eth0") || !ipv6_disabled {
+        return Err("owned netns confinement inventory is unexpected".to_owned());
+    }
+    fs::write(
+        evidence.join("namespace-confinement.json"),
+        serde_json::to_vec_pretty(&json!({
+            "netns":netns,
+            "interfaces":serde_json::from_slice::<Value>(&addresses).map_err(|error| error.to_string())?,
+            "routes":serde_json::from_slice::<Value>(&routes).map_err(|error| error.to_string())?,
+            "nft":serde_json::from_slice::<Value>(&nft).map_err(|error| error.to_string())?,
+            "ipv6_disabled":ipv6_disabled,
+            "only_expected_interfaces":true
+        }))
+        .map_err(|error| error.to_string())?,
+    )
+    .map_err(|error| error.to_string())
+}
+
+async fn run_b5_sock_create_case(
+    name: &str,
+    agent: &str,
+    root: &Path,
+    config: &Config,
+    sandbox: &Helper,
+    enforcer: &Helper,
+) -> Result<(), String> {
+    let evidence = root.join("cases").join(name);
+    fs::create_dir_all(&evidence).map_err(|error| error.to_string())?;
+    fs::write(root.join("current-case.txt"), format!("{name}\n"))
+        .map_err(|error| error.to_string())?;
+    let table = Arc::new(AttributionTable::new());
+    let mut prepared =
+        prepare_b3_execution(config, &evidence, sandbox, enforcer, &table, agent, 0).await?;
+    let stale = b5_drain_events(config)?;
+    if !stale.is_empty() {
+        return Err(format!("{name} began with stale BPF events: {stale:?}"));
+    }
+    let before = b5_counter(config, C_SOCK_CREATE_DENY)?;
+    sandbox
+        .call(SandboxRequest::Start {
+            id: prepared.execution.id,
+        })
+        .await
+        .map_err(|error| error.to_string())?;
+    let report = b5_read_agent_report(prepared.pid).await?;
+    let after = b5_counter(config, C_SOCK_CREATE_DENY)?;
+    let events = b5_drain_events(config)?;
+    if report.get("ok").and_then(Value::as_bool) != Some(false)
+        || after != before + 1
+        || events.len() != 1
+        || events[0].reason != B5_REASON_FAMILY
+    {
+        return Err(format!(
+            "{name} did not prove one sock_create denial: report={report} before={before} after={after} events={events:?}"
+        ));
+    }
+    b5_cleanup_execution(&mut prepared, &table).await?;
+    write_b3_case_result(
+        &evidence,
+        &json!({"case":name,"agent":report,"counter_before":before,"counter_after":after,
+            "counter_delta":after-before,"events":events,"health":"UNCHANGED"}),
+    )
+}
+
+fn b5_nft_ruleset(config: &Config, netns: &str) -> Result<Value, String> {
+    serde_json::from_slice(&command_output(
+        &config.runtime.ip,
+        &[
+            "netns",
+            "exec",
+            netns,
+            "/usr/sbin/nft",
+            "-j",
+            "-a",
+            "list",
+            "ruleset",
+        ],
+    )?)
+    .map_err(|error| error.to_string())
+}
+
+fn b5_host_nft_ruleset() -> Result<Value, String> {
+    serde_json::from_slice(&command_output(
+        Path::new("/usr/sbin/nft"),
+        &["-j", "-a", "list", "ruleset"],
+    )?)
+    .map_err(|error| error.to_string())
+}
+
+fn b5_normalized_nft(value: &Value) -> Value {
+    match value {
+        Value::Array(values) => Value::Array(values.iter().map(b5_normalized_nft).collect()),
+        Value::Object(values) => {
+            let mut normalized = serde_json::Map::new();
+            for (key, value) in values {
+                if !matches!(key.as_str(), "handle" | "packets" | "bytes" | "metainfo") {
+                    normalized.insert(key.clone(), b5_normalized_nft(value));
+                }
+            }
+            Value::Object(normalized)
+        }
+        value => value.clone(),
+    }
+}
+
+fn b5_nft_hash(value: &Value) -> Result<String, String> {
+    let bytes = serde_json::to_vec(&b5_normalized_nft(value)).map_err(|error| error.to_string())?;
+    Ok(format!("{:x}", Sha256::digest(bytes)))
+}
+
+fn b5_nft_rule_handle(value: &Value, comment: &str) -> Result<u64, String> {
+    value
+        .pointer("/nftables")
+        .and_then(Value::as_array)
+        .and_then(|rows| {
+            rows.iter().find_map(|row| {
+                let rule = row.get("rule")?;
+                (rule.get("comment").and_then(Value::as_str) == Some(comment))
+                    .then(|| rule.get("handle").and_then(Value::as_u64))
+                    .flatten()
+            })
+        })
+        .ok_or_else(|| format!("nft rule {comment} has no handle"))
+}
+
+fn b5_nft_rule_packets(value: &Value, comment: &str) -> Result<u64, String> {
+    let expressions = value
+        .pointer("/nftables")
+        .and_then(Value::as_array)
+        .and_then(|rows| {
+            rows.iter().find_map(|row| {
+                let rule = row.get("rule")?;
+                (rule.get("comment").and_then(Value::as_str) == Some(comment))
+                    .then(|| rule.get("expr").and_then(Value::as_array))
+                    .flatten()
+            })
+        })
+        .ok_or_else(|| format!("nft rule {comment} is absent"))?;
+    expressions
+        .iter()
+        .find_map(|expression| {
+            expression
+                .pointer("/counter/packets")
+                .and_then(Value::as_u64)
+        })
+        .ok_or_else(|| format!("nft rule {comment} has no packet counter"))
+}
+
+fn b5_add_exec_rule(
+    config: &Config,
+    netns: &str,
+    comment: &str,
+    verdict: Option<&str>,
+) -> Result<u64, String> {
+    let mut arguments = vec![
+        "netns",
+        "exec",
+        netns,
+        "/usr/sbin/nft",
+        "insert",
+        "rule",
+        "inet",
+        "soglia",
+        "output",
+        "ip",
+        "daddr",
+        "10.201.0.2",
+        "tcp",
+        "dport",
+        "16001",
+        "counter",
+    ];
+    if let Some(verdict) = verdict {
+        arguments.push(verdict);
+    }
+    arguments.extend(["comment", comment]);
+    command_success(&config.runtime.ip, &arguments).map_err(|error| error.to_string())?;
+    b5_nft_rule_handle(&b5_nft_ruleset(config, netns)?, comment)
+}
+
+fn b5_delete_exec_rule(config: &Config, netns: &str, handle: u64) -> Result<(), String> {
+    command_success(
+        &config.runtime.ip,
+        &[
+            "netns",
+            "exec",
+            netns,
+            "/usr/sbin/nft",
+            "delete",
+            "rule",
+            "inet",
+            "soglia",
+            "output",
+            "handle",
+            &handle.to_string(),
+        ],
+    )
+    .map_err(|error| error.to_string())
+}
+
+fn b5_start_tcpdump(interface: &str, output: &Path) -> Result<Child, String> {
+    Command::new("/usr/bin/tcpdump")
+        .args(["-U", "-n", "-i", interface, "-c", "1", "-w"])
+        .arg(output)
+        .arg("tcp[tcpflags] & tcp-syn != 0")
+        .stdout(Stdio::null())
+        .stderr(Stdio::piped())
+        .spawn()
+        .map_err(|error| format!("start tcpdump: {error}"))
+}
+
+fn b5_stop_tcpdump(mut child: Child, capture: &Path, evidence: &Path) -> Result<usize, String> {
+    let _ = child.kill();
+    let output = child
+        .wait_with_output()
+        .map_err(|error| error.to_string())?;
+    fs::write(evidence.join("tcpdump-stderr.txt"), output.stderr)
+        .map_err(|error| error.to_string())?;
+    let decoded = Command::new("/usr/bin/tcpdump")
+        .args(["-n", "-r"])
+        .arg(capture)
+        .output()
+        .map_err(|error| error.to_string())?;
+    fs::write(evidence.join("tcpdump-decoded.txt"), &decoded.stdout)
+        .map_err(|error| error.to_string())?;
+    Ok(String::from_utf8_lossy(&decoded.stdout)
+        .lines()
+        .filter(|line| !line.trim().is_empty())
+        .count())
+}
+
+async fn run_b5_direct_early_deny(
+    root: &Path,
+    config: &Config,
+    sandbox: &Helper,
+    enforcer: &Helper,
+) -> Result<(), String> {
+    let evidence = root.join("cases/direct_ipv4_early_deny");
+    fs::create_dir_all(&evidence).map_err(|error| error.to_string())?;
+    fs::write(root.join("current-case.txt"), "direct_ipv4_early_deny\n")
+        .map_err(|error| error.to_string())?;
+    let table = Arc::new(AttributionTable::new());
+    let mut prepared = prepare_b3_execution(
+        config,
+        &evidence,
+        sandbox,
+        enforcer,
+        &table,
+        "b5-direct-ipv4",
+        0,
+    )
+    .await?;
+    let netns = prepared.execution.id.tag().netns_name();
+    let before_rules = b5_nft_ruleset(config, &netns)?;
+    let before_hash = b5_nft_hash(&before_rules)?;
+    let comment = "soglia-b5-observe-direct";
+    let handle = b5_add_exec_rule(config, &netns, comment, None)?;
+    let capture = evidence.join("veth-syn.pcap");
+    let mut tcpdump = b5_start_tcpdump(&prepared.execution.id.tag().host_veth(), &capture)?;
+    std::thread::sleep(Duration::from_millis(100));
+    let stale = b5_drain_events(config)?;
+    if !stale.is_empty() {
+        let _ = tcpdump.kill();
+        let _ = b5_delete_exec_rule(config, &netns, handle);
+        return Err(format!("direct deny began with stale events: {stale:?}"));
+    }
+    let before = b5_counter(config, C_CONNECT4_DENY)?;
+    sandbox
+        .call(SandboxRequest::Start {
+            id: prepared.execution.id,
+        })
+        .await
+        .map_err(|error| error.to_string())?;
+    let report = b5_read_agent_report(prepared.pid).await?;
+    let after = b5_counter(config, C_CONNECT4_DENY)?;
+    let events = b5_drain_events(config)?;
+    let during = b5_nft_ruleset(config, &netns)?;
+    let nft_packets = b5_nft_rule_packets(&during, comment)?;
+    let syn_packets = b5_stop_tcpdump(tcpdump, &capture, &evidence)?;
+    b5_delete_exec_rule(config, &netns, handle)?;
+    let after_rules = b5_nft_ruleset(config, &netns)?;
+    let after_hash = b5_nft_hash(&after_rules)?;
+    if report.get("ok").and_then(Value::as_bool) != Some(false)
+        || after != before + 1
+        || nft_packets != 0
+        || syn_packets != 0
+        || events.len() != 1
+        || events[0].reason != B5_REASON_NOT_PROXY
+        || before_hash != after_hash
+    {
+        return Err(format!(
+            "direct IPv4 early-deny invariant failed: report={report} counter={before}->{after} nft={nft_packets} syn={syn_packets} events={events:?} hashes={before_hash}/{after_hash}"
+        ));
+    }
+    b5_cleanup_execution(&mut prepared, &table).await?;
+    write_b3_case_result(
+        &evidence,
+        &json!({"case":"DIRECT_IPV4_EARLY_DENY","agent":report,"connect4_deny_delta":after-before,
+            "events":events,"execution_nft_drop_path_packets":nft_packets,"veth_syn_packets":syn_packets,
+            "nft_semantics":"intact; temporary counter-only observation rule had no verdict",
+            "ruleset_hash_before":before_hash,"ruleset_hash_after":after_hash,"restored":true}),
+    )
+}
+
+async fn run_b5_nft_relaxation(
+    root: &Path,
+    config: &Config,
+    sandbox: &Helper,
+    enforcer: &Helper,
+) -> Result<(), String> {
+    let evidence = root.join("cases/exact_nft_relaxation");
+    fs::create_dir_all(&evidence).map_err(|error| error.to_string())?;
+    fs::write(root.join("current-case.txt"), "exact_nft_relaxation\n")
+        .map_err(|error| error.to_string())?;
+    let table = Arc::new(AttributionTable::new());
+    let mut prepared = prepare_b3_execution(
+        config,
+        &evidence,
+        sandbox,
+        enforcer,
+        &table,
+        "b5-direct-ipv4",
+        1,
+    )
+    .await?;
+    let netns = prepared.execution.id.tag().netns_name();
+    let slot = ExecutionPool::new(config.network.execution_pool)
+        .map_err(|error| error.to_string())?
+        .slot(1)
+        .ok_or("B5 exact-relaxation slot 1 is unavailable")?;
+    let direct_target = Ipv4Addr::new(10, 201, 0, 2);
+    if slot.host != direct_target {
+        return Err(format!(
+            "B5 fixed direct target {direct_target} does not match slot-1 host {}",
+            slot.host
+        ));
+    }
+    let before_rules = b5_nft_ruleset(config, &netns)?;
+    let before_hash = b5_nft_hash(&before_rules)?;
+    let before_host_rules = b5_host_nft_ruleset()?;
+    let before_host_hash = b5_nft_hash(&before_host_rules)?;
+    let exec_comment = "soglia-b5-exact-relaxation-exec";
+    let host_comment = "soglia-b5-exact-relaxation-host";
+    let exec_handle = b5_add_exec_rule(config, &netns, exec_comment, Some("accept"))?;
+    let host_handle = b5_add_host_accept(
+        &prepared.execution.id.tag().host_veth(),
+        slot.execution,
+        slot.host,
+        16001,
+        host_comment,
+    )?;
+    let during_rules = b5_nft_ruleset(config, &netns)?;
+    let during_host_rules = b5_host_nft_ruleset()?;
+    let listener = StdTcpListener::bind((direct_target, 16001))
+        .map_err(|error| format!("bind direct-path control listener: {error}"))?;
+    listener
+        .set_nonblocking(true)
+        .map_err(|error| error.to_string())?;
+    let control_report = evidence.join("outside-cgroup-control.json");
+    let agent = config
+        .agents
+        .get("probe")
+        .ok_or("B5 probe agent missing")?
+        .rootfs
+        .join("agent");
+    let control = Command::new(&config.runtime.ip)
+        .args(["netns", "exec", &netns])
+        .arg(&agent)
+        .arg(format!(
+            "b5-probe-report direct_ipv4 {} 0",
+            control_report.to_str().ok_or("non-UTF8 control report")?
+        ))
+        .output()
+        .map_err(|error| format!("run outside-cgroup nft control: {error}"))?;
+    fs::write(
+        evidence.join("outside-cgroup-control.stdout"),
+        &control.stdout,
+    )
+    .map_err(|error| error.to_string())?;
+    fs::write(
+        evidence.join("outside-cgroup-control.stderr"),
+        &control.stderr,
+    )
+    .map_err(|error| error.to_string())?;
+    let accepted_control = listener.accept().is_ok();
+    let control_value: Value =
+        serde_json::from_slice(&fs::read(&control_report).map_err(|error| error.to_string())?)
+            .map_err(|error| error.to_string())?;
+    if !control.status.success()
+        || control_value.get("ok").and_then(Value::as_bool) != Some(true)
+        || !accepted_control
+    {
+        let _ = b5_delete_exec_rule(config, &netns, exec_handle);
+        let _ = b5_delete_host_rule(host_handle);
+        return Err(
+            "exact nft relaxation did not expose the direct path to the outside-cgroup control"
+                .to_owned(),
+        );
+    }
+
+    let stale = b5_drain_events(config)?;
+    if !stale.is_empty() {
+        let _ = b5_delete_exec_rule(config, &netns, exec_handle);
+        let _ = b5_delete_host_rule(host_handle);
+        return Err(format!(
+            "nft relaxation began agent attempt with stale events: {stale:?}"
+        ));
+    }
+    let before = b5_counter(config, C_CONNECT4_DENY)?;
+    sandbox
+        .call(SandboxRequest::Start {
+            id: prepared.execution.id,
+        })
+        .await
+        .map_err(|error| error.to_string())?;
+    let report = b5_read_agent_report(prepared.pid).await?;
+    let after = b5_counter(config, C_CONNECT4_DENY)?;
+    let events = b5_drain_events(config)?;
+    let accepted_agent = listener.accept().is_ok();
+    b5_delete_exec_rule(config, &netns, exec_handle)?;
+    b5_delete_host_rule(host_handle)?;
+    let after_rules = b5_nft_ruleset(config, &netns)?;
+    let after_hash = b5_nft_hash(&after_rules)?;
+    let after_host_rules = b5_host_nft_ruleset()?;
+    let after_host_hash = b5_nft_hash(&after_host_rules)?;
+    if report.get("ok").and_then(Value::as_bool) != Some(false)
+        || after != before + 1
+        || accepted_agent
+        || events.len() != 1
+        || events[0].reason != B5_REASON_NOT_PROXY
+        || before_hash != after_hash
+        || before_host_hash != after_host_hash
+    {
+        return Err(format!(
+            "BPF did not remain the direct-path denial after exact nft relaxation: report={report} counter={before}->{after} accepted={accepted_agent} events={events:?} exec_hashes={before_hash}/{after_hash} host_hashes={before_host_hash}/{after_host_hash}"
+        ));
+    }
+    b5_cleanup_execution(&mut prepared, &table).await?;
+    write_b3_case_result(
+        &evidence,
+        &json!({
+            "case":"EXACT_NFT_RELAXATION",
+            "exact_rules": {
+                "execution_output":{"comment":exec_comment,"handle":exec_handle,"source":slot.execution,"destination":"10.201.0.2:16001","verdict":"accept"},
+                "host_input":{"comment":host_comment,"handle":host_handle,"interface":prepared.execution.id.tag().host_veth(),"source":slot.execution,"destination":"10.201.0.2:16001","verdict":"accept"}
+            },
+            "execution_ruleset":{"before":before_rules,"during":during_rules,"after":after_rules,"hash_before":before_hash,"hash_after":after_hash},
+            "host_ruleset":{"before":before_host_rules,"during":during_host_rules,"after":after_host_rules,"hash_before":before_host_hash,"hash_after":after_host_hash},
+            "restored":true,
+            "outside_cgroup_same_netns_control":{"result":control_value,"listener_accepted":accepted_control,"classification":"external qualification control; not a production Execution path"},
+            "execution_agent":{"result":report,"listener_accepted":accepted_agent,"connect4_deny_delta":after-before,"events":events},
+            "causal_attribution":"the exact nft exposure opened the path for a socket born outside the executions subtree; the production Execution remained denied by connect4"
+        }),
+    )
+}
+
+fn b5_foreign_load(
+    object: &Path,
+    root: &Path,
+    program: &str,
+    ancestor: &Path,
+) -> Result<Value, String> {
+    fs::create_dir(root).map_err(|error| format!("create foreign pin root: {error}"))?;
+    command_success(
+        Path::new("/usr/sbin/bpftool"),
+        &[
+            "prog",
+            "loadall",
+            object.to_str().ok_or("non-UTF8 foreign object")?,
+            root.to_str().ok_or("non-UTF8 foreign root")?,
+        ],
+    )
+    .map_err(|error| error.to_string())?;
+    let pin = root.join(program);
+    command_success(
+        Path::new("/usr/sbin/bpftool"),
+        &[
+            "cgroup",
+            "attach",
+            ancestor.to_str().ok_or("non-UTF8 ancestor")?,
+            "cgroup_inet4_connect",
+            "pinned",
+            pin.to_str().ok_or("non-UTF8 foreign pin")?,
+            "multi",
+        ],
+    )
+    .map_err(|error| error.to_string())?;
+    let program_info: Value = serde_json::from_slice(&command_output(
+        Path::new("/usr/sbin/bpftool"),
+        &[
+            "-j",
+            "prog",
+            "show",
+            "pinned",
+            pin.to_str().ok_or("non-UTF8 pin")?,
+        ],
+    )?)
+    .map_err(|error| error.to_string())?;
+    Ok(json!({"root":root,"pin":pin,"program":program_info}))
+}
+
+fn b5_foreign_detach(ancestor: &Path, root: &Path, program: &str) -> Result<(), String> {
+    let pin = root.join(program);
+    command_success(
+        Path::new("/usr/sbin/bpftool"),
+        &[
+            "cgroup",
+            "detach",
+            ancestor.to_str().ok_or("non-UTF8 ancestor")?,
+            "cgroup_inet4_connect",
+            "pinned",
+            pin.to_str().ok_or("non-UTF8 foreign pin")?,
+        ],
+    )
+    .map_err(|error| error.to_string())?;
+    for entry in fs::read_dir(root).map_err(|error| error.to_string())? {
+        fs::remove_file(entry.map_err(|error| error.to_string())?.path())
+            .map_err(|error| error.to_string())?;
+    }
+    fs::remove_dir(root).map_err(|error| error.to_string())
+}
+
+fn b5_start_foreign_enforcer(
+    binary: &Path,
+    config_yaml: &str,
+    evidence: &Path,
+    program: &str,
+) -> Result<Helper, String> {
+    let enforcer = Helper::spawn_enforcer(binary).map_err(|error| error.to_string())?;
+    let swept = enforcer
+        .hello(config_yaml)
+        .map_err(|error| format!("start production Enforcer with ancestor {program}: {error}"))?;
+    enforcer
+        .ensure_running()
+        .map_err(|error| error.to_string())?;
+    fs::write(
+        evidence.join("startup-with-foreign.json"),
+        serde_json::to_vec_pretty(&json!({
+            "foreign_program":program,
+            "foreign_present_before_startup":true,
+            "enforcer_swept":swept,
+            "production_backend":"cgroup-bpf"
+        }))
+        .map_err(|error| error.to_string())?,
+    )
+    .map_err(|error| error.to_string())?;
+    Ok(enforcer)
+}
+
+async fn run_b5_foreign_allow(
+    root: &Path,
+    config: &Config,
+    config_yaml: &str,
+    binary: &Path,
+    sandbox: &Helper,
+    outbound: Arc<AtomicUsize>,
+) -> Result<(), String> {
+    let evidence = root.join("cases/foreign_ancestor_allow");
+    fs::create_dir_all(&evidence).map_err(|error| error.to_string())?;
+    fs::write(root.join("current-case.txt"), "foreign_ancestor_allow\n")
+        .map_err(|error| error.to_string())?;
+    let ancestor = config
+        .cgroup
+        .root
+        .as_ref()
+        .ok_or("missing B5 cgroup root")?;
+    let foreign_root = PathBuf::from("/sys/fs/bpf/soglia-b5-foreign-allow");
+    let before = b5_foreign_load(
+        Path::new("/var/tmp/soglia-spike-2/bpf/foreign.o"),
+        &foreign_root,
+        "foreign_allow",
+        ancestor,
+    )?;
+    let enforcer = match b5_start_foreign_enforcer(
+        binary,
+        config_yaml,
+        &evidence,
+        "foreign_allow",
+    ) {
+        Ok(enforcer) => enforcer,
+        Err(error) => {
+            let _ = b5_foreign_detach(ancestor, &foreign_root, "foreign_allow");
+            return Err(error);
+        }
+    };
+    run_to_file(
+        &config.runtime.bpftool,
+        &[
+            "-j",
+            "cgroup",
+            "show",
+            ancestor.to_str().ok_or("non-UTF8 ancestor")?,
+        ],
+        &evidence.join("ancestor-direct.json"),
+    )?;
+    let executions = ancestor.join("executions");
+    run_to_file(
+        &config.runtime.bpftool,
+        &[
+            "-j",
+            "cgroup",
+            "show",
+            executions.to_str().ok_or("non-UTF8 executions")?,
+            "effective",
+        ],
+        &evidence.join("executions-effective.json"),
+    )?;
+    let run =
+        run_b3_single_lifecycle(B3SingleMode::Fin, root, config, sandbox, &enforcer, outbound).await;
+    let pin = foreign_root.join("foreign_allow");
+    let after: Result<Value, String> = serde_json::from_slice(&command_output(
+        &config.runtime.bpftool,
+        &[
+            "-j",
+            "prog",
+            "show",
+            "pinned",
+            pin.to_str().ok_or("non-UTF8 pin")?,
+        ],
+    )?)
+    .map_err(|error| error.to_string());
+    let health = enforcer
+        .call(EnforcerRequest::Health)
+        .await
+        .map_err(|error| format!("foreign-ALLOW backend health: {error}"));
+    drop(enforcer);
+    let release = b5_release_generation_for_topology(
+        config,
+        &evidence.join("generation-release"),
+        "foreign-allow-to-foreign-rewrite",
+    );
+    let detach = b5_foreign_detach(ancestor, &foreign_root, "foreign_allow");
+    run?;
+    let after = after?;
+    health?;
+    release?;
+    detach?;
+    let before_program = before.get("program").cloned().unwrap_or(Value::Null);
+    if before_program.get("id") != after.get("id") || before_program.get("tag") != after.get("tag")
+    {
+        return Err(
+            "foreign ancestor ALLOW identity changed during production lifecycle".to_owned(),
+        );
+    }
+    let fin_result: Value = serde_json::from_slice(
+        &fs::read(root.join("cases/fin/result.json")).map_err(|error| error.to_string())?,
+    )
+    .map_err(|error| error.to_string())?;
+    write_b3_case_result(
+        &evidence,
+        &json!({
+            "case":"FOREIGN_ANCESTOR_ALLOW",
+            "foreign_before":before,"foreign_after":after,
+            "ancestor_direct":serde_json::from_slice::<Value>(&fs::read(evidence.join("ancestor-direct.json")).map_err(|error| error.to_string())?).map_err(|error| error.to_string())?,
+            "child_effective":serde_json::from_slice::<Value>(&fs::read(evidence.join("executions-effective.json")).map_err(|error| error.to_string())?).map_err(|error| error.to_string())?,
+            "production_proxy_control":fin_result,
+            "foreign_preserved":true,"ordering_claim":"NONE"
+        }),
+    )
+}
+
+fn b5_add_host_observer(comment: &str) -> Result<u64, String> {
+    command_success(
+        Path::new("/usr/sbin/nft"),
+        &[
+            "insert",
+            "rule",
+            "inet",
+            "soglia_host",
+            "input",
+            "iifname",
+            "sgh-*",
+            "ip",
+            "daddr",
+            "10.201.0.2",
+            "tcp",
+            "dport",
+            "16001",
+            "counter",
+            "comment",
+            comment,
+        ],
+    )
+    .map_err(|error| error.to_string())?;
+    b5_nft_rule_handle(&b5_host_nft_ruleset()?, comment)
+}
+
+fn b5_delete_host_rule(handle: u64) -> Result<(), String> {
+    command_success(
+        Path::new("/usr/sbin/nft"),
+        &[
+            "delete",
+            "rule",
+            "inet",
+            "soglia_host",
+            "input",
+            "handle",
+            &handle.to_string(),
+        ],
+    )
+    .map_err(|error| error.to_string())
+}
+
+fn b5_add_host_accept(
+    interface: &str,
+    source: Ipv4Addr,
+    destination: Ipv4Addr,
+    port: u16,
+    comment: &str,
+) -> Result<u64, String> {
+    command_success(
+        Path::new("/usr/sbin/nft"),
+        &[
+            "insert",
+            "rule",
+            "inet",
+            "soglia_host",
+            "input",
+            "iifname",
+            interface,
+            "ip",
+            "saddr",
+            &source.to_string(),
+            "ip",
+            "daddr",
+            &destination.to_string(),
+            "tcp",
+            "dport",
+            &port.to_string(),
+            "ct",
+            "state",
+            "new",
+            "counter",
+            "accept",
+            "comment",
+            comment,
+        ],
+    )
+    .map_err(|error| error.to_string())?;
+    b5_nft_rule_handle(&b5_host_nft_ruleset()?, comment)
+}
+
+async fn run_b5_foreign_rewrite(
+    root: &Path,
+    config: &Config,
+    config_yaml: &str,
+    binary: &Path,
+    sandbox: &Helper,
+) -> Result<(), String> {
+    let evidence = root.join("cases/foreign_ancestor_rewrite_nft_barrier");
+    fs::create_dir_all(&evidence).map_err(|error| error.to_string())?;
+    fs::write(
+        root.join("current-case.txt"),
+        "foreign_ancestor_rewrite_nft_barrier\n",
+    )
+    .map_err(|error| error.to_string())?;
+    let ancestor = config
+        .cgroup
+        .root
+        .as_ref()
+        .ok_or("missing B5 cgroup root")?;
+    let foreign_root = PathBuf::from("/sys/fs/bpf/soglia-b5-foreign-rewrite");
+    let before_foreign = b5_foreign_load(
+        Path::new("/var/tmp/soglia-spike-2/bpf/foreign-s10.o"),
+        &foreign_root,
+        "foreign_rewrite",
+        ancestor,
+    )?;
+    let enforcer = match b5_start_foreign_enforcer(
+        binary,
+        config_yaml,
+        &evidence,
+        "foreign_rewrite",
+    ) {
+        Ok(enforcer) => enforcer,
+        Err(error) => {
+            let _ = b5_foreign_detach(ancestor, &foreign_root, "foreign_rewrite");
+            return Err(error);
+        }
+    };
+    run_to_file(
+        &config.runtime.bpftool,
+        &[
+            "-j",
+            "cgroup",
+            "show",
+            ancestor.to_str().ok_or("non-UTF8 ancestor")?,
+        ],
+        &evidence.join("ancestor-direct.json"),
+    )?;
+    run_to_file(
+        &config.runtime.bpftool,
+        &[
+            "-j",
+            "cgroup",
+            "show",
+            ancestor
+                .join("executions")
+                .to_str()
+                .ok_or("non-UTF8 executions")?,
+            "effective",
+        ],
+        &evidence.join("executions-effective.json"),
+    )?;
+    let before_host_rules = b5_host_nft_ruleset()?;
+    let before_host_hash = b5_nft_hash(&before_host_rules)?;
+    let host_comment = "soglia-b5-observe-foreign-rewrite-host";
+    let host_handle = b5_add_host_observer(host_comment)?;
+    let table = Arc::new(AttributionTable::new());
+    let mut prepared = prepare_b3_execution(
+        config,
+        &evidence,
+        sandbox,
+        &enforcer,
+        &table,
+        "b5-foreign-rewrite",
+        1,
+    )
+    .await?;
+    let netns = prepared.execution.id.tag().netns_name();
+    let before_exec_rules = b5_nft_ruleset(config, &netns)?;
+    let before_exec_hash = b5_nft_hash(&before_exec_rules)?;
+    let exec_comment = "soglia-b5-observe-foreign-rewrite-exec";
+    let exec_handle = b5_add_exec_rule(config, &netns, exec_comment, None)?;
+    let listener = StdTcpListener::bind((Ipv4Addr::new(10, 201, 0, 2), 16001))
+        .map_err(|error| format!("bind foreign-rewrite listener: {error}"))?;
+    listener
+        .set_nonblocking(true)
+        .map_err(|error| error.to_string())?;
+    let stale = b5_drain_events(config)?;
+    if !stale.is_empty() {
+        return Err(format!(
+            "foreign rewrite began with stale production events: {stale:?}"
+        ));
+    }
+    let connect_before = b5_counter(config, C_CONNECT4_DENY)?;
+    sandbox
+        .call(SandboxRequest::Start {
+            id: prepared.execution.id,
+        })
+        .await
+        .map_err(|error| error.to_string())?;
+    let report = b5_read_agent_report(prepared.pid).await?;
+    let connect_after = b5_counter(config, C_CONNECT4_DENY)?;
+    let production_events = b5_drain_events(config)?;
+    let during_exec_rules = b5_nft_ruleset(config, &netns)?;
+    let execution_rewritten_packets =
+        b5_nft_rule_packets(&during_exec_rules, exec_comment)?;
+    let during_host_rules = b5_host_nft_ruleset()?;
+    let host_rewritten_packets = b5_nft_rule_packets(&during_host_rules, host_comment)?;
+    let listener_accepted = listener.accept().is_ok();
+    let pin = foreign_root.join("foreign_rewrite");
+    let after_foreign: Value = serde_json::from_slice(&command_output(
+        &config.runtime.bpftool,
+        &[
+            "-j",
+            "prog",
+            "show",
+            "pinned",
+            pin.to_str().ok_or("non-UTF8 pin")?,
+        ],
+    )?)
+    .map_err(|error| error.to_string())?;
+    b5_delete_exec_rule(config, &netns, exec_handle)?;
+    let after_exec_rules = b5_nft_ruleset(config, &netns)?;
+    let after_exec_hash = b5_nft_hash(&after_exec_rules)?;
+    b5_delete_host_rule(host_handle)?;
+    b5_cleanup_execution(&mut prepared, &table).await?;
+    let after_host_rules = b5_host_nft_ruleset()?;
+    let after_host_hash = b5_nft_hash(&after_host_rules)?;
+    enforcer
+        .call(EnforcerRequest::Health)
+        .await
+        .map_err(|error| format!("foreign-rewrite backend health: {error}"))?;
+    drop(enforcer);
+    b5_release_generation_for_topology(
+        config,
+        &evidence.join("generation-release"),
+        "foreign-rewrite-to-final-cleanup",
+    )?;
+    b5_foreign_detach(ancestor, &foreign_root, "foreign_rewrite")?;
+    let before_program = before_foreign
+        .get("program")
+        .cloned()
+        .unwrap_or(Value::Null);
+    if report.get("ok").and_then(Value::as_bool) != Some(false)
+        || execution_rewritten_packets == 0
+        || host_rewritten_packets != 0
+        || listener_accepted
+        || connect_after != connect_before
+        || !production_events.is_empty()
+        || before_exec_hash != after_exec_hash
+        || before_host_hash != after_host_hash
+        || before_program.get("id") != after_foreign.get("id")
+        || before_program.get("tag") != after_foreign.get("tag")
+    {
+        return Err(format!(
+            "foreign rewrite/final nft barrier was not causal: report={report} execution_packets={execution_rewritten_packets} host_packets={host_rewritten_packets} accepted={listener_accepted} connect4={connect_before}->{connect_after} events={production_events:?} exec_hashes={before_exec_hash}/{after_exec_hash} host_hashes={before_host_hash}/{after_host_hash}"
+        ));
+    }
+    write_b3_case_result(
+        &evidence,
+        &json!({
+            "case":"FOREIGN_ANCESTOR_REWRITE_NFT_BARRIER",
+            "agent":report,"foreign_before":before_foreign,"foreign_after":after_foreign,
+            "ancestor_direct":serde_json::from_slice::<Value>(&fs::read(evidence.join("ancestor-direct.json")).map_err(|error| error.to_string())?).map_err(|error| error.to_string())?,
+            "child_effective":serde_json::from_slice::<Value>(&fs::read(evidence.join("executions-effective.json")).map_err(|error| error.to_string())?).map_err(|error| error.to_string())?,
+            "rewritten_destination":"10.201.0.2:16001",
+            "execution_nft":{"comment":exec_comment,"packets":execution_rewritten_packets,"ruleset_before":before_exec_rules,"ruleset_during":during_exec_rules,"ruleset_after":after_exec_rules,"hash_before":before_exec_hash,"hash_after":after_exec_hash},
+            "host_nft":{"comment":host_comment,"packets":host_rewritten_packets,"ruleset_before":before_host_rules,"ruleset_during":during_host_rules,"ruleset_after":after_host_rules,"hash_before":before_host_hash,"hash_after":after_host_hash},
+            "listener_accepted":listener_accepted,"production_connect4_deny_delta":connect_after-connect_before,
+            "production_events":production_events,
+            "nft_restored":true,"final_barrier":"Execution namespace nft output policy drop","ordering_observed":"production child admitted original proxy destination before ancestor rewrite",
+            "ordering_claim":"NONE beyond this recorded topology/run"
+        }),
+    )
+}
+
 async fn prepare_b3_execution<'a>(
     config: &Config,
     evidence: &Path,
@@ -4490,10 +6067,8 @@ async fn run_b3_freeze_resolve_race(
         // reaches the agent. The proxy-side outcome and effect counters are
         // authoritative for this race; established-tunnel closure is proven
         // independently by connect_tunnel_revocation.
-        let report_path = PathBuf::from(format!(
-            "/proc/{}/root/tmp/b3-report.jsonl",
-            execution.pid
-        ));
+        let report_path =
+            PathBuf::from(format!("/proc/{}/root/tmp/b3-report.jsonl", execution.pid));
         let report = fs::read_to_string(&report_path)
             .ok()
             .filter(|contents| !contents.trim().is_empty());
