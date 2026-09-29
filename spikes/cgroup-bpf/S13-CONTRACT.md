@@ -24,8 +24,8 @@ The expected inventory is ten named maps and six named links. Map type, key widt
 
 Startup performs this order:
 
-1. classify existing state as `Fresh`, `KnownCompatible`, `Incompatible` or `Unknown`;
-2. for known compatible residue, validate the trusted record, kernel identities, metadata and exact inventory, then remove only those recorded objects and prove their absence;
+1. classify existing state as `Fresh`, `KnownCompatible`, proposed `TargetReleased`, `Incompatible` or `Unknown`;
+2. for known compatible residue, validate the trusted record, kernel identities, metadata and exact inventory, then remove only those recorded objects and prove their absence; for proposed `TargetReleased` residue, apply the stricter released-target proof below before any removal;
 3. atomically publish durable `INTENT` for a new generation;
 4. create the expected maps, programs, links and pins;
 5. bind `soglia_meta` and validate the kernel contract;
@@ -40,8 +40,26 @@ S13 exercises interruption after durable INTENT, after pin creation, after kerne
 
 Stale policy, cookie or tuple entries are never inherited into the next generation. Old kernel IDs must be absent before readiness, and a stale generation cannot authorize a new request.
 
+### Proposed released-target recovery
+
+`TargetReleased` is a B6 design proposal, not an implemented recovery path. It applies only when a real systemd restart has released the cgroup named by the durable attachment-target record. It does not weaken the inode check and it is not a pathname-based ownership inference.
+
+The classifier may return `TargetReleased` only after the Sandbox kill-all barrier and only when every predicate below is proven:
+
+- the durable record is otherwise fully trusted and compatible, including schema, ABI, state ID, generation, object/configuration hashes, pin root and exact recorded map, program and link IDs;
+- every recorded link pin opens the exact recorded link, program and attach type, and bounded polling of `BPF_OBJ_GET_INFO_BY_FD` converges to cgroup ID zero for every link, proving that the kernel has detached it from any cgroup; target release may become visible asynchronously after cgroup removal, so every intermediate value and the deadline are recorded and no object is modified while waiting;
+- the current `executions/` cgroup has an ID different from the recorded attachment-target ID;
+- the current `executions/` cgroup is empty, is below the current systemd unit's delegated cgroup, and satisfies the normal ownership, mode and no-internal-process checks;
+- there is no unexpected pin, map, program, link, policy entry or per-Execution ownership record outside the exact durable inventory.
+
+The old cgroup ID being absent from the live cgroup hierarchy is recorded as corroborating evidence. It never substitutes for the per-link kernel result.
+
+Only after all predicates pass may recovery remove the exact recorded detached links, programs, maps and pins. It must prove every old ID and pin absent, create generation `N+1` against the current empty attachment target, prove the new policy, cookie and tuple maps empty, and publish READY last. No old map entry, `BindingKey` or authorization is imported.
+
+If any recorded link still reports a nonzero cgroup ID when the bounded observation window expires, if only some links are detached, if a recorded identity differs, or if the current target is non-empty or belongs to another unit, the classification is `Unknown`. Unknown state remains byte-for-byte and ID-for-ID untouched.
+
 ## Refusal and cleanup
 
-Malformed schema or ABI is `Incompatible`; missing trust, mismatched pin root/cgroup/kernel identity/metadata, or foreign inventory is `Unknown`. Both classifications leave the observed state byte-for-byte and ID-for-ID unchanged.
+Malformed schema or ABI is `Incompatible`; missing trust, mismatched pin root/cgroup/kernel identity/metadata, foreign inventory, or a released target that fails any `TargetReleased` predicate is `Unknown`. Both refusal classifications leave the observed state byte-for-byte and ID-for-ID unchanged.
 
 Normal cleanup first revalidates ownership, removes only the exact manifest, verifies BPF program/link/map baselines, and then removes the ownership record and run-owned directories. Any unverifiable or unowned residue produces `CLEANUP_FAIL` rather than a broad deletion.

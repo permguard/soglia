@@ -260,11 +260,30 @@ The state record extends the S13 contract with:
 - exact proxy endpoint, `P`, `C`, ring size and Resolve bound;
 - every live or quarantined Execution record and its lifecycle state.
 
-Startup classifies prior state as `Fresh`, `KnownCompatible`, `Incompatible` or `Unknown`.
+Startup classifies prior state as `Fresh`, `KnownCompatible`, proposed `TargetReleased`, `Incompatible` or `Unknown`.
 Fresh state may proceed.
 Known-compatible state is revalidated against the trusted record, kernel identities, metadata and exact inventory, swept only by recorded identity, and proven absent before replacement.
 Incompatible or unknown state fails closed without changing its kernel objects, map contents, pins or record.
 A pin root without a trusted record, an unexpected object, a mismatched tag/hash/inode or a stale generation is unknown.
+
+### Proposed `TargetReleased` classification
+
+`TargetReleased` is a B6 review draft and is not implemented or authorized for production by this document revision. It addresses the qualified systemd behavior in which `Restart=on-failure` releases the old delegated `executions/` cgroup and creates the same path with a different cgroup ID. It preserves `KillMode=mixed`: Executions remain descendants of the runtime service cgroup and systemd's kill barrier runs before recovery.
+
+The kernel behavior was observed in non-authoritative diagnostic run `b6-kernel-target-20260929T192357Z-r7` on Linux 6.8.0-142-generic aarch64 with systemd 255. For both direct cgroup removal and a true systemd restart, the same pinned link ID, program ID and attach type remained inspectable, while `BPF_OBJ_GET_INFO_BY_FD` changed the link's cgroup ID from the exact old nonzero value to zero. The change may become visible asynchronously after cgroup removal: the direct case recorded the old ID before the immediately following query returned zero. The old ID had no path in the live hierarchy; the restarted unit's new `executions/` target had a different ID; the link continued to reference the recorded program. This is evidence for that environment, not a portability claim; B1/B6 must repeat the proof for every supported kernel, architecture and systemd topology.
+
+Classification order is strict:
+
+1. validate the durable record, trust root, schema/ABI, state/generation, object/configuration hashes, pin root and complete recorded inventory without modifying anything;
+2. if the current attachment-target ID equals the recorded ID, use the existing `KnownCompatible` path and require every normal live-attachment predicate;
+3. if the IDs differ, consider `TargetReleased` only after the Sandbox kill-all barrier;
+4. open every recorded link by its exact pin, require its link ID, program ID and attach type to match the record, and poll `BPF_OBJ_GET_INFO_BY_FD` inside a fixed bounded window until every kernel-reported cgroup ID is zero; record every intermediate observation and perform no mutation while waiting;
+5. require all recorded maps and programs to match exactly, every expected pin to exist, and no unexpected owned or foreign object below the generation root;
+6. require the current `executions/` target to have an ID different from the recorded target, be empty, belong below the current systemd unit's delegated cgroup, and satisfy the normal ownership, mode and no-internal-process invariants.
+
+Only this complete conjunction is `TargetReleased`. Recovery then removes only the exact recorded detached links, programs, maps and pins, proves their IDs and pins absent, creates generation `N+1` against the new target, proves the new policy/cookie/tuple maps empty and publishes READY last. It never adopts the old generation or copies an authorization entry.
+
+A recorded link that remains at a nonzero cgroup ID when the bounded observation window expires, a partially detached link set, a link/program/map identity mismatch, an unexpected object, a missing expected pin, a non-empty replacement target or a target outside the current unit is `Unknown`. The backend must leave all observed kernel objects, map contents, pins and durable bytes unchanged and refuse readiness. A zero cgroup ID is accepted only from the kernel's link information; absence of a pathname, a name match or a failed query is not equivalent.
 
 For a new generation, initialize runs and cleans the complete disposable attach probe before publishing durable `INTENT`. It then publishes `INTENT`, creates maps/programs/links/pins, initializes `soglia_meta`, validates the live kernel contract, publishes the durable READY manifest and exposes backend readiness last.
 If an operation returns an ordinary synchronous error after `INTENT`, the same call removes only the exact recorded links/maps/pins, proves owned attachments and the generation root absent, and removes the record last. A process crash at any point does not execute this rollback and deliberately preserves `INTENT` for S13 recovery.
@@ -374,7 +393,7 @@ Pinned BPF links/maps and nft state remain kernel-resident.
 If the Enforcer died before freezing policy, active policy still admits only exact proxy connections, while the proxy is cancelled and the Sandbox kills all agents.
 It does not create a direct-outbound path.
 
-Restart readiness requires Sandbox kill/sweep first, then S13 classification and exact Enforcer recovery, empty attribution maps, new generation validation, live resolver service and final helper liveness checks.
+Restart readiness requires Sandbox kill/sweep first, then S13 classification and exact Enforcer recovery, empty attribution maps, new generation validation, live resolver service and final helper liveness checks. If systemd released the old attachment target, readiness additionally requires the complete proposed `TargetReleased` proof; the replacement target is never accepted merely because its pathname matches.
 No ingress or egress listener is announced ready before those gates complete.
 
 ## Foreign-BPF coexistence assumptions
@@ -519,6 +538,17 @@ PASS requires that proxy steering remains outside BPF and that restoration/clean
 B6 kills the loader/Enforcer, Supervisor and Sandbox at controlled lifecycle points, including active connections and unresolved proxy accepts.
 It repeats the S13 boundaries after durable INTENT, pin creation, kernel validation and durable READY before readiness, plus partial per-Execution prepare/activate/destroy boundaries.
 PASS requires immediate admission stop and effect cancellation, Sandbox kill-all, pinned early enforcement, exact known-compatible generation recovery, empty authorization maps, READY last and byte-for-byte preservation/refusal of incompatible or unknown state.
+
+If `TargetReleased` is implemented, B6 must additionally exercise the real production systemd topology with `Delegate=yes`, `KillMode=mixed` and `Restart=on-failure`, and must qualify all of these cases:
+
+- positive Enforcer-loss recovery: systemd kills all old agents, all six recorded links report cgroup ID zero, the replacement `executions/` is empty and has a different ID, exact old objects are removed, generation `N+1` has empty authorization maps and READY is last;
+- the same positive transition at every host-wide S13 crash boundary and every per-Execution prepare/activate/destroy boundary for which the service target is released;
+- a recorded link that still reports a nonzero cgroup ID after the bounded convergence window produces typed `Unknown`, preserves every byte and kernel ID, and never publishes readiness;
+- a mixed set in which only some links report zero, any recorded link/program/map identity mismatch, an unexpected pin/object, a non-empty new target, or a target outside the current unit likewise produces `Unknown` without mutation;
+- the old cgroup ID is absent from the live hierarchy, the new ID differs, and every timestamped `BPF_OBJ_GET_INFO_BY_FD` value through convergence for all six links is retained as raw evidence;
+- repeated refusal under `Restart=on-failure` records systemd restart behavior without admitting work or creating application, DNS or outbound effects.
+
+The direct-removal and true-systemd cases from `b6-kernel-target-20260929T192357Z-r7` qualify the underlying kernel signal only. They do not qualify the production recovery implementation or make B6 PASS.
 
 ### B7 — resource envelope, observability and cleanup
 

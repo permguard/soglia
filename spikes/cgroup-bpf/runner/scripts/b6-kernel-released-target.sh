@@ -64,13 +64,46 @@ clang -target bpf -O2 -g -Wall -Werror -D__TARGET_ARCH_arm64 \
 capture_link() {
     local pin=$1 output=$2 trace=$3
     set +e
-    strace -qq -f -e trace=bpf -o "$trace" bpftool -j -p link show pinned "$pin" \
-        > "$output" 2> "$output.stderr"
-    local status=$?
+    bpftool -j -p link show pinned "$pin" > "$output" 2> "$output.stderr"
+    local direct_status=$?
+    strace -qq -f -e trace=bpf -o "$trace" bpftool -j link show pinned "$pin" \
+        > "$output.trace-query.json" 2> "$output.trace-query.stderr"
+    local trace_status=$?
     set -e
-    printf '%s\n' "$status" > "$output.exit"
+    printf '%s\n' "$direct_status" > "$output.exit"
+    printf '%s\n' "$trace_status" > "$output.trace-query.exit"
     jq -e '.id > 0 and .prog_id > 0 and .type == "cgroup"' "$output" >/dev/null
+    jq -e --slurpfile direct "$output" '
+        .id == $direct[0].id and
+        .prog_id == $direct[0].prog_id and
+        .cgroup_id == $direct[0].cgroup_id and
+        .attach_type == $direct[0].attach_type
+    ' "$output.trace-query.json" >/dev/null
     grep -q 'BPF_OBJ_GET_INFO_BY_FD' "$trace"
+}
+
+wait_for_detached_link() {
+    local pin=$1 prefix=$2
+    local observations="$evidence/$prefix-detach-observations.jsonl"
+    : > "$observations"
+    for attempt in $(seq 0 500); do
+        local sample="$scratch/$prefix-detach-sample.json"
+        set +e
+        bpftool -j link show pinned "$pin" > "$sample" 2> "$sample.stderr"
+        local status=$?
+        set -e
+        jq -e '.id > 0 and .prog_id > 0 and .type == "cgroup"' "$sample" >/dev/null
+        jq -c --argjson attempt "$attempt" --argjson command_exit "$status" \
+            --arg timestamp_ns "$(date +%s%N)" \
+            '. + {attempt: $attempt, command_exit: $command_exit, timestamp_ns: $timestamp_ns}' \
+            "$sample" >> "$observations"
+        if [[ $(jq -r '.cgroup_id' "$sample") == 0 ]]; then
+            return 0
+        fi
+        sleep 0.002
+    done
+    echo "link did not report cgroup_id zero inside the bounded detach window" >&2
+    return 1
 }
 
 attach_and_pin() {
@@ -117,6 +150,7 @@ attach_and_pin() {
 
 record_release() {
     local old_id=$1 current_path=$2 pin=$3 prefix=$4
+    wait_for_detached_link "$pin" "$prefix"
     capture_link "$pin" "$evidence/$prefix-link-after.json" \
         "$evidence/$prefix-bpf-syscalls-after.txt"
     bpftool -j -p prog show id "$(cat "$evidence/$prefix-program-id.txt")" \
@@ -205,8 +239,10 @@ build_case_result() {
         --slurpfile before "$evidence/$name-link-before.json" \
         --slurpfile after "$evidence/$name-link-after.json" \
         --slurpfile current "$evidence/$name-current-target.json" \
+        --slurpfile detach_observations "$evidence/$name-detach-observations.jsonl" \
         --slurpfile program_before "$evidence/$name-program-before.json" \
         --slurpfile program_after "$evidence/$name-program-after.json" \
+        --arg case_name "$name" \
         --argjson old_id "$(cat "$evidence/$name-cgroup-id.txt")" \
         --rawfile old_paths "$evidence/$name-old-id-paths.txt" '
         ($before[0]) as $before |
@@ -219,13 +255,23 @@ build_case_result() {
           old_cgroup_id: $old_id,
           new_cgroup_id: $current.inode,
           old_id_paths: $old_paths,
+          detach_observations: $detach_observations,
           link_before: $before,
           link_after: $after,
           program_before: $program_before,
           program_after: $program_after,
           assertions: {
             old_id_unresolvable: ($old_paths | length == 0),
-            new_target_has_different_id: ($current.inode != $old_id),
+            detach_converged_within_bound: (
+              ($detach_observations | length) > 0 and
+              ($detach_observations[-1].cgroup_id == 0)
+            ),
+            released_target_state_is_exact: (
+              if $case_name == "systemd"
+              then $current.inode != null and $current.inode != $old_id
+              else $current.state == "ABSENT" and $current.inode == null
+              end
+            ),
             link_reports_detached: ($after.cgroup_id == 0),
             link_identity_preserved: (
               $after.id == $before.id and
