@@ -1,10 +1,17 @@
 # Copyright (c) 2022 Nitro Agility S.r.l.
 # SPDX-License-Identifier: Apache-2.0
 
-# Builds the VitePress site in `website/` and publishes it to GitHub Pages.
+# Checks that the VitePress site in `website/` builds, then asks permguard/permguard to republish.
 #
-# Pages serves the site below the repository path, so the build takes its base from
-# `configure-pages` rather than hard-coding it.
+# The Soglia site is served at docs.permguard.com/soglia, and that domain belongs to
+# permguard/permguard: its `website` workflow builds the Permguard documentation and this site
+# together and deploys them as one Pages site. This repository therefore publishes nothing itself.
+# A push to `main` sends that workflow a `soglia-docs` repository dispatch, so a change here goes
+# live in minutes instead of at the next daily rebuild.
+#
+# The dispatch needs the `DOCS_DISPATCH_TOKEN` secret: a fine-grained token limited to
+# permguard/permguard with the Contents read and write permission, which is what a repository
+# dispatch requires.
 
 name: website
 
@@ -14,15 +21,14 @@ on:
     paths:
       - "website/**"
       - ".github/workflows/website.yml"
+  pull_request:
+    paths:
+      - "website/**"
+      - ".github/workflows/website.yml"
   workflow_dispatch:
 
 permissions:
   contents: read
-
-# One deployment at a time; a newer push waits instead of cancelling one already publishing.
-concurrency:
-  group: pages
-  cancel-in-progress: false
 
 jobs:
   build:
@@ -38,28 +44,23 @@ jobs:
           node-version: 22
           cache: npm
           cache-dependency-path: website/package-lock.json
-      - id: pages
-        uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
       - name: install
         run: npm ci
       - name: build
         run: npm run docs:build
-        env:
-          VITEPRESS_BASE: ${{ steps.pages.outputs.base_path }}
-      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
-        with:
-          path: website/.vitepress/dist
 
-  deploy:
-    name: deploy
+  publish:
+    name: republish docs.permguard.com
     needs: build
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    permissions:
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - id: deployment
-        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
+      - name: dispatch the permguard website workflow
+        env:
+          GH_TOKEN: ${{ secrets.DOCS_DISPATCH_TOKEN }}
+        run: |
+          if [ -z "${GH_TOKEN}" ]; then
+            echo "::error::DOCS_DISPATCH_TOKEN is not set, so docs.permguard.com/soglia will only update at the daily rebuild."
+            exit 1
+          fi
+          gh api --method POST repos/permguard/permguard/dispatches -f event_type=soglia-docs
