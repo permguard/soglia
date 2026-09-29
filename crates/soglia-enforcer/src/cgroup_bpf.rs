@@ -23,7 +23,10 @@ use aya::programs::{
 };
 use aya::{Ebpf, EbpfLoader};
 use libbpf_rs::query::LinkTypeInfo;
-use libbpf_rs::{Link, MapCore, MapHandle, ProgramAttachType, ProgramHandle, ProgramType};
+use libbpf_rs::{
+    ErrorKind as LibbpfErrorKind, Link, MapCore, MapHandle, ProgramAttachType, ProgramHandle,
+    ProgramType,
+};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use soglia_core::config::Config;
@@ -508,14 +511,16 @@ impl CgroupBpfBackend {
         let programs_valid = state.programs.is_empty()
             || (state.programs.len() == PROGRAMS.len() && programs == expected_programs);
         let map_ids: BTreeSet<u32> = state.maps.iter().map(|map| map.id).collect();
+        let maps_published = map_ids.len() == MAPS.len() && !map_ids.contains(&0);
         if state.maps.len() != MAPS.len()
             || maps != expected_maps
             || state.links.len() != PROGRAMS.len()
             || links != expected_links
             || !programs_valid
             || (state.phase == ManifestPhase::Ready && state.programs.len() != PROGRAMS.len())
-            || (state.phase == ManifestPhase::Ready
-                && (map_ids.len() != MAPS.len() || map_ids.contains(&0)))
+            || (state.phase == ManifestPhase::Ready && !maps_published)
+            || (state.phase == ManifestPhase::Intent
+                && !intent_inventory_shape_valid(&state.maps, &state.programs, &state.links))
             || state.links.iter().any(|link| {
                 link.target_inode != state.attachment_inode
                     || match state.phase {
@@ -869,7 +874,21 @@ impl CgroupBpfBackend {
             validate_recorded_link_identity(link, observed)?;
         }
         for program in &state.programs {
-            validate_recorded_program(program)?;
+            let link_pin_exists = state
+                .links
+                .iter()
+                .any(|link| link.program_id == program.id && actual.contains(&link.pin));
+            match validate_recorded_program(program) {
+                Ok(()) => {}
+                Err(error) => {
+                    if state.phase != ManifestPhase::Intent
+                        || link_pin_exists
+                        || !recorded_program_is_absent(program)
+                    {
+                        return Err(error);
+                    }
+                }
+            }
         }
         Ok(())
     }
@@ -879,23 +898,28 @@ impl CgroupBpfBackend {
         state: &HostState,
         current_inode: u64,
     ) -> Result<(), BackendError> {
-        let actual = recursive_files(&state.pin_root, false)?;
-        if actual != Self::expected_pins(state)
-            || state.programs.len() != PROGRAMS.len()
-            || state.links.len() != PROGRAMS.len()
-            || state.maps.iter().any(|map| map.id == 0)
-            || state.programs.iter().any(|program| program.id == 0)
-            || state
+        let actual = recursive_files(&state.pin_root, state.phase == ManifestPhase::Intent)?;
+        let complete = actual == Self::expected_pins(state)
+            && state.programs.len() == PROGRAMS.len()
+            && state.links.len() == PROGRAMS.len()
+            && state.maps.iter().all(|map| map.id != 0)
+            && state.programs.iter().all(|program| program.id != 0)
+            && state
                 .links
                 .iter()
-                .any(|link| link.id == 0 || link.program_id == 0 || link.link_type != "Cgroup")
-        {
+                .all(|link| link.id != 0 && link.program_id != 0 && link.link_type == "Cgroup");
+        if state.phase == ManifestPhase::Ready && !complete {
             return Err(BackendError::Unknown(
                 "UNKNOWN released-target inventory is incomplete; no object was changed".to_owned(),
             ));
         }
 
-        self.wait_for_released_links(state)?;
+        let observable_links = state
+            .links
+            .iter()
+            .filter(|link| actual.contains(&link.pin))
+            .collect::<Vec<_>>();
+        self.wait_for_released_links(&observable_links)?;
         let target = self.replacement_target_state(state, current_inode)?;
         validate_replacement_target(target)?;
 
@@ -937,12 +961,12 @@ impl CgroupBpfBackend {
         Ok(())
     }
 
-    fn wait_for_released_links(&self, state: &HostState) -> Result<(), BackendError> {
+    fn wait_for_released_links(&self, links: &[&LinkManifest]) -> Result<(), BackendError> {
         let started = Instant::now();
         loop {
             let elapsed = started.elapsed();
-            let mut observations = Vec::with_capacity(state.links.len());
-            for link in &state.links {
+            let mut observations = Vec::with_capacity(links.len());
+            for link in links {
                 let observed = inspect_recorded_link(link)?;
                 validate_recorded_link_identity(link, observed)?;
                 eprintln!(
@@ -956,7 +980,7 @@ impl CgroupBpfBackend {
                 );
                 observations.push(observed);
             }
-            if all_recorded_links_released(&observations, PROGRAMS.len()) {
+            if all_recorded_links_released(&observations, links.len()) {
                 return Ok(());
             }
             if elapsed >= TARGET_RELEASED_DETACH_TIMEOUT {
@@ -2350,6 +2374,35 @@ fn validate_recorded_program(program: &ProgramManifest) -> Result<(), BackendErr
     Ok(())
 }
 
+fn recorded_program_is_absent(program: &ProgramManifest) -> bool {
+    matches!(
+        ProgramHandle::from_prog_id(program.id),
+        Err(error) if error.kind() == LibbpfErrorKind::NotFound
+    )
+}
+
+fn intent_inventory_shape_valid(
+    maps: &[MapManifest],
+    programs: &[ProgramManifest],
+    links: &[LinkManifest],
+) -> bool {
+    let map_ids = maps.iter().map(|map| map.id).collect::<BTreeSet<_>>();
+    let maps_unpublished = maps.iter().all(|map| map.id == 0);
+    let maps_published = map_ids.len() == MAPS.len() && !map_ids.contains(&0);
+    let links_unpublished = links
+        .iter()
+        .all(|link| link.id == 0 && link.program_id == 0 && link.link_type.is_empty());
+    let links_published = links
+        .iter()
+        .all(|link| link.id != 0 && link.program_id != 0 && link.link_type == "Cgroup");
+
+    if programs.is_empty() {
+        links_unpublished && (maps_unpublished || maps_published)
+    } else {
+        programs.len() == PROGRAMS.len() && maps_published && links_published
+    }
+}
+
 fn validate_replacement_target(target: ReplacementTargetState) -> Result<(), BackendError> {
     if target.recorded_inode == 0
         || target.current_inode == target.recorded_inode
@@ -3033,6 +3086,102 @@ mod tests {
             attach_type: ProgramAttachType::CgroupInet4Connect as u32,
             cgroup_id: 0,
         }
+    }
+
+    fn intent_maps(published: bool) -> Vec<MapManifest> {
+        MAPS.iter()
+            .enumerate()
+            .map(|(index, name)| MapManifest {
+                name: (*name).to_owned(),
+                id: if published { 100 + index as u32 } else { 0 },
+                key_size: 0,
+                value_size: 0,
+                max_entries: 0,
+                pin: PathBuf::from(format!("/sys/fs/bpf/soglia/test/maps/{name}")),
+            })
+            .collect()
+    }
+
+    fn intent_programs() -> Vec<ProgramManifest> {
+        PROGRAMS
+            .iter()
+            .enumerate()
+            .map(|(index, program)| ProgramManifest {
+                symbol: program.symbol.to_owned(),
+                id: 200 + index as u32,
+                kernel_name: program.symbol.to_owned(),
+                program_type: "test".to_owned(),
+                tag: 300 + index as u64,
+            })
+            .collect()
+    }
+
+    fn intent_links(published: bool) -> Vec<LinkManifest> {
+        PROGRAMS
+            .iter()
+            .enumerate()
+            .map(|(index, program)| LinkManifest {
+                name: program.pin.to_owned(),
+                id: if published { 400 + index as u32 } else { 0 },
+                program_id: if published { 200 + index as u32 } else { 0 },
+                link_type: if published { "Cgroup" } else { "" }.to_owned(),
+                target_inode: 41,
+                pin: PathBuf::from(format!("/sys/fs/bpf/soglia/test/links/{}", program.pin)),
+            })
+            .collect()
+    }
+
+    #[test]
+    fn target_released_accepts_only_phase_valid_intent_inventory_shapes() {
+        let unpublished_maps = intent_maps(false);
+        let published_maps = intent_maps(true);
+        let unpublished_links = intent_links(false);
+        let published_links = intent_links(true);
+        let programs = intent_programs();
+
+        assert!(intent_inventory_shape_valid(
+            &unpublished_maps,
+            &[],
+            &unpublished_links
+        ));
+        assert!(intent_inventory_shape_valid(
+            &published_maps,
+            &[],
+            &unpublished_links
+        ));
+        assert!(intent_inventory_shape_valid(
+            &published_maps,
+            &programs,
+            &published_links
+        ));
+
+        let mut partial_maps = published_maps.clone();
+        partial_maps[0].id = 0;
+        assert!(!intent_inventory_shape_valid(
+            &partial_maps,
+            &[],
+            &unpublished_links
+        ));
+
+        let mut partial_links = published_links.clone();
+        partial_links[0].id = 0;
+        partial_links[0].program_id = 0;
+        partial_links[0].link_type.clear();
+        assert!(!intent_inventory_shape_valid(
+            &published_maps,
+            &programs,
+            &partial_links
+        ));
+        assert!(!intent_inventory_shape_valid(
+            &published_maps,
+            &programs[..PROGRAMS.len() - 1],
+            &published_links
+        ));
+        assert!(!intent_inventory_shape_valid(
+            &published_maps,
+            &[],
+            &published_links
+        ));
     }
 
     #[test]
