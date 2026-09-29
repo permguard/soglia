@@ -872,9 +872,39 @@ kernfs identity carrying generation information and did not reuse a destroyed
 identity during the bounded lifecycle. The required stale-nonce and generation
 classes were nevertheless exercised deterministically by the mismatch matrix.
 
-B1, B2 and B3 are therefore qualified on production commit `bc55e76` and
-harness/source fingerprint `668562d`. B4 through B7 remain `NOT_EXECUTED` and
-require their own reviewed authoritative evidence.
+The current and first authoritative B4 qualification is
+[`b4-20260929T084513Z-8677`](evidence/authoritative/b4-20260929T084513Z-8677/).
+It qualifies production commit
+`bc55e76725c251a5ae3b89360b014563dd8249df` with harness/source fingerprint
+`aff9c3645a6751968c94c596215e027614900614` and an empty working-tree diff.
+The run records `authoritative: true`, B4 `PASS` and all ten capacity and
+publication cases `PASS`. In particular, the isolated cookie-full case accepts
+exactly four live sockets and denies the fifth synchronously without a proxy
+accept, while the event-ring case observes 256 client denials, a matching
+`C_CONNECT4_DENY` delta of 256 and nonzero dropped-event accounting. The
+post-refusal control for `admission_limit` and the post-saturation control for
+`resolve_queue_full` both resolve to the correct Execution. Cleanup is `PASS`;
+programs are `EXTERNAL_CHURN` only for equivalent systemd replacements, links
+and maps are `MATCH`, all six production program tags are recorded, and all 89
+entries in `SHA256SUMS` verify.
+
+Diagnostic run `b4-diagnostic-20260929T080354Z-198174` remains a
+`CLEANUP_FAIL`. It observed one added `sd_devices`/`cgroup_device` program later
+located live on `fwupd.service`, but the run had not captured the attachment
+path and therefore lacked the evidence required to call it external. Harness
+commit `aff9c36` resolves that evidence gap without weakening cleanup: B1-B4
+now share a classifier that accepts `EXTERNAL_ADDITION` or `EXTERNAL_REMOVAL`
+only when every changed program has a tag distinct from all six observed
+production tags, no Soglia pin or link reference, and direct attachments solely
+outside the Soglia cgroup subtree recorded from `bpftool cgroup tree`.
+Unattached programs, programs inside the Soglia subtree, production-tag
+matches and incomplete evidence remain cleanup failures. Five focused tests
+cover the accepted external addition/removal and the required negative cases.
+
+B1, B2 and B3 remain qualified on production commit `bc55e76`: each passed
+under the earlier, more restrictive inventory rule. B1 through B4 are therefore
+qualified; B5 through B7 remain `NOT_EXECUTED` and require their own reviewed
+authoritative evidence.
 
 Historical note: the first authoritative B2 run
 [`b2-20260928T060551Z-8414`](evidence/authoritative/b2-20260928T060551Z-8414/)
