@@ -275,6 +275,10 @@ mod runtime {
             drop(supervisor);
             return Err("sandboxd exited before startup.ready".to_owned());
         }
+        if !supervisor.mark_ready() {
+            drop(supervisor);
+            return Err("the runtime stopped admission before startup.ready".to_owned());
+        }
         info!(event.name = "startup.ready", ingress = %config.ingress.listen, egress = %proxy_address, "soglia is ready");
 
         let mut terminate = signal(SignalKind::terminate()).map_err(|error| error.to_string())?;

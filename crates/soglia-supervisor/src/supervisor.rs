@@ -26,7 +26,7 @@
 //! number of cleanup failures is reached no new Execution is admitted.
 
 use std::net::{IpAddr, SocketAddr};
-use std::sync::atomic::{AtomicBool, AtomicU32, Ordering};
+use std::sync::atomic::{AtomicBool, AtomicU8, AtomicU32, Ordering};
 use std::sync::{Arc, Mutex};
 use std::time::Duration;
 
@@ -66,16 +66,20 @@ struct Inner {
 
 /// The one-way runtime state shared by admission, effect cancellation and helper-loss observers.
 struct RuntimeState {
-    admitting: AtomicBool,
+    admission: AtomicU8,
     helper_lost: AtomicBool,
     fatal: watch::Sender<bool>,
     cancel: watch::Sender<bool>,
 }
 
 impl RuntimeState {
+    const STARTING: u8 = 0;
+    const READY: u8 = 1;
+    const STOPPED: u8 = 2;
+
     fn new(fatal: watch::Sender<bool>, cancel: watch::Sender<bool>) -> Self {
         Self {
-            admitting: AtomicBool::new(true),
+            admission: AtomicU8::new(Self::STARTING),
             helper_lost: AtomicBool::new(false),
             fatal,
             cancel,
@@ -83,11 +87,23 @@ impl RuntimeState {
     }
 
     fn is_admitting(&self) -> bool {
-        self.admitting.load(Ordering::SeqCst)
+        self.admission.load(Ordering::SeqCst) == Self::READY
+    }
+
+    /// Opens admission exactly once, unless a concurrent failure stopped it first.
+    fn mark_ready(&self) -> bool {
+        self.admission
+            .compare_exchange(
+                Self::STARTING,
+                Self::READY,
+                Ordering::SeqCst,
+                Ordering::SeqCst,
+            )
+            .is_ok()
     }
 
     fn stop_admitting(&self) {
-        self.admitting.store(false, Ordering::SeqCst);
+        self.admission.store(Self::STOPPED, Ordering::SeqCst);
     }
 
     /// Linearizes helper loss and broadcasts cancellation exactly once.
@@ -181,6 +197,14 @@ impl Supervisor {
     /// Stops admitting new Executions.
     pub fn stop_admitting(&self) {
         self.inner.runtime.stop_admitting();
+    }
+
+    /// Opens admission after every startup readiness gate has passed.
+    ///
+    /// Returns false if a concurrent failure stopped admission first. Once stopped, admission can
+    /// only be restored by a new runtime process.
+    pub fn mark_ready(&self) -> bool {
+        self.inner.runtime.mark_ready()
     }
 
     /// Enters the one-way fail-closed transition after a helper child exits unexpectedly.
@@ -727,6 +751,8 @@ mod tests {
         let (cancel, cancel_seen) = watch::channel(false);
         let state = RuntimeState::new(fatal, cancel);
 
+        assert!(!state.is_admitting());
+        assert!(state.mark_ready());
         assert!(state.is_admitting());
         assert!(state.begin_helper_loss());
         assert!(!state.is_admitting());
@@ -739,5 +765,39 @@ mod tests {
         state.finish_helper_loss();
         assert!(*fatal_seen.borrow());
         assert!(!state.begin_helper_loss(), "duplicate loss is a no-op");
+    }
+
+    #[test]
+    fn admission_stays_closed_until_startup_is_ready() {
+        let (fatal, _) = watch::channel(false);
+        let (cancel, _) = watch::channel(false);
+        let state = RuntimeState::new(fatal, cancel);
+
+        assert!(!state.is_admitting());
+        assert!(state.mark_ready());
+        assert!(state.is_admitting());
+    }
+
+    #[test]
+    fn stopping_before_readiness_is_irreversible() {
+        let (fatal, _) = watch::channel(false);
+        let (cancel, _) = watch::channel(false);
+        let state = RuntimeState::new(fatal, cancel);
+
+        state.stop_admitting();
+        assert!(!state.mark_ready());
+        assert!(!state.is_admitting());
+    }
+
+    #[test]
+    fn stopping_after_readiness_is_irreversible() {
+        let (fatal, _) = watch::channel(false);
+        let (cancel, _) = watch::channel(false);
+        let state = RuntimeState::new(fatal, cancel);
+
+        assert!(state.mark_ready());
+        state.stop_admitting();
+        assert!(!state.mark_ready());
+        assert!(!state.is_admitting());
     }
 }
