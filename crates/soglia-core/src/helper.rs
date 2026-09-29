@@ -13,6 +13,94 @@ use serde::{Deserialize, Serialize};
 
 use crate::id::{BindingKey, ExecutionId, ExecutionNonce, ResourceTag};
 
+/// Stable startup-refusal classes shared by privileged helpers and the Supervisor.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+pub enum RefusalClass {
+    /// A durable schema, ABI, object or configuration is incompatible with this binary.
+    Incompatible,
+    /// Owned state cannot be proven from the exact durable and kernel identities.
+    Unknown,
+    /// A required kernel or environment capability is absent.
+    Unsupported,
+    /// A host operation failed independently of owned-state compatibility.
+    Infrastructure,
+}
+
+impl RefusalClass {
+    /// Stable process status used by the production composition root.
+    pub const fn exit_code(self) -> u8 {
+        match self {
+            Self::Incompatible => 20,
+            Self::Unknown => 21,
+            Self::Unsupported => 22,
+            Self::Infrastructure => 23,
+        }
+    }
+}
+
+/// A typed helper failure. Diagnostic text never determines the trusted classification.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub enum HelperFailure {
+    /// A classified refusal or host failure.
+    Refused {
+        /// Stable refusal class.
+        class: RefusalClass,
+        /// Human-readable diagnostic detail, never used for classification.
+        detail: String,
+    },
+    /// The kernel rejected the production cgroup-BPF link topology.
+    IncompatibleBpfTopology {
+        /// Production hook whose link was rejected.
+        hook: String,
+        /// Linux errno from `BPF_LINK_CREATE`, when available.
+        errno: Option<i32>,
+        /// Human-readable diagnostic detail, never used for classification.
+        detail: String,
+    },
+}
+
+impl HelperFailure {
+    /// Stable process status for the exact failure kind.
+    pub const fn exit_code(&self) -> u8 {
+        match self {
+            Self::Refused { class, .. } => class.exit_code(),
+            Self::IncompatibleBpfTopology { .. } => 24,
+        }
+    }
+
+    /// Stable event value, independent of diagnostic text.
+    pub const fn event_class(&self) -> &'static str {
+        match self {
+            Self::Refused {
+                class: RefusalClass::Incompatible,
+                ..
+            } => "INCOMPATIBLE",
+            Self::Refused {
+                class: RefusalClass::Unknown,
+                ..
+            } => "UNKNOWN",
+            Self::Refused {
+                class: RefusalClass::Unsupported,
+                ..
+            } => "UNSUPPORTED",
+            Self::Refused {
+                class: RefusalClass::Infrastructure,
+                ..
+            } => "INFRASTRUCTURE",
+            Self::IncompatibleBpfTopology { .. } => "INCOMPATIBLE_BPF_TOPOLOGY",
+        }
+    }
+
+    /// Human-readable detail retained for trusted operator diagnostics.
+    pub fn detail(&self) -> &str {
+        match self {
+            Self::Refused { detail, .. } | Self::IncompatibleBpfTopology { detail, .. } => detail,
+        }
+    }
+}
+
 /// The canonical IPv4 TCP tuple used by Candidate-A Resolve.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -245,10 +333,10 @@ pub enum HelperResponse {
         /// How it ended.
         outcome: ExitOutcome,
     },
-    /// The request failed; the reason is for the log.
+    /// The request failed with a stable classification and diagnostic detail.
     Failed {
-        /// What went wrong.
-        reason: String,
+        /// What went wrong, classified independently of its text.
+        failure: HelperFailure,
     },
 }
 
@@ -347,6 +435,60 @@ mod tests {
         assert_eq!(
             serde_json::from_slice::<ResolverReply>(&encoded).unwrap(),
             reply
+        );
+    }
+
+    #[test]
+    fn helper_failures_round_trip_without_text_classification() {
+        let failures = [
+            HelperFailure::Refused {
+                class: RefusalClass::Incompatible,
+                detail: "schema mismatch".into(),
+            },
+            HelperFailure::Refused {
+                class: RefusalClass::Unknown,
+                detail: "untrusted pin root".into(),
+            },
+            HelperFailure::Refused {
+                class: RefusalClass::Unsupported,
+                detail: "missing kernel helper".into(),
+            },
+            HelperFailure::Refused {
+                class: RefusalClass::Infrastructure,
+                detail: "host I/O failed".into(),
+            },
+            HelperFailure::IncompatibleBpfTopology {
+                hook: "soglia_connect4".into(),
+                errno: Some(1),
+                detail: "exclusive ancestor".into(),
+            },
+        ];
+        for failure in failures {
+            let response = HelperResponse::Failed {
+                failure: failure.clone(),
+            };
+            let encoded = serde_json::to_vec(&response).unwrap();
+            assert_eq!(
+                serde_json::from_slice::<HelperResponse>(&encoded).unwrap(),
+                response
+            );
+        }
+    }
+
+    #[test]
+    fn refusal_exit_codes_are_stable_and_distinct() {
+        assert_eq!(RefusalClass::Incompatible.exit_code(), 20);
+        assert_eq!(RefusalClass::Unknown.exit_code(), 21);
+        assert_eq!(RefusalClass::Unsupported.exit_code(), 22);
+        assert_eq!(RefusalClass::Infrastructure.exit_code(), 23);
+        assert_eq!(
+            HelperFailure::IncompatibleBpfTopology {
+                hook: "soglia_connect4".into(),
+                errno: Some(1),
+                detail: String::new(),
+            }
+            .exit_code(),
+            24
         );
     }
 }

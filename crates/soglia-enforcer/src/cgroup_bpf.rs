@@ -320,11 +320,20 @@ impl CgroupBpfBackend {
 
     fn classify_and_recover(&self) -> Result<(ExecutionNonce, u64, Vec<String>), BackendError> {
         validate_state_file(&self.state_path())?;
-        let recorded: Option<HostState> = records::read(&self.settings.state_dir, STATE_FILE)?;
+        let recorded: Option<HostState> = records::read(&self.settings.state_dir, STATE_FILE)
+            .map_err(|error| {
+                if error.kind() == io::ErrorKind::InvalidData {
+                    BackendError::Incompatible(format!(
+                        "INCOMPATIBLE cgroup-BPF ownership record: {error}"
+                    ))
+                } else {
+                    BackendError::from(error)
+                }
+            })?;
         let pin_entries = directory_entries(&self.settings.configured_pin_root)?;
         let Some(mut state) = recorded else {
             if !pin_entries.is_empty() {
-                return Err(BackendError::Refused(format!(
+                return Err(BackendError::Unknown(format!(
                     "UNKNOWN cgroup-BPF state: {} contains pins without a trusted record",
                     self.settings.configured_pin_root.display()
                 )));
@@ -335,10 +344,15 @@ impl CgroupBpfBackend {
             || state.abi != BPF_ABI
             || state.object_sha256 != Self::object_hash()
             || state.config_sha256 != self.config_hash()
-            || state.attachment_target != self.settings.executions
         {
-            return Err(BackendError::Refused(
+            return Err(BackendError::Incompatible(
                 "INCOMPATIBLE cgroup-BPF ownership state; kernel objects were left untouched"
+                    .to_owned(),
+            ));
+        }
+        if state.attachment_target != self.settings.executions {
+            return Err(BackendError::Unknown(
+                "UNKNOWN cgroup-BPF attachment target; kernel objects were left untouched"
                     .to_owned(),
             ));
         }
@@ -347,7 +361,7 @@ impl CgroupBpfBackend {
             .configured_pin_root
             .join(format!("{}-g{}", state.state_id, state.generation));
         if state.generation == 0 || state.pin_root != expected_pin_root {
-            return Err(BackendError::Refused(
+            return Err(BackendError::Unknown(
                 "UNKNOWN cgroup-BPF ownership paths; kernel objects were left untouched".to_owned(),
             ));
         }
@@ -358,15 +372,14 @@ impl CgroupBpfBackend {
             ManifestPhase::Intent => actual_roots.is_subset(&expected_roots),
         };
         if !roots_match {
-            return Err(BackendError::Refused(
+            return Err(BackendError::Unknown(
                 "UNKNOWN cgroup-BPF generation exists outside the recorded pin root".to_owned(),
             ));
         }
         let current_inode = fs::metadata(&self.settings.executions)?.ino();
         if current_inode != state.attachment_inode {
-            return Err(BackendError::Refused(
-                "INCOMPATIBLE attachment-target inode; kernel objects were left untouched"
-                    .to_owned(),
+            return Err(BackendError::Unknown(
+                "UNKNOWN attachment-target inode; kernel objects were left untouched".to_owned(),
             ));
         }
         self.validate_manifest_structure(&state)?;
@@ -379,7 +392,7 @@ impl CgroupBpfBackend {
             self.publish_state(&state)?;
         }
         if has_child_cgroup(&self.settings.executions)? {
-            return Err(BackendError::Refused(
+            return Err(BackendError::Unknown(
                 "Execution cgroups remain after the mandatory Sandbox sweep".to_owned(),
             ));
         }
@@ -457,7 +470,7 @@ impl CgroupBpfBackend {
                 .iter()
                 .any(|link| link.target_inode != state.attachment_inode)
         {
-            return Err(BackendError::Refused(
+            return Err(BackendError::Unknown(
                 "UNKNOWN ownership manifest structure; no kernel object was changed".to_owned(),
             ));
         }
@@ -469,7 +482,7 @@ impl CgroupBpfBackend {
                 || execution.binding.backend_generation != state.generation
                 || !cgroups.insert(execution.cgroup_inode)
             {
-                return Err(BackendError::Refused(
+                return Err(BackendError::Unknown(
                     "UNKNOWN per-Execution ownership record; no kernel object was changed"
                         .to_owned(),
                 ));
@@ -612,7 +625,7 @@ impl CgroupBpfBackend {
                 ))
             })?;
         if reported_id != attachment.id || field("name")? != attachment.name {
-            return Err(BackendError::Refused(
+            return Err(BackendError::Unknown(
                 "cgroup and program inventory identities disagree".to_owned(),
             ));
         }
@@ -654,7 +667,7 @@ impl CgroupBpfBackend {
     ) -> Result<Option<Vec<AttachmentFingerprint>>, BackendError> {
         let direct = self.cgroup_attachments(false)?;
         if require_complete && direct.len() != PROGRAMS.len() {
-            return Err(BackendError::Refused(format!(
+            return Err(BackendError::Unknown(format!(
                 "direct production attachment count is {}, expected {}",
                 direct.len(),
                 PROGRAMS.len()
@@ -667,7 +680,7 @@ impl CgroupBpfBackend {
                 .iter()
                 .find(|program| program.id == attachment.id)
                 .ok_or_else(|| {
-                    BackendError::Refused(
+                    BackendError::Unknown(
                         "unrecorded direct BPF attachment exists on executions".to_owned(),
                     )
                 })?;
@@ -678,7 +691,7 @@ impl CgroupBpfBackend {
                 || attachment.attach_type != expected_type
                 || attachment.attach_flags.as_deref() != Some("multi")
             {
-                return Err(BackendError::Refused(format!(
+                return Err(BackendError::Unknown(format!(
                     "direct attachment for {} does not match its recorded identity",
                     program.symbol
                 )));
@@ -695,7 +708,7 @@ impl CgroupBpfBackend {
                         && attachment.name == program.kernel_name
                         && attachment.attach_type == expected_type
                 }) {
-                    return Err(BackendError::Refused(format!(
+                    return Err(BackendError::Unknown(format!(
                         "{} is not effective on the production subtree",
                         program.symbol
                     )));
@@ -710,7 +723,7 @@ impl CgroupBpfBackend {
                 );
                 return Ok(Some(current));
             }
-            return Err(BackendError::Refused(
+            return Err(BackendError::Unknown(
                 "non-owned ancestor BPF inventory changed".to_owned(),
             ));
         }
@@ -725,7 +738,7 @@ impl CgroupBpfBackend {
             ManifestPhase::Intent => actual.is_subset(&expected),
         };
         if !inventory_matches {
-            return Err(BackendError::Refused(
+            return Err(BackendError::Unknown(
                 "UNKNOWN pin inventory; no recorded BPF object was changed".to_owned(),
             ));
         }
@@ -768,7 +781,7 @@ impl CgroupBpfBackend {
             if value.as_deref()
                 != Some(metadata_value(state.state_id, state.generation)?.as_slice())
             {
-                return Err(BackendError::Refused(
+                return Err(BackendError::Unknown(
                     "UNKNOWN cgroup-BPF generation metadata; no object was changed".to_owned(),
                 ));
             }
@@ -786,7 +799,7 @@ impl CgroupBpfBackend {
                 || info.id() != link.id
                 || info.program_id() != link.program_id
             {
-                return Err(BackendError::Refused(format!(
+                return Err(BackendError::Unknown(format!(
                     "UNKNOWN link identity at {}; no object was changed",
                     link.pin.display()
                 )));
@@ -1417,20 +1430,21 @@ impl EnforcementBackend for CgroupBpfBackend {
 
     fn probe_capabilities(&self) -> Result<(), BackendError> {
         if !system::is_root() {
-            return Err(BackendError::Refused(
+            return Err(BackendError::Unsupported(
                 "the enforcer must run as root".to_owned(),
             ));
         }
         self.network.probe_capabilities()?;
-        system::run(&self.settings.bpftool, &["version"], None)
-            .map_err(|error| BackendError::Refused(format!("bpftool is unavailable: {error}")))?;
+        system::run(&self.settings.bpftool, &["version"], None).map_err(|error| {
+            BackendError::Unsupported(format!("bpftool is unavailable: {error}"))
+        })?;
         let target = fs::metadata(&self.settings.executions).map_err(|error| {
-            BackendError::Refused(format!(
+            BackendError::Unsupported(format!(
                 "the delegated executions cgroup is not ready: {error}"
             ))
         })?;
         if !target.is_dir() {
-            return Err(BackendError::Refused(
+            return Err(BackendError::Unsupported(
                 "the delegated executions target is not a directory".to_owned(),
             ));
         }
@@ -1440,10 +1454,10 @@ impl EnforcementBackend for CgroupBpfBackend {
                 .nth(1)
                 .is_some_and(|tail| tail.starts_with("bpf "))
         }) {
-            return Err(BackendError::Refused("bpffs is not mounted".to_owned()));
+            return Err(BackendError::Unsupported("bpffs is not mounted".to_owned()));
         }
         if !Path::new("/sys/kernel/btf/vmlinux").is_file() {
-            return Err(BackendError::Refused(
+            return Err(BackendError::Unsupported(
                 "kernel BTF is unavailable".to_owned(),
             ));
         }
@@ -1806,7 +1820,7 @@ impl Drop for CgroupBpfBackend {
 }
 
 fn unknown_execution_record() -> BackendError {
-    BackendError::Refused(
+    BackendError::Unknown(
         "UNKNOWN per-Execution ownership record; no kernel object was changed".to_owned(),
     )
 }
@@ -1872,7 +1886,7 @@ fn delegated_root(configured: Option<&Path>) -> Result<PathBuf, BackendError> {
     let path = membership
         .lines()
         .find_map(|line| line.strip_prefix("0::"))
-        .ok_or_else(|| BackendError::Refused("not in a cgroup v2 hierarchy".to_owned()))?;
+        .ok_or_else(|| BackendError::Unsupported("not in a cgroup v2 hierarchy".to_owned()))?;
     let path = path.strip_suffix("/runtime").unwrap_or(path);
     Ok(Path::new("/sys/fs/cgroup").join(path.trim_start_matches('/')))
 }
@@ -2259,14 +2273,14 @@ fn ensure_private_directory(path: &Path) -> Result<(), BackendError> {
     fs::create_dir_all(path)?;
     let metadata = fs::symlink_metadata(path)?;
     if !metadata.file_type().is_dir() || metadata.file_type().is_symlink() || metadata.uid() != 0 {
-        return Err(BackendError::Refused(format!(
+        return Err(BackendError::Unknown(format!(
             "{} is not a root-owned real directory",
             path.display()
         )));
     }
     fs::set_permissions(path, fs::Permissions::from_mode(0o700))?;
     if fs::symlink_metadata(path)?.mode() & 0o777 != 0o700 {
-        return Err(BackendError::Refused(format!(
+        return Err(BackendError::Unknown(format!(
             "{} could not be restricted to mode 0700",
             path.display()
         )));
@@ -2286,7 +2300,7 @@ fn validate_state_file(path: &Path) -> Result<(), BackendError> {
         || metadata.nlink() != 1
         || metadata.mode() & 0o777 != 0o600
     {
-        return Err(BackendError::Refused(format!(
+        return Err(BackendError::Unknown(format!(
             "{} is not a singly-linked root-owned mode-0600 regular file",
             path.display()
         )));
@@ -2329,7 +2343,7 @@ fn recursive_files(root: &Path, allow_partial: bool) -> Result<BTreeSet<PathBuf>
     for directory in [root.join("maps"), root.join("links")] {
         for path in directory_entries(&directory)? {
             if path.is_dir() {
-                return Err(BackendError::Refused(format!(
+                return Err(BackendError::Unknown(format!(
                     "unexpected directory below {}",
                     directory.display()
                 )));
@@ -2340,7 +2354,7 @@ fn recursive_files(root: &Path, allow_partial: bool) -> Result<BTreeSet<PathBuf>
     let allowed = BTreeSet::from([root.join("maps"), root.join("links")]);
     let actual: BTreeSet<PathBuf> = directory_entries(root)?.into_iter().collect();
     if (!allow_partial && actual != allowed) || (allow_partial && !actual.is_subset(&allowed)) {
-        return Err(BackendError::Refused(format!(
+        return Err(BackendError::Unknown(format!(
             "unexpected entry below {}",
             root.display()
         )));
@@ -2391,7 +2405,7 @@ fn require_same_external_inventory(
         );
         return Ok(());
     }
-    Err(BackendError::Refused(format!(
+    Err(BackendError::Unknown(format!(
         "non-owned effective BPF inventory changed {stage}"
     )))
 }
@@ -2452,6 +2466,7 @@ fn hex(bytes: &[u8]) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use soglia_core::helper::{HelperFailure, RefusalClass};
 
     fn test_binding(cgroup_id: u64, nonce_byte: u8, backend_generation: u64) -> BindingKey {
         BindingKey {
@@ -2480,8 +2495,33 @@ mod tests {
     fn assert_unknown_execution_record(result: Result<(), BackendError>) {
         assert!(matches!(
             result,
-            Err(BackendError::Refused(reason))
+            Err(BackendError::Unknown(reason))
                 if reason == "UNKNOWN per-Execution ownership record; no kernel object was changed"
+        ));
+    }
+
+    #[test]
+    fn real_recovery_refusals_keep_their_class_across_the_helper_boundary() {
+        let unknown = unknown_execution_record()
+            .into_helper_failure("the cgroup-bpf backend could not start");
+        assert!(matches!(
+            unknown,
+            HelperFailure::Refused {
+                class: RefusalClass::Unknown,
+                ..
+            }
+        ));
+
+        let incompatible = BackendError::Incompatible(
+            "INCOMPATIBLE cgroup-BPF ownership state; kernel objects were left untouched".into(),
+        )
+        .into_helper_failure("the cgroup-bpf backend could not start");
+        assert!(matches!(
+            incompatible,
+            HelperFailure::Refused {
+                class: RefusalClass::Incompatible,
+                ..
+            }
         ));
     }
 

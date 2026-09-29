@@ -28,8 +28,8 @@ use std::sync::{Arc, Mutex};
 use serde::Serialize;
 use serde::de::DeserializeOwned;
 use soglia_core::helper::{
-    Hello, HelperResponse, ResolveAttempt, ResolvePending, ResolveResult, ResolverReply,
-    ResolverRequest, SocketTupleV4,
+    Hello, HelperFailure, HelperResponse, ResolveAttempt, ResolvePending, ResolveResult,
+    ResolverReply, ResolverRequest, SocketTupleV4,
 };
 use soglia_core::ipc::{read_frame, write_frame};
 use soglia_proxy::attribution::{AttributionResult, AttributionTable, ConnectionAttributor};
@@ -45,7 +45,7 @@ pub enum HelperError {
     /// The channel broke: the helper is gone, and the runtime cannot continue safely.
     Channel(String),
     /// The helper carried out the request and it failed.
-    Failed(String),
+    Failed(HelperFailure),
     /// The helper answered with something the request does not allow.
     Unexpected(String),
 }
@@ -54,7 +54,7 @@ impl fmt::Display for HelperError {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Self::Channel(reason) => write!(formatter, "the helper channel failed: {reason}"),
-            Self::Failed(reason) => write!(formatter, "{reason}"),
+            Self::Failed(failure) => write!(formatter, "{}", failure.detail()),
             Self::Unexpected(reason) => write!(formatter, "unexpected helper answer: {reason}"),
         }
     }
@@ -189,7 +189,7 @@ impl Helper {
         };
         match exchange(&self.channel, &hello)? {
             HelperResponse::Ready { swept } => Ok(swept),
-            HelperResponse::Failed { reason } => Err(HelperError::Failed(reason)),
+            HelperResponse::Failed { failure } => Err(HelperError::Failed(failure)),
             other => Err(HelperError::Unexpected(format!("{other:?}"))),
         }
     }
@@ -207,7 +207,7 @@ impl Helper {
             .await
             .map_err(|error| HelperError::Channel(error.to_string()))??;
         match answer {
-            HelperResponse::Failed { reason } => Err(HelperError::Failed(reason)),
+            HelperResponse::Failed { failure } => Err(HelperError::Failed(failure)),
             other => Ok(other),
         }
     }
@@ -599,7 +599,7 @@ mod tests {
     use std::os::unix::process::ExitStatusExt;
     use std::time::Duration;
 
-    use soglia_core::helper::ResolveMismatch;
+    use soglia_core::helper::{RefusalClass, ResolveMismatch};
     use soglia_core::{BindingKey, ExecutionNonce};
 
     fn resolver_client(stream: UnixStream) -> ResolverClient {
@@ -614,6 +614,55 @@ mod tests {
                 on_unavailable: Mutex::new(None),
             }),
         }
+    }
+
+    #[test]
+    fn helper_refusal_reaches_the_supervisor_without_text_classification() {
+        let (ours, mut theirs) = UnixStream::pair().unwrap();
+        let shutdown = ours.try_clone().unwrap();
+        let failure = HelperFailure::IncompatibleBpfTopology {
+            hook: "soglia_connect4".into(),
+            errno: Some(1),
+            detail: "exclusive ancestor".into(),
+        };
+        let sent = failure.clone();
+        let server = std::thread::spawn(move || {
+            let _: Hello = read_frame(&mut theirs).unwrap();
+            write_frame(&mut theirs, &HelperResponse::Failed { failure: sent }).unwrap();
+        });
+        let process = Command::new("/bin/sh")
+            .args(["-c", "sleep 1"])
+            .stdin(Stdio::null())
+            .stdout(Stdio::null())
+            .stderr(Stdio::null())
+            .spawn()
+            .unwrap();
+        let helper = Helper {
+            role: "test",
+            channel: Arc::new(Mutex::new(ours)),
+            resolver: None,
+            shutdown,
+            resolver_shutdown: None,
+            process: Arc::new(Mutex::new(process)),
+        };
+
+        assert_eq!(
+            helper.hello("runtime: {}"),
+            Err(HelperError::Failed(failure))
+        );
+        server.join().unwrap();
+
+        let classified = HelperError::Failed(HelperFailure::Refused {
+            class: RefusalClass::Unknown,
+            detail: "untrusted ownership".into(),
+        });
+        assert!(matches!(
+            classified,
+            HelperError::Failed(HelperFailure::Refused {
+                class: RefusalClass::Unknown,
+                ..
+            })
+        ));
     }
 
     fn resolver_returning(result: ResolveResult) -> ResolverClient {

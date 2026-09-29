@@ -24,6 +24,65 @@ use std::process::ExitCode;
 
 use clap::{Parser, Subcommand};
 use soglia_core::DeferredComponent;
+use soglia_core::helper::{HelperFailure, RefusalClass};
+
+#[derive(Debug)]
+enum ProcessError {
+    Generic(String),
+    StartupRefused {
+        context: String,
+        failure: HelperFailure,
+    },
+}
+
+impl ProcessError {
+    fn refused(class: RefusalClass, detail: impl Into<String>) -> Self {
+        Self::StartupRefused {
+            context: "startup refused".to_owned(),
+            failure: HelperFailure::Refused {
+                class,
+                detail: detail.into(),
+            },
+        }
+    }
+
+    fn from_helper(
+        context: impl Into<String>,
+        error: soglia_supervisor::helpers::HelperError,
+    ) -> Self {
+        match error {
+            soglia_supervisor::helpers::HelperError::Failed(failure) => Self::StartupRefused {
+                context: context.into(),
+                failure,
+            },
+            other => Self::Generic(format!("{}: {other}", context.into())),
+        }
+    }
+
+    const fn exit_code(&self) -> u8 {
+        match self {
+            Self::Generic(_) => 1,
+            Self::StartupRefused { failure, .. } => failure.exit_code(),
+        }
+    }
+}
+
+impl From<String> for ProcessError {
+    fn from(reason: String) -> Self {
+        Self::Generic(reason)
+    }
+}
+
+impl std::fmt::Display for ProcessError {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Generic(reason) => formatter.write_str(reason),
+            Self::StartupRefused { context, failure } => {
+                write!(formatter, "{context}: {}", failure.detail())
+            }
+        }
+    }
+}
 
 #[derive(Parser)]
 #[command(
@@ -58,18 +117,33 @@ enum Command {
 fn main() -> ExitCode {
     let outcome = match Cli::parse().command {
         Command::Run { file } => runtime::run(&file),
-        Command::Sandboxd => runtime::sandboxd(),
-        Command::Enforcer => runtime::enforcer(),
+        Command::Sandboxd => runtime::sandboxd().map_err(ProcessError::from),
+        Command::Enforcer => runtime::enforcer().map_err(ProcessError::from),
         Command::CaSigner => DeferredComponent::CaSigner
             .activate()
-            .map_err(|refused| refused.to_string()),
+            .map_err(|refused| ProcessError::from(refused.to_string())),
     };
 
     match outcome {
         Ok(()) => ExitCode::SUCCESS,
-        Err(reason) => {
-            eprintln!("soglia: {reason}");
-            ExitCode::FAILURE
+        Err(error) => {
+            if let ProcessError::StartupRefused { failure, .. } = &error {
+                let (hook, errno) = match failure {
+                    HelperFailure::Refused { .. } => (None, None),
+                    HelperFailure::IncompatibleBpfTopology { hook, errno, .. } => {
+                        (Some(hook.as_str()), *errno)
+                    }
+                };
+                tracing::error!(
+                    event.name = "startup.refused",
+                    refusal.class = failure.event_class(),
+                    refusal.hook = hook,
+                    refusal.errno = errno,
+                    "Soglia refused startup"
+                );
+            }
+            eprintln!("soglia: {error}");
+            ExitCode::from(error.exit_code())
         }
     }
 }
@@ -86,6 +160,7 @@ mod runtime {
 
     use soglia_core::Config;
     use soglia_core::config::NetworkBackend;
+    use soglia_core::helper::RefusalClass;
     use soglia_proxy::attribution::{AttributionTable, ConnectionAttributor};
     use soglia_proxy::egress::{EgressLimits, EgressProxy};
     use soglia_proxy::ingress::{self, Executor, IngressLimits};
@@ -99,24 +174,35 @@ mod runtime {
     use tokio::sync::watch;
     use tracing::{error, info};
 
+    use crate::ProcessError;
+
     /// `soglia run -f <file>`.
-    pub fn run(file: &Path) -> Result<(), String> {
+    pub fn run(file: &Path) -> Result<(), ProcessError> {
         tracing_subscriber::fmt()
             .with_writer(std::io::stderr)
             .with_target(false)
             .init();
 
-        let text = fs::read_to_string(file)
-            .map_err(|error| format!("cannot read {}: {error}", file.display()))?;
-        let config = Config::from_yaml(&text).map_err(|error| error.to_string())?;
+        let text = fs::read_to_string(file).map_err(|error| {
+            ProcessError::refused(
+                RefusalClass::Infrastructure,
+                format!("cannot read {}: {error}", file.display()),
+            )
+        })?;
+        let config = Config::from_yaml(&text).map_err(|error| {
+            ProcessError::refused(RefusalClass::Incompatible, error.to_string())
+        })?;
         let policy =
             DestinationPolicy::new(&config.egress, &config.network, control_addresses(&config))
-                .map_err(|error| error.to_string())?;
+                .map_err(|error| {
+                    ProcessError::refused(RefusalClass::Incompatible, error.to_string())
+                })?;
         if !rustix::process::geteuid().is_root() {
-            return Err(
+            return Err(ProcessError::refused(
+                RefusalClass::Unsupported,
                 "soglia run starts as root: its helpers need privileges the runtime then drops"
                     .to_owned(),
-            );
+            ));
         }
 
         // Soglia's own state directory, and the lock that makes it one instance per directory.
@@ -141,18 +227,18 @@ mod runtime {
             .map_err(|error| format!("cannot start the enforcer: {error}"))?;
         // Processes are killed before their network is removed, at startup as at teardown.
         for helper in [&sandbox, &enforcer] {
-            let swept = helper
-                .hello(&text)
-                .map_err(|error| format!("the {} did not start: {error}", helper.role()))?;
+            let swept = helper.hello(&text).map_err(|error| {
+                ProcessError::from_helper(format!("the {} did not start", helper.role()), error)
+            })?;
             for resource in swept {
                 info!(event.name = "startup.swept", helper = helper.role(), resource = %resource, "a resource left by a previous run was removed");
             }
         }
         for helper in [&sandbox, &enforcer] {
             helper.ensure_running().map_err(|error| {
-                format!(
-                    "the {} failed the readiness barrier: {error}",
-                    helper.role()
+                ProcessError::from_helper(
+                    format!("the {} failed the readiness barrier", helper.role()),
+                    error,
                 )
             })?;
         }
@@ -173,7 +259,7 @@ mod runtime {
         let result = runtime.block_on(serve(config, policy, sandbox, enforcer));
         drop(lock);
 
-        result
+        result.map_err(ProcessError::from)
     }
 
     async fn serve(
@@ -406,5 +492,40 @@ mod runtime {
         let channel = channel_from_stdin().map_err(|error| error.to_string())?;
         let resolver = channel_from_stdout().map_err(|error| error.to_string())?;
         soglia_enforcer::service::run(channel, resolver)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use soglia_core::helper::RefusalClass;
+
+    #[test]
+    fn typed_startup_failures_select_stable_process_status() {
+        for (class, expected) in [
+            (RefusalClass::Incompatible, 20),
+            (RefusalClass::Unknown, 21),
+            (RefusalClass::Unsupported, 22),
+            (RefusalClass::Infrastructure, 23),
+        ] {
+            let error = ProcessError::StartupRefused {
+                context: "test".into(),
+                failure: HelperFailure::Refused {
+                    class,
+                    detail: "diagnostic text does not select the status".into(),
+                },
+            };
+            assert_eq!(error.exit_code(), expected);
+        }
+        let topology = ProcessError::StartupRefused {
+            context: "test".into(),
+            failure: HelperFailure::IncompatibleBpfTopology {
+                hook: "soglia_connect4".into(),
+                errno: Some(1),
+                detail: "diagnostic".into(),
+            },
+        };
+        assert_eq!(topology.exit_code(), 24);
+        assert_eq!(ProcessError::Generic("crash".into()).exit_code(), 1);
     }
 }

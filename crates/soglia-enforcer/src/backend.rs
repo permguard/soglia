@@ -18,7 +18,7 @@ use std::path::PathBuf;
 
 use serde::{Deserialize, Serialize};
 use soglia_core::config::Config;
-use soglia_core::helper::{ResolveAttempt, SocketTupleV4};
+use soglia_core::helper::{HelperFailure, RefusalClass, ResolveAttempt, SocketTupleV4};
 use soglia_core::id::{BindingKey, ExecutionId, ExecutionNonce, ResourceTag};
 use soglia_core::net::{ExecutionPool, SlotAddresses};
 #[cfg(not(feature = "cgroup-bpf"))]
@@ -37,6 +37,12 @@ pub enum BackendError {
     Unavailable(Unavailable),
     /// The request contradicts the configuration or the backend's state.
     Refused(String),
+    /// Durable state is incompatible with this binary's schema, ABI, object or configuration.
+    Incompatible(String),
+    /// Ownership cannot be proven from the exact durable and kernel identities.
+    Unknown(String),
+    /// A required kernel or environment capability is absent.
+    Unsupported(String),
     /// The kernel rejected the production cgroup-BPF attachment topology.
     IncompatibleBpfTopology {
         /// Production program whose link could not be attached.
@@ -53,11 +59,46 @@ impl fmt::Display for BackendError {
         match self {
             Self::Unavailable(reason) => write!(formatter, "{reason}"),
             Self::Refused(reason) => write!(formatter, "refused: {reason}"),
+            Self::Incompatible(reason) => write!(formatter, "refused: {reason}"),
+            Self::Unknown(reason) => write!(formatter, "refused: {reason}"),
+            Self::Unsupported(reason) => write!(formatter, "refused: {reason}"),
             Self::IncompatibleBpfTopology { hook, errno } => write!(
                 formatter,
                 "refused: INCOMPATIBLE_BPF_TOPOLOGY hook={hook} errno={errno:?}"
             ),
             Self::Failed(reason) => write!(formatter, "failed: {reason}"),
+        }
+    }
+}
+
+impl BackendError {
+    /// Preserves the trusted classification while adding operation context to diagnostics.
+    pub fn into_helper_failure(self, context: &str) -> HelperFailure {
+        let detail = format!("{context}: {self}");
+        match self {
+            Self::Unavailable(_) | Self::Unsupported(_) => HelperFailure::Refused {
+                class: RefusalClass::Unsupported,
+                detail,
+            },
+            Self::Refused(_) | Self::Incompatible(_) => HelperFailure::Refused {
+                class: RefusalClass::Incompatible,
+                detail,
+            },
+            Self::Unknown(_) => HelperFailure::Refused {
+                class: RefusalClass::Unknown,
+                detail,
+            },
+            Self::IncompatibleBpfTopology { hook, errno } => {
+                HelperFailure::IncompatibleBpfTopology {
+                    hook,
+                    errno,
+                    detail,
+                }
+            }
+            Self::Failed(_) => HelperFailure::Refused {
+                class: RefusalClass::Infrastructure,
+                detail,
+            },
         }
     }
 }

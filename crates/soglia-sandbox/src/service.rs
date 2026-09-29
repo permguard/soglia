@@ -10,7 +10,7 @@
 use std::os::unix::net::UnixStream;
 
 use soglia_core::config::Config;
-use soglia_core::helper::{Hello, HelperResponse, SandboxRequest};
+use soglia_core::helper::{Hello, HelperFailure, HelperResponse, RefusalClass, SandboxRequest};
 use soglia_core::ipc::{FrameError, read_frame, write_frame};
 
 use crate::backend::{RuncSandbox, SandboxBackend, SandboxError, SandboxSettings};
@@ -29,14 +29,14 @@ pub fn run(channel: UnixStream) -> Result<(), String> {
                 .map_err(|error| error.to_string())?;
             backend
         }
-        Err(reason) => {
+        Err(failure) => {
             let _ = write_frame(
                 &mut writer,
                 &HelperResponse::Failed {
-                    reason: reason.clone(),
+                    failure: failure.clone(),
                 },
             );
-            return Err(reason);
+            return Err(failure.detail().to_owned());
         }
     };
 
@@ -55,7 +55,7 @@ pub fn run(channel: UnixStream) -> Result<(), String> {
         let response = match serve(&mut backend, request) {
             Ok(response) => response,
             Err(error) => HelperResponse::Failed {
-                reason: error.to_string(),
+                failure: sandbox_failure("the Sandbox request failed", error),
             },
         };
         if let Err(error) = write_frame(&mut writer, &response) {
@@ -65,18 +65,34 @@ pub fn run(channel: UnixStream) -> Result<(), String> {
     }
 }
 
-fn start(hello: &Hello) -> Result<(RuncSandbox, Vec<String>), String> {
-    let config = Config::from_yaml(&hello.config_yaml).map_err(|error| error.to_string())?;
-    let settings = SandboxSettings::from_config(&config).map_err(|error| error.to_string())?;
+fn start(hello: &Hello) -> Result<(RuncSandbox, Vec<String>), HelperFailure> {
+    let config = Config::from_yaml(&hello.config_yaml).map_err(|error| HelperFailure::Refused {
+        class: RefusalClass::Incompatible,
+        detail: format!("the Sandbox configuration is incompatible: {error}"),
+    })?;
+    let settings = SandboxSettings::from_config(&config)
+        .map_err(|error| sandbox_failure("the Sandbox configuration is incompatible", error))?;
     let mut backend = RuncSandbox::new(settings);
     backend
         .probe_capabilities()
-        .map_err(|error| format!("the {} probe failed: {error}", backend.name()))?;
-    let swept = backend
-        .initialize()
-        .map_err(|error| format!("the {} backend could not start: {error}", backend.name()))?;
+        .map_err(|error| sandbox_failure(&format!("the {} probe failed", backend.name()), error))?;
+    let swept = backend.initialize().map_err(|error| {
+        sandbox_failure(
+            &format!("the {} backend could not start", backend.name()),
+            error,
+        )
+    })?;
 
     Ok((backend, swept))
+}
+
+fn sandbox_failure(context: &str, error: SandboxError) -> HelperFailure {
+    let detail = format!("{context}: {error}");
+    let class = match error {
+        SandboxError::Refused(_) => RefusalClass::Incompatible,
+        SandboxError::Failed(_) => RefusalClass::Infrastructure,
+    };
+    HelperFailure::Refused { class, detail }
 }
 
 fn serve(

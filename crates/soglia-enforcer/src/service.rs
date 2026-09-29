@@ -18,8 +18,8 @@ use std::thread;
 
 use soglia_core::config::{Config, NetworkBackend};
 use soglia_core::helper::{
-    EnforcerRequest, Hello, HelperResponse, ResolveAttempt, ResolvePending, ResolveResult,
-    ResolverReply, ResolverRequest,
+    EnforcerRequest, Hello, HelperFailure, HelperResponse, RefusalClass, ResolveAttempt,
+    ResolvePending, ResolveResult, ResolverReply, ResolverRequest,
 };
 use soglia_core::ipc::{FrameError, read_frame, write_frame};
 
@@ -37,14 +37,14 @@ pub fn run(channel: UnixStream, resolver_channel: UnixStream) -> Result<(), Stri
     let hello: Hello = read_frame(&mut reader).map_err(|error| error.to_string())?;
     let (backend, swept) = match start(&hello) {
         Ok(started) => started,
-        Err(reason) => {
+        Err(failure) => {
             let _ = write_frame(
                 &mut writer,
                 &HelperResponse::Failed {
-                    reason: reason.clone(),
+                    failure: failure.clone(),
                 },
             );
-            return Err(reason);
+            return Err(failure.detail().to_owned());
         }
     };
     let backend = Arc::new(Mutex::new(backend));
@@ -86,11 +86,14 @@ pub fn run(channel: UnixStream, resolver_channel: UnixStream) -> Result<(), Stri
             Ok(mut backend) => match serve(&mut **backend, request) {
                 Ok(response) => response,
                 Err(error) => HelperResponse::Failed {
-                    reason: error.to_string(),
+                    failure: error.into_helper_failure("the Enforcer request failed"),
                 },
             },
             Err(_) => HelperResponse::Failed {
-                reason: "the Enforcer backend lock is poisoned".to_owned(),
+                failure: HelperFailure::Refused {
+                    class: RefusalClass::Infrastructure,
+                    detail: "the Enforcer backend lock is poisoned".to_owned(),
+                },
             },
         };
         if let Err(error) = write_frame(&mut writer, &response) {
@@ -101,22 +104,28 @@ pub fn run(channel: UnixStream, resolver_channel: UnixStream) -> Result<(), Stri
     }
 }
 
-fn start(hello: &Hello) -> Result<(Box<dyn EnforcementBackend + Send>, Vec<String>), String> {
-    let config = Config::from_yaml(&hello.config_yaml).map_err(|error| error.to_string())?;
+fn start(
+    hello: &Hello,
+) -> Result<(Box<dyn EnforcementBackend + Send>, Vec<String>), HelperFailure> {
+    let config = Config::from_yaml(&hello.config_yaml).map_err(|error| HelperFailure::Refused {
+        class: RefusalClass::Incompatible,
+        detail: format!("the Enforcer configuration is incompatible: {error}"),
+    })?;
     let mut backend: Box<dyn EnforcementBackend + Send> = match config.network.backend {
         NetworkBackend::NetnsNft => {
-            let settings =
-                NetworkSettings::from_config(&config).map_err(|error| error.to_string())?;
+            let settings = NetworkSettings::from_config(&config).map_err(|error| {
+                error.into_helper_failure("the netns-nft configuration is incompatible")
+            })?;
             Box::new(NetnsNftBackend::new(settings))
         }
         NetworkBackend::CgroupBpf => production_cgroup_backend(&config)?,
     };
-    backend
-        .probe_capabilities()
-        .map_err(|error| format!("the {} probe failed: {error}", backend.name()))?;
-    let swept = backend
-        .initialize()
-        .map_err(|error| format!("the {} backend could not start: {error}", backend.name()))?;
+    backend.probe_capabilities().map_err(|error| {
+        error.into_helper_failure(&format!("the {} probe failed", backend.name()))
+    })?;
+    let swept = backend.initialize().map_err(|error| {
+        error.into_helper_failure(&format!("the {} backend could not start", backend.name()))
+    })?;
 
     Ok((backend, swept))
 }
@@ -210,18 +219,20 @@ fn freeze_all(backend: &Arc<Mutex<Box<dyn EnforcementBackend + Send>>>) {
 #[cfg(feature = "cgroup-bpf")]
 fn production_cgroup_backend(
     config: &Config,
-) -> Result<Box<dyn EnforcementBackend + Send>, String> {
+) -> Result<Box<dyn EnforcementBackend + Send>, HelperFailure> {
     CgroupBpfBackend::from_config(config)
         .map(|backend| Box::new(backend) as Box<dyn EnforcementBackend + Send>)
-        .map_err(|error| error.to_string())
+        .map_err(|error| error.into_helper_failure("the cgroup-bpf configuration is incompatible"))
 }
 
 #[cfg(not(feature = "cgroup-bpf"))]
 fn production_cgroup_backend(
     _config: &Config,
-) -> Result<Box<dyn EnforcementBackend + Send>, String> {
-    Err(
-        "cgroup-bpf was selected but this binary was built without the `cgroup-bpf` feature"
-            .to_owned(),
-    )
+) -> Result<Box<dyn EnforcementBackend + Send>, HelperFailure> {
+    Err(HelperFailure::Refused {
+        class: RefusalClass::Unsupported,
+        detail:
+            "cgroup-bpf was selected but this binary was built without the `cgroup-bpf` feature"
+                .to_owned(),
+    })
 }
