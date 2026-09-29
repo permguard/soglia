@@ -12,7 +12,12 @@ if [[ "${2:-}" == --authoritative ]]; then authoritative=true; fi
 run_id="b1-$(date -u +%Y%m%dT%H%M%SZ)-$$"
 evidence="/soglia/spikes/cgroup-bpf/evidence/replay/$run_id"
 scripts=/soglia/spikes/cgroup-bpf/runner/scripts
+inventory_classifier="$scripts/bpf_inventory_classifier.py"
+# shellcheck source=spikes/cgroup-bpf/runner/scripts/bpf-inventory-common.sh
+source "$scripts/bpf-inventory-common.sh"
 config="$evidence/positive-config.yaml"
+pin_parent=/sys/fs/bpf/soglia-b1
+cgroup=/sys/fs/cgroup/system.slice/soglia-b1.service
 current_phase=INITIALIZING
 last_case=none
 
@@ -30,6 +35,7 @@ persist_state() {
 
 record_failure() {
   local line="$1" status="$2"
+  bpf_inventory_stop_watcher
   current_phase=FAILED
   persist_state
   jq -n \
@@ -81,9 +87,7 @@ jq -n --arg run_id "$run_id" --argjson authoritative "$authoritative" \
   sha256sum spikes/cgroup-bpf/PRODUCTION-DESIGN.md
 } > "$evidence/source-fingerprint.txt"
 sha256sum "$binary" > "$evidence/binary-sha256.txt"
-bpftool -j prog show > "$evidence/baseline-programs.json"
-bpftool -j link show > "$evidence/baseline-links.json"
-bpftool -j map show > "$evidence/baseline-maps.json"
+bpf_inventory_begin "$evidence" "$pin_parent"
 
 cat > "$config" <<'YAML'
 runtime:
@@ -158,28 +162,11 @@ run_case typed_refusals "$scripts/b1-production-refusals.sh" "$binary"
 last_case=final_inventory
 current_phase=CLEANUP_VERIFICATION
 persist_state
-bpftool -j prog show > "$evidence/final/programs.json"
-bpftool -j link show > "$evidence/final/links.json"
+bpf_inventory_classify_current "$evidence" "$pin_parent" "$cgroup" "$inventory_classifier"
+program_classification=$BPF_PROGRAM_CLASSIFICATION
 bpftool -j map show > "$evidence/final/maps.json"
-
-program_classification=$(jq -nr \
-  --slurpfile before "$evidence/baseline-programs.json" \
-  --slurpfile after "$evidence/final/programs.json" '
-  def inventory($xs):
-    $xs | map({id,name,type,tag}) | sort_by(.name,.type,.tag,.id);
-  def signatures($xs):
-    $xs | map({name,type,tag}) | sort_by(.name,.type,.tag);
-  def non_systemd($xs):
-    $xs | map(select((.name | startswith("sd_")) | not) | {id,name,type,tag})
-        | sort_by(.name,.type,.tag,.id);
-  if inventory($before[0]) == inventory($after[0]) then "MATCH"
-  elif signatures($before[0]) == signatures($after[0])
-    and non_systemd($before[0]) == non_systemd($after[0])
-  then "EXTERNAL_CHURN"
-  else "FAIL"
-  end')
 printf '%s\n' "$program_classification" > "$evidence/final/program-classification.txt"
-[[ "$program_classification" == MATCH || "$program_classification" == EXTERNAL_CHURN ]]
+bpf_inventory_is_clean "$program_classification"
 
 jq -S 'sort_by(.id)' "$evidence/baseline-links.json" > "$evidence/final/links-before.normalized.json"
 jq -S 'sort_by(.id)' "$evidence/final/links.json" > "$evidence/final/links-after.normalized.json"

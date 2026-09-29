@@ -7,6 +7,11 @@
 
 set -euo pipefail
 
+scripts=/soglia/spikes/cgroup-bpf/runner/scripts
+inventory_classifier="$scripts/bpf_inventory_classifier.py"
+# shellcheck source=spikes/cgroup-bpf/runner/scripts/bpf-inventory-common.sh
+source "$scripts/bpf-inventory-common.sh"
+
 usage='usage: b3-qualification.sh <soglia> <b3-driver> <agent> [--authoritative]'
 if [[ $# -ne 3 && $# -ne 4 ]]; then
   echo "$usage" >&2
@@ -95,6 +100,7 @@ write_summary() {
 
 cleanup() {
   set +e
+  bpf_inventory_stop_watcher
   current_phase=CLEANUP
   persist_state
   systemctl stop "$unit.service" >/dev/null 2>&1
@@ -134,34 +140,24 @@ cleanup() {
   # their last container cgroup is gone. Keep the inventory comparison strict,
   # but allow the kernel enough time to release those external objects.
   for attempt in $(seq 0 720); do
-    bpftool -j prog show > "$evidence/final/programs.json"
-    program_classification=$(jq -nr \
-      --slurpfile before "$evidence/baseline-programs.json" \
-      --slurpfile after "$evidence/final/programs.json" '
-        def inventory($xs): $xs | map({id,name,type,tag}) | sort_by(.name,.type,.tag,.id);
-        def signatures($xs): $xs | map({name,type,tag}) | sort_by(.name,.type,.tag);
-        def external($xs): $xs | map(select(((.name // "") | startswith("sd_")) | not) | {id,name,type,tag})
-          | sort_by(.name,.type,.tag,.id);
-        if inventory($before[0]) == inventory($after[0]) then "MATCH"
-        elif signatures($before[0]) == signatures($after[0]) and external($before[0]) == external($after[0])
-        then "EXTERNAL_CHURN" else "FAIL" end')
+    bpf_inventory_classify_current "$evidence" "$pin_parent" "$cgroup" "$inventory_classifier"
+    program_classification=$BPF_PROGRAM_CLASSIFICATION
     jq -cn --argjson attempt "$attempt" --arg classification "$program_classification" \
       --argjson programs "$(jq 'length' "$evidence/final/programs.json")" \
       '{attempt:$attempt,classification:$classification,program_count:$programs}' \
       >> "$evidence/final/program-settle.jsonl"
-    if [[ "$program_classification" == MATCH || "$program_classification" == EXTERNAL_CHURN ]]; then
+    if bpf_inventory_is_clean "$program_classification"; then
       break
     fi
     sleep 0.25
   done
-  bpftool -j link show > "$evidence/final/links.json"
   bpftool -j map show > "$evidence/final/maps.json"
   jq -S 'sort_by(.id)' "$evidence/baseline-links.json" > "$evidence/final/links-before.normalized.json"
   jq -S 'sort_by(.id)' "$evidence/final/links.json" > "$evidence/final/links-after.normalized.json"
   jq -S 'sort_by(.id)' "$evidence/baseline-maps.json" > "$evidence/final/maps-before.normalized.json"
   jq -S 'sort_by(.id)' "$evidence/final/maps.json" > "$evidence/final/maps-after.normalized.json"
   cleanup_status=PASS
-  [[ "$program_classification" == MATCH || "$program_classification" == EXTERNAL_CHURN ]] || cleanup_status=CLEANUP_FAIL
+  bpf_inventory_is_clean "$program_classification" || cleanup_status=CLEANUP_FAIL
   cmp -s "$evidence/final/links-before.normalized.json" "$evidence/final/links-after.normalized.json" \
     && links_classification=MATCH || links_classification=FAIL
   cmp -s "$evidence/final/maps-before.normalized.json" "$evidence/final/maps-after.normalized.json" \
@@ -238,9 +234,7 @@ git -C /soglia diff --exit-code "$production_baseline" -- crates src Cargo.toml 
 [[ -z $(git -C /soglia status --short --untracked-files=all -- crates src Cargo.toml Cargo.lock) ]]
 production_source_matches=true
 sha256sum "$binary" "$driver" "$agent" > "$evidence/binary-sha256.txt"
-bpftool -j prog show > "$evidence/baseline-programs.json"
-bpftool -j link show > "$evidence/baseline-links.json"
-bpftool -j map show > "$evidence/baseline-maps.json"
+bpf_inventory_begin "$evidence" "$pin_parent"
 jq -e 'any(.[]; (.name // "") | startswith("soglia_"))' "$evidence/baseline-programs.json" >/dev/null \
   && { echo "pre-existing Soglia BPF program in B3 baseline" >&2; exit 30; }
 

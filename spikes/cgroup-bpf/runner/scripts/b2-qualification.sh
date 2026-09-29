@@ -7,6 +7,11 @@
 
 set -euo pipefail
 
+scripts=/soglia/spikes/cgroup-bpf/runner/scripts
+inventory_classifier="$scripts/bpf_inventory_classifier.py"
+# shellcheck source=spikes/cgroup-bpf/runner/scripts/bpf-inventory-common.sh
+source "$scripts/bpf-inventory-common.sh"
+
 usage='usage: b2-qualification.sh <soglia> <b2-driver> <agent> [--authoritative]'
 if [[ $# -ne 3 && $# -ne 4 ]]; then
   echo "$usage" >&2
@@ -133,6 +138,7 @@ write_summary() {
 
 cleanup() {
   set +e
+  bpf_inventory_stop_watcher
   current_phase=CLEANUP
   persist_state
   systemctl stop "$unit.service" >/dev/null 2>&1
@@ -168,25 +174,9 @@ cleanup() {
     rmdir "$rootfs" 2>/dev/null
   fi
 
-  bpftool -j prog show > "$evidence/final/programs.json"
-  bpftool -j link show > "$evidence/final/links.json"
+  bpf_inventory_classify_current "$evidence" "$pin_parent" "$cgroup" "$inventory_classifier"
+  program_classification=$BPF_PROGRAM_CLASSIFICATION
   bpftool -j map show > "$evidence/final/maps.json"
-  program_classification=$(jq -nr \
-    --slurpfile before "$evidence/baseline-programs.json" \
-    --slurpfile after "$evidence/final/programs.json" '
-    def inventory($xs):
-      $xs | map({id,name,type,tag}) | sort_by(.name,.type,.tag,.id);
-    def signatures($xs):
-      $xs | map({name,type,tag}) | sort_by(.name,.type,.tag);
-    def non_systemd($xs):
-      $xs | map(select((.name | startswith("sd_")) | not) | {id,name,type,tag})
-          | sort_by(.name,.type,.tag,.id);
-    if inventory($before[0]) == inventory($after[0]) then "MATCH"
-    elif signatures($before[0]) == signatures($after[0])
-      and non_systemd($before[0]) == non_systemd($after[0])
-    then "EXTERNAL_CHURN"
-    else "FAIL"
-    end')
   printf '%s\n' "$program_classification" > "$evidence/final/program-classification.txt"
   jq -S 'sort_by(.id)' "$evidence/baseline-links.json" \
     > "$evidence/final/links-before.normalized.json"
@@ -198,8 +188,7 @@ cleanup() {
     > "$evidence/final/maps-after.normalized.json"
 
   cleanup_status=PASS
-  [[ "$program_classification" == MATCH || "$program_classification" == EXTERNAL_CHURN ]] \
-    || cleanup_status=CLEANUP_FAIL
+  bpf_inventory_is_clean "$program_classification" || cleanup_status=CLEANUP_FAIL
   cmp -s "$evidence/final/links-before.normalized.json" \
     "$evidence/final/links-after.normalized.json" \
     && links_classification=MATCH || links_classification=FAIL
@@ -308,9 +297,7 @@ if [[ "$authoritative" == true ]]; then
   production_source_matches=true
 fi
 sha256sum "$binary" "$driver" "$agent" > "$evidence/binary-sha256.txt"
-bpftool -j prog show > "$evidence/baseline-programs.json"
-bpftool -j link show > "$evidence/baseline-links.json"
-bpftool -j map show > "$evidence/baseline-maps.json"
+bpf_inventory_begin "$evidence" "$pin_parent"
 if jq -e 'any(.[]; (.name // "") | startswith("soglia_"))' \
   "$evidence/baseline-programs.json" >/dev/null; then
   echo "pre-existing Soglia BPF program in diagnostic baseline" >&2
