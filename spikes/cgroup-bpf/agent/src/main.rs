@@ -33,6 +33,14 @@ sockopt_impl!(
     u64
 );
 
+sockopt_impl!(
+    SocketCookie,
+    GetOnly,
+    nix::libc::SOL_SOCKET,
+    nix::libc::SO_COOKIE,
+    u64
+);
+
 const PROXY: SocketAddrV4 = SocketAddrV4::new(Ipv4Addr::new(10, 200, 255, 1), 15001);
 const CONNECT_TIMEOUT: Duration = Duration::from_millis(1500);
 
@@ -126,14 +134,18 @@ fn run(command: &str, started: Instant) {
             arg(4),
             num(5, 2),
         ),
+        "proxy-capacity-report" => proxy_capacity_report(
+            arg(1),
+            num(2, 40_000) as u16,
+            num(3, 4) as usize,
+            arg(4),
+            num(5, 30),
+        ),
+        "proxy-preconnect-report" => {
+            proxy_preconnect_report(arg(1), num(2, 41_000) as u16, arg(3), num(4, 30))
+        }
         "proxy-reuse-report" => {
-            proxy_reuse_report(
-                arg(1),
-                num(2, 40_000) as u16,
-                arg(3),
-                num(4, 30),
-                num(5, 5),
-            )
+            proxy_reuse_report(arg(1), num(2, 40_000) as u16, arg(3), num(4, 30), num(5, 5))
         }
         "hold-proxy" => hold_proxy(num(1, 30)),
         "listen4-once" => print(outcome(
@@ -159,7 +171,8 @@ fn run(command: &str, started: Instant) {
                 thread::sleep(Duration::from_millis(num(2, 200)));
             }
         }
-        "direct-flood" => direct_flood(addr4(arg(1)), num(2, 1000)),
+        "direct-flood" => direct_flood(addr4(arg(1)), num(2, 1000), None, 0),
+        "direct-flood-report" => direct_flood(addr4(arg(1)), num(2, 1000), Some(arg(3)), num(4, 5)),
         "sock" => print(outcome(command, sock(arg(1), arg(2)), "")),
         "udp4" => print(outcome(command, udp4(addr4(arg(1)), false), "")),
         "udp4c" => print(outcome(command, udp4(addr4(arg(1)), true), "")),
@@ -400,11 +413,35 @@ fn proxy_port(port: u16, rst: bool, count: u64) {
 }
 
 fn connect_from_port(port: u16) -> std::io::Result<TcpStream> {
+    let fd = socket_from_port(port)?;
+    rustix::net::connect(&fd, &PROXY).map_err(errno)?;
+    Ok(TcpStream::from(fd))
+}
+
+fn socket_from_port(port: u16) -> std::io::Result<OwnedFd> {
     let fd = rustix::net::socket(AddressFamily::INET, SocketType::STREAM, None).map_err(errno)?;
     rustix::net::sockopt::set_socket_reuseaddr(&fd, true).map_err(errno)?;
     rustix::net::bind(&fd, &SocketAddrV4::new(Ipv4Addr::UNSPECIFIED, port)).map_err(errno)?;
-    rustix::net::connect(&fd, &PROXY).map_err(errno)?;
-    Ok(TcpStream::from(OwnedFd::from(fd)))
+    Ok(fd)
+}
+
+fn socket_cookie<F: std::os::fd::AsFd>(fd: &F) -> std::io::Result<u64> {
+    nix::sys::socket::getsockopt(fd, SocketCookie)
+        .map_err(|error| std::io::Error::from_raw_os_error(error as i32))
+}
+
+fn wait_gate(path: &str, timeout_secs: u64) -> std::io::Result<()> {
+    let started = Instant::now();
+    while !Path::new(path).exists() {
+        if started.elapsed() >= Duration::from_secs(timeout_secs) {
+            return Err(std::io::Error::new(
+                std::io::ErrorKind::TimedOut,
+                format!("qualification gate {path} did not appear"),
+            ));
+        }
+        thread::sleep(Duration::from_millis(5));
+    }
+    Ok(())
 }
 
 fn establish_connect(stream: &mut TcpStream, target: &str) -> std::io::Result<String> {
@@ -588,15 +625,141 @@ fn proxy_connect_many_report(
     }
 }
 
-/// Holds the first socket until the harness has installed and observed a cookie-mismatched tuple,
-/// then reuses the same source port only after the harness removes that owned injection.
-fn proxy_reuse_report(
+/// Keeps exactly `count` resolved sockets live, then exposes the next socket's cookie before the
+/// harness releases its connect. This makes the production cookie-map-full boundary deterministic.
+fn proxy_capacity_report(
     target: &str,
-    port: u16,
+    first_port: u16,
+    count: usize,
     report: &str,
     timeout_secs: u64,
-    hold_secs: u64,
 ) {
+    let _ = fs::remove_file(report);
+    for suffix in [
+        "ready",
+        "plus",
+        "plus-ready",
+        "connect",
+        "plus-done",
+        "release",
+    ] {
+        let _ = fs::remove_file(format!("{report}.{suffix}"));
+    }
+    let result = (|| -> std::io::Result<String> {
+        let mut sockets = Vec::with_capacity(count);
+        for index in 0..count {
+            let port = first_port.saturating_add(index as u16);
+            let mut stream = connect_from_port(port)?;
+            let cookie = socket_cookie(&stream)?;
+            let status = establish_connect(&mut stream, target)?;
+            append_report(
+                report,
+                &format!(
+                    "{{\"cmd\":\"proxy-capacity-report\",\"ok\":true,\"phase\":\"base_resolved\",\"i\":{index},\"source_port\":{port},\"cookie\":{cookie},\"detail\":{}}}",
+                    quote(&status)
+                ),
+            )?;
+            sockets.push(stream);
+        }
+        fs::write(format!("{report}.ready"), b"ready\n")?;
+        wait_gate(&format!("{report}.plus"), timeout_secs)?;
+
+        let plus_port = first_port.saturating_add(count as u16);
+        let fd = socket_from_port(plus_port)?;
+        let plus_cookie = socket_cookie(&fd)?;
+        append_report(
+            report,
+            &format!(
+                "{{\"cmd\":\"proxy-capacity-report\",\"ok\":true,\"phase\":\"plus_prepared\",\"source_port\":{plus_port},\"cookie\":{plus_cookie}}}"
+            ),
+        )?;
+        fs::write(format!("{report}.plus-ready"), b"ready\n")?;
+        wait_gate(&format!("{report}.connect"), timeout_secs)?;
+        let started = Instant::now();
+        let connected = rustix::net::connect(&fd, &PROXY).map_err(errno);
+        let (ok, error, errno) = match connected {
+            Ok(()) => {
+                let mut stream = TcpStream::from(fd);
+                let result = establish_connect(&mut stream, target);
+                sockets.push(stream);
+                match result {
+                    Ok(detail) => (true, detail, 0),
+                    Err(error) => (false, error.to_string(), error.raw_os_error().unwrap_or(-1)),
+                }
+            }
+            Err(error) => (false, error.to_string(), error.raw_os_error().unwrap_or(-1)),
+        };
+        append_report(
+            report,
+            &format!(
+                "{{\"cmd\":\"proxy-capacity-report\",\"ok\":{ok},\"phase\":\"plus_result\",\"source_port\":{plus_port},\"cookie\":{plus_cookie},\"errno\":{errno},\"elapsed_ms\":{},\"detail\":{}}}",
+                started.elapsed().as_millis(),
+                quote(&error)
+            ),
+        )?;
+        fs::write(format!("{report}.plus-done"), b"done\n")?;
+        wait_gate(&format!("{report}.release"), timeout_secs)?;
+        drop(sockets);
+        Ok(format!(
+            "completed {count} base sockets and one capacity probe"
+        ))
+    })();
+    print(outcome("proxy-capacity-report", result, ""));
+}
+
+/// Binds one socket and publishes its nonzero cookie before the harness injects a duplicate key.
+fn proxy_preconnect_report(target: &str, port: u16, report: &str, timeout_secs: u64) {
+    let _ = fs::remove_file(report);
+    for suffix in ["ready", "connect", "done", "release"] {
+        let _ = fs::remove_file(format!("{report}.{suffix}"));
+    }
+    let result = (|| -> std::io::Result<String> {
+        let fd = socket_from_port(port)?;
+        let cookie = socket_cookie(&fd)?;
+        if cookie == 0 {
+            return Err(std::io::Error::new(
+                std::io::ErrorKind::InvalidData,
+                "SO_COOKIE returned zero",
+            ));
+        }
+        append_report(
+            report,
+            &format!(
+                "{{\"cmd\":\"proxy-preconnect-report\",\"ok\":true,\"phase\":\"prepared\",\"source_port\":{port},\"cookie\":{cookie}}}"
+            ),
+        )?;
+        fs::write(format!("{report}.ready"), b"ready\n")?;
+        wait_gate(&format!("{report}.connect"), timeout_secs)?;
+        let started = Instant::now();
+        let connected = rustix::net::connect(&fd, &PROXY).map_err(errno);
+        let (ok, detail, errno) = match connected {
+            Ok(()) => {
+                let mut stream = TcpStream::from(fd);
+                match establish_connect(&mut stream, target) {
+                    Ok(detail) => (true, detail, 0),
+                    Err(error) => (false, error.to_string(), error.raw_os_error().unwrap_or(-1)),
+                }
+            }
+            Err(error) => (false, error.to_string(), error.raw_os_error().unwrap_or(-1)),
+        };
+        append_report(
+            report,
+            &format!(
+                "{{\"cmd\":\"proxy-preconnect-report\",\"ok\":{ok},\"phase\":\"connect_result\",\"source_port\":{port},\"cookie\":{cookie},\"errno\":{errno},\"elapsed_ms\":{},\"detail\":{}}}",
+                started.elapsed().as_millis(),
+                quote(&detail)
+            ),
+        )?;
+        fs::write(format!("{report}.done"), b"done\n")?;
+        wait_gate(&format!("{report}.release"), timeout_secs)?;
+        Ok("duplicate-cookie probe completed".to_owned())
+    })();
+    print(outcome("proxy-preconnect-report", result, ""));
+}
+
+/// Holds the first socket until the harness has installed and observed a cookie-mismatched tuple,
+/// then reuses the same source port only after the harness removes that owned injection.
+fn proxy_reuse_report(target: &str, port: u16, report: &str, timeout_secs: u64, hold_secs: u64) {
     let _ = fs::remove_file(report);
     let close_gate = format!("{report}.close");
     let second_gate = format!("{report}.second");
@@ -723,7 +886,7 @@ fn listen4_pulse_hold(target: SocketAddrV4, hold_secs: u64) -> std::io::Result<S
     ))
 }
 
-fn direct_flood(target: SocketAddrV4, count: u64) {
+fn direct_flood(target: SocketAddrV4, count: u64, report: Option<&str>, hold_secs: u64) {
     let mut by_errno: std::collections::BTreeMap<i32, u64> = Default::default();
     let started = Instant::now();
     for _ in 0..count {
@@ -737,11 +900,16 @@ fn direct_flood(target: SocketAddrV4, count: u64) {
         .iter()
         .map(|(k, v)| format!("\"{k}\":{v}"))
         .collect();
-    print(format!(
+    let line = format!(
         "{{\"cmd\":\"direct-flood\",\"attempts\":{count},\"by_errno\":{{{}}},\"ms\":{}}}",
         counts.join(","),
         started.elapsed().as_millis()
-    ));
+    );
+    if let Some(path) = report {
+        let _ = fs::write(path, format!("{line}\n"));
+    }
+    print(line);
+    thread::sleep(Duration::from_secs(hold_secs));
 }
 
 fn sock(family: &str, kind: &str) -> std::io::Result<String> {

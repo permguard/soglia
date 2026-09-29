@@ -46,6 +46,7 @@ install -m 0755 "$cargo_target/release/s7_loader" "$artifacts/bin/s7-loader"
 install -m 0755 "$cargo_target/release/s14_loader" "$artifacts/bin/s14-loader"
 install -m 0755 "$cargo_target/release/b2_driver" "$artifacts/bin/b2-driver"
 install -m 0755 "$cargo_target/release/b3_driver" "$artifacts/bin/b3-driver"
+install -m 0755 "$cargo_target/release/b4_driver" "$artifacts/bin/b4-driver"
 install -m 0755 \
     "$cargo_target/$musl_target/release/soglia-spike-agent" \
     "$artifacts/bin/soglia-spike-agent"
