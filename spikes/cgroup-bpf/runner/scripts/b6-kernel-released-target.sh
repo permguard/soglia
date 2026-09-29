@@ -22,6 +22,8 @@ pin_root=/sys/fs/bpf/soglia-b6-kernel-released-target
 scratch=/var/tmp/soglia-b6-kernel-released-target
 unit=soglia-b6-kernel-released-target.service
 loader_pid=
+readonly DETACH_WAIT_TIMEOUT_MS=5000
+readonly DETACH_POLL_INTERVAL_MS=10
 
 mkdir -p "$evidence"
 
@@ -85,22 +87,42 @@ capture_link() {
 wait_for_detached_link() {
     local pin=$1 prefix=$2
     local observations="$evidence/$prefix-detach-observations.jsonl"
+    local started_ns deadline_ns attempt=0
+    started_ns=$(date +%s%N)
+    deadline_ns=$((started_ns + DETACH_WAIT_TIMEOUT_MS * 1000000))
     : > "$observations"
-    for attempt in $(seq 0 500); do
+    while true; do
         local sample="$scratch/$prefix-detach-sample.json"
         set +e
         bpftool -j link show pinned "$pin" > "$sample" 2> "$sample.stderr"
         local status=$?
         set -e
+        local observed_ns elapsed_ms
+        observed_ns=$(date +%s%N)
+        elapsed_ms=$(((observed_ns - started_ns) / 1000000))
         jq -e '.id > 0 and .prog_id > 0 and .type == "cgroup"' "$sample" >/dev/null
         jq -c --argjson attempt "$attempt" --argjson command_exit "$status" \
-            --arg timestamp_ns "$(date +%s%N)" \
-            '. + {attempt: $attempt, command_exit: $command_exit, timestamp_ns: $timestamp_ns}' \
+            --argjson elapsed_ms "$elapsed_ms" \
+            --argjson timeout_ms "$DETACH_WAIT_TIMEOUT_MS" \
+            --argjson poll_interval_ms "$DETACH_POLL_INTERVAL_MS" \
+            --arg timestamp_ns "$observed_ns" '
+            . + {
+              attempt: $attempt,
+              command_exit: $command_exit,
+              timestamp_ns: $timestamp_ns,
+              elapsed_ms: $elapsed_ms,
+              timeout_ms: $timeout_ms,
+              poll_interval_ms: $poll_interval_ms
+            }' \
             "$sample" >> "$observations"
-        if [[ $(jq -r '.cgroup_id' "$sample") == 0 ]]; then
+        if [[ $(jq -r '.cgroup_id' "$sample") == 0 && $observed_ns -le $deadline_ns ]]; then
             return 0
         fi
-        sleep 0.002
+        if ((observed_ns >= deadline_ns)); then
+            break
+        fi
+        attempt=$((attempt + 1))
+        sleep 0.010
     done
     echo "link did not report cgroup_id zero inside the bounded detach window" >&2
     return 1
@@ -172,6 +194,9 @@ bpftool -j -p map show > "$evidence/baseline-maps.json"
 uname -a > "$evidence/uname.txt"
 systemd --version > "$evidence/systemd-version.txt"
 bpftool version > "$evidence/bpftool-version.txt"
+printf '{"timeout_ms":%d,"poll_interval_ms":%d}\n' \
+    "$DETACH_WAIT_TIMEOUT_MS" "$DETACH_POLL_INTERVAL_MS" \
+    > "$evidence/detach-wait-parameters.json"
 sha256sum "$object" "$loader" > "$evidence/artifact-sha256.txt"
 
 # Direct kernel release: an empty cgroup with a pinned cgroup BPF link.
