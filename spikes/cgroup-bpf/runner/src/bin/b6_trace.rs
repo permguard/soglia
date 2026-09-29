@@ -79,9 +79,9 @@ fn run() -> Result<(), String> {
     let deadline = Instant::now() + Duration::from_secs(30);
     let mut tracees = BTreeSet::new();
     let mut pending: HashMap<Pid, Option<SyscallEntry>> = HashMap::new();
+    let options = trace_options_for_boundary(&boundary);
     for tid in task_ids(root_pid)? {
-        ptrace::seize(tid, TRACE_OPTIONS)
-            .map_err(|error| format!("PTRACE_SEIZE {tid}: {error}"))?;
+        ptrace::seize(tid, options).map_err(|error| format!("PTRACE_SEIZE {tid}: {error}"))?;
         ptrace::interrupt(tid).map_err(|error| format!("PTRACE_INTERRUPT {tid}: {error}"))?;
         tracees.insert(tid);
         pending.insert(tid, None);
@@ -389,6 +389,17 @@ fn startup_listener_port(boundary: &str) -> Option<u16> {
         .ok()
 }
 
+fn trace_options_for_boundary(boundary: &str) -> Options {
+    if startup_listener_port(boundary).is_some() {
+        // The listener is created before Tokio has necessarily spawned its worker threads. Those
+        // workers must remain untraced so they can accept the qualification request while the
+        // startup thread advances one instruction at a time and cannot reach READY.
+        Options::PTRACE_O_TRACESYSGOOD
+    } else {
+        TRACE_OPTIONS
+    }
+}
+
 fn listener_has_port(pid: Pid, fd: u64, expected_port: u16) -> Result<bool, String> {
     let fd = i32::try_from(fd).map_err(|_| "listener fd overflow")?;
     let target = fs::read_link(format!("/proc/{pid}/fd/{fd}"))
@@ -542,6 +553,24 @@ fn startup_admission_probe(port: u16) -> Result<(u16, String), String> {
         .parse::<u16>()
         .map_err(|error| error.to_string())?;
     Ok((status, head))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn listener_boundary_leaves_new_workers_untraced() {
+        let listener = trace_options_for_boundary("startup_listener_bound:18116");
+        assert!(listener.contains(Options::PTRACE_O_TRACESYSGOOD));
+        assert!(!listener.contains(Options::PTRACE_O_TRACECLONE));
+        assert!(!listener.contains(Options::PTRACE_O_TRACEFORK));
+
+        let durable = trace_options_for_boundary("host_intent");
+        assert!(durable.contains(Options::PTRACE_O_TRACECLONE));
+        assert!(durable.contains(Options::PTRACE_O_TRACEFORK));
+        assert!(durable.contains(Options::PTRACE_O_TRACEEXEC));
+    }
 }
 
 fn boundary_matches(

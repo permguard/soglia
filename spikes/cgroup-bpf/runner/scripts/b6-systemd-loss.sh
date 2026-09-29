@@ -238,11 +238,11 @@ fi
 
 mapfile -t execution_cgroups < <(find "$unit_cgroup/executions" -mindepth 1 -maxdepth 1 -type d | sort)
 old_agents=()
-event_fds=()
+: > "$evidence/execution-cgroup-events-before-loss.txt"
 for cgroup in "${execution_cgroups[@]}"; do
   while read -r pid; do [[ -n "$pid" ]] && old_agents+=("$pid"); done < "$cgroup/cgroup.procs"
-  exec {event_fd}< "$cgroup/cgroup.events"
-  event_fds+=("$event_fd")
+  printf 'cgroup=%s\n' "$cgroup" >> "$evidence/execution-cgroup-events-before-loss.txt"
+  cat "$cgroup/cgroup.events" >> "$evidence/execution-cgroup-events-before-loss.txt"
 done
 printf '%s\n' "${old_agents[@]}" > "$evidence/old-agent-pids.txt"
 ss -H -n -t -a > "$evidence/sockets-before-loss.txt"
@@ -287,11 +287,10 @@ new_restarts=$(nrestarts)
 [[ "$new_restarts" -eq $((old_restarts + 1)) ]]
 [[ "$agents_gone_before_restart" == true ]]
 : > "$evidence/execution-cgroup-events-before-new-main.txt"
-for index in "${!event_fds[@]}"; do
-  cgroup=${execution_cgroups[$index]}
-  fd=${event_fds[$index]}
+for cgroup in "${execution_cgroups[@]}"; do
   if [[ -e "$cgroup" ]]; then
-    cat "/proc/$$/fd/$fd" >> "$evidence/execution-cgroup-events-before-new-main.txt"
+    printf 'cgroup=%s\n' "$cgroup" >> "$evidence/execution-cgroup-events-before-new-main.txt"
+    cat "$cgroup/cgroup.events" >> "$evidence/execution-cgroup-events-before-new-main.txt"
   else
     printf 'cgroup=%s state=ABSENT_AFTER_VERIFIED_KILL\n' "$cgroup" \
       >> "$evidence/execution-cgroup-events-before-new-main.txt"
