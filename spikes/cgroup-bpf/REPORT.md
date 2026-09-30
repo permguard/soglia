@@ -1039,3 +1039,51 @@ Work items:
 5. Extend B7 with a burst row that declares a burst size and requires zero refusals up to it, plus a saturation row that proves typed `QueueFull` beyond the ceiling with no effect.
 6. Requalify: this is a production change, so it starts a new production baseline and requires the complete authoritative B1-B7 sequence on it, run through a single `spike:qualify` command with automatic evidence verification.
 7. Document the setting and its limits in `README.md` and in the site's "Run Soglia" page.
+
+## Deferred work: warm pool of never-used Executions
+
+Status: proposed on 2026-09-30; not designed in detail and not implemented. It is a throughput and latency lever for higher call volumes, planned after Phase 1 closes and after the parallel Resolve path.
+
+At high volume the cost of a call is dominated by creating its Execution (namespaces, cgroup, veth, nftables, runc container), not by Resolve.
+A warm pool keeps N Executions prepared in advance and never used: each one serves exactly one call and is then destroyed, as with pre-started microVMs in serverless platforms.
+Nothing is ever reused, so the one-Execution-per-call model is unchanged.
+
+The Supervisor already has the admission queue this builds on, in `crates/soglia-supervisor/src/supervisor.rs`: a `running` semaphore sized `max_concurrency` and a `waiting` semaphore sized `max_queue`; a call starts when a running permit is free, otherwise waits in a bounded queue, and is refused when the queue is full.
+
+The existing Execution lifecycle, whose boundaries B6 qualifies one by one, splits naturally:
+
+- ahead of time, into the pool: prepare network and cgroup with the policy frozen, then `runc create` the container paused; no agent code has run and the zone holds no authority;
+- on arrival of a call: generate the execution nonce, bind the `BindingKey`, activate the policy and `runc start` the agent; the call's authority enters only now;
+- at the end: destroy the zone, and only after its cleanup is verified prepare a fresh one with a new cgroup and a new nonce.
+
+Rules to fix in the design:
+
+1. A zone is used once and never returned to the pool.
+2. At claim time the zone is revalidated: never started, cgroup holding only the paused init, nftables intact, current BPF generation. Any mismatch destroys the zone instead of using it.
+3. Zones expire after a bounded idle time and are recreated; after an Enforcer restart every old zone is destroyed.
+4. Rootfs, command and environment differ per agent, so the pool and its size N are per agent.
+
+Sizing, by Little's law (items waiting = arrival rate × waiting time):
+
+- **N, warm zones:** enough to cover recreation time, about calls per second × time to prepare one zone, plus headroom for bursts; for example 20 calls/s × 0.15 s ≈ 3 zones.
+- **`max_queue`, waiting calls:** at most (caller timeout ÷ mean call duration) × `max_concurrency`; for example 30 s ÷ 2 s × 4 = 60. Beyond that, an immediate refusal is better than a wait that will time out.
+- **Budget:** every waiting call holds an ingress connection and its request body, so the queue needs `max_queue` × `max_request_bytes` of memory and `max_queue` file descriptors, within the same `LimitNOFILE` budget as the parallel Resolve path.
+- **Capacity:** warm zones + running Executions + zones being cleaned ≤ `policy_capacity`, because a warm zone already holds a frozen policy entry.
+
+Qualification: the change touches the Execution lifecycle, so it requires the complete B1-B7 sequence on its production baseline, with B3, B6 and B7 extended for claim-time revalidation, crash boundaries inside the pool and pool sizing, plus the T1-T9/H1-H4 regressions.
+
+### Kernel pressure under Execution churn
+
+Creating and destroying zones at high rate stresses the kernel in ways the qualification has not yet measured; B7 measured thousands of connection cycles, not a long run of Execution lifecycles.
+
+- **Dying cgroups.** Page cache read by an Execution is charged to its memory cgroup, which then stays in memory after removal until the pages are reclaimed. The B6 review VM already held 66 dying cgroups for 28 live ones. Mitigations: pre-read each agent rootfs from a permanent cgroup, such as the runtime's own, so Execution cgroups hold no page cache of their own and die at once; watch `nr_dying_descendants` and stop admission above a threshold rather than let the host degrade.
+- **Network namespace teardown is asynchronous.** The kernel dismantles namespaces in a system worker, so creation faster than teardown builds a backlog. Mitigation: bound the creation rate; the warm pool spreads creations over time instead of concentrating them in bursts.
+- **veth operations take the global `rtnl_lock`.** Parallel link creation and removal serialize and slow other host networking. Mitigation: bound parallel link operations and use netlink directly instead of one `ip` process per operation.
+- **nftables** changes are transactions; cheap at normal rates, still to be measured.
+- **Ephemeral ports on the proxy's upstream side.** Every HTTPS tunnel opens its own upstream connection that cannot be pooled, because TLS runs end to end between the agent and the service, and each closed connection holds a local port in TIME_WAIT for 60 s. For example, 50 Executions/s × 10 connections to the same API is 500 connections/s × 60 s = 30,000 ports, above the default range of about 28,000 per destination, after which new connections fail. Mitigations: widen `net.ipv4.ip_local_port_range`, enable `net.ipv4.tcp_tw_reuse=1` for outbound connections, and if needed give the proxy several source addresses.
+- **Process zombies** are a low risk: each agent runs in its own PID namespace, which the kernel tears down with the Execution, and the Sandbox reaps the runc processes; B6 proved no agent process survives loss. The soak still counts zombies over time.
+
+Not a concern by design: the six shared BPF programs and links stay constant as Executions come and go (qualified by B7), map-entry updates are cheap, and 64-bit cgroup IDs are never reused.
+
+Required before pushing volume: an Execution churn soak of tens of thousands of lifecycles that tracks, over time, `nr_dying_descendants`, kernel memory, namespace-teardown backlog, zombie processes, TIME_WAIT sockets and free ephemeral ports per destination, and creation latency; a rising creation latency is the signature of accumulation.
+The soak raises the rate until one of these starts to grow; that rate becomes the declared sustainable rate, and admission-stop valves on the same signals keep the host from degrading beyond it.
