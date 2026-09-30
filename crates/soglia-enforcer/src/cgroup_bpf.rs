@@ -39,11 +39,15 @@ use soglia_core::helper::{
 use soglia_core::id::{BindingKey, ExecutionId, ExecutionNonce, ResourceTag};
 use soglia_core::records;
 
-use crate::backend::{BackendError, EnforcementBackend, NetnsNftBackend, NetworkSettings};
+use crate::backend::{
+    BackendError, EnforcementBackend, NetnsNftBackend, NetworkSettings, PreparedNetworkUninstall,
+};
 use crate::system;
 
 const OBJECT: &[u8] = include_bytes!(concat!(env!("OUT_DIR"), "/soglia-cgroup-bpf.o"));
 const STATE_FILE: &str = "state.json";
+const UNINSTALL_FILE: &str = "uninstall.json";
+const UNINSTALL_SCHEMA: u32 = 1;
 const STATE_SCHEMA: u32 = 3;
 const BPF_ABI: u32 = 2;
 const META_MAGIC: u64 = 0x534f_474c_4941_4250;
@@ -173,6 +177,41 @@ struct AttachmentHandle {
 enum ManifestPhase {
     Intent,
     Ready,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+struct UninstallIntent {
+    schema: u32,
+    state: HostState,
+}
+
+enum GenerationClassification {
+    Fresh,
+    Recorded {
+        state: Box<HostState>,
+        target_released: bool,
+    },
+}
+
+/// A complete uninstall plan whose ownership predicates were checked before mutation.
+pub struct PreparedCgroupBpfUninstall {
+    backend: CgroupBpfBackend,
+    generation: GenerationClassification,
+    network: PreparedNetworkUninstall,
+}
+
+/// Machine-readable result of a dry-run or completed cgroup-BPF uninstall.
+#[derive(Debug, Serialize)]
+pub struct CgroupBpfUninstallReport {
+    /// Ownership classification used for the operation.
+    pub classification: &'static str,
+    /// Whether this was a validation-only run.
+    pub dry_run: bool,
+    /// Exact operation descriptions derived from trusted records.
+    pub operations: Vec<String>,
+    /// Whether final absence was independently verified.
+    pub absence_verified: bool,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -331,6 +370,35 @@ impl CgroupBpfBackend {
         })
     }
 
+    /// Validates the complete cgroup-BPF and network uninstall plan without mutating it.
+    pub fn prepare_uninstall(
+        config: &Config,
+        sandbox_tags: &BTreeSet<String>,
+    ) -> Result<PreparedCgroupBpfUninstall, BackendError> {
+        let backend = Self::from_config(config)?;
+        validate_private_directory_if_present(&config.runtime.state_dir)?;
+        validate_private_directory_if_present(&backend.settings.state_dir)?;
+        validate_private_directory_if_present(&backend.settings.configured_pin_root)?;
+        backend.probe_capabilities()?;
+        let generation = backend.classify_generation(true, Some(sandbox_tags))?;
+        if let GenerationClassification::Recorded { state, .. } = &generation
+            && state
+                .executions
+                .keys()
+                .any(|tag| !sandbox_tags.contains(tag))
+        {
+            return Err(BackendError::Unknown(
+                "UNKNOWN BPF Execution record has no matching Sandbox ownership record".to_owned(),
+            ));
+        }
+        let network = backend.network.prepare_uninstall()?;
+        Ok(PreparedCgroupBpfUninstall {
+            backend,
+            generation,
+            network,
+        })
+    }
+
     /// Every Execution whose frozen/active state this generation owns.
     pub fn live_tags(&self) -> Vec<ResourceTag> {
         self.live.keys().copied().collect()
@@ -392,8 +460,13 @@ impl CgroupBpfBackend {
         Ok(())
     }
 
-    fn classify_and_recover(&self) -> Result<(ExecutionNonce, u64, Vec<String>), BackendError> {
+    fn uninstall_path(&self) -> PathBuf {
+        self.settings.state_dir.join(UNINSTALL_FILE)
+    }
+
+    fn recorded_state(&self, uninstall: bool) -> Result<Option<HostState>, BackendError> {
         validate_state_file(&self.state_path())?;
+        validate_state_file(&self.uninstall_path())?;
         let recorded: Option<HostState> = records::read(&self.settings.state_dir, STATE_FILE)
             .map_err(|error| {
                 if error.kind() == io::ErrorKind::InvalidData {
@@ -404,6 +477,25 @@ impl CgroupBpfBackend {
                     BackendError::from(error)
                 }
             })?;
+        let intent: Option<UninstallIntent> =
+            records::read(&self.settings.state_dir, UNINSTALL_FILE).map_err(|error| {
+                if error.kind() == io::ErrorKind::InvalidData {
+                    BackendError::Incompatible(format!(
+                        "INCOMPATIBLE cgroup-BPF uninstall record: {error}"
+                    ))
+                } else {
+                    BackendError::from(error)
+                }
+            })?;
+        select_recorded_state(recorded, intent, uninstall)
+    }
+
+    fn classify_generation(
+        &self,
+        uninstall: bool,
+        sandbox_tags: Option<&BTreeSet<String>>,
+    ) -> Result<GenerationClassification, BackendError> {
+        let recorded = self.recorded_state(uninstall)?;
         let pin_entries = directory_entries(&self.settings.configured_pin_root)?;
         let Some(mut state) = recorded else {
             if !pin_entries.is_empty() {
@@ -412,7 +504,7 @@ impl CgroupBpfBackend {
                     self.settings.configured_pin_root.display()
                 )));
             }
-            return Ok((ExecutionNonce::generate()?, 1, Vec::new()));
+            return Ok(GenerationClassification::Fresh);
         };
         if state.schema != STATE_SCHEMA
             || state.abi != BPF_ABI
@@ -464,12 +556,29 @@ impl CgroupBpfBackend {
                 state.ancestor_bpf = current;
                 self.publish_state(&state)?;
             }
-            if has_child_cgroup(&self.settings.executions)? {
+            if let Some(tags) = sandbox_tags {
+                validate_owned_uninstall_children(&self.settings.executions, tags)?;
+            } else if has_child_cgroup(&self.settings.executions)? {
                 return Err(BackendError::Unknown(
                     "Execution cgroups remain after the mandatory Sandbox sweep".to_owned(),
                 ));
             }
         }
+        Ok(GenerationClassification::Recorded {
+            state: Box::new(state),
+            target_released,
+        })
+    }
+
+    fn classify_and_recover(&self) -> Result<(ExecutionNonce, u64, Vec<String>), BackendError> {
+        let generation = self.classify_generation(false, None)?;
+        let GenerationClassification::Recorded {
+            mut state,
+            target_released,
+        } = generation
+        else {
+            return Ok((ExecutionNonce::generate()?, 1, Vec::new()));
+        };
         if state.phase == ManifestPhase::Ready {
             // Durable recovery intent precedes every unlink. A crash after any individual unlink
             // therefore resumes from an explicitly owned subset, never from a silently damaged
@@ -1865,6 +1974,128 @@ impl CgroupBpfBackend {
     }
 }
 
+impl PreparedCgroupBpfUninstall {
+    /// Returns the exact plan without changing host state.
+    pub fn dry_run_report(&self) -> CgroupBpfUninstallReport {
+        let (classification, mut operations) = match &self.generation {
+            GenerationClassification::Fresh => ("FRESH", Vec::new()),
+            GenerationClassification::Recorded {
+                state,
+                target_released,
+            } => (
+                if *target_released {
+                    "TARGET_RELEASED"
+                } else {
+                    "KNOWN_COMPATIBLE"
+                },
+                vec![format!(
+                    "remove recorded cgroup-BPF generation {}",
+                    state.generation
+                )],
+            ),
+        };
+        operations.extend(self.network.planned_operations());
+        CgroupBpfUninstallReport {
+            classification,
+            dry_run: true,
+            operations,
+            absence_verified: false,
+        }
+    }
+
+    /// Executes the previously validated exact plan and verifies final absence.
+    pub fn execute(self) -> Result<CgroupBpfUninstallReport, BackendError> {
+        let PreparedCgroupBpfUninstall {
+            backend,
+            generation,
+            network,
+        } = self;
+        let (classification, mut operations) = match generation {
+            GenerationClassification::Fresh => ("FRESH", Vec::new()),
+            GenerationClassification::Recorded {
+                mut state,
+                target_released,
+            } => {
+                let classification = if target_released {
+                    "TARGET_RELEASED"
+                } else {
+                    "KNOWN_COMPATIBLE"
+                };
+                state.phase = ManifestPhase::Intent;
+                let intent = UninstallIntent {
+                    schema: UNINSTALL_SCHEMA,
+                    state: (*state).clone(),
+                };
+                records::publish(&backend.settings.state_dir, UNINSTALL_FILE, &intent)?;
+                fs::set_permissions(backend.uninstall_path(), fs::Permissions::from_mode(0o600))?;
+                backend.publish_state(&state)?;
+                if target_released {
+                    backend.detach_released_links(&state)?;
+                }
+                backend.remove_recorded_pins(&state)?;
+                backend.verify_recorded_objects_absent(&state)?;
+                let owned: BTreeSet<u32> =
+                    state.programs.iter().map(|program| program.id).collect();
+                let external = backend.foreign_effective_fingerprint(&owned)?;
+                require_same_external_inventory(
+                    &state.ancestor_bpf,
+                    &external,
+                    "after verified uninstall",
+                )?;
+                (
+                    classification,
+                    vec![format!(
+                        "remove recorded cgroup-BPF generation {}",
+                        state.generation
+                    )],
+                )
+            }
+        };
+
+        operations.extend(network.planned_operations());
+        backend.network.execute_uninstall(&network)?;
+        records::remove(&backend.settings.state_dir, STATE_FILE)?;
+        remove_file_if_present(
+            &backend
+                .settings
+                .state_dir
+                .join(format!(".{STATE_FILE}.tmp")),
+        )?;
+        records::remove(&backend.settings.state_dir, UNINSTALL_FILE)?;
+        remove_file_if_present(
+            &backend
+                .settings
+                .state_dir
+                .join(format!(".{UNINSTALL_FILE}.tmp")),
+        )?;
+        for directory in [
+            &backend.settings.state_dir,
+            &backend.settings.configured_pin_root,
+        ] {
+            match fs::remove_dir(directory) {
+                Ok(()) => {}
+                Err(error) if error.kind() == io::ErrorKind::NotFound => {}
+                Err(error) => return Err(error.into()),
+            }
+        }
+        if backend.state_path().exists()
+            || backend.uninstall_path().exists()
+            || backend.settings.state_dir.exists()
+            || backend.settings.configured_pin_root.exists()
+        {
+            return Err(BackendError::Failed(
+                "verified uninstall left cgroup-BPF state or pins behind".to_owned(),
+            ));
+        }
+        Ok(CgroupBpfUninstallReport {
+            classification,
+            dry_run: false,
+            operations,
+            absence_verified: true,
+        })
+    }
+}
+
 fn validate_ring_event(event: &[u8]) -> Result<u32, BackendError> {
     if event.len() != RING_EVENT_WIDTH {
         return Err(BackendError::Failed(format!(
@@ -3229,6 +3460,46 @@ fn directory_entries(path: &Path) -> io::Result<Vec<PathBuf>> {
     }
 }
 
+fn same_recorded_generation(left: &HostState, right: &HostState) -> bool {
+    left.schema == right.schema
+        && left.abi == right.abi
+        && left.state_id == right.state_id
+        && left.generation == right.generation
+        && left.object_sha256 == right.object_sha256
+        && left.config_sha256 == right.config_sha256
+        && left.attachment_target == right.attachment_target
+        && left.attachment_inode == right.attachment_inode
+        && left.pin_root == right.pin_root
+}
+
+fn select_recorded_state(
+    recorded: Option<HostState>,
+    intent: Option<UninstallIntent>,
+    uninstall: bool,
+) -> Result<Option<HostState>, BackendError> {
+    let Some(intent) = intent else {
+        return Ok(recorded);
+    };
+    if !uninstall {
+        return Err(BackendError::Unknown(
+            "an interrupted verified uninstall must be resumed with `soglia uninstall`".to_owned(),
+        ));
+    }
+    if intent.schema != UNINSTALL_SCHEMA || intent.state.phase != ManifestPhase::Intent {
+        return Err(BackendError::Incompatible(
+            "INCOMPATIBLE cgroup-BPF uninstall record".to_owned(),
+        ));
+    }
+    if let Some(current) = recorded
+        && !same_recorded_generation(&current, &intent.state)
+    {
+        return Err(BackendError::Unknown(
+            "UNKNOWN uninstall and ownership records identify different generations".to_owned(),
+        ));
+    }
+    Ok(Some(intent.state))
+}
+
 fn resource_envelope(settings: &Settings) -> Result<ResourceEnvelope, BackendError> {
     let memlock = rustix::process::getrlimit(rustix::process::Resource::Memlock);
     let nofile = rustix::process::getrlimit(rustix::process::Resource::Nofile);
@@ -3257,6 +3528,25 @@ fn ensure_private_directory(path: &Path) -> Result<(), BackendError> {
     if fs::symlink_metadata(path)?.mode() & 0o777 != 0o700 {
         return Err(BackendError::Unknown(format!(
             "{} could not be restricted to mode 0700",
+            path.display()
+        )));
+    }
+    Ok(())
+}
+
+fn validate_private_directory_if_present(path: &Path) -> Result<(), BackendError> {
+    let metadata = match fs::symlink_metadata(path) {
+        Ok(metadata) => metadata,
+        Err(error) if error.kind() == io::ErrorKind::NotFound => return Ok(()),
+        Err(error) => return Err(error.into()),
+    };
+    if !metadata.file_type().is_dir()
+        || metadata.file_type().is_symlink()
+        || metadata.uid() != 0
+        || metadata.mode() & 0o777 != 0o700
+    {
+        return Err(BackendError::Unknown(format!(
+            "{} is not a root-owned real mode-0700 directory",
             path.display()
         )));
     }
@@ -3311,6 +3601,35 @@ fn has_child_cgroup(executions: &Path) -> Result<bool, BackendError> {
         }
     }
     Ok(false)
+}
+
+fn validate_owned_uninstall_children(
+    executions: &Path,
+    sandbox_tags: &BTreeSet<String>,
+) -> Result<(), BackendError> {
+    for entry in fs::read_dir(executions)? {
+        let entry = entry?;
+        if !entry.file_type()?.is_dir() {
+            continue;
+        }
+        let name = entry.file_name().to_string_lossy().into_owned();
+        if !sandbox_tags.contains(&name) {
+            return Err(BackendError::Unknown(format!(
+                "UNKNOWN Execution cgroup {} has no matching Sandbox record",
+                entry.path().display()
+            )));
+        }
+        if !fs::read_to_string(entry.path().join("cgroup.procs"))?
+            .trim()
+            .is_empty()
+        {
+            return Err(BackendError::Failed(format!(
+                "Execution cgroup {} is not stopped",
+                entry.path().display()
+            )));
+        }
+    }
+    Ok(())
 }
 
 fn recursive_files(root: &Path, allow_partial: bool) -> Result<BTreeSet<PathBuf>, BackendError> {
@@ -3760,6 +4079,61 @@ mod tests {
             .unwrap()
             .remove("attachment_handle");
         assert!(serde_json::from_value::<HostState>(previous).is_err());
+    }
+
+    #[test]
+    fn uninstall_intent_is_the_only_authority_for_an_interrupted_resume() {
+        let ready = serializable_host_state();
+        let mut interrupted = ready.clone();
+        interrupted.phase = ManifestPhase::Intent;
+        let intent = UninstallIntent {
+            schema: UNINSTALL_SCHEMA,
+            state: interrupted.clone(),
+        };
+        let resumed = select_recorded_state(Some(ready.clone()), Some(intent.clone()), true)
+            .unwrap()
+            .unwrap();
+        assert_eq!(resumed.phase, ManifestPhase::Intent);
+        assert!(matches!(
+            select_recorded_state(Some(ready.clone()), Some(intent.clone()), false),
+            Err(BackendError::Unknown(_))
+        ));
+
+        let mut wrong_generation = intent.clone();
+        wrong_generation.state.generation += 1;
+        assert!(matches!(
+            select_recorded_state(Some(ready), Some(wrong_generation), true),
+            Err(BackendError::Unknown(_))
+        ));
+        let mut wrong_schema = intent;
+        wrong_schema.schema += 1;
+        assert!(matches!(
+            select_recorded_state(None, Some(wrong_schema), true),
+            Err(BackendError::Incompatible(_))
+        ));
+    }
+
+    #[test]
+    fn uninstall_accepts_only_empty_children_named_by_sandbox_records() {
+        let root = std::env::temp_dir().join(format!(
+            "soglia-uninstall-children-{}",
+            ExecutionId::generate().unwrap()
+        ));
+        let child = root.join("0123456789");
+        fs::create_dir_all(&child).unwrap();
+        fs::write(child.join("cgroup.procs"), "").unwrap();
+        let owned = BTreeSet::from(["0123456789".to_owned()]);
+        assert!(validate_owned_uninstall_children(&root, &owned).is_ok());
+        assert!(matches!(
+            validate_owned_uninstall_children(&root, &BTreeSet::new()),
+            Err(BackendError::Unknown(_))
+        ));
+        fs::write(child.join("cgroup.procs"), "123\n").unwrap();
+        assert!(matches!(
+            validate_owned_uninstall_children(&root, &owned),
+            Err(BackendError::Failed(_))
+        ));
+        fs::remove_dir_all(root).unwrap();
     }
 
     #[test]

@@ -103,6 +103,15 @@ enum Command {
         #[arg(short = 'f', long = "file", value_name = "PATH")]
         file: PathBuf,
     },
+    /// Remove only Soglia resources whose ownership can be proved from durable state.
+    Uninstall {
+        /// Validate and print the exact plan without changing host state.
+        #[arg(long)]
+        dry_run: bool,
+        /// The configuration file used by the installation.
+        #[arg(short = 'f', long = "file", value_name = "PATH")]
+        file: PathBuf,
+    },
     /// The privileged sandbox role, entered by `soglia run`.
     #[command(name = "__sandboxd", hide = true)]
     Sandboxd,
@@ -117,6 +126,7 @@ enum Command {
 fn main() -> ExitCode {
     let outcome = match Cli::parse().command {
         Command::Run { file } => runtime::run(&file),
+        Command::Uninstall { dry_run, file } => runtime::uninstall(&file, dry_run),
         Command::Sandboxd => runtime::sandboxd().map_err(ProcessError::from),
         Command::Enforcer => runtime::enforcer().map_err(ProcessError::from),
         Command::CaSigner => DeferredComponent::CaSigner
@@ -127,20 +137,30 @@ fn main() -> ExitCode {
     match outcome {
         Ok(()) => ExitCode::SUCCESS,
         Err(error) => {
-            if let ProcessError::StartupRefused { failure, .. } = &error {
+            if let ProcessError::StartupRefused { context, failure } = &error {
                 let (hook, errno) = match failure {
                     HelperFailure::Refused { .. } => (None, None),
                     HelperFailure::IncompatibleBpfTopology { hook, errno, .. } => {
                         (Some(hook.as_str()), *errno)
                     }
                 };
-                tracing::error!(
-                    event.name = "startup.refused",
-                    refusal.class = failure.event_class(),
-                    refusal.hook = hook,
-                    refusal.errno = errno,
-                    "Soglia refused startup"
-                );
+                if context == "uninstall refused" {
+                    tracing::error!(
+                        event.name = "uninstall.refused",
+                        refusal.class = failure.event_class(),
+                        refusal.hook = hook,
+                        refusal.errno = errno,
+                        "Soglia refused uninstall"
+                    );
+                } else {
+                    tracing::error!(
+                        event.name = "startup.refused",
+                        refusal.class = failure.event_class(),
+                        refusal.hook = hook,
+                        refusal.errno = errno,
+                        "Soglia refused startup"
+                    );
+                }
             }
             eprintln!("soglia: {error}");
             ExitCode::from(error.exit_code())
@@ -151,6 +171,8 @@ fn main() -> ExitCode {
 mod runtime {
     use std::fs;
     use std::net::{IpAddr, SocketAddr};
+    #[cfg(feature = "cgroup-bpf")]
+    use std::os::unix::fs::MetadataExt;
     use std::os::unix::fs::PermissionsExt;
     use std::os::unix::process::ExitStatusExt;
     use std::path::{Path, PathBuf};
@@ -160,7 +182,7 @@ mod runtime {
 
     use soglia_core::Config;
     use soglia_core::config::NetworkBackend;
-    use soglia_core::helper::RefusalClass;
+    use soglia_core::helper::{HelperFailure, RefusalClass};
     use soglia_proxy::attribution::{AttributionTable, ConnectionAttributor};
     use soglia_proxy::egress::{EgressLimits, EgressProxy};
     use soglia_proxy::ingress::{self, Executor, IngressLimits};
@@ -176,13 +198,7 @@ mod runtime {
 
     use crate::ProcessError;
 
-    /// `soglia run -f <file>`.
-    pub fn run(file: &Path) -> Result<(), ProcessError> {
-        tracing_subscriber::fmt()
-            .with_writer(std::io::stderr)
-            .with_target(false)
-            .init();
-
+    fn read_config(file: &Path) -> Result<(String, Config), ProcessError> {
         let text = fs::read_to_string(file).map_err(|error| {
             ProcessError::refused(
                 RefusalClass::Infrastructure,
@@ -192,6 +208,17 @@ mod runtime {
         let config = Config::from_yaml(&text).map_err(|error| {
             ProcessError::refused(RefusalClass::Incompatible, error.to_string())
         })?;
+        Ok((text, config))
+    }
+
+    /// `soglia run -f <file>`.
+    pub fn run(file: &Path) -> Result<(), ProcessError> {
+        tracing_subscriber::fmt()
+            .with_writer(std::io::stderr)
+            .with_target(false)
+            .init();
+
+        let (text, config) = read_config(file)?;
         let policy =
             DestinationPolicy::new(&config.egress, &config.network, control_addresses(&config))
                 .map_err(|error| {
@@ -260,6 +287,250 @@ mod runtime {
         drop(lock);
 
         result.map_err(ProcessError::from)
+    }
+
+    /// `soglia uninstall -f <file>`.
+    #[cfg(feature = "cgroup-bpf")]
+    pub fn uninstall(file: &Path, dry_run: bool) -> Result<(), ProcessError> {
+        tracing_subscriber::fmt()
+            .with_writer(std::io::stderr)
+            .with_target(false)
+            .init();
+        let (_, config) = read_config(file)?;
+        if !rustix::process::geteuid().is_root() {
+            return Err(ProcessError::StartupRefused {
+                context: "uninstall refused".to_owned(),
+                failure: HelperFailure::Refused {
+                    class: RefusalClass::Unsupported,
+                    detail: "soglia uninstall must run as root".to_owned(),
+                },
+            });
+        }
+        if config.network.backend != NetworkBackend::CgroupBpf {
+            return Err(ProcessError::StartupRefused {
+                context: "uninstall refused".to_owned(),
+                failure: HelperFailure::Refused {
+                    class: RefusalClass::Unsupported,
+                    detail: "verified uninstall currently requires network.backend: cgroup-bpf"
+                        .to_owned(),
+                },
+            });
+        }
+
+        let state = &config.runtime.state_dir;
+        if state.exists() {
+            let metadata =
+                fs::symlink_metadata(state).map_err(|error| ProcessError::StartupRefused {
+                    context: "uninstall refused".to_owned(),
+                    failure: HelperFailure::Refused {
+                        class: RefusalClass::Infrastructure,
+                        detail: format!("cannot inspect {}: {error}", state.display()),
+                    },
+                })?;
+            if !metadata.file_type().is_dir()
+                || metadata.file_type().is_symlink()
+                || metadata.uid() != 0
+                || metadata.mode() & 0o777 != 0o700
+            {
+                return Err(ProcessError::StartupRefused {
+                    context: "uninstall refused".to_owned(),
+                    failure: HelperFailure::Refused {
+                        class: RefusalClass::Unknown,
+                        detail: format!(
+                            "{} is not a root-owned real mode-0700 directory",
+                            state.display()
+                        ),
+                    },
+                });
+            }
+        }
+        let lock = if state.exists() && state.join("lock").exists() {
+            let lock_path = state.join("lock");
+            let metadata =
+                fs::symlink_metadata(&lock_path).map_err(|error| ProcessError::StartupRefused {
+                    context: "uninstall refused".to_owned(),
+                    failure: HelperFailure::Refused {
+                        class: RefusalClass::Infrastructure,
+                        detail: format!("cannot inspect {}: {error}", lock_path.display()),
+                    },
+                })?;
+            if !metadata.file_type().is_file()
+                || metadata.file_type().is_symlink()
+                || metadata.uid() != 0
+                || metadata.nlink() != 1
+                || metadata.mode() & 0o022 != 0
+            {
+                return Err(ProcessError::StartupRefused {
+                    context: "uninstall refused".to_owned(),
+                    failure: HelperFailure::Refused {
+                        class: RefusalClass::Unknown,
+                        detail: "the runtime lock identity is not trusted".to_owned(),
+                    },
+                });
+            }
+            let lock = fs::OpenOptions::new()
+                .read(true)
+                .write(true)
+                .open(&lock_path)
+                .map_err(|error| ProcessError::StartupRefused {
+                    context: "uninstall refused".to_owned(),
+                    failure: HelperFailure::Refused {
+                        class: RefusalClass::Unknown,
+                        detail: format!(
+                            "the runtime state exists but its exact lock cannot be opened: {error}"
+                        ),
+                    },
+                })?;
+            lock.try_lock().map_err(|_| ProcessError::StartupRefused {
+                context: "uninstall refused".to_owned(),
+                failure: HelperFailure::Refused {
+                    class: RefusalClass::Infrastructure,
+                    detail: format!("the Soglia runtime is still active on {}", state.display()),
+                },
+            })?;
+            Some(lock)
+        } else if state.exists() {
+            let mut entries =
+                fs::read_dir(state).map_err(|error| ProcessError::StartupRefused {
+                    context: "uninstall refused".to_owned(),
+                    failure: HelperFailure::Refused {
+                        class: RefusalClass::Infrastructure,
+                        detail: format!("cannot inspect the runtime state root: {error}"),
+                    },
+                })?;
+            if entries.next().is_some() {
+                return Err(ProcessError::StartupRefused {
+                    context: "uninstall refused".to_owned(),
+                    failure: HelperFailure::Refused {
+                        class: RefusalClass::Unknown,
+                        detail: "the runtime state exists without its exact lock".to_owned(),
+                    },
+                });
+            }
+            None
+        } else {
+            None
+        };
+
+        let sandbox = soglia_sandbox::backend::prepare_uninstall(&config).map_err(|error| {
+            let failure = match error {
+                soglia_sandbox::backend::SandboxError::UninstallRefused { class, reason } => {
+                    HelperFailure::Refused {
+                        class,
+                        detail: reason,
+                    }
+                }
+                soglia_sandbox::backend::SandboxError::Refused(reason) => HelperFailure::Refused {
+                    class: RefusalClass::Incompatible,
+                    detail: reason,
+                },
+                soglia_sandbox::backend::SandboxError::Failed(reason) => HelperFailure::Refused {
+                    class: RefusalClass::Infrastructure,
+                    detail: reason,
+                },
+            };
+            ProcessError::StartupRefused {
+                context: "uninstall refused".to_owned(),
+                failure,
+            }
+        })?;
+
+        let enforcer = soglia_enforcer::cgroup_bpf::CgroupBpfBackend::prepare_uninstall(
+            &config,
+            &sandbox.owned_tags(),
+        )
+        .map_err(|error| ProcessError::StartupRefused {
+            context: "uninstall refused".to_owned(),
+            failure: error.into_helper_failure("verified uninstall refused"),
+        })?;
+        let sandbox_operations = sandbox.planned_operations();
+        if dry_run {
+            let report = enforcer.dry_run_report();
+            println!(
+                "{}",
+                serde_json::to_string_pretty(&serde_json::json!({
+                    "schema": 1,
+                    "verdict": "PASS",
+                    "dry_run": true,
+                    "sandbox_operations": sandbox_operations,
+                    "enforcer": report,
+                }))
+                .map_err(|error| error.to_string())?
+            );
+            drop(lock);
+            return Ok(());
+        }
+
+        let report = enforcer
+            .execute()
+            .map_err(|error| ProcessError::StartupRefused {
+                context: "uninstall refused".to_owned(),
+                failure: error.into_helper_failure("verified uninstall was interrupted"),
+            })?;
+        sandbox
+            .execute()
+            .map_err(|error| ProcessError::StartupRefused {
+                context: "uninstall refused".to_owned(),
+                failure: HelperFailure::Refused {
+                    class: RefusalClass::Infrastructure,
+                    detail: format!("sandbox uninstall was interrupted: {error}"),
+                },
+            })?;
+
+        if state.exists() {
+            if state.join("lock").exists() {
+                fs::remove_file(state.join("lock")).map_err(|error| {
+                    ProcessError::StartupRefused {
+                        context: "uninstall refused".to_owned(),
+                        failure: HelperFailure::Refused {
+                            class: RefusalClass::Infrastructure,
+                            detail: format!("remove the exact runtime lock: {error}"),
+                        },
+                    }
+                })?;
+            }
+            fs::remove_dir(state).map_err(|error| ProcessError::StartupRefused {
+                context: "uninstall refused".to_owned(),
+                failure: HelperFailure::Refused {
+                    class: RefusalClass::Infrastructure,
+                    detail: format!("remove the empty runtime state root: {error}"),
+                },
+            })?;
+        }
+        if state.exists() {
+            return Err(ProcessError::StartupRefused {
+                context: "uninstall refused".to_owned(),
+                failure: HelperFailure::Refused {
+                    class: RefusalClass::Infrastructure,
+                    detail: "the runtime state root survived verified uninstall".to_owned(),
+                },
+            });
+        }
+        println!(
+            "{}",
+            serde_json::to_string_pretty(&serde_json::json!({
+                "schema": 1,
+                "verdict": "PASS",
+                "dry_run": false,
+                "sandbox_operations": sandbox_operations,
+                "enforcer": report,
+            }))
+            .map_err(|error| error.to_string())?
+        );
+        drop(lock);
+        Ok(())
+    }
+
+    /// A build without cgroup-BPF cannot prove or remove Candidate-A objects.
+    #[cfg(not(feature = "cgroup-bpf"))]
+    pub fn uninstall(_file: &Path, _dry_run: bool) -> Result<(), ProcessError> {
+        Err(ProcessError::StartupRefused {
+            context: "uninstall refused".to_owned(),
+            failure: HelperFailure::Refused {
+                class: RefusalClass::Unsupported,
+                detail: "this binary was built without cgroup-bpf uninstall support".to_owned(),
+            },
+        })
     }
 
     async fn serve(
@@ -527,5 +798,17 @@ mod tests {
         };
         assert_eq!(topology.exit_code(), 24);
         assert_eq!(ProcessError::Generic("crash".into()).exit_code(), 1);
+    }
+
+    #[test]
+    fn uninstall_has_dry_run_but_no_force_escape_hatch() {
+        assert!(
+            Cli::try_parse_from(["soglia", "uninstall", "--dry-run", "-f", "/etc/soglia.yaml",])
+                .is_ok()
+        );
+        assert!(
+            Cli::try_parse_from(["soglia", "uninstall", "--force", "-f", "/etc/soglia.yaml",])
+                .is_err()
+        );
     }
 }

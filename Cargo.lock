@@ -679,6 +679,7 @@ version = "0.1.0"
 dependencies = [
  "clap",
  "rustix",
+ "serde_json",
  "soglia-core",
  "soglia-enforcer",
  "soglia-proxy",

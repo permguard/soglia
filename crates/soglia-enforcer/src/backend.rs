@@ -332,6 +332,28 @@ pub struct NetnsNftBackend {
     live: HashMap<ResourceTag, NetRecord>,
 }
 
+/// Network resources whose ownership was proved before an uninstall mutation.
+#[cfg(feature = "cgroup-bpf")]
+pub(crate) struct PreparedNetworkUninstall {
+    records: Vec<(String, NetRecord)>,
+    host: Option<HostRecord>,
+}
+
+#[cfg(feature = "cgroup-bpf")]
+impl PreparedNetworkUninstall {
+    pub(crate) fn planned_operations(&self) -> Vec<String> {
+        let mut operations = self
+            .records
+            .iter()
+            .map(|(_, record)| format!("remove network of Execution {}", record.id))
+            .collect::<Vec<_>>();
+        if self.host.is_some() {
+            operations.push("remove host nft table and proxy interface".to_owned());
+        }
+        operations
+    }
+}
+
 impl NetnsNftBackend {
     /// A backend over `settings`.
     pub fn new(settings: NetworkSettings) -> Self {
@@ -393,6 +415,156 @@ mod linux {
     use crate::system::{self, entries_with_prefix, in_netns, interface_exists, netns_exists};
 
     impl NetnsNftBackend {
+        /// Proves the complete network-removal plan without changing host state.
+        #[cfg(feature = "cgroup-bpf")]
+        pub(crate) fn prepare_uninstall(&self) -> Result<PreparedNetworkUninstall, BackendError> {
+            let mut planned = Vec::new();
+            let entries = match fs::read_dir(self.records()) {
+                Ok(entries) => entries
+                    .map(|entry| {
+                        entry.map(|entry| entry.file_name().to_string_lossy().into_owned())
+                    })
+                    .collect::<Result<Vec<_>, _>>()?,
+                Err(error) if error.kind() == std::io::ErrorKind::NotFound => Vec::new(),
+                Err(error) => return Err(error.into()),
+            };
+            for name in entries {
+                if records::is_temporary(&name) || (!name.ends_with(".json") && name != HOST_RECORD)
+                {
+                    return Err(BackendError::Unknown(format!(
+                        "UNKNOWN entry {name} in the network ownership directory"
+                    )));
+                }
+                if name == HOST_RECORD {
+                    continue;
+                }
+                let record: NetRecord = records::read(self.records(), &name)
+                    .map_err(|error| {
+                        if error.kind() == std::io::ErrorKind::InvalidData {
+                            BackendError::Incompatible(format!(
+                                "INCOMPATIBLE network record {name}: {error}"
+                            ))
+                        } else {
+                            BackendError::from(error)
+                        }
+                    })?
+                    .ok_or_else(|| {
+                        BackendError::Unknown(format!("UNKNOWN network record {name} vanished"))
+                    })?;
+                let expected_addresses = self.settings.pool.slot(record.slot).ok_or_else(|| {
+                    BackendError::Unknown(format!(
+                        "UNKNOWN slot in network ownership record {name}"
+                    ))
+                })?;
+                let configured_port = self
+                    .settings
+                    .agent_ports
+                    .values()
+                    .any(|port| *port == record.agent_port);
+                if NetRecord::file_name(&record.tag) != name
+                    || record.id.tag() != record.tag
+                    || record.addresses != expected_addresses
+                    || !configured_port
+                {
+                    return Err(BackendError::Unknown(format!(
+                        "UNKNOWN identity in network ownership record {name}"
+                    )));
+                }
+                planned.push((name, record));
+            }
+
+            let host: Option<HostRecord> =
+                records::read(self.records(), HOST_RECORD).map_err(|error| {
+                    if error.kind() == std::io::ErrorKind::InvalidData {
+                        BackendError::Incompatible(format!(
+                            "INCOMPATIBLE host-network record: {error}"
+                        ))
+                    } else {
+                        BackendError::from(error)
+                    }
+                })?;
+            let expected_host = HostRecord {
+                dummy: PROXY_INTERFACE.to_owned(),
+                proxy_address: self.settings.proxy.address,
+            };
+            if host.as_ref().is_some_and(|record| record != &expected_host) {
+                return Err(BackendError::Unknown(
+                    "UNKNOWN host-network ownership record".to_owned(),
+                ));
+            }
+            if host.is_none() && interface_exists(PROXY_INTERFACE) {
+                return Err(BackendError::Unknown(format!(
+                    "UNKNOWN {PROXY_INTERFACE} exists without its ownership record"
+                )));
+            }
+            if host.is_none() && self.host_table_exists()? {
+                return Err(BackendError::Unknown(format!(
+                    "UNKNOWN nft table inet {} exists without its ownership record",
+                    rules::HOST_TABLE
+                )));
+            }
+
+            let expected_veth = planned
+                .iter()
+                .map(|(_, record)| record.tag.host_veth())
+                .collect::<std::collections::BTreeSet<_>>();
+            let expected_netns = planned
+                .iter()
+                .map(|(_, record)| record.tag.netns_name())
+                .collect::<std::collections::BTreeSet<_>>();
+            let actual_veth = entries_with_prefix(Path::new("/sys/class/net"), "sgh-")?
+                .into_iter()
+                .collect::<std::collections::BTreeSet<_>>();
+            let actual_netns = entries_with_prefix(Path::new(system::NETNS_DIR), "soglia-")?
+                .into_iter()
+                .collect::<std::collections::BTreeSet<_>>();
+            if !actual_veth.is_subset(&expected_veth) || !actual_netns.is_subset(&expected_netns) {
+                return Err(BackendError::Unknown(
+                    "UNKNOWN network resource exists without an exact ownership record".to_owned(),
+                ));
+            }
+            planned.sort_by(|left, right| left.0.cmp(&right.0));
+            Ok(PreparedNetworkUninstall {
+                records: planned,
+                host,
+            })
+        }
+
+        /// Applies a plan that was completely validated before the first mutation.
+        #[cfg(feature = "cgroup-bpf")]
+        pub(crate) fn execute_uninstall(
+            &self,
+            plan: &PreparedNetworkUninstall,
+        ) -> Result<(), BackendError> {
+            for (name, record) in &plan.records {
+                // The complete recorded host table is removed below. Leaving its individual
+                // elements in place until then makes a crash between records safely resumable.
+                self.remove(record, false)?;
+                records::remove(self.records(), name)?;
+            }
+            if plan.host.is_some() {
+                self.nft(&format!(
+                    "add table inet {}\ndelete table inet {}\n",
+                    rules::HOST_TABLE,
+                    rules::HOST_TABLE
+                ))?;
+                if interface_exists(PROXY_INTERFACE) {
+                    self.ip(&["link", "del", PROXY_INTERFACE])?;
+                }
+                if interface_exists(PROXY_INTERFACE) {
+                    return Err(BackendError::Failed(format!(
+                        "{PROXY_INTERFACE} survived uninstall"
+                    )));
+                }
+                records::remove(self.records(), HOST_RECORD)?;
+            }
+            match fs::remove_dir(self.records()) {
+                Ok(()) => {}
+                Err(error) if error.kind() == std::io::ErrorKind::NotFound => {}
+                Err(error) => return Err(error.into()),
+            }
+            Ok(())
+        }
         fn ip(&self, args: &[&str]) -> Result<(), BackendError> {
             system::run(&self.settings.ip, args, None)?;
             Ok(())
@@ -401,6 +573,27 @@ mod linux {
         fn nft(&self, batch: &str) -> Result<(), BackendError> {
             system::run(&self.settings.nft, &["-f", "-"], Some(batch))?;
             Ok(())
+        }
+
+        #[cfg(feature = "cgroup-bpf")]
+        fn host_table_exists(&self) -> Result<bool, BackendError> {
+            let output = system::run(&self.settings.nft, &["-j", "list", "tables"], None)?;
+            let value: serde_json::Value = serde_json::from_str(&output).map_err(|error| {
+                BackendError::Failed(format!("decode nft table inventory: {error}"))
+            })?;
+            let entries = value
+                .get("nftables")
+                .and_then(serde_json::Value::as_array)
+                .ok_or_else(|| {
+                    BackendError::Failed("nft table inventory has no nftables array".to_owned())
+                })?;
+            Ok(entries.iter().any(|entry| {
+                entry.get("table").is_some_and(|table| {
+                    table.get("family").and_then(serde_json::Value::as_str) == Some("inet")
+                        && table.get("name").and_then(serde_json::Value::as_str)
+                            == Some(rules::HOST_TABLE)
+                })
+            }))
         }
 
         fn nft_in(&self, netns: &str, batch: &str) -> Result<(), BackendError> {
@@ -801,6 +994,42 @@ mod tests {
                 .is_err(),
             "same slot"
         );
+    }
+
+    #[test]
+    fn uninstall_refusals_preserve_every_stable_class() {
+        for (error, expected) in [
+            (
+                BackendError::Incompatible("schema".to_owned()),
+                RefusalClass::Incompatible,
+            ),
+            (
+                BackendError::Unknown("ownership".to_owned()),
+                RefusalClass::Unknown,
+            ),
+            (
+                BackendError::Unsupported("kernel".to_owned()),
+                RefusalClass::Unsupported,
+            ),
+            (
+                BackendError::Failed("host".to_owned()),
+                RefusalClass::Infrastructure,
+            ),
+        ] {
+            assert!(matches!(
+                error.into_helper_failure("uninstall"),
+                HelperFailure::Refused { class, .. } if class == expected
+            ));
+        }
+        assert!(matches!(
+            BackendError::IncompatibleBpfTopology {
+                hook: "connect4".to_owned(),
+                errno: Some(1),
+            }
+            .into_helper_failure("uninstall"),
+            HelperFailure::IncompatibleBpfTopology { hook, errno, .. }
+                if hook == "connect4" && errno == Some(1)
+        ));
     }
 
     #[test]

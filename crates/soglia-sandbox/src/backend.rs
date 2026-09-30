@@ -28,7 +28,7 @@ use rustix::process::{WaitOptions, getpid, set_child_subreaper, wait};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use soglia_core::config::{AgentConfig, Config};
-use soglia_core::helper::ExitOutcome;
+use soglia_core::helper::{ExitOutcome, RefusalClass};
 use soglia_core::id::{ExecutionId, NAME_PREFIX, ResourceTag};
 use soglia_core::records;
 
@@ -47,6 +47,13 @@ const MAX_LOGGED_BYTES: usize = 64 * 1024;
 pub enum SandboxError {
     /// The request contradicts the configuration or the backend's state.
     Refused(String),
+    /// A verified uninstall refused with a stable startup-compatible class.
+    UninstallRefused {
+        /// Stable refusal class.
+        class: RefusalClass,
+        /// Trusted diagnostic detail.
+        reason: String,
+    },
     /// A host operation failed.
     Failed(String),
 }
@@ -55,6 +62,7 @@ impl fmt::Display for SandboxError {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Self::Refused(reason) => write!(formatter, "refused: {reason}"),
+            Self::UninstallRefused { reason, .. } => write!(formatter, "refused: {reason}"),
             Self::Failed(reason) => write!(formatter, "failed: {reason}"),
         }
     }
@@ -189,6 +197,227 @@ struct Live {
 pub struct RuncSandbox {
     settings: SandboxSettings,
     live: HashMap<ResourceTag, Live>,
+}
+
+/// Sandbox resources whose ownership and stopped state were proved before uninstall.
+pub struct PreparedSandboxUninstall {
+    backend: RuncSandbox,
+    records: Vec<(String, SandboxRecord)>,
+}
+
+impl PreparedSandboxUninstall {
+    /// Exact operations the real uninstall will perform.
+    pub fn planned_operations(&self) -> Vec<String> {
+        self.records
+            .iter()
+            .map(|(_, record)| format!("remove sandbox of Execution {}", record.id))
+            .collect()
+    }
+
+    /// Exact Execution tags proved by the sandbox ownership records.
+    pub fn owned_tags(&self) -> std::collections::BTreeSet<String> {
+        self.records
+            .iter()
+            .map(|(_, record)| record.tag.to_string())
+            .collect()
+    }
+
+    /// Removes only the resources named by the records validated by `prepare_uninstall`.
+    pub fn execute(self) -> Result<(), SandboxError> {
+        for (name, record) in &self.records {
+            self.backend.remove(&record.tag)?;
+            records::remove(&self.backend.settings.records, name)?;
+        }
+        for directory in [
+            &self.backend.settings.records,
+            &self.backend.settings.bundles,
+            &self.backend.settings.runc_root,
+        ] {
+            match fs::remove_dir(directory) {
+                Ok(()) => {}
+                Err(error) if error.kind() == io::ErrorKind::NotFound => {}
+                Err(error) => return Err(error.into()),
+            }
+        }
+        for cgroup in [
+            self.backend.settings.delegation.executions(),
+            self.backend.settings.delegation.root().join("runtime"),
+        ] {
+            cgroup::remove(&cgroup)?;
+        }
+        Ok(())
+    }
+}
+
+/// Builds the complete sandbox uninstall plan without changing the host.
+pub fn prepare_uninstall(config: &Config) -> Result<PreparedSandboxUninstall, SandboxError> {
+    let backend = RuncSandbox::new(SandboxSettings::from_config(config)?);
+    for directory in [
+        &config.runtime.state_dir,
+        &backend.settings.records,
+        &backend.settings.bundles,
+        &backend.settings.runc_root,
+    ] {
+        let metadata = match fs::symlink_metadata(directory) {
+            Ok(metadata) => metadata,
+            Err(error) if error.kind() == io::ErrorKind::NotFound => continue,
+            Err(error) => return Err(error.into()),
+        };
+        if !metadata.file_type().is_dir()
+            || metadata.file_type().is_symlink()
+            || metadata.uid() != 0
+            || metadata.mode() & 0o777 != 0o700
+        {
+            return Err(SandboxError::UninstallRefused {
+                class: RefusalClass::Unknown,
+                reason: format!(
+                    "{} is not a root-owned real mode-0700 directory",
+                    directory.display()
+                ),
+            });
+        }
+    }
+    let runtime = backend.settings.delegation.root().join("runtime");
+    for cgroup in [backend.settings.delegation.root(), runtime.as_path()] {
+        let procs = cgroup.join("cgroup.procs");
+        if procs.exists() && !fs::read_to_string(&procs)?.trim().is_empty() {
+            return Err(SandboxError::UninstallRefused {
+                class: RefusalClass::Infrastructure,
+                reason: format!("the Soglia runtime is still active in {}", cgroup.display()),
+            });
+        }
+    }
+
+    let names = match fs::read_dir(&backend.settings.records) {
+        Ok(entries) => entries
+            .map(|entry| entry.map(|entry| entry.file_name().to_string_lossy().into_owned()))
+            .collect::<Result<Vec<_>, _>>()?,
+        Err(error) if error.kind() == io::ErrorKind::NotFound => Vec::new(),
+        Err(error) => return Err(error.into()),
+    };
+    let mut planned = Vec::new();
+    for name in names {
+        if records::is_temporary(&name) || !name.ends_with(".json") {
+            return Err(SandboxError::UninstallRefused {
+                class: RefusalClass::Unknown,
+                reason: format!("unknown entry {name} in the sandbox ownership directory"),
+            });
+        }
+        let record: SandboxRecord = records::read(&backend.settings.records, &name)
+            .map_err(|error| {
+                if error.kind() == io::ErrorKind::InvalidData {
+                    SandboxError::UninstallRefused {
+                        class: RefusalClass::Incompatible,
+                        reason: format!("incompatible sandbox record {name}: {error}"),
+                    }
+                } else {
+                    SandboxError::from(error)
+                }
+            })?
+            .ok_or_else(|| SandboxError::UninstallRefused {
+                class: RefusalClass::Unknown,
+                reason: format!("sandbox record {name} vanished"),
+            })?;
+        if name != format!("{}.json", record.tag) || record.id.tag() != record.tag {
+            return Err(SandboxError::UninstallRefused {
+                class: RefusalClass::Unknown,
+                reason: format!("sandbox record {name} has an unknown identity"),
+            });
+        }
+        let cgroup = backend
+            .settings
+            .delegation
+            .execution(&record.tag.to_string());
+        if cgroup.join("cgroup.procs").exists()
+            && !fs::read_to_string(cgroup.join("cgroup.procs"))?
+                .trim()
+                .is_empty()
+        {
+            return Err(SandboxError::UninstallRefused {
+                class: RefusalClass::Infrastructure,
+                reason: format!("Execution {} still has a process", record.id),
+            });
+        }
+        if let Some(state) = backend.state(&record.tag.container_id()) {
+            let status = state
+                .get("status")
+                .and_then(Value::as_str)
+                .unwrap_or("unknown");
+            if !matches!(status, "stopped") {
+                return Err(SandboxError::UninstallRefused {
+                    class: RefusalClass::Infrastructure,
+                    reason: format!(
+                        "Execution {} has live or unverifiable runc state {status}",
+                        record.id
+                    ),
+                });
+            }
+        }
+        planned.push((name, record));
+    }
+    planned.sort_by(|left, right| left.0.cmp(&right.0));
+    let expected = planned
+        .iter()
+        .map(|(_, record)| record.tag.to_string())
+        .collect::<std::collections::BTreeSet<_>>();
+    for directory in [&backend.settings.bundles, &backend.settings.runc_root] {
+        if directory.exists() {
+            for entry in fs::read_dir(directory)? {
+                let name = entry?.file_name().to_string_lossy().into_owned();
+                if !expected.contains(&name) {
+                    return Err(SandboxError::UninstallRefused {
+                        class: RefusalClass::Unknown,
+                        reason: format!(
+                            "unrecorded sandbox resource {}",
+                            directory.join(name).display()
+                        ),
+                    });
+                }
+            }
+        }
+    }
+    let executions = backend.settings.delegation.executions();
+    if executions.exists() {
+        for entry in fs::read_dir(&executions)? {
+            let entry = entry?;
+            if entry.file_type()?.is_dir()
+                && !expected.contains(&entry.file_name().to_string_lossy().into_owned())
+            {
+                return Err(SandboxError::UninstallRefused {
+                    class: RefusalClass::Unknown,
+                    reason: format!("unrecorded Execution cgroup {}", entry.path().display()),
+                });
+            }
+        }
+    }
+    if backend.settings.runc_root.exists() {
+        let listed = backend.runc(&["list", "--format", "json"])?;
+        let containers = serde_json::from_str::<Value>(&listed)
+            .map_err(|error| SandboxError::UninstallRefused {
+                class: RefusalClass::Infrastructure,
+                reason: format!("decode runc container inventory: {error}"),
+            })?
+            .as_array()
+            .cloned()
+            .ok_or_else(|| SandboxError::UninstallRefused {
+                class: RefusalClass::Infrastructure,
+                reason: "runc container inventory is not a JSON array".to_owned(),
+            })?;
+        for container in containers {
+            if let Some(id) = container.get("id").and_then(Value::as_str)
+                && !expected.contains(id)
+            {
+                return Err(SandboxError::UninstallRefused {
+                    class: RefusalClass::Unknown,
+                    reason: format!("unrecorded runc container {id}"),
+                });
+            }
+        }
+    }
+    Ok(PreparedSandboxUninstall {
+        backend,
+        records: planned,
+    })
 }
 
 impl RuncSandbox {

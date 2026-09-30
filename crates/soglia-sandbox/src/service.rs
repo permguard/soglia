@@ -90,6 +90,7 @@ fn sandbox_failure(context: &str, error: SandboxError) -> HelperFailure {
     let detail = format!("{context}: {error}");
     let class = match error {
         SandboxError::Refused(_) => RefusalClass::Incompatible,
+        SandboxError::UninstallRefused { class, .. } => class,
         SandboxError::Failed(_) => RefusalClass::Infrastructure,
     };
     HelperFailure::Refused { class, detail }
