@@ -76,11 +76,18 @@ def multiset_difference(
 
 def pin_state(value: Any) -> dict[str, Any]:
     if not isinstance(value, dict):
-        return {"valid": False, "exists": None, "entries": []}
+        return {"valid": False, "path": None, "exists": None, "entries": []}
     entries = value.get("entries")
     exists = value.get("exists")
+    path = value.get("path")
     return {
-        "valid": isinstance(exists, bool) and isinstance(entries, list),
+        "valid": (
+            isinstance(path, str)
+            and bool(path)
+            and isinstance(exists, bool)
+            and isinstance(entries, list)
+        ),
+        "path": path,
         "exists": exists,
         "entries": entries if isinstance(entries, list) else [],
     }
@@ -133,7 +140,10 @@ def prove_external(
         and bool(tag)
         and tag not in production_tags
     )
-    pin_root_clear = pins["valid"] and not pins["exists"] and not pins["entries"]
+    pin_root_clear = pins["valid"] and (
+        (not pins["exists"] and not pins["entries"])
+        or (pins["exists"] and pins["entries"] == [pins["path"]])
+    )
     proof_complete = tag_distinct and pin_root_clear and not matching_links and outside_only
     return {
         "direction": direction,

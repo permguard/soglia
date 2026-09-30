@@ -20,6 +20,11 @@ def production():
 
 
 PINS_CLEAR = {"path": "/sys/fs/bpf/soglia-b4", "exists": False, "entries": []}
+PINS_EMPTY_EXISTING = {
+    "path": "/sys/fs/bpf/soglia-b4",
+    "exists": True,
+    "entries": ["/sys/fs/bpf/soglia-b4"],
+}
 
 
 class ClassifierTests(unittest.TestCase):
@@ -57,6 +62,45 @@ class ClassifierTests(unittest.TestCase):
         result = self.classify([item(7)], [], before_tree=tree(7))
         self.assertEqual(result["classification"], "EXTERNAL_REMOVAL")
         self.assertTrue(result["programs_removed"][0]["proof_complete"])
+
+    def test_external_removal_with_an_existing_empty_pin_root_is_clean(self):
+        result = classify(
+            [item(7)],
+            [],
+            [],
+            [],
+            tree(7),
+            [],
+            PINS_EMPTY_EXISTING,
+            PINS_CLEAR,
+            production(),
+            "/sys/fs/cgroup/system.slice/soglia-b4.service",
+        )
+        self.assertEqual(result["classification"], "EXTERNAL_REMOVAL")
+        self.assertTrue(result["programs_removed"][0]["proof_complete"])
+
+    def test_external_removal_with_a_pin_below_the_root_fails(self):
+        pinned = {
+            "path": "/sys/fs/bpf/soglia-b4",
+            "exists": True,
+            "entries": [
+                "/sys/fs/bpf/soglia-b4",
+                "/sys/fs/bpf/soglia-b4/unexpected-pin",
+            ],
+        }
+        result = classify(
+            [item(7)],
+            [],
+            [],
+            [],
+            tree(7),
+            [],
+            pinned,
+            PINS_CLEAR,
+            production(),
+            "/sys/fs/cgroup/system.slice/soglia-b4.service",
+        )
+        self.assertEqual(result["classification"], "FAIL")
 
 
 if __name__ == "__main__":

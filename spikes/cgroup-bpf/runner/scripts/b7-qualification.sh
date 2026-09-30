@@ -241,9 +241,10 @@ YAML
 }
 
 start_unit() {
-  local unit=$1 config=$2
+  local unit=$1 config=$2 output=$3
+  mkdir -p "$(dirname "$output")"
   systemd-run --unit="$unit" --property=Delegate=yes --property=Type=exec --collect \
-    "$binary" run -f "$config" > "$evidence/profiles/${unit#soglia-b7-}/systemd-run.txt"
+    "$binary" run -f "$config" > "$output"
 }
 
 stop_and_verify_row() {
@@ -286,7 +287,7 @@ run_profile() {
   local unit="soglia-b7-${profile,,}" config
   last_case=$profile; current_phase="PROFILE_$profile"; persist_state
   config=$(write_config "$profile" "$concurrency" "$sockets" "$port" "$unit")
-  start_unit "$unit" "$config"
+  start_unit "$unit" "$config" "$evidence/profiles/$profile/systemd-run.txt"
   wait_ready "$port"
   python3 "$scripts/b7-profile.py" --profile "$profile" --unit "$unit" \
     --state "$runtime_parent/$profile/cgroup-bpf/state.json" \
@@ -303,18 +304,39 @@ run_profile M2 4 4096 0,1,2,4 512 8192 100x30,250x30 0 18102
 run_profile M3 32 4096 0,1,8,16,32 512 8192 250x30 256 18103
 
 run_drift() {
-  local mode=$1 port=$2 profile=$3 unit="soglia-b7-${mode//_/-}" config
+  local mode=$1 port=$2 profile=$3 unit config
+  unit="soglia-b7-${mode//_/-}"
   local case_evidence="$evidence/drift/$mode"
   last_case=$mode; current_phase="DRIFT_${mode^^}"; persist_state
   config=$(write_config "$profile" 1 64 "$port" "$unit")
-  start_unit "$unit" "$config"
+  start_unit "$unit" "$config" "$case_evidence/systemd-run.txt"
   wait_ready "$port"
   python3 "$scripts/b7-drift.py" --mode "$mode" --unit "$unit" --port "$port" \
     --state "$runtime_parent/$profile/cgroup-bpf/state.json" \
     --evidence "$case_evidence" --injector "$injector" --detacher "$detacher" \
     --foreign-object "$foreign_object"
   grep -Fx PASS "$case_evidence/verdict.txt" >/dev/null
-  stop_and_verify_row "$unit" "$profile" "$case_evidence" "$case_evidence/result.json"
+  systemctl stop "$unit.service" >/dev/null 2>&1 || true
+  systemctl reset-failed "$unit.service" >/dev/null 2>&1 || true
+  for _ in $(seq 1 200); do
+    if [[ ! -e "/sys/fs/cgroup/system.slice/$unit.service" ]] \
+      && [[ $(systemctl show "$unit.service" -p LoadState --value 2>/dev/null) == not-found ]]; then
+      break
+    fi
+    sleep 0.05
+  done
+  [[ ! -e "/sys/fs/cgroup/system.slice/$unit.service" ]]
+  [[ $(systemctl show "$unit.service" -p LoadState --value 2>/dev/null) == not-found ]]
+  start_unit "$unit" "$config" "$case_evidence/recovery-systemd-run.txt"
+  wait_ready "$port"
+  cp -- "$runtime_parent/$profile/cgroup-bpf/state.json" "$case_evidence/recovery-state.json"
+  local expected_generation
+  expected_generation=$(jq '.active_state_before_mutation.generation + 1' "$case_evidence/result.json")
+  jq -e --argjson generation "$expected_generation" \
+    '.phase == "READY" and .generation == $generation and (.executions | length) == 0' \
+    "$case_evidence/recovery-state.json" >/dev/null
+  journalctl -u "$unit.service" -o cat --no-pager > "$case_evidence/recovery-events.txt"
+  stop_and_verify_row "$unit" "$profile" "$case_evidence"
 }
 
 run_drift foreign_link 18104 drift-foreign-link
