@@ -1,0 +1,9 @@
+{
+  "destroy_order": [
+    "remove_policy",
+    "remove_execution_record"
+  ],
+  "phase": "FROZEN",
+  "record_bytes": 5954,
+  "record_present_before_tracer": true
+}

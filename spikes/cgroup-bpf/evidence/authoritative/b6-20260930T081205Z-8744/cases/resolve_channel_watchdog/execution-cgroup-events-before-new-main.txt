@@ -1,0 +1,2 @@
+cgroup=/sys/fs/cgroup/system.slice/soglia-b6-resolve-channel-watchdog.service/executions/30deabc37c state=ABSENT_AFTER_VERIFIED_KILL
+cgroup=/sys/fs/cgroup/system.slice/soglia-b6-resolve-channel-watchdog.service/executions/d7b210d7da state=ABSENT_AFTER_VERIFIED_KILL

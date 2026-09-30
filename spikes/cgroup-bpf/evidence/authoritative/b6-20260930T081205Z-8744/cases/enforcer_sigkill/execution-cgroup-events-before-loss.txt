@@ -1,0 +1,6 @@
+cgroup=/sys/fs/cgroup/system.slice/soglia-b6-enforcer-sigkill.service/executions/a7b5705884
+populated 1
+frozen 0
+cgroup=/sys/fs/cgroup/system.slice/soglia-b6-enforcer-sigkill.service/executions/f8072541f5
+populated 1
+frozen 0

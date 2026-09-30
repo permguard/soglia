@@ -1,0 +1,12 @@
+Started soglia-b6-refusal-10.service - /var/tmp/b6-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b6-20260930T081205Z-8744/cases/refusal_matrix/unknown_foreign_inventory/config.yaml.
+event.name=cgroup_bpf.target_released_link_observation elapsed_ms=0 link=sock_create link_id=657 program_id=2139 attach_type=2 cgroup_id=0
+event.name=cgroup_bpf.target_released_link_observation elapsed_ms=0 link=connect4 link_id=658 program_id=2140 attach_type=10 cgroup_id=0
+event.name=cgroup_bpf.target_released_link_observation elapsed_ms=0 link=connect6 link_id=659 program_id=2141 attach_type=11 cgroup_id=0
+event.name=cgroup_bpf.target_released_link_observation elapsed_ms=0 link=sendmsg4 link_id=660 program_id=2142 attach_type=14 cgroup_id=0
+event.name=cgroup_bpf.target_released_link_observation elapsed_ms=0 link=sendmsg6 link_id=661 program_id=2143 attach_type=15 cgroup_id=0
+event.name=cgroup_bpf.target_released_link_observation elapsed_ms=0 link=sock_ops link_id=662 program_id=2144 attach_type=3 cgroup_id=0
+soglia: the cgroup-bpf backend could not start: refused: UNKNOWN non-owned ancestor BPF inventory changed during released-target recovery
+[2m2026-09-30T08:13:24.858904Z[0m [31mERROR[0m Soglia refused startup [3mevent.name[0m[2m=[0m"startup.refused" [3mrefusal.class[0m[2m=[0m"UNKNOWN"
+soglia: the enforcer did not start: the cgroup-bpf backend could not start: refused: UNKNOWN non-owned ancestor BPF inventory changed during released-target recovery
+soglia-b6-refusal-10.service: Main process exited, code=exited, status=21/n/a
+soglia-b6-refusal-10.service: Failed with result 'exit-code'.

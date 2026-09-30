@@ -1,0 +1,418 @@
+[
+  {
+    "pin": "/sys/fs/bpf/soglia-b6-refusal-7/e2618afabc8db556d950c7f773c38cc3-g1/maps/soglia_cookie_a",
+    "show": {
+      "id": 956,
+      "type": "hash",
+      "name": "soglia_cookie_a",
+      "flags": 0,
+      "bytes_key": 8,
+      "bytes_value": 32,
+      "max_entries": 64,
+      "bytes_memlock": 8128,
+      "frozen": 0,
+      "btf_id": 585
+    },
+    "contents": []
+  },
+  {
+    "pin": "/sys/fs/bpf/soglia-b6-refusal-7/e2618afabc8db556d950c7f773c38cc3-g1/maps/soglia_counters",
+    "show": {
+      "id": 960,
+      "type": "array",
+      "name": "soglia_counters",
+      "flags": 0,
+      "bytes_key": 4,
+      "bytes_value": 8,
+      "max_entries": 11,
+      "bytes_memlock": 472,
+      "frozen": 0,
+      "btf_id": 585
+    },
+    "contents": [
+      {
+        "key": [
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "value": [
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "formatted": {
+          "key": 0,
+          "value": 0
+        }
+      },
+      {
+        "key": [
+          "0x01",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "value": [
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "formatted": {
+          "key": 1,
+          "value": 0
+        }
+      },
+      {
+        "key": [
+          "0x02",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "value": [
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "formatted": {
+          "key": 2,
+          "value": 0
+        }
+      },
+      {
+        "key": [
+          "0x03",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "value": [
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "formatted": {
+          "key": 3,
+          "value": 0
+        }
+      },
+      {
+        "key": [
+          "0x04",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "value": [
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "formatted": {
+          "key": 4,
+          "value": 0
+        }
+      },
+      {
+        "key": [
+          "0x05",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "value": [
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "formatted": {
+          "key": 5,
+          "value": 0
+        }
+      },
+      {
+        "key": [
+          "0x06",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "value": [
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "formatted": {
+          "key": 6,
+          "value": 0
+        }
+      },
+      {
+        "key": [
+          "0x07",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "value": [
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "formatted": {
+          "key": 7,
+          "value": 0
+        }
+      },
+      {
+        "key": [
+          "0x08",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "value": [
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "formatted": {
+          "key": 8,
+          "value": 0
+        }
+      },
+      {
+        "key": [
+          "0x09",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "value": [
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "formatted": {
+          "key": 9,
+          "value": 0
+        }
+      },
+      {
+        "key": [
+          "0x0a",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "value": [
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "formatted": {
+          "key": 10,
+          "value": 0
+        }
+      }
+    ]
+  },
+  {
+    "pin": "/sys/fs/bpf/soglia-b6-refusal-7/e2618afabc8db556d950c7f773c38cc3-g1/maps/soglia_denies",
+    "show": {
+      "id": 959,
+      "type": "hash",
+      "name": "soglia_denies",
+      "flags": 0,
+      "bytes_key": 32,
+      "bytes_value": 8,
+      "max_entries": 3,
+      "bytes_memlock": 1800,
+      "frozen": 0,
+      "btf_id": 585
+    },
+    "contents": []
+  },
+  {
+    "pin": "/sys/fs/bpf/soglia-b6-refusal-7/e2618afabc8db556d950c7f773c38cc3-g1/maps/soglia_events",
+    "show": {
+      "id": 955,
+      "type": "ringbuf",
+      "name": "soglia_events",
+      "flags": 0,
+      "bytes_key": 0,
+      "bytes_value": 0,
+      "max_entries": 65536,
+      "bytes_memlock": 78488,
+      "frozen": 0
+    },
+    "contents": "NOT_APPLICABLE:ringbuf"
+  },
+  {
+    "pin": "/sys/fs/bpf/soglia-b6-refusal-7/e2618afabc8db556d950c7f773c38cc3-g1/maps/soglia_meta",
+    "show": {
+      "id": 962,
+      "type": "array",
+      "name": "soglia_meta",
+      "flags": 0,
+      "bytes_key": 4,
+      "bytes_value": 40,
+      "max_entries": 1,
+      "bytes_memlock": 424,
+      "frozen": 0,
+      "btf_id": 585
+    },
+    "contents": [
+      {
+        "key": [
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "value": [
+          "0x50",
+          "0x42",
+          "0x41",
+          "0x49",
+          "0x4c",
+          "0x47",
+          "0x4f",
+          "0x53",
+          "0x03",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x01",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0xe2",
+          "0x61",
+          "0x8a",
+          "0xfa",
+          "0xbc",
+          "0x8d",
+          "0xb5",
+          "0x56",
+          "0xd9",
+          "0x50",
+          "0xc7",
+          "0xf7",
+          "0x73",
+          "0xc3",
+          "0x8c",
+          "0xc3",
+          "0x01",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "formatted": {
+          "key": 0,
+          "value": {
+            "magic": 6003095221280260688,
+            "schema": 3,
+            "abi": 1,
+            "state_id_hi": 6248055900843172322,
+            "state_id_lo": 14090852236981129433,
+            "generation": 1
+          }
+        }
+      }
+    ]
+  },
+  {
+    "pin": "/sys/fs/bpf/soglia-b6-refusal-7/e2618afabc8db556d950c7f773c38cc3-g1/maps/soglia_policy",
+    "show": {
+      "id": 961,
+      "type": "hash",
+      "name": "soglia_policy",
+      "flags": 0,
+      "bytes_key": 8,
+      "bytes_value": 40,
+      "max_entries": 3,
+      "bytes_memlock": 1856,
+      "frozen": 0,
+      "btf_id": 585
+    },
+    "contents": []
+  },
+  {
+    "pin": "/sys/fs/bpf/soglia-b6-refusal-7/e2618afabc8db556d950c7f773c38cc3-g1/maps/soglia_tuples",
+    "show": {
+      "id": 958,
+      "type": "hash",
+      "name": "soglia_tuples",
+      "flags": 0,
+      "bytes_key": 16,
+      "bytes_value": 48,
+      "max_entries": 64,
+      "bytes_memlock": 9760,
+      "frozen": 0,
+      "btf_id": 585
+    },
+    "contents": []
+  }
+]

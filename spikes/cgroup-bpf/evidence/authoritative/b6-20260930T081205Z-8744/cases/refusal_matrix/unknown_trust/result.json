@@ -1,0 +1,14 @@
+{
+  "case": "unknown_trust",
+  "refusal_class": "UNKNOWN",
+  "exit_code": 21,
+  "state_bytes_preserved": true,
+  "state_metadata_preserved": true,
+  "kernel_ids_preserved": true,
+  "map_contents_preserved": true,
+  "ready_emitted_on_refusal": false,
+  "positive_recovery": true,
+  "old_generation": 1,
+  "new_generation": 2,
+  "verdict": "PASS"
+}

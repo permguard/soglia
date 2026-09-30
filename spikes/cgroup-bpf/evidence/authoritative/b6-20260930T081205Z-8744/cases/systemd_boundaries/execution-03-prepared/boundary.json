@@ -1,0 +1,8 @@
+{
+  "binding": null,
+  "boundary": "PREPARED",
+  "cgroup_inode": 14612,
+  "execution_id": "c6b4cfbbff3850adbe2f5c8c049f7340",
+  "pid": null,
+  "trace_boundary": "prepared_complete"
+}

@@ -1,0 +1,17 @@
+{
+  "boundary": "startup_listener_bound",
+  "listener_fd": 18,
+  "listener_port": 18116,
+  "matched_at_boottime_seconds": 136.29,
+  "matched_tid": 8916,
+  "request": "POST /v1/execute/probe",
+  "response_head": "HTTP/1.1 503 Service Unavailable",
+  "response_status": 503,
+  "root_pid": 8916,
+  "schema": 1,
+  "traced_threads": [
+    8916
+  ],
+  "verdict": "MATCHED",
+  "yama_ptrace_scope": "1"
+}

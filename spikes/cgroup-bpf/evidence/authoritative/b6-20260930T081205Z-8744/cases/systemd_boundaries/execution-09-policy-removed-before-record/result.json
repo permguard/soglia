@@ -1,0 +1,9 @@
+{
+  "family": "execution",
+  "boundary": "09-policy-removed-before-record",
+  "restarts": 1,
+  "target_released": true,
+  "fixed_detach_timeout_ms": 5000,
+  "fixed_poll_interval_ms": 10,
+  "verdict": "PASS"
+}

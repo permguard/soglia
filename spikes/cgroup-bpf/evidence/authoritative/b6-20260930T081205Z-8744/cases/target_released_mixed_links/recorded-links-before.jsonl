@@ -1,0 +1,12 @@
+{"pin":"/sys/fs/bpf/soglia-b6-target-mixed-links/6bb20538308fd2e23e8fda0df8ecfcb0-g1/links/sock_create","info":{"id":777,"type":"cgroup","prog_id":2622,"cgroup_id":60979,"attach_type":"cgroup_inet_sock_create"}
+}
+{"pin":"/sys/fs/bpf/soglia-b6-target-mixed-links/6bb20538308fd2e23e8fda0df8ecfcb0-g1/links/connect4","info":{"id":772,"type":"cgroup","prog_id":2623,"cgroup_id":0,"attach_type":"cgroup_inet4_connect"}
+}
+{"pin":"/sys/fs/bpf/soglia-b6-target-mixed-links/6bb20538308fd2e23e8fda0df8ecfcb0-g1/links/connect6","info":{"id":773,"type":"cgroup","prog_id":2624,"cgroup_id":0,"attach_type":"cgroup_inet6_connect"}
+}
+{"pin":"/sys/fs/bpf/soglia-b6-target-mixed-links/6bb20538308fd2e23e8fda0df8ecfcb0-g1/links/sendmsg4","info":{"id":774,"type":"cgroup","prog_id":2625,"cgroup_id":0,"attach_type":"cgroup_udp4_sendmsg"}
+}
+{"pin":"/sys/fs/bpf/soglia-b6-target-mixed-links/6bb20538308fd2e23e8fda0df8ecfcb0-g1/links/sendmsg6","info":{"id":775,"type":"cgroup","prog_id":2626,"cgroup_id":0,"attach_type":"cgroup_udp6_sendmsg"}
+}
+{"pin":"/sys/fs/bpf/soglia-b6-target-mixed-links/6bb20538308fd2e23e8fda0df8ecfcb0-g1/links/sock_ops","info":{"id":776,"type":"cgroup","prog_id":2627,"cgroup_id":0,"attach_type":"cgroup_sock_ops"}
+}

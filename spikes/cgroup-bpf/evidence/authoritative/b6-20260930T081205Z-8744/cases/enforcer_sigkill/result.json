@@ -1,0 +1,37 @@
+{
+  "case": "enforcer_sigkill",
+  "old_main_pid": 39380,
+  "new_main_pid": 39898,
+  "nrestarts_before": 0,
+  "nrestarts_after": 1,
+  "loss_boottime_seconds": 187.80,
+  "old_agent_pids": [
+    39703,
+    39605
+  ],
+  "old_agents_absent_before_new_main": true,
+  "barrier_attribution": "SANDBOX_KILL_ALL_BEFORE_MAIN_EXIT",
+  "unit": {
+    "Delegate": true,
+    "KillMode": "mixed",
+    "Restart": "on-failure"
+  },
+  "lifecycle_preconditions": {
+    "frozen_execution": false,
+    "frozen_cgroup": null,
+    "created_not_started": false,
+    "created_not_started_pid": null
+  },
+  "target_released": {
+    "old_generation": 1,
+    "new_generation": 2,
+    "old_attachment_inode": 23921,
+    "new_attachment_inode": 24484,
+    "exact_link_detaches_verified": 6,
+    "detach_timeout_ms": 5000,
+    "poll_interval_ms": 10,
+    "old_ids_absent": true,
+    "new_authorization_maps_empty": true
+  },
+  "verdict": "PASS"
+}

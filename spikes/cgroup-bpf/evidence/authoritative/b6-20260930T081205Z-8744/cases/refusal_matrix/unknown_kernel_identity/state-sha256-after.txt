@@ -1,0 +1,1 @@
+a95216890fe9a50700dcf96d800ee237cfdcc28d5ae766752cb9cafc00a77d95  /run/soglia-b6-refusal-8/cgroup-bpf/state.json

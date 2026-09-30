@@ -1,0 +1,10 @@
+{
+  "ociVersion": "1.2.1",
+  "id": "soglia-af2734cd71",
+  "pid": 41692,
+  "status": "created",
+  "bundle": "/run/soglia-b6-sandbox-sigkill/bundles/af2734cd71",
+  "rootfs": "/var/tmp/soglia-b6-sandbox-sigkill-rootfs",
+  "created": "2026-09-30T08:13:05.999980944Z",
+  "owner": ""
+}

@@ -1,0 +1,21 @@
+Started soglia-b6-refusal-9.service - /var/tmp/b6-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b6-20260930T081205Z-8744/cases/refusal_matrix/unknown_metadata/config.yaml.
+event.name=cgroup_bpf.target_released_link_observation elapsed_ms=0 link=sock_create link_id=633 program_id=2035 attach_type=2 cgroup_id=0
+event.name=cgroup_bpf.target_released_link_observation elapsed_ms=0 link=connect4 link_id=634 program_id=2036 attach_type=10 cgroup_id=0
+event.name=cgroup_bpf.target_released_link_observation elapsed_ms=0 link=connect6 link_id=635 program_id=2037 attach_type=11 cgroup_id=0
+event.name=cgroup_bpf.target_released_link_observation elapsed_ms=0 link=sendmsg4 link_id=636 program_id=2038 attach_type=14 cgroup_id=0
+event.name=cgroup_bpf.target_released_link_observation elapsed_ms=0 link=sendmsg6 link_id=637 program_id=2039 attach_type=15 cgroup_id=0
+event.name=cgroup_bpf.target_released_link_observation elapsed_ms=0 link=sock_ops link_id=638 program_id=2040 attach_type=3 cgroup_id=0
+event.name=cgroup_bpf.target_released result=PASS recorded_cgroup_id=47481 current_cgroup_id=48982 detach_timeout_ms=5000 poll_interval_ms=10
+event.name=cgroup_bpf.target_released_link_detach link=sock_create link_id=633 program_id=2035 attach_type=2 before_cgroup_id=0 after_cgroup_id=0
+event.name=cgroup_bpf.target_released_link_detach link=connect4 link_id=634 program_id=2036 attach_type=10 before_cgroup_id=0 after_cgroup_id=0
+event.name=cgroup_bpf.target_released_link_detach link=connect6 link_id=635 program_id=2037 attach_type=11 before_cgroup_id=0 after_cgroup_id=0
+event.name=cgroup_bpf.target_released_link_detach link=sendmsg4 link_id=636 program_id=2038 attach_type=14 before_cgroup_id=0 after_cgroup_id=0
+event.name=cgroup_bpf.target_released_link_detach link=sendmsg6 link_id=637 program_id=2039 attach_type=15 before_cgroup_id=0 after_cgroup_id=0
+event.name=cgroup_bpf.target_released_link_detach link=sock_ops link_id=638 program_id=2040 attach_type=3 before_cgroup_id=0 after_cgroup_id=0
+event.name=cgroup_bpf.recovery_cleanup_observation elapsed_ms=0 surviving=program:2035,program:2036,program:2037,program:2038,program:2039,program:2040,map:1038,map:1032,map:1035,map:1036,map:1033,map:1031
+event.name=cgroup_bpf.recovery_cleanup_observation elapsed_ms=10 surviving=map:1038,map:1032,map:1035,map:1036,map:1033,map:1031
+event.name=cgroup_bpf.attach_probe result=PASS mode=single hooks=6 effective=true
+event.name=cgroup_bpf.ready generation=2 programs=6 links=6 maps=7 policy_capacity=3 socket_capacity=64 ring_bytes=65536
+[2m2026-09-30T08:13:24.298092Z[0m [32m INFO[0m a resource left by a previous run was removed [3mevent.name[0m[2m=[0m"startup.swept" [3mhelper[0m[2m=[0m"enforcer" [3mresource[0m[2m=[0mTargetReleased cgroup-BPF generation 1
+[2m2026-09-30T08:13:24.298142Z[0m [32m INFO[0m privileges dropped [3mevent.name[0m[2m=[0m"startup.privileges_dropped" [3muid[0m[2m=[0m65534 [3mgid[0m[2m=[0m65534
+[2m2026-09-30T08:13:24.298404Z[0m [32m INFO[0m soglia is ready [3mevent.name[0m[2m=[0m"startup.ready" [3mingress[0m[2m=[0m127.0.0.1:18409 [3megress[0m[2m=[0m10.200.255.1:15001

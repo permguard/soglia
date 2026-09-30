@@ -932,10 +932,50 @@ socket's cgroup is fixed at creation, making those later hooks unreachable by
 construction. The optional direct TCP Fast Open extension is also
 `NOT_PERFORMED` and is not required for B5 PASS.
 
-B1, B2 and B3 remain qualified on production commit `bc55e76`: each passed
-under the earlier, more restrictive inventory rule. B1 through B5 are therefore
-qualified; B6 and B7 remain `NOT_EXECUTED` and require their own reviewed
-authoritative evidence.
+The current and first authoritative B6 qualification is
+[`b6-20260930T081205Z-8744`](evidence/authoritative/b6-20260930T081205Z-8744/).
+It qualifies production commit
+`a8a0e9cef0f675f6b6415a34d14d21a339d85ec8` with harness/document fingerprint
+`e1cad0bfb0ee83c7975bcf4adbfc5ab963e1a933` and an empty working-tree diff.
+The run records `authoritative: true`, B6 `PASS` and all 38 case verdicts
+`PASS`. Cleanup is `PASS`; programs are `EXTERNAL_CHURN` only for equivalent
+systemd-owned replacements, links and maps are `MATCH`, and all 917 entries in
+`SHA256SUMS` verify.
+
+B6 covers admission-before-readiness, all four host-wide S13 boundaries, all
+nine per-Execution S13 boundaries, interrupted recovery, Enforcer, Supervisor,
+Sandbox and Resolve-channel loss, four typed `Incompatible` refusals, nine
+typed `Unknown` refusals, repeated refusal under `Restart=on-failure`, and the
+four negative `TargetReleased` controls: a live attached link, a mixed link
+set, a non-empty replacement target and a target outside the current unit.
+Each negative refuses without publishing readiness or mutating unknown state.
+
+In `sandbox_sigkill`, the durable cgroup handle matches the independent probe
+and returns `ESTALE` after systemd releases the old target. A write through the
+retained old `cgroup.procs` descriptor fails with `ENODEV`, while
+`clone3(CLONE_INTO_CGROUP)` fails with `ENOENT`; neither admits a process. The
+harness corroborates that the old ID is absent from the live hierarchy. All
+six recorded links are detached exactly and verified, the backend advances
+from generation 1 to generation 2 with empty authorization maps, and READY is
+published last. The 512 MiB page-cache workload was observed to delay target
+release and is recorded as an availability contributor; page-cache state is
+not a `TargetReleased` classification predicate.
+
+Three production corrections entered while B6 was developed: `4d1e40f` makes
+Execution admission wait for startup readiness; `c80cd4e` carries stable typed
+refusal classes through the helper protocol and Supervisor exit; and the
+`TargetReleased` work culminating in `a8a0e9c` records an exact durable cgroup
+handle plus a unique cgroup-mount identity, proves an offline target directly
+through the kernel, detaches only exact recorded links and recovers through a
+new empty generation. The authoritative run qualifies their combined state,
+not any intermediate commit.
+
+B1 through B5 remain qualified on production commit `bc55e76`, while B6 is
+qualified on the later production commit `a8a0e9c`. B7 remains
+`NOT_EXECUTED`. Because the production baseline changed during B6, Phase 1
+still requires a final authoritative B1-B7 qualification sequence on one
+unchanged production commit; the earlier per-gate evidence remains valid for
+the exact commits it records but does not replace that unified final run.
 
 Historical note: the first authoritative B2 run
 [`b2-20260928T060551Z-8414`](evidence/authoritative/b2-20260928T060551Z-8414/)

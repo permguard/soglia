@@ -1,0 +1,502 @@
+[
+  {
+    "pin": "/sys/fs/bpf/soglia-b6-refusal-11/f99b56fe8f57a4721dfae62267af9eb0-g1/maps/soglia_cookie_a",
+    "show": {
+      "id": 1108,
+      "type": "hash",
+      "name": "soglia_cookie_a",
+      "flags": 0,
+      "bytes_key": 8,
+      "bytes_value": 32,
+      "max_entries": 64,
+      "bytes_memlock": 8128,
+      "frozen": 0,
+      "btf_id": 665
+    },
+    "contents": []
+  },
+  {
+    "pin": "/sys/fs/bpf/soglia-b6-refusal-11/f99b56fe8f57a4721dfae62267af9eb0-g1/maps/soglia_counters",
+    "show": {
+      "id": 1107,
+      "type": "array",
+      "name": "soglia_counters",
+      "flags": 0,
+      "bytes_key": 4,
+      "bytes_value": 8,
+      "max_entries": 11,
+      "bytes_memlock": 472,
+      "frozen": 0,
+      "btf_id": 665
+    },
+    "contents": [
+      {
+        "key": [
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "value": [
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "formatted": {
+          "key": 0,
+          "value": 0
+        }
+      },
+      {
+        "key": [
+          "0x01",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "value": [
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "formatted": {
+          "key": 1,
+          "value": 0
+        }
+      },
+      {
+        "key": [
+          "0x02",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "value": [
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "formatted": {
+          "key": 2,
+          "value": 0
+        }
+      },
+      {
+        "key": [
+          "0x03",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "value": [
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "formatted": {
+          "key": 3,
+          "value": 0
+        }
+      },
+      {
+        "key": [
+          "0x04",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "value": [
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "formatted": {
+          "key": 4,
+          "value": 0
+        }
+      },
+      {
+        "key": [
+          "0x05",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "value": [
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "formatted": {
+          "key": 5,
+          "value": 0
+        }
+      },
+      {
+        "key": [
+          "0x06",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "value": [
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "formatted": {
+          "key": 6,
+          "value": 0
+        }
+      },
+      {
+        "key": [
+          "0x07",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "value": [
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "formatted": {
+          "key": 7,
+          "value": 0
+        }
+      },
+      {
+        "key": [
+          "0x08",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "value": [
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "formatted": {
+          "key": 8,
+          "value": 0
+        }
+      },
+      {
+        "key": [
+          "0x09",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "value": [
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "formatted": {
+          "key": 9,
+          "value": 0
+        }
+      },
+      {
+        "key": [
+          "0x0a",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "value": [
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "formatted": {
+          "key": 10,
+          "value": 0
+        }
+      }
+    ]
+  },
+  {
+    "pin": "/sys/fs/bpf/soglia-b6-refusal-11/f99b56fe8f57a4721dfae62267af9eb0-g1/maps/soglia_denies",
+    "show": {
+      "id": 1110,
+      "type": "hash",
+      "name": "soglia_denies",
+      "flags": 0,
+      "bytes_key": 32,
+      "bytes_value": 8,
+      "max_entries": 3,
+      "bytes_memlock": 1800,
+      "frozen": 0,
+      "btf_id": 665
+    },
+    "contents": []
+  },
+  {
+    "pin": "/sys/fs/bpf/soglia-b6-refusal-11/f99b56fe8f57a4721dfae62267af9eb0-g1/maps/soglia_events",
+    "show": {
+      "id": 1114,
+      "type": "ringbuf",
+      "name": "soglia_events",
+      "flags": 0,
+      "bytes_key": 0,
+      "bytes_value": 0,
+      "max_entries": 65536,
+      "bytes_memlock": 78488,
+      "frozen": 0
+    },
+    "contents": "NOT_APPLICABLE:ringbuf"
+  },
+  {
+    "pin": "/sys/fs/bpf/soglia-b6-refusal-11/f99b56fe8f57a4721dfae62267af9eb0-g1/maps/soglia_meta",
+    "show": {
+      "id": 1112,
+      "type": "array",
+      "name": "soglia_meta",
+      "flags": 0,
+      "bytes_key": 4,
+      "bytes_value": 40,
+      "max_entries": 1,
+      "bytes_memlock": 424,
+      "frozen": 0,
+      "btf_id": 665
+    },
+    "contents": [
+      {
+        "key": [
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "value": [
+          "0x50",
+          "0x42",
+          "0x41",
+          "0x49",
+          "0x4c",
+          "0x47",
+          "0x4f",
+          "0x53",
+          "0x03",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x01",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0xf9",
+          "0x9b",
+          "0x56",
+          "0xfe",
+          "0x8f",
+          "0x57",
+          "0xa4",
+          "0x72",
+          "0x1d",
+          "0xfa",
+          "0xe6",
+          "0x22",
+          "0x67",
+          "0xaf",
+          "0x9e",
+          "0xb0",
+          "0x01",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "formatted": {
+          "key": 0,
+          "value": {
+            "magic": 6003095221280260688,
+            "schema": 3,
+            "abi": 1,
+            "state_id_hi": 8260823892463361017,
+            "state_id_lo": 12726802454497655325,
+            "generation": 1
+          }
+        }
+      }
+    ]
+  },
+  {
+    "pin": "/sys/fs/bpf/soglia-b6-refusal-11/f99b56fe8f57a4721dfae62267af9eb0-g1/maps/soglia_policy",
+    "show": {
+      "id": 1109,
+      "type": "hash",
+      "name": "soglia_policy",
+      "flags": 0,
+      "bytes_key": 8,
+      "bytes_value": 40,
+      "max_entries": 3,
+      "bytes_memlock": 1856,
+      "frozen": 0,
+      "btf_id": 665
+    },
+    "contents": [
+      {
+        "key": [
+          "0x01",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "value": [
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "formatted": {
+          "key": 1,
+          "value": {
+            "state": 0,
+            "reserved": 0,
+            "binding": {
+              "cgroup_id": 0,
+              "execution_nonce": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "backend_generation": 0
+            }
+          }
+        }
+      }
+    ]
+  },
+  {
+    "pin": "/sys/fs/bpf/soglia-b6-refusal-11/f99b56fe8f57a4721dfae62267af9eb0-g1/maps/soglia_tuples",
+    "show": {
+      "id": 1111,
+      "type": "hash",
+      "name": "soglia_tuples",
+      "flags": 0,
+      "bytes_key": 16,
+      "bytes_value": 48,
+      "max_entries": 64,
+      "bytes_memlock": 9760,
+      "frozen": 0,
+      "btf_id": 665
+    },
+    "contents": []
+  }
+]

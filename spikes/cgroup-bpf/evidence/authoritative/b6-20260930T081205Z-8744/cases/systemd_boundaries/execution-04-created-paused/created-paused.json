@@ -1,0 +1,6 @@
+{
+  "cgroup_inode": 15725,
+  "cgroup_procs": "31023\n",
+  "pid": 31023,
+  "proc_cgroup": "0::/system.slice/soglia-b6-execution-8.service/executions/00c3c23391\n"
+}

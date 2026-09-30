@@ -1,0 +1,9 @@
+{
+  "root_pid": 29135,
+  "status": "SEIZED",
+  "threads": [
+    29135,
+    29244
+  ],
+  "yama_ptrace_scope": "1"
+}

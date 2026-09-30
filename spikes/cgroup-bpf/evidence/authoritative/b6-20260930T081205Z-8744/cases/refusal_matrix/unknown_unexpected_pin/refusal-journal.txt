@@ -1,0 +1,6 @@
+Started soglia-b6-refusal-13.service - /var/tmp/b6-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b6-20260930T081205Z-8744/cases/refusal_matrix/unknown_unexpected_pin/config.yaml.
+soglia: the cgroup-bpf backend could not start: refused: unexpected entry below /sys/fs/bpf/soglia-b6-refusal-13/8c3e5d4053bda9a0068b6fd33c0f31da-g1
+[2m2026-09-30T08:13:27.354764Z[0m [31mERROR[0m Soglia refused startup [3mevent.name[0m[2m=[0m"startup.refused" [3mrefusal.class[0m[2m=[0m"UNKNOWN"
+soglia: the enforcer did not start: the cgroup-bpf backend could not start: refused: unexpected entry below /sys/fs/bpf/soglia-b6-refusal-13/8c3e5d4053bda9a0068b6fd33c0f31da-g1
+soglia-b6-refusal-13.service: Main process exited, code=exited, status=21/n/a
+soglia-b6-refusal-13.service: Failed with result 'exit-code'.

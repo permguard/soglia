@@ -1,0 +1,20 @@
+{
+  "case": "mixed_links",
+  "mutation": "injected_links",
+  "expected_refusal": "UNKNOWN",
+  "exit_code": 21,
+  "state_bytes_preserved": true,
+  "state_metadata_preserved": true,
+  "kernel_ids_preserved": true,
+  "ready_emitted": false,
+  "recorded_link_cgroup_ids": [
+    60979,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "old_generation": 1,
+  "verdict": "PASS"
+}

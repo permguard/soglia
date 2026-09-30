@@ -1,0 +1,9 @@
+{
+  "family": "host",
+  "boundary": "host_kernel_validated",
+  "restarts": 1,
+  "target_released": true,
+  "fixed_detach_timeout_ms": 5000,
+  "fixed_poll_interval_ms": 10,
+  "verdict": "PASS"
+}
