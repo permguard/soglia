@@ -618,6 +618,133 @@ PASS requires the constant shared-attachment model as well as the measured resou
 B1-B7 do not replace the existing full regression obligations for both backends, T1-T9/H1-H4 or the T10 no-eBPF build.
 The legacy `NetnsNftBackend` remains available and unchanged until those regressions pass and a separate explicit enablement decision is made.
 
+## Production uninstallation contract
+
+The proposed production entry point is `soglia uninstall -f <config>`.  It is a
+privileged, host-local ownership operation, not a best-effort file removal command.
+It uses the configured runtime and bpffs roots only to locate the trusted durable
+state; every object it may remove must then be proved from that state and from its
+current kernel identity.  `soglia uninstall --dry-run -f <config>` performs the
+same discovery, classification and validation and reports the exact removal plan,
+but performs no detach, unlink, network operation or directory mutation.
+
+Uninstall is permitted only while the Soglia runtime is stopped.  It must prove
+all of the following before its first mutation:
+
+- the configured systemd unit is inactive, has no main process and has no process
+  in its runtime or delegated Execution cgroups;
+- no Supervisor, Sandbox or Enforcer helper channel or ownership lock is live;
+- every recorded Execution has been killed, its cgroup is empty and no effectful
+  proxy work remains;
+- the state root, state file, generation root and every parent used for ownership
+  validation retain the required root ownership, type, mode and no-symlink
+  properties.
+
+A live or unprovably stopped runtime is an `Infrastructure` refusal.  Uninstall
+never attempts to stop the service itself: service control and confirmation of
+the stopped state remain explicit operator actions.
+
+The command reuses the S13 classifier and the same full record-to-kernel checks as
+startup recovery.  For `KnownCompatible`, it validates every recorded map,
+program, link and pin by ID, type, tag, attach target and exact path; validates all
+per-Execution records and `BindingKey` values; freezes authorization; removes
+per-Execution resources in lifecycle order; detaches the six exact recorded links;
+and removes only the exact recorded pins, state files and directories after they
+become empty.  There is no wildcard, prefix-based discovery, program-name
+ownership, recursive deletion or untrusted pin path.
+
+`TargetReleased` is accepted only when the complete qualified offline-target
+predicate succeeds.  The command opens every exact recorded link pin, verifies
+its identity and old target, performs exact `BPF_LINK_DETACH`, verifies cgroup ID
+zero afterwards and then removes the recorded generation.  A partially detached
+released generation is handled by the same old-ID-or-zero rule as recovery.
+`Incompatible` and `Unknown` are never force-cleaned: the command returns the
+typed refusal, preserves the state and every kernel object byte-for-byte and
+ID-for-ID, and prints the trusted state path plus operator guidance for inspection.
+A missing host capability needed to prove ownership is `Unsupported`; an I/O or
+host-service failure is `Infrastructure`.  There is deliberately no `--force`
+mode that converts an unproved object into an owned object.
+
+The stable process statuses are shared with startup: `Incompatible` 20,
+`Unknown` 21, `Unsupported` 22, `Infrastructure` 23 and
+`IncompatibleBpfTopology` 24.  A fully removed installation and an already-fresh
+host both return zero, with the latter reported as an idempotent no-op.  The
+machine-readable result includes the original classification, every validated
+resource identity, the planned and completed operations and the final
+verification.
+
+Success requires independent final absence checks after the state transition:
+no recorded program, link or map ID remains; no recorded pin or ownership record
+exists; no Soglia nft table, owned netns/veth, runtime bundle, cgroup or process
+remains; and the configured Soglia state and pin parents are either absent or
+empty as dictated by their ownership.  Non-owned BPF, cgroup, network and nft
+state is snapshotted before and after and must match or satisfy the same narrowly
+proved external-churn classification used by qualification.  Failure of final
+verification is a nonzero cleanup failure and must retain a durable interruption
+record sufficient for an exact retry; it must not broaden the next retry's
+ownership authority.
+
+Uninstall qualification is separate from B1-B7 and must cover:
+
+- a fresh host, a complete known-compatible generation and a released target,
+  including interruption and retry at every detach/unlink boundary;
+- live-runtime, non-empty-cgroup and effectful-work refusals before mutation;
+- every `Incompatible`, `Unknown`, `Unsupported` and infrastructure class,
+  including orphan pins, identity/tag mismatch, foreign objects and an openable
+  old target, with byte-for-byte and ID-for-ID preservation;
+- dry-run equivalence: its validated plan equals the subsequent real plan while
+  producing no state change;
+- exact positive cleanup and non-owned-state preservation measured before any
+  qualification-harness teardown.
+
+## Default-backend enablement design
+
+After the uninstall command and the release regressions qualify, the release
+configuration will enable the Cargo `cgroup-bpf` feature by default and change
+`NetworkBackend::default()` to `NetworkBackend::CgroupBpf`.  This is a separate
+production change and release decision; this section does not enact it.
+`NetworkBackend::NetnsNft` remains a supported explicit value.
+
+Default does not mean fallback.  The normal startup capability probe, delegation
+validation and S13 recovery run before READY.  If the default cgroup-BPF backend
+is unsupported, incompatible, unknown or unavailable, startup returns its typed
+refusal and stops.  It must not instantiate `NetnsNftBackend`, reinterpret an
+error as absence or silently downgrade attribution.  The operator-facing
+`Unsupported` detail names the missing capability and says that an intentional
+compatibility deployment must set `network.backend: netns-nft` explicitly and
+restart.  The same rule applies when the default-feature binary is installed on
+an unqualified kernel.
+
+T10 becomes a two-build dependency contract:
+
+1. the default production build includes only the reviewed eBPF dependencies
+   required by `CgroupBpfBackend`; the allow-list is exact and continues to reject
+   PIC, gRPC and TLS crates and any unrelated networking/control-plane stack;
+2. a build with `--no-default-features` (and any explicitly required non-BPF
+   baseline features) must compile and pass the original T10 rule with no eBPF
+   crates at all, while retaining explicit `netns-nft` operation.
+
+Both checks inspect the resolved graph and the linked production binary rather
+than matching package names in source text.  Adding cgroup-BPF to default features
+does not authorize PIC, gRPC, TLS, automatic feature fallback or an eBPF
+dependency in the no-cgroup-BPF build.
+
+The operator-visible release change consists of the new default, the supported
+kernel/systemd/cgroup-v2 prerequisites, the stable refusal codes, the explicit
+`netns-nft` opt-in and the uninstall/dry-run workflow.  The README, architecture
+documentation and the “Run Soglia” page must describe those points and must not
+claim automatic compatibility fallback.  Documentation changes are delivered
+only after the implementation and qualification results exist.
+
+The release commit must pass normal static/unit checks, both T10 build modes,
+T1-T9 and H1-H4 against both explicit backends, the uninstall qualification and
+`spike:qualify` B1 through B7 on fresh VMs.  The B1-B7 evidence must name that
+single production baseline, record one clean harness commit for the whole run and
+pass the automated evidence verifier.  Any subsequent production change to
+features, backend selection, lifecycle, helper protocol, BPF object, ownership or
+cleanup invalidates the affected qualification and requires the complete relevant
+gate set to be repeated before release.
+
 ## Residual risk and open review points
 
 - Candidate A still depends on tested-kernel semantics for socket cookies, sockops callbacks, cgroup IDs and link attachment; B1 must define the supported platform matrix.
