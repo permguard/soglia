@@ -204,9 +204,9 @@ nft list table inet soglia_b7_observe >/dev/null 2>&1 \
 nft add table inet soglia_b7_observe
 effect_observer_created=true
 nft 'add chain inet soglia_b7_observe output { type filter hook output priority 200; policy accept; }'
-nft add rule inet soglia_b7_observe output meta skuid 65534 udp dport 53 \
+nft add rule inet soglia_b7_observe output udp dport 53 \
   counter comment b7_dns_udp
-nft add rule inet soglia_b7_observe output meta skuid 65534 tcp dport 53 \
+nft add rule inet soglia_b7_observe output tcp dport 53 \
   counter comment b7_dns_tcp
 nft -j list table inet soglia_b7_observe > "$evidence/effects-observer-baseline.json"
 

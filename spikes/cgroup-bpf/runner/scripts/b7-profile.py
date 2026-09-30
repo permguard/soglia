@@ -12,6 +12,7 @@ import json
 import os
 import pathlib
 import re
+import signal
 import socket
 import subprocess
 import threading
@@ -31,6 +32,12 @@ RESOLVE_OUTCOMES = (
     "integrity_failure",
 )
 RESOLVE_FAILURES = RESOLVE_OUTCOMES[1:]
+TCP_SYN = re.compile(
+    r"\bIP\s+"
+    r"(?P<source>[0-9.]+)\.(?P<source_port>[0-9]+)\s+>\s+"
+    r"(?P<destination>[0-9.]+)\.(?P<destination_port>[0-9]+):\s+"
+    r"Flags\s+\[S\]"
+)
 
 
 def command(*args: str) -> bytes:
@@ -43,6 +50,132 @@ def json_command(*args: str) -> Any:
 
 def write_json(path: pathlib.Path, value: Any) -> None:
     path.write_text(json.dumps(value, indent=2, sort_keys=True) + "\n")
+
+
+def distinct_syn_attempts(lines: list[str]) -> dict[str, Any]:
+    """Count connection attempts, not SYN packets or capture duplicates."""
+    flows: set[tuple[str, int, str, int]] = set()
+    raw_packets = 0
+    for line in lines:
+        match = TCP_SYN.search(line)
+        if match is None:
+            continue
+        raw_packets += 1
+        flows.add((
+            match.group("source"),
+            int(match.group("source_port")),
+            match.group("destination"),
+            int(match.group("destination_port")),
+        ))
+    ordered = sorted(flows)
+    return {
+        "raw_syn_packets": raw_packets,
+        "distinct_connection_attempts": len(ordered),
+        "duplicate_or_retransmitted_syn_packets": raw_packets - len(ordered),
+        "flows": [
+            {
+                "source": source,
+                "source_port": source_port,
+                "destination": destination,
+                "destination_port": destination_port,
+            }
+            for source, source_port, destination, destination_port in ordered
+        ],
+    }
+
+
+class DistinctSynCapture:
+    """Capture target SYNs and retain both raw packets and deduplicated attempts."""
+
+    FILTER = (
+        "tcp and dst host 11.0.0.1 and dst port 443 and "
+        "(tcp[tcpflags] & (tcp-syn|tcp-ack) == tcp-syn)"
+    )
+
+    def __init__(self, root: pathlib.Path) -> None:
+        self.pcap = root / "burst-outbound-syn.pcap"
+        self.decoded = root / "burst-outbound-syn.txt"
+        self.stderr = root / "burst-outbound-syn-capture.stderr"
+        self.result = root / "burst-outbound-attempts.json"
+        self.process: subprocess.Popen[bytes] | None = None
+        self.stderr_handle: Any = None
+
+    def start(self) -> None:
+        self.stderr_handle = self.stderr.open("wb")
+        self.process = subprocess.Popen(
+            [
+                "tcpdump", "-i", "any", "-U", "-nn", "-s", "96",
+                "-w", str(self.pcap), self.FILTER,
+            ],
+            stdout=subprocess.DEVNULL,
+            stderr=self.stderr_handle,
+        )
+        deadline = time.monotonic() + 5.0
+        while time.monotonic() < deadline:
+            if self.process.poll() is not None:
+                self._close_stderr()
+                raise RuntimeError(
+                    f"SYN capture exited before readiness: {self.stderr.read_text()}"
+                )
+            if "listening on" in self.stderr.read_text(errors="replace"):
+                return
+            time.sleep(0.02)
+        self.stop()
+        raise RuntimeError("SYN capture did not become ready within 5 seconds")
+
+    def _close_stderr(self) -> None:
+        if self.stderr_handle is not None:
+            self.stderr_handle.close()
+            self.stderr_handle = None
+
+    def stop(self) -> dict[str, Any]:
+        if self.process is None:
+            raise RuntimeError("SYN capture was not started")
+        if self.process.poll() is None:
+            self.process.send_signal(signal.SIGINT)
+        try:
+            status = self.process.wait(timeout=5)
+        except subprocess.TimeoutExpired:
+            self.process.kill()
+            self.process.wait(timeout=5)
+            self._close_stderr()
+            raise RuntimeError("SYN capture did not stop after SIGINT")
+        self._close_stderr()
+        if status != 0:
+            raise RuntimeError(
+                f"SYN capture exited with {status}: {self.stderr.read_text()}"
+            )
+        decoded = command(
+            "tcpdump", "-nn", "-tt", "-r", str(self.pcap), self.FILTER
+        ).decode(errors="replace")
+        self.decoded.write_text(decoded)
+        result = distinct_syn_attempts(decoded.splitlines())
+        result.update({
+            "capture_interface": "any",
+            "capture_filter": self.FILTER,
+            "capture_scope": (
+                "the controlled burst window to the qualification-only endpoint "
+                "11.0.0.1:443"
+            ),
+            "deduplication_key": [
+                "source", "source_port", "destination", "destination_port"
+            ],
+            "raw_evidence": str(self.pcap),
+            "decoded_evidence": str(self.decoded),
+        })
+        write_json(self.result, result)
+        return result
+
+
+def service_process_identity(unit: str) -> dict[str, int]:
+    main_pid = int(command(
+        "systemctl", "show", unit, "--property=MainPID", "--value"
+    ).decode().strip())
+    status = pathlib.Path(f"/proc/{main_pid}/status").read_text()
+    match = re.search(r"^Uid:\s+(?P<real>[0-9]+)\s+", status, re.MULTILINE)
+    if match is None:
+        raise RuntimeError(f"could not read the real UID of {unit} MainPID {main_pid}")
+    return {"main_pid": main_pid, "real_uid": int(match.group("real"))}
 
 
 class Upstream:
@@ -397,18 +530,34 @@ def assert_supported_health(
 
 def nft_counter(comment: str) -> int:
     ruleset = json_command("nft", "-j", "list", "table", "inet", "soglia_b7_observe")
+    return nft_counter_value(ruleset, comment)
 
-    def walk(value: Any) -> int:
-        if isinstance(value, dict):
-            count = 0
-            if value.get("comment") == comment:
-                count += int(value.get("counter", {}).get("packets", 0))
-            return count + sum(walk(child) for child in value.values())
-        if isinstance(value, list):
-            return sum(walk(child) for child in value)
-        return 0
 
-    return walk(ruleset)
+def nft_counter_value(ruleset: Any, comment: str) -> int:
+    """Read one named rule counter from nft's actual JSON expression layout."""
+    counters: list[int] = []
+    if not isinstance(ruleset, dict):
+        raise RuntimeError("nft counter evidence is not a JSON object")
+    for item in ruleset.get("nftables", []):
+        if not isinstance(item, dict) or not isinstance(item.get("rule"), dict):
+            continue
+        rule = item["rule"]
+        if rule.get("comment") != comment:
+            continue
+        rule_counters = [
+            expression["counter"]
+            for expression in rule.get("expr", [])
+            if isinstance(expression, dict)
+            and isinstance(expression.get("counter"), dict)
+        ]
+        if len(rule_counters) != 1 or "packets" not in rule_counters[0]:
+            raise RuntimeError(f"nft rule {comment!r} has no unique packet counter")
+        counters.append(int(rule_counters[0]["packets"]))
+    if len(counters) != 1:
+        raise RuntimeError(
+            f"expected exactly one nft rule named {comment!r}, found {len(counters)}"
+        )
+    return counters[0]
 
 
 def wait_upstream(upstream: Upstream, expected: int) -> int:
@@ -658,16 +807,29 @@ def main() -> None:
                 args.unit, args.ingress_port, target, completed_execution_ids,
                 args.deadline_ms, "burst",
             )
+            service_identity = service_process_identity(args.unit)
             upstream_before = upstream.accepted_count()
             dns_before = {
                 "udp": nft_counter("b7_dns_udp"),
                 "tcp": nft_counter("b7_dns_tcp"),
             }
-            burst = invoke(
-                args.ingress_port,
-                f"b7-burst-report 11.0.0.1:443 {args.burst} /tmp/b7-burst.json",
-                timeout=90,
-            )
+            syn_capture = DistinctSynCapture(args.evidence)
+            syn_capture.start()
+            try:
+                burst = invoke(
+                    args.ingress_port,
+                    f"b7-burst-report 11.0.0.1:443 {args.burst} /tmp/b7-burst.json",
+                    timeout=90,
+                )
+                if burst["status"] != 200 or not isinstance(burst["body"], dict):
+                    raise RuntimeError(f"simultaneous burst failed: {burst}")
+                succeeded = int(burst["body"].get("succeeded", -1))
+                upstream_after = wait_upstream(upstream, upstream_before + succeeded)
+                # Keep the capture open long enough to include a retransmitted SYN if one
+                # exists.  The deduplication key ensures it is still one attempt.
+                time.sleep(1.5)
+            finally:
+                outbound_attempts = syn_capture.stop()
             if burst["status"] != 200 or not isinstance(burst["body"], dict):
                 raise RuntimeError(f"simultaneous burst failed: {burst}")
             if int(burst["body"].get("max_us", args.deadline_ms * 1000 + 1)) \
@@ -676,10 +838,8 @@ def main() -> None:
             if burst["execution_id"] is None:
                 raise RuntimeError("burst workload omitted its ExecutionId")
             completed_execution_ids.append(burst["execution_id"])
-            succeeded = int(burst["body"].get("succeeded", -1))
             failed = int(burst["body"].get("failed", -1))
             requested = int(burst["body"].get("requested", -1))
-            upstream_after = wait_upstream(upstream, upstream_before + succeeded)
             dns_after = {
                 "udp": nft_counter("b7_dns_udp"),
                 "tcp": nft_counter("b7_dns_tcp"),
@@ -695,6 +855,9 @@ def main() -> None:
             )
             totals = burst_health["workload_totals"]
             rejected_outbound = upstream_after - upstream_before - succeeded
+            rejected_outbound_attempts = (
+                outbound_attempts["distinct_connection_attempts"] - succeeded
+            )
             dns_delta = {
                 protocol: dns_after[protocol] - dns_before[protocol]
                 for protocol in dns_before
@@ -708,6 +871,7 @@ def main() -> None:
                         if field != "queue_refusal")
                 and totals["stale_generation"] == 0
                 and rejected_outbound == 0
+                and rejected_outbound_attempts == 0
                 and all(value == 0 for value in dns_delta.values())
                 and workload_value(immediate_control)["succeeded"] == 1
             )
@@ -724,9 +888,30 @@ def main() -> None:
                     "upstream_accepts_after": upstream_after,
                     "successful_connections": succeeded,
                     "rejected_connection_outbound_accepts": rejected_outbound,
+                    "outbound_connection_attempts": outbound_attempts,
+                    "rejected_connection_outbound_attempts": rejected_outbound_attempts,
                     "dns_packets_before": dns_before,
                     "dns_packets_after": dns_after,
                     "dns_packet_delta": dns_delta,
+                },
+                "prior_observer_diagnosis": {
+                    "historical_run": "b7-diagnostic-20260930T210309Z-1170989",
+                    "historical_successful_connections": 107,
+                    "historical_raw_syn_packets": 0,
+                    "historical_derived_rejected_syn": -107,
+                    "legacy_filter": "meta skuid 65534",
+                    "service_process": service_identity,
+                    "sandbox_agent_uid": 65534,
+                    "cause": (
+                        "the legacy parser looked for counter as a sibling of rule.comment, "
+                        "but nft -j stores it in rule.expr; it therefore returned zero for "
+                        "every commented rule. The observed service real UID is 65534, so "
+                        "the skuid filter itself does not explain the historical zero"
+                    ),
+                    "replacement": (
+                        "packet capture of target SYNs with distinct 4-tuple counting; "
+                        "retransmissions and capture duplicates do not add attempts"
+                    ),
                 },
                 "immediate_control": immediate_control,
                 "verdict": "PASS" if characterization_pass else "FAIL",

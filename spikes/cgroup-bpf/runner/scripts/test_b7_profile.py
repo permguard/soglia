@@ -43,6 +43,48 @@ def health_line(**overrides: int) -> str:
 
 
 class B7ProfileTests(unittest.TestCase):
+    def test_nft_counter_reads_the_counter_expression_beside_a_rule_comment(
+        self,
+    ) -> None:
+        ruleset = {
+            "nftables": [
+                {"metainfo": {"version": "1.0.9"}},
+                {
+                    "rule": {
+                        "comment": "b7_dns_udp",
+                        "expr": [
+                            {"match": {"op": "=="}},
+                            {"counter": {"packets": 17, "bytes": 1020}},
+                        ],
+                    }
+                },
+            ]
+        }
+        self.assertEqual(B7.nft_counter_value(ruleset, "b7_dns_udp"), 17)
+
+    def test_distinct_syn_attempts_ignore_retransmissions_and_capture_duplicates(
+        self,
+    ) -> None:
+        lines = [
+            "1.000000 lo Out IP 11.0.0.1.40000 > 11.0.0.1.443: "
+            "Flags [S], seq 1, win 65495, length 0",
+            "2.000000 lo Out IP 11.0.0.1.40000 > 11.0.0.1.443: "
+            "Flags [S], seq 1, win 65495, length 0",
+            "2.000001 lo In  IP 11.0.0.1.40000 > 11.0.0.1.443: "
+            "Flags [S], seq 1, win 65495, length 0",
+            "3.000000 lo Out IP 11.0.0.1.40001 > 11.0.0.1.443: "
+            "Flags [S], seq 2, win 65495, length 0",
+            "3.000001 lo In  IP 11.0.0.1.443 > 11.0.0.1.40001: "
+            "Flags [S.], seq 3, ack 2, win 65483, length 0",
+        ]
+        result = B7.distinct_syn_attempts(lines)
+        self.assertEqual(result["raw_syn_packets"], 4)
+        self.assertEqual(result["distinct_connection_attempts"], 2)
+        self.assertEqual(result["duplicate_or_retransmitted_syn_packets"], 2)
+        self.assertEqual(
+            [flow["source_port"] for flow in result["flows"]], [40000, 40001]
+        )
+
     def test_parses_and_sums_ansi_resolve_health(self) -> None:
         events = B7.parse_resolve_health([
             health_line(resolved=3),
