@@ -5,6 +5,7 @@
 # Production Candidate-A B7 resource, observability, topology and integrity-drift qualification.
 
 set -euo pipefail
+export PYTHONDONTWRITEBYTECODE=1
 
 scripts=/soglia/spikes/cgroup-bpf/runner/scripts
 inventory_classifier="$scripts/bpf_inventory_classifier.py"
@@ -42,6 +43,7 @@ links_classification=NOT_RUN
 maps_classification=NOT_RUN
 production_source_matches=false
 teardown_blocked=false
+effect_observer_created=false
 
 mkdir -p "$evidence/final" "$evidence/profiles" "$evidence/drift" "$pin_parent" "$runtime_parent"
 printf '%s\n' RUNNING > "$evidence/verdict.txt"
@@ -65,9 +67,14 @@ write_summary() {
       matrix:["M0","M1","M2","M3"],
       qualified:{declared_matrix:true,constant_shared_topology:true,production_events:true,
         independent_bpftool_comparison:true,rate_floor_percent:95,
+        within_envelope_resolve_outcomes_clean:true,
+        burst_queue_full_characterization:true,
         foreign_direct_link_fail_closed:true,owned_link_detach_fail_closed:true},
       cleanup:{verdict:$cleanup,programs:$programs,links:$links,maps:$maps},
-      scope:{simultaneous_live_sockets_proved:512,map_capacity_configured:4096,
+      scope:{simultaneous_live_sockets_proved:512,
+        simultaneous_new_connection_admissions_proved:32,
+        burst_256:"OUTSIDE_SUPPORTED_ENVELOPE_REFUSAL_CHARACTERIZATION",
+        map_capacity_configured:4096,
         nofile_limit_not_tuned:true,latency_objective:"configured Resolve deadline only",
         production_code_change:"NOT_PERFORMED: qualification harness only"},
       authoritative_vm:(if $authoritative then {name:$vm_name} else null end)}' \
@@ -95,10 +102,17 @@ remove_global_harness_resources() {
   rmdir "$rootfs/proc" "$rootfs/dev" "$rootfs/sys" "$rootfs/tmp" "$rootfs" || return 1
 }
 
+remove_effect_observer() {
+  [[ $effect_observer_created == true ]] || return 0
+  nft delete table inet soglia_b7_observe || return 1
+  effect_observer_created=false
+}
+
 final_cleanup() {
   set +e
   bpf_inventory_stop_watcher
   stop_test_units
+  remove_effect_observer || teardown_blocked=true
   remove_global_harness_resources || teardown_blocked=true
   : > "$evidence/final/program-settle.jsonl"
   for attempt in $(seq 0 720); do
@@ -126,6 +140,7 @@ final_cleanup() {
   [[ ! -e $pin_parent && ! -e $runtime_parent && ! -e $rootfs ]] || cleanup_status=CLEANUP_FAIL
   [[ ! -e /sys/class/net/soglia0 && ! -e /sys/class/net/b7-upstream ]] || cleanup_status=CLEANUP_FAIL
   nft list table inet soglia_host >/dev/null 2>&1 && cleanup_status=CLEANUP_FAIL
+  nft list table inet soglia_b7_observe >/dev/null 2>&1 && cleanup_status=CLEANUP_FAIL
   printf '%s\n' "$program_classification" > "$evidence/final/program-classification.txt"
   printf '%s\n' "$cleanup_status" > "$evidence/final/cleanup-verdict.txt"
   set -e
@@ -182,6 +197,16 @@ install -m 0755 "$agent" "$rootfs/agent"
 ip link add b7-upstream type dummy
 ip addr add 11.0.0.1/32 dev b7-upstream
 ip link set b7-upstream up
+nft list table inet soglia_b7_observe >/dev/null 2>&1 \
+  && { echo 'pre-existing B7 effect-observer table' >&2; exit 30; }
+nft add table inet soglia_b7_observe
+effect_observer_created=true
+nft 'add chain inet soglia_b7_observe output { type filter hook output priority 200; policy accept; }'
+nft add rule inet soglia_b7_observe output meta skuid 65534 udp dport 53 \
+  counter comment b7_dns_udp
+nft add rule inet soglia_b7_observe output meta skuid 65534 tcp dport 53 \
+  counter comment b7_dns_tcp
+nft -j list table inet soglia_b7_observe > "$evidence/effects-observer-baseline.json"
 
 wait_ready() {
   local port=$1
@@ -301,7 +326,7 @@ run_profile() {
 run_profile M0 1 64 0,1 48 64 1x30 0 18100
 run_profile M1 4 512 0,1,2,4 384 1024 50x30 0 18101
 run_profile M2 4 4096 0,1,2,4 512 8192 100x30,250x30 0 18102
-run_profile M3 32 4096 0,1,8,16,32 512 8192 250x30 256 18103
+run_profile M3 32 4096 0,1,8,16,32 32 8192 250x30 256 18103
 
 run_drift() {
   local mode=$1 port=$2 profile=$3 unit config

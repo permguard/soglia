@@ -450,11 +450,20 @@ The declared B7 support matrix is:
 | M0      | 1                 | 64                    | 0, 1                        | 48                              | 64               | 1/s for 30 s     |
 | M1      | 4                 | 512                   | 0, 1, 2, 4                  | 384                             | 1,024            | 50/s for 30 s    |
 | M2      | 4                 | 4,096                 | 0, 1, 2, 4                  | 512                             | 8,192            | 100/s for 30 s, then 250/s for 30 s |
-| M3      | 32                | 4,096                 | 0, 1, 8, 16, 32             | 512, distributed across live Executions | 8,192 | 250/s for 30 s plus a 256-simultaneous-request burst |
+| M3      | 32                | 4,096                 | 0, 1, 8, 16, 32             | 32, one per live Execution     | 8,192 | 250/s for 30 s; 256 simultaneous requests are characterized outside the supported envelope |
 
 This matrix declares maps configured for as many as 4,096 tracked sockets, but qualifies only 512 simultaneously live sockets; it makes no claim that 4,096 sockets were held live at once.
 The 512-live-socket boundary is imposed by the production service environment measured by qualification: `RLIMIT_NOFILE` has a soft limit of 1,024 because the production systemd unit does not set `LimitNOFILE` and therefore inherits systemd's default.
 Raising that limit is a separate product and production-unit decision and requires a new resource qualification; B7 does not tune it to force PASS.
+
+The supported simultaneous-new-connection envelope is bounded independently by the
+Candidate-A Resolve queue, whose depth is `max_concurrency`.  M3 therefore proves 32
+simultaneous new admissions, one from each of 32 live Executions, without a queue
+refusal.  The separate 256-request burst deliberately exceeds that envelope and is a
+fail-closed refusal characterization, not supported capacity: successes and
+`QueueFull` refusals are recorded without a throughput threshold, every refusal must
+be exactly `QueueFull`, rejected connections must cause no DNS or outbound effect, and
+a control connection immediately after the burst must resolve successfully.
 
 ## Observability and health
 
@@ -594,6 +603,13 @@ This is an independent production qualification gate; S9/S10 foreign-ancestor PA
 It measures map memory, occupancy/high-water, FDs, program/link/map/pin counts, load/recovery latency, Resolve latency and event loss without tuning the host to force PASS.
 Resolve latency is recorded as p50, p95, p99 and maximum for every rate point; these observations do not create an unevidenced latency objective.
 PASS requires every successful Resolve to remain within the configured deadline and at least 95% of the requested rate to be achieved for each declared workload.
+For every workload inside the declared envelope, B7 sums the production
+`cgroup_bpf.resolve_health` outcomes for that workload and requires zero queue
+refusals, timeouts, unavailable results, identity mismatches, stale generations,
+revocations, misses and integrity failures.  Fixed-rate clients make exactly one
+attempt per scheduled connection and never retry a refusal to manufacture the 95%
+rate result.  The out-of-envelope 256-request burst is assessed only by the explicit
+refusal-characterization contract above.
 It injects both required integrity-drift classes: an unexpected foreign direct link on the production target and the detach of one of the six owned Soglia links.
 Each must trigger the same one-way fail-closed health transition as helper loss, stop admission and effect-producing work, and must not be silently repaired in process.
 It then runs representative full lifecycles and proves zero Soglia-owned process, cgroup, runtime, netns/veth/nft, BPF, pin, map-entry and ownership-record residue.

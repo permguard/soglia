@@ -1372,7 +1372,7 @@ fn b7_connection_workload(
     };
     let elapsed_ms = u64::try_from(started.elapsed().as_millis()).unwrap_or(u64::MAX);
     let value = format!(
-        "{{\"kind\":{},\"requested\":{count},\"succeeded\":{succeeded},\"failed\":{failed},\"elapsed_ms\":{elapsed_ms},\"p50_us\":{},\"p95_us\":{},\"p99_us\":{},\"max_us\":{}}}",
+        "{{\"kind\":{},\"strategy\":\"one-shot-no-retry\",\"requested\":{count},\"attempts\":{count},\"retry_count\":0,\"succeeded\":{succeeded},\"failed\":{failed},\"elapsed_ms\":{elapsed_ms},\"p50_us\":{},\"p95_us\":{},\"p99_us\":{},\"max_us\":{}}}",
         quote(kind),
         percentile(50),
         percentile(95),

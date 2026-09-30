@@ -11,6 +11,9 @@ source "$host_dir/common.sh"
 
 require_host
 production_baseline=db6e1ac21a957b5fd8de96f5e3a719db1d897723
+pycache="$repo_dir/spikes/cgroup-bpf/runner/scripts/__pycache__"
+rm -rf -- "$pycache"
+[[ ! -e $pycache ]]
 git -C "$repo_dir" cat-file -e "$production_baseline^{commit}"
 git -C "$repo_dir" diff --exit-code "$production_baseline" -- crates src Cargo.toml Cargo.lock
 if [[ -n $(git -C "$repo_dir" status --short --untracked-files=all) ]]; then
@@ -36,7 +39,7 @@ limactl shell "$vm" -- sudo cc -O2 -Wall -Wextra -Werror \
   /soglia/spikes/cgroup-bpf/runner/helpers/b6-link-injector.c -o /var/tmp/b7-link-injector
 limactl shell "$vm" -- sudo cc -O2 -Wall -Wextra -Werror \
   /soglia/spikes/cgroup-bpf/runner/helpers/b7-link-detach.c -o /var/tmp/b7-link-detach
-limactl shell "$vm" -- sudo env SOGLIA_B7_VM_NAME="$vm" bash \
+limactl shell "$vm" -- sudo env SOGLIA_B7_VM_NAME="$vm" PYTHONDONTWRITEBYTECODE=1 bash \
   /soglia/spikes/cgroup-bpf/runner/scripts/b7-qualification.sh \
   /var/tmp/b7-production-target/release/soglia \
   /var/tmp/soglia-spike-2/bin/soglia-spike-agent \
