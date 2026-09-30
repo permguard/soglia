@@ -1276,33 +1276,58 @@ fn b7_live_report(target: &str, count: usize, hold_secs: u64, report: &str) -> S
 
 fn b7_burst_report(target: &str, count: usize, report: &str) -> String {
     let started = Instant::now();
-    let workers: Vec<_> = (0..count)
-        .map(|_| {
-            let target = target.to_owned();
-            thread::spawn(move || {
-                let attempt = Instant::now();
-                let result = TcpStream::connect_timeout(&SocketAddr::V4(PROXY), CONNECT_TIMEOUT)
-                    .and_then(|mut stream| establish_connect(&mut stream, &target));
-                (
-                    result.is_ok(),
-                    u64::try_from(attempt.elapsed().as_micros()).unwrap_or(u64::MAX),
-                )
-            })
-        })
-        .collect();
-    let outcomes: Vec<_> = workers
-        .into_iter()
-        .filter_map(|worker| worker.join().ok())
-        .collect();
-    let succeeded = outcomes.iter().filter(|(ok, _)| *ok).count();
+    let request = format!("CONNECT {target} HTTP/1.1\r\nHost: {target}\r\n\r\n");
+    // Open every socket before sending or reading application bytes.  This makes all requests
+    // simultaneously live without consuming one task from the Execution's pids.max per socket.
+    let mut streams: Vec<(Instant, TcpStream, bool)> = Vec::with_capacity(count);
+    for _ in 0..count {
+        let attempt = Instant::now();
+        match TcpStream::connect_timeout(&SocketAddr::V4(PROXY), CONNECT_TIMEOUT) {
+            Ok(stream) => streams.push((attempt, stream, false)),
+            Err(_) => {}
+        }
+    }
+    for (_, stream, written) in &mut streams {
+        *written = stream.write_all(request.as_bytes()).is_ok();
+    }
+    let mut succeeded = 0_usize;
+    let mut max_us = 0_u64;
+    for (attempt, stream, written) in streams {
+        let result = (|| -> std::io::Result<()> {
+            if !written {
+                return Err(std::io::Error::new(
+                    std::io::ErrorKind::BrokenPipe,
+                    "burst request write failed",
+                ));
+            }
+            stream.set_read_timeout(Some(Duration::from_secs(10)))?;
+            let mut reader = BufReader::new(stream);
+            let mut status = String::new();
+            if reader.read_line(&mut status)? == 0 {
+                return Err(std::io::Error::from_raw_os_error(104));
+            }
+            loop {
+                let mut line = String::new();
+                if reader.read_line(&mut line)? == 0 || line.trim().is_empty() {
+                    break;
+                }
+            }
+            if !status.contains(" 200 ") {
+                return Err(std::io::Error::other(status.trim().to_owned()));
+            }
+            Ok(())
+        })();
+        max_us = max_us.max(
+            u64::try_from(attempt.elapsed().as_micros()).unwrap_or(u64::MAX),
+        );
+        if result.is_ok() {
+            succeeded += 1;
+        } else {
+        }
+    }
     let failed = count.saturating_sub(succeeded);
-    let max_us = outcomes
-        .iter()
-        .map(|(_, latency)| *latency)
-        .max()
-        .unwrap_or(0);
     let value = format!(
-        "{{\"kind\":\"burst\",\"requested\":{count},\"succeeded\":{succeeded},\"failed\":{failed},\"elapsed_ms\":{},\"max_us\":{max_us}}}",
+        "{{\"kind\":\"burst\",\"strategy\":\"open-all-write-all-read-all\",\"requested\":{count},\"succeeded\":{succeeded},\"failed\":{failed},\"elapsed_ms\":{},\"max_us\":{max_us}}}",
         started.elapsed().as_millis()
     );
     let _ = fs::write(report, format!("{value}\n"));
