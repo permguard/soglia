@@ -38,10 +38,6 @@ case "$target_offline_detach" in
   true|false) ;;
   *) echo 'B6_TARGET_OFFLINE_DETACH must be true or false' >&2; exit 13 ;;
 esac
-if [[ $target_offline_diagnostic != true && $target_offline_page_cache_mb != 0 ]]; then
-  echo 'page-cache injection is qualification-only' >&2
-  exit 13
-fi
 if [[ $target_offline_diagnostic != true && $target_offline_detach == true ]]; then
   echo 'explicit link detach is qualification-only' >&2
   exit 13
@@ -56,6 +52,7 @@ config="$evidence/config.yaml"
 unit_cgroup="/sys/fs/cgroup/system.slice/$unit.service"
 offline_helper=/var/tmp/soglia-b6-offline-kernel
 offline_handle_pid=
+offline_admission_pid=
 mkdir -p "$evidence" "$rootfs"/{proc,dev,sys,tmp}
 install -m 0755 "$agent" "$rootfs/agent"
 if [[ $target_offline_diagnostic == true ]]; then
@@ -225,6 +222,10 @@ cleanup() {
     kill "$offline_handle_pid" >/dev/null 2>&1
     wait "$offline_handle_pid" 2>/dev/null
   fi
+  if [[ -n ${offline_admission_pid:-} ]]; then
+    kill "$offline_admission_pid" >/dev/null 2>&1
+    wait "$offline_admission_pid" 2>/dev/null
+  fi
   if [[ -d $unit_cgroup/executions ]]; then
     find "$unit_cgroup/executions" -mindepth 1 -maxdepth 1 -type d -exec sh -c \
       'echo 0 > "$1/cgroup.freeze" 2>/dev/null || true' _ {} \;
@@ -251,7 +252,7 @@ cleanup() {
   fi
   rm -rf "$runtime" "$rootfs"
   [[ "$runc_path" != /usr/sbin/runc ]] && rm -f "$runc_path"
-  [[ $target_offline_diagnostic == true ]] && rm -f "$offline_helper"
+  [[ $case_name == sandbox_sigkill ]] && rm -f "$offline_helper"
   rm -f "/var/tmp/$unit-page-cache"
   rmdir "$pin_parent" 2>/dev/null
   nft delete table inet soglia_b6_observe >/dev/null 2>&1
@@ -343,7 +344,7 @@ if [[ "$case_name" == sandbox_sigkill ]]; then
   staged_lifecycle=true
   wait_for first-running "[[ \$(SYSTEMD_COLORS=0 journalctl -u '$unit.service' --after-cursor '$journal_cursor' -o cat --no-pager | grep -c 'execution phase.*Running') -ge 1 ]]"
   first_cgroup=$(find "$unit_cgroup/executions" -mindepth 1 -maxdepth 1 -type d | head -1)
-  if [[ $target_offline_diagnostic == true && $target_offline_page_cache_mb != 0 ]]; then
+  if [[ $target_offline_page_cache_mb != 0 ]]; then
     bash -c "echo \$\$ > '$first_cgroup/cgroup.procs'; dd if=/dev/zero of='/var/tmp/$unit-page-cache' bs=1M count='$target_offline_page_cache_mb' conv=fsync status=none"
     printf '%s\n' "$target_offline_page_cache_mb" \
       > "$evidence/target-offline-page-cache-mb.txt"
@@ -399,7 +400,7 @@ nft -j list table inet soglia_b6_observe > "$evidence/effects-at-loss.json"
 cp "$runtime/cgroup-bpf/state.json" "$evidence/state-before-loss.json"
 old_generation=$(jq -r .generation "$evidence/state-before-loss.json")
 old_attachment_inode=$(jq -r .attachment_inode "$evidence/state-before-loss.json")
-if [[ $target_offline_diagnostic == true ]]; then
+if [[ $case_name == sandbox_sigkill ]]; then
   cc -O2 -Wall -Wextra -Werror \
     /soglia/spikes/cgroup-bpf/runner/helpers/b6-offline-kernel.c \
     -o "$offline_helper"
@@ -418,13 +419,30 @@ if [[ $target_offline_diagnostic == true ]]; then
   done
   jq -e 'select(.stage == "before" and .open_result == 0)' \
     "$evidence/target-offline-handle.jsonl" >/dev/null
-  capture_target_offline_snapshot before-loss
-  mkdir -p "$evidence/target-offline/executions-before-loss"
-  for cgroup in "${execution_cgroups[@]}"; do
-    name=$(basename "$cgroup")
-    capture_cgroup_diagnostic before-loss "$cgroup" \
-      "$evidence/target-offline/executions-before-loss/$name.txt"
+  strace -qq -f -e trace=openat,write,clone3 \
+    -o "$evidence/target-offline-admission-syscalls.txt" \
+    "$offline_helper" offline-admission-probe "$unit_cgroup/executions" \
+    "$evidence/target-offline-handle-release" \
+    > "$evidence/target-offline-admission.jsonl" \
+    2> "$evidence/target-offline-admission.stderr" &
+  offline_admission_pid=$!
+  for _ in $(seq 1 500); do
+    [[ -s $evidence/target-offline-admission.jsonl ]] && break
+    kill -0 "$offline_admission_pid" 2>/dev/null || break
+    sleep 0.01
   done
+  jq -e 'select(.stage == "before" and .directory_fd_open == true and
+    .cgroup_procs_fd_open == true)' \
+    "$evidence/target-offline-admission.jsonl" >/dev/null
+  if [[ $target_offline_diagnostic == true ]]; then
+    capture_target_offline_snapshot before-loss
+    mkdir -p "$evidence/target-offline/executions-before-loss"
+    for cgroup in "${execution_cgroups[@]}"; do
+      name=$(basename "$cgroup")
+      capture_cgroup_diagnostic before-loss "$cgroup" \
+        "$evidence/target-offline/executions-before-loss/$name.txt"
+    done
+  fi
 fi
 
 loss_at=$(boot_now)
@@ -473,12 +491,16 @@ for cgroup in "${execution_cgroups[@]}"; do
   fi
 done
 ! grep -q '^populated 1$' "$evidence/execution-cgroup-events-before-new-main.txt"
-if [[ $target_offline_diagnostic == true ]]; then
+if [[ $case_name == sandbox_sigkill ]]; then
   touch "$evidence/target-offline-handle-release"
   wait "$offline_handle_pid"
   offline_handle_pid=
+  wait "$offline_admission_pid"
+  offline_admission_pid=
   find /sys/fs/cgroup -xdev -inum "$old_attachment_inode" -print \
     > "$evidence/target-offline-old-id-live-paths.txt"
+fi
+if [[ $target_offline_diagnostic == true ]]; then
   capture_target_offline_snapshot after-new-main
   poll_target_offline_state before-reclaim 20 0.25
 
@@ -575,6 +597,47 @@ if [[ $target_offline_diagnostic == true ]]; then
   mv "$checksum_tmp" "$evidence/SHA256SUMS"
   exit 0
 fi
+if [[ $case_name == sandbox_sigkill ]]; then
+  jq -e 'select(.stage == "after" and .open_result == -1 and .open_errno == 116)' \
+    "$evidence/target-offline-handle.jsonl" >/dev/null
+  jq -e 'select(.stage == "after" and .write_result == -1 and .write_errno == 19 and
+    .clone3_result == -1 and .clone3_errno == 2)' \
+    "$evidence/target-offline-admission.jsonl" >/dev/null
+  [[ ! -s $evidence/target-offline-old-id-live-paths.txt ]]
+  [[ $(cat "$evidence/target-offline-page-cache-mb.txt") -eq 512 ]]
+  recorded_handle_type=$(jq -r .attachment_handle.handle_type \
+    "$evidence/state-before-loss.json")
+  recorded_handle_length=$(jq -r '.attachment_handle.handle | length' \
+    "$evidence/state-before-loss.json")
+  recorded_handle_hex=$(jq -r '.attachment_handle.handle[]' \
+    "$evidence/state-before-loss.json" | awk '{printf "%02x", $1}')
+  recorded_mount_id=$(jq -r .attachment_handle.mount_id_unique \
+    "$evidence/state-before-loss.json")
+  probe_handle_type=$(jq -r 'select(.stage == "before") | .handle_type' \
+    "$evidence/target-offline-handle.jsonl")
+  probe_handle_length=$(jq -r 'select(.stage == "before") | .handle_bytes' \
+    "$evidence/target-offline-handle.jsonl")
+  probe_handle_hex=$(jq -r 'select(.stage == "before") | .handle_hex' \
+    "$evidence/target-offline-handle.jsonl")
+  probe_mount_id=$(jq -r 'select(.stage == "before") | .mount_id_unique' \
+    "$evidence/target-offline-handle.jsonl")
+  [[ "$recorded_handle_type" == "$probe_handle_type" ]]
+  [[ "$recorded_handle_length" == "$probe_handle_length" ]]
+  [[ "$recorded_handle_hex" == "$probe_handle_hex" ]]
+  [[ "$recorded_mount_id" == "$probe_mount_id" ]]
+  jq -n --argjson handle_type "$recorded_handle_type" \
+    --argjson handle_length "$recorded_handle_length" \
+    --arg handle_hex "$recorded_handle_hex" \
+    --argjson mount_id_unique "$recorded_mount_id" \
+    '{durable_handle_matches_independent_probe:true,
+      handle_type:$handle_type,handle_length:$handle_length,
+      handle_hex:$handle_hex,mount_id_unique:$mount_id_unique,
+      open_after_removal:{result:-1,errno:116},
+      retained_cgroup_procs_write:{result:-1,errno:19},
+      retained_clone_into_cgroup:{result:-1,errno:2},
+      old_id_absent_from_live_hierarchy:true,page_cache_mb:512,verdict:"PASS"}' \
+    > "$evidence/target-offline-contract.json"
+fi
 wait_for restarted-ready "ss -H -ltn 'sport = :18106' | grep -q ."
 
 journalctl -u "$unit.service" --after-cursor "$journal_cursor" -o json --no-pager \
@@ -583,19 +646,21 @@ journalctl -u "$unit.service" --after-cursor "$journal_cursor" -o short-monotoni
   > "$evidence/journal.txt"
 jq -e 'all(.[]; has("__MONOTONIC_TIMESTAMP"))' < <(jq -s . "$evidence/journal.jsonl")
 grep -q 'event.name=cgroup_bpf.target_released result=PASS' "$evidence/journal.txt"
-[[ $(grep -c 'event.name=cgroup_bpf.target_released_link_observation' "$evidence/journal.txt") -eq 6 ]]
+[[ $(grep -c 'event.name=cgroup_bpf.target_released_link_observation' "$evidence/journal.txt") -ge 6 ]]
 ! grep 'event.name=cgroup_bpf.target_released_link_observation' "$evidence/journal.txt" \
-  | grep -Ev 'cgroup_id=0([^0-9]|$)'
-grep -q 'event.name=cgroup_bpf.recovery_cleanup_observation' "$evidence/journal.txt"
+  | grep -Ev "cgroup_id=($old_attachment_inode|0)([^0-9]|$)"
+[[ $(grep -c 'event.name=cgroup_bpf.target_released_link_detach' "$evidence/journal.txt") -eq 6 ]]
+! grep 'event.name=cgroup_bpf.target_released_link_detach' "$evidence/journal.txt" \
+  | grep -Ev "before_cgroup_id=($old_attachment_inode|0).*after_cgroup_id=0([^0-9]|$)"
 grep -q 'event.name=cgroup_bpf.ready generation=2' "$evidence/journal.txt"
 target_released_line=$(grep -n -m1 'event.name=cgroup_bpf.target_released result=PASS' \
   "$evidence/journal.txt" | cut -d: -f1)
-cleanup_observed_line=$(grep -n -m1 'event.name=cgroup_bpf.recovery_cleanup_observation' \
-  "$evidence/journal.txt" | cut -d: -f1)
+last_detach_line=$(grep -n 'event.name=cgroup_bpf.target_released_link_detach' \
+  "$evidence/journal.txt" | tail -1 | cut -d: -f1)
 ready_line=$(grep -n -m1 'event.name=cgroup_bpf.ready generation=2' \
   "$evidence/journal.txt" | cut -d: -f1)
-[[ "$target_released_line" -lt "$cleanup_observed_line" ]]
-[[ "$cleanup_observed_line" -lt "$ready_line" ]]
+[[ "$target_released_line" -lt "$last_detach_line" ]]
+[[ "$last_detach_line" -lt "$ready_line" ]]
 nft -j list table inet soglia_b6_observe > "$evidence/effects-after-restart.json"
 ss -H -n -t -a > "$evidence/sockets-after-restart.txt"
 cp "$runtime/cgroup-bpf/state.json" "$evidence/state-after-restart.json"
@@ -656,7 +721,7 @@ jq -n --arg case "$case_name" --argjson old_main "$old_main" --argjson new_main 
       created_not_started_pid:(if $staged_lifecycle then $created_pid else null end)},
     target_released:{old_generation:$old_generation,new_generation:$new_generation,
       old_attachment_inode:$old_attachment_inode,new_attachment_inode:$new_attachment_inode,
-      links_observed_detached:6,detach_timeout_ms:5000,poll_interval_ms:10,
+      exact_link_detaches_verified:6,detach_timeout_ms:5000,poll_interval_ms:10,
       old_ids_absent:true,new_authorization_maps_empty:true},verdict:"PASS"}' \
   > "$evidence/result.json"
 printf '%s\n' PASS > "$evidence/verdict.txt"

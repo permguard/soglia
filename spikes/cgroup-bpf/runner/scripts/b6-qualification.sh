@@ -25,7 +25,7 @@ if [[ $# -eq 6 ]]; then
 fi
 
 # Updated after the production recovery follow-up is committed.
-production_baseline=b95754b9ce042a0af7f35288b929a2be03b1ef53
+production_baseline=e620e4c3d628e870a6d2822bea34d0e1b4344a9f
 vm_name=${SOGLIA_B6_VM_NAME:-}
 if [[ "$authoritative" == true && "$vm_name" != soglia-spike-b6-* ]]; then
   echo "authoritative B6 requires a recorded soglia-spike-b6-* VM name" >&2
@@ -202,8 +202,14 @@ run_case recovery_interrupted bash "$scripts/b6-recovery-interrupted.sh" \
   "$binary" "$driver" "$tracer" "$agent" "$evidence/cases/recovery_interrupted"
 
 for loss in enforcer_sigkill supervisor_sigkill sandbox_sigkill resolve_channel_watchdog; do
-  run_case "$loss" bash "$scripts/b6-systemd-loss.sh" \
-    "$binary" "$agent" "$loss" "$evidence/cases/$loss"
+  if [[ $loss == sandbox_sigkill ]]; then
+    run_case "$loss" env B6_TARGET_OFFLINE_PAGE_CACHE_MB=512 \
+      bash "$scripts/b6-systemd-loss.sh" \
+      "$binary" "$agent" "$loss" "$evidence/cases/$loss"
+  else
+    run_case "$loss" bash "$scripts/b6-systemd-loss.sh" \
+      "$binary" "$agent" "$loss" "$evidence/cases/$loss"
+  fi
 done
 
 run_case refusal_matrix bash "$scripts/b6-refusal-matrix.sh" \

@@ -5,6 +5,7 @@
 
 #include <errno.h>
 #include <fcntl.h>
+#include <inttypes.h>
 #include <linux/bpf.h>
 #include <linux/limits.h>
 #include <linux/sched.h>
@@ -17,6 +18,10 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
+
+#ifndef AT_HANDLE_MNT_ID_UNIQUE
+#define AT_HANDLE_MNT_ID_UNIQUE 0x001
+#endif
 
 static int bpf_call(enum bpf_cmd command, union bpf_attr *attr)
 {
@@ -135,13 +140,14 @@ static int run_handle_probe(const char *path, const char *marker)
     struct file_handle *handle = (struct file_handle *)storage;
     int before_errno = 0;
     int after_errno = 0;
-    int mount_id = 0;
+    uint64_t mount_id = 0;
     int mount_fd;
     int before_fd;
     int after_fd;
 
     handle->handle_bytes = 128;
-    if (name_to_handle_at(AT_FDCWD, path, handle, &mount_id, 0) != 0) {
+    if (name_to_handle_at(AT_FDCWD, path, handle, (int *)&mount_id,
+                          AT_HANDLE_MNT_ID_UNIQUE) != 0) {
         perror("name_to_handle_at");
         return 1;
     }
@@ -154,7 +160,7 @@ static int run_handle_probe(const char *path, const char *marker)
     if (before_fd >= 0)
         close(before_fd);
 
-    printf("{\"stage\":\"before\",\"mount_id\":%d,"
+    printf("{\"stage\":\"before\",\"mount_id_unique\":%" PRIu64 ","
            "\"handle_type\":%d,\"handle_bytes\":%u,"
            "\"open_result\":%d,\"open_errno\":%d,\"handle_hex\":\"",
            mount_id, handle->handle_type, handle->handle_bytes,

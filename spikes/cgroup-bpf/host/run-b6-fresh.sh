@@ -10,7 +10,7 @@ repo_dir=$(CDPATH='' cd -- "$host_dir/../.." && pwd)
 source "$host_dir/common.sh"
 
 require_host
-production_baseline=b95754b9ce042a0af7f35288b929a2be03b1ef53
+production_baseline=e620e4c3d628e870a6d2822bea34d0e1b4344a9f
 git -C "$repo_dir" cat-file -e "$production_baseline^{commit}"
 git -C "$repo_dir" diff --exit-code "$production_baseline" -- crates src Cargo.toml Cargo.lock
 if [[ -n $(git -C "$repo_dir" status --short --untracked-files=all) ]]; then
