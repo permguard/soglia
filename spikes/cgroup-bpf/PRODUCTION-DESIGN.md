@@ -697,6 +697,15 @@ Uninstall qualification is separate from B1-B7 and must cover:
 - exact positive cleanup and non-owned-state preservation measured before any
   qualification-harness teardown.
 
+Release compatibility is a normative gate for this durable state.  Every release
+must recognize, validate, recover and uninstall the immediately preceding
+release's durable-state schema and production BPF ABI, or ship an explicit,
+fail-closed migration that is qualified from that exact predecessor.  A release
+that can only classify the predecessor as `Incompatible`, leaving an operator
+without a verified recovery and uninstall path, is not releasable.  Compatibility
+or migration tests must cover both a live recorded generation and an interrupted
+uninstall; there is no implicit schema rewrite or best-effort ABI cleanup.
+
 ## Default-backend enablement design
 
 After the uninstall command and the release regressions qualify, the release
