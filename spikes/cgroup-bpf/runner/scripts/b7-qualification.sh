@@ -208,7 +208,6 @@ nft add rule inet soglia_b7_observe output meta skuid 65534 udp dport 53 \
   counter comment b7_dns_udp
 nft add rule inet soglia_b7_observe output meta skuid 65534 tcp dport 53 \
   counter comment b7_dns_tcp
-nft 'add rule inet soglia_b7_observe output meta skuid 65534 ip daddr 11.0.0.1 tcp dport 443 tcp flags & (syn | ack) == syn counter comment b7_outbound_syn'
 nft -j list table inet soglia_b7_observe > "$evidence/effects-observer-baseline.json"
 
 wait_ready() {

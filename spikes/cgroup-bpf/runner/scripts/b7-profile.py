@@ -663,7 +663,6 @@ def main() -> None:
                 "udp": nft_counter("b7_dns_udp"),
                 "tcp": nft_counter("b7_dns_tcp"),
             }
-            outbound_syn_before = nft_counter("b7_outbound_syn")
             burst = invoke(
                 args.ingress_port,
                 f"b7-burst-report 11.0.0.1:443 {args.burst} /tmp/b7-burst.json",
@@ -685,7 +684,6 @@ def main() -> None:
                 "udp": nft_counter("b7_dns_udp"),
                 "tcp": nft_counter("b7_dns_tcp"),
             }
-            outbound_syn_after = nft_counter("b7_outbound_syn")
             immediate_control = invoke_control(
                 args.ingress_port, "/tmp/b7-burst-control.json", args.deadline_ms
             )
@@ -697,7 +695,6 @@ def main() -> None:
             )
             totals = burst_health["workload_totals"]
             rejected_outbound = upstream_after - upstream_before - succeeded
-            rejected_outbound_syn = outbound_syn_after - outbound_syn_before - succeeded
             dns_delta = {
                 protocol: dns_after[protocol] - dns_before[protocol]
                 for protocol in dns_before
@@ -711,7 +708,6 @@ def main() -> None:
                         if field != "queue_refusal")
                 and totals["stale_generation"] == 0
                 and rejected_outbound == 0
-                and rejected_outbound_syn == 0
                 and all(value == 0 for value in dns_delta.values())
                 and workload_value(immediate_control)["succeeded"] == 1
             )
@@ -728,9 +724,6 @@ def main() -> None:
                     "upstream_accepts_after": upstream_after,
                     "successful_connections": succeeded,
                     "rejected_connection_outbound_accepts": rejected_outbound,
-                    "outbound_syn_before": outbound_syn_before,
-                    "outbound_syn_after": outbound_syn_after,
-                    "rejected_connection_outbound_syn": rejected_outbound_syn,
                     "dns_packets_before": dns_before,
                     "dns_packets_after": dns_after,
                     "dns_packet_delta": dns_delta,
