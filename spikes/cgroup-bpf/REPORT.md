@@ -1013,7 +1013,7 @@ The consequences are availability-only:
 ### Follow-up: option B, a parallel Resolve path
 
 Decided on 2026-09-30: option B is implemented as a complete parallel Resolve path, not as a larger queue in front of the current single exchange.
-It starts after the B7 qualification on option A is authoritative and promoted, so that Phase 1 keeps a qualified restart point.
+It starts after Phase 1 is closed, as decided on 2026-09-30: B7 on option A authoritative and promoted, the single `spike:qualify` command with automatic evidence verification, the uninstall command, `cgroup-bpf` as the default backend with an explicit `netns-nft` fallback, the T1-T9/H1-H4 regressions on both backends, the final qualification of the release commit and the documentation. Optimizations such as this one and the warm pool follow that release.
 
 How the path works today, in `crates/soglia-supervisor/src/helpers.rs`: every new proxy connection takes a permit from a semaphore sized `max_concurrency` with a non-blocking `try_acquire`, and no free permit means an immediate `QueueFull`.
 Permit holders then exchange with the Enforcer one at a time over a single channel guarded by the IPC gate, retrying every 2 ms while the tuple is not yet published, up to `resolve_timeout_ms`.
