@@ -19,7 +19,7 @@ binary=$1
 tracer=$2
 agent=$3
 foreign_object=$4
-production_baseline=40cd0a1383efa22e8ae56923b7f0b9c5ea1b1fd3
+production_baseline=3117d992d96173fd9354add4d7f158d5463d5e26
 run_id="uninstall-diagnostic-$(date -u +%Y%m%dT%H%M%SZ)-$$"
 evidence="/soglia/spikes/cgroup-bpf/evidence/replay/$run_id"
 registry="$evidence/harness-owned.tsv"
@@ -69,12 +69,13 @@ on_error() {
 }
 
 case_paths() {
-  local name=$1 slug
+  local name=$1 cgroup_override=${2:-} slug
   slug=${name//_/-}
   case_dir="$evidence/cases/$name"
   runtime="/run/soglia-uninstall-$run_id-$slug"
   pin_root="/sys/fs/bpf/soglia-uninstall-$run_id-$slug"
   cgroup_root="/sys/fs/cgroup/soglia-uninstall-$run_id-$slug"
+  if [[ -n $cgroup_override ]]; then cgroup_root=$cgroup_override; fi
   rootfs="/var/tmp/soglia-uninstall-$run_id-$slug-rootfs"
   config="$case_dir/config.yaml"
   state="$runtime/cgroup-bpf/state.json"
@@ -242,6 +243,10 @@ cleanup() {
   current_case=cleanup
   persist_state
   if [[ -n ${runtime_pid:-} ]]; then kill -TERM "$runtime_pid" >/dev/null 2>&1; wait "$runtime_pid" 2>/dev/null; fi
+  if [[ -n ${active_unit:-} ]]; then
+    systemctl stop "$active_unit" >/dev/null 2>&1
+    systemctl reset-failed "$active_unit" >/dev/null 2>&1
+  fi
   if [[ -d $foreign_root ]]; then
     rm -f "$foreign_root/foreign_allow" "$foreign_root/foreign_rewrite"
     rmdir "$foreign_root"
@@ -296,6 +301,7 @@ cleanup() {
     --arg maps "$maps_classification" --arg baseline "$production_baseline" \
     --arg stopped_case "$stopped_case" --arg failure_detail "$failure_detail" \
     --arg fresh "$(case_scope fresh_host)" \
+    --arg stopped "$(case_scope normal_service_stop)" \
     --arg known "$(case_scope known_compatible)" \
     --arg live "$(case_scope live_runtime_refusal)" \
     --arg incompatible "$(case_scope incompatible_refusal)" \
@@ -309,7 +315,8 @@ cleanup() {
       stopped_at_case:$stopped_case,failure_detail:$failure_detail,
       cleanup:{verdict:$cleanup,programs:$programs,links:$links,maps:$maps},
       production_source_baseline:{commit:$baseline,matches:$production_source_matches},
-      cases:{fresh_host:$fresh,known_compatible:$known,live_runtime_refusal:$live,
+      cases:{fresh_host:$fresh,normal_service_stop:$stopped,
+        known_compatible:$known,live_runtime_refusal:$live,
         incompatible_refusal:$incompatible,unknown_refusal:$unknown,
         unsupported_refusal:$unsupported,nonempty_refusal:$nonempty,
         interrupted_resume:$interrupted,target_released:$released},
@@ -320,6 +327,9 @@ cleanup() {
         interrupted_resume:(if $interrupted == "PASS" then
           "PERFORMED: durable uninstall INTENT boundary" else "NOT_EXECUTED" end),
         non_owned_state_preservation:(if $known == "PASS" then "PERFORMED" else "NOT_EXECUTED" end),
+        uninstall_after_normal_service_stop:(if $stopped == "PASS" then
+          "PERFORMED: stopped systemd unit removed executions/ before verified uninstall"
+          else "NOT_EXECUTED" end),
         target_released:(if $released == "PASS" then "PERFORMED" else "NOT_EXECUTED" end),
         every_detach_unlink_boundary:"NOT_PERFORMED in first diagnostic; blocked if an earlier production defect is found",
         previous_release_compatibility:"NOT_PERFORMED: no released predecessor exists"}}' \
@@ -374,6 +384,42 @@ jq -e '.verdict == "PASS" and (.dry_run|not) and .enforcer.classification == "FR
 assert_no_owned_residue "$case_dir/residue-before-harness-teardown.json"
 remove_case_root
 record_case fresh_host PASS
+
+current_case=normal_service_stop; persist_state
+active_unit="soglia-uninstall-normal-$run_id"
+case_paths normal_service_stop "/sys/fs/cgroup/system.slice/$active_unit.service"
+write_config
+systemd-run --unit="$active_unit" --property=Type=simple --property=Delegate=yes \
+  --property=KillMode=mixed --property=Restart=no --collect -- \
+  "$binary" run -f "$config" > "$case_dir/systemd-run.txt"
+for _ in $(seq 1 1000); do
+  if [[ -f $state ]] && jq -e '.phase == "READY" and (.programs|length)==6 and
+    (.links|length)==6 and (.maps|length)==7' "$state" >/dev/null 2>&1; then
+    cp "$state" "$case_dir/state-ready.json"
+    break
+  fi
+  [[ $(systemctl show -p ActiveState --value "$active_unit") != failed ]]
+  sleep 0.01
+done
+[[ -f $case_dir/state-ready.json ]]
+systemctl show "$active_unit" > "$case_dir/unit-before-stop.txt"
+systemctl stop "$active_unit"
+systemctl reset-failed "$active_unit" >/dev/null 2>&1 || true
+for _ in $(seq 1 500); do
+  [[ ! -e $cgroup_root ]] && break
+  sleep 0.01
+done
+[[ ! -e $cgroup_root ]]
+systemctl show "$active_unit" > "$case_dir/unit-after-stop.txt" 2>&1 || true
+active_unit=
+run_uninstall "$case_dir/uninstall.stdout" "$case_dir/uninstall.stderr"
+[[ $command_status -eq 0 ]]
+jq -e '.verdict == "PASS" and (.dry_run|not) and
+  .enforcer.classification == "TARGET_RELEASED" and
+  .enforcer.absence_verified == true' "$case_dir/uninstall.stdout" >/dev/null
+assert_no_owned_residue "$case_dir/residue-before-harness-teardown.json"
+remove_case_root
+record_case normal_service_stop PASS
 
 current_case=known_compatible; persist_state; case_paths known_compatible; write_config
 start_generation; stop_generation
