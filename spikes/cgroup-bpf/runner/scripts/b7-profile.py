@@ -11,11 +11,26 @@ import concurrent.futures
 import json
 import os
 import pathlib
+import re
 import socket
 import subprocess
 import threading
 import time
 from typing import Any
+
+
+ANSI_ESCAPE = re.compile(r"\x1b\[[0-9;]*m")
+RESOLVE_OUTCOMES = (
+    "resolved",
+    "not_found",
+    "identity_mismatch",
+    "revoked",
+    "timeout",
+    "queue_refusal",
+    "unavailable",
+    "integrity_failure",
+)
+RESOLVE_FAILURES = RESOLVE_OUTCOMES[1:]
 
 
 def command(*args: str) -> bytes:
@@ -38,6 +53,8 @@ class Upstream:
         self.listener.listen(1024)
         self.listener.settimeout(0.01)
         self.sockets: list[socket.socket] = []
+        self.accepted = 0
+        self.lock = threading.Lock()
         self.stop = False
         self.thread = threading.Thread(target=self._accept, daemon=True)
 
@@ -47,6 +64,8 @@ class Upstream:
                 stream, _ = self.listener.accept()
                 stream.setblocking(False)
                 self.sockets.append(stream)
+                with self.lock:
+                    self.accepted += 1
             except TimeoutError:
                 pass
             except OSError:
@@ -75,6 +94,10 @@ class Upstream:
         for stream in self.sockets:
             stream.close()
         self.thread.join(timeout=2)
+
+    def accepted_count(self) -> int:
+        with self.lock:
+            return self.accepted
 
 
 def invoke(port: int, body: str, timeout: float = 150.0) -> dict[str, Any]:
@@ -218,12 +241,184 @@ def assert_measurement(value: dict[str, Any], requested_rate: int | None,
     if int(value.get("max_us", deadline_ms * 1000 + 1)) > deadline_ms * 1000:
         raise RuntimeError(f"successful Resolve exceeded the configured deadline: {value}")
     if requested_rate and duration:
+        if value.get("strategy") != "one-shot-no-retry" \
+                or value.get("attempts") != value.get("requested") \
+                or value.get("retry_count") != 0:
+            raise RuntimeError(f"fixed-rate workload retried or omitted attempts: {value}")
         achieved = int(value["succeeded"]) / max(int(value["elapsed_ms"]) / 1000.0, 0.001)
         value["requested_rate_per_second"] = requested_rate
         value["achieved_rate_per_second"] = achieved
         value["minimum_rate_per_second"] = requested_rate * 0.95
         if achieved < requested_rate * 0.95:
             raise RuntimeError(f"achieved rate is below 95% of requested rate: {value}")
+
+
+def journal_lines(unit: str) -> list[str]:
+    return command(
+        "journalctl", "-u", f"{unit}.service", "-o", "cat", "--no-pager"
+    ).decode(errors="replace").splitlines()
+
+
+def parse_resolve_health(lines: list[str]) -> list[dict[str, int]]:
+    events = []
+    fields = RESOLVE_OUTCOMES + (
+        "interval_ms",
+        "delayed_hit",
+        "stale_generation",
+        "latency_max_us",
+    )
+    for raw in lines:
+        line = ANSI_ESCAPE.sub("", raw)
+        if 'event.name="cgroup_bpf.resolve_health"' not in line:
+            continue
+        event = {}
+        for field in fields:
+            match = re.search(rf"(?:^|\s){re.escape(field)}=(\d+)(?:\s|$)", line)
+            if match is None:
+                raise RuntimeError(f"Resolve health event omitted {field}: {line}")
+            event[field] = int(match.group(1))
+        events.append(event)
+    return events
+
+
+def sum_resolve_health(events: list[dict[str, int]]) -> dict[str, int]:
+    return {
+        field: sum(event[field] for event in events)
+        for field in RESOLVE_OUTCOMES + ("delayed_hit", "stale_generation")
+    }
+
+
+def invoke_control(port: int, report: str, deadline_ms: int) -> dict[str, Any]:
+    invocation = invoke(
+        port, f"b7-rate-report 11.0.0.1:443 1 1 {report}", timeout=30
+    )
+    value = workload_value(invocation)
+    assert_measurement(value, 1, 1, deadline_ms)
+    if invocation["execution_id"] is None:
+        raise RuntimeError("Resolve-health control omitted its ExecutionId")
+    return invocation
+
+
+def reset_resolve_health_window(
+    unit: str,
+    port: int,
+    target: pathlib.Path,
+    completed_execution_ids: list[str],
+    deadline_ms: int,
+    label: str,
+) -> int:
+    time.sleep(1.1)
+    control = invoke_control(port, f"/tmp/b7-health-before-{label}.json", deadline_ms)
+    completed_execution_ids.append(control["execution_id"])
+    wait_children(target, 0, 15)
+    return len(journal_lines(unit))
+
+
+def finish_resolve_health_window(
+    root: pathlib.Path,
+    label: str,
+    unit: str,
+    port: int,
+    target: pathlib.Path,
+    journal_start: int,
+    workload_attempts: int,
+    completed_execution_ids: list[str],
+    deadline_ms: int,
+    prior_controls: int = 0,
+) -> dict[str, Any]:
+    time.sleep(1.1)
+    control = invoke_control(port, f"/tmp/b7-health-after-{label}.json", deadline_ms)
+    completed_execution_ids.append(control["execution_id"])
+    wait_children(target, 0, 15)
+    control_count = prior_controls + 1
+    expected = workload_attempts + control_count
+    deadline = time.monotonic() + 5.0
+    events: list[dict[str, int]] = []
+    raw_totals: dict[str, int] = {}
+    lines: list[str] = []
+    while time.monotonic() < deadline:
+        lines = journal_lines(unit)[journal_start:]
+        events = parse_resolve_health(lines)
+        raw_totals = sum_resolve_health(events)
+        observed = sum(raw_totals.get(field, 0) for field in RESOLVE_OUTCOMES)
+        if observed >= expected:
+            break
+        time.sleep(0.05)
+    observed = sum(raw_totals.get(field, 0) for field in RESOLVE_OUTCOMES)
+    adjusted = raw_totals.copy()
+    if observed != expected or adjusted.get("resolved", 0) < control_count:
+        record = {
+            "label": label,
+            "expected_results_including_controls": expected,
+            "observed_results_including_controls": observed,
+            "control_resolves": control_count,
+            "events": events,
+            "raw_totals": raw_totals,
+            "verdict": "FAIL",
+        }
+        directory = root / "resolve-health"
+        directory.mkdir(exist_ok=True)
+        write_json(directory / f"{label}.json", record)
+        raise RuntimeError(f"{label}: Resolve health accounting is incomplete: {record}")
+    adjusted["resolved"] -= control_count
+    record = {
+        "label": label,
+        "source": "production cgroup_bpf.resolve_health structured events",
+        "workload_attempts": workload_attempts,
+        "control_resolves_excluded": control_count,
+        "event_count": len(events),
+        "events": events,
+        "raw_totals": raw_totals,
+        "workload_totals": adjusted,
+        "verdict": "PASS",
+    }
+    directory = root / "resolve-health"
+    directory.mkdir(exist_ok=True)
+    write_json(directory / f"{label}.json", record)
+    return record
+
+
+def assert_supported_health(
+    record: dict[str, Any], requested: int, root: pathlib.Path
+) -> None:
+    totals = record["workload_totals"]
+    failures = {field: totals[field] for field in RESOLVE_FAILURES}
+    if totals["resolved"] != requested or any(failures.values()) \
+            or totals["stale_generation"] != 0:
+        record["verdict"] = "FAIL"
+        write_json(root / "resolve-health" / f"{record['label']}.json", record)
+        raise RuntimeError(
+            f"{record['label']}: workload exceeded the supported Resolve envelope: {record}"
+        )
+    record["supported_envelope"] = True
+    record["verdict"] = "PASS"
+    write_json(root / "resolve-health" / f"{record['label']}.json", record)
+
+
+def nft_counter(comment: str) -> int:
+    ruleset = json_command("nft", "-j", "list", "table", "inet", "soglia_b7_observe")
+
+    def walk(value: Any) -> int:
+        if isinstance(value, dict):
+            count = 0
+            if value.get("comment") == comment:
+                count += int(value.get("counter", {}).get("packets", 0))
+            return count + sum(walk(child) for child in value.values())
+        if isinstance(value, list):
+            return sum(walk(child) for child in value)
+        return 0
+
+    return walk(ruleset)
+
+
+def wait_upstream(upstream: Upstream, expected: int) -> int:
+    deadline = time.monotonic() + 5.0
+    while time.monotonic() < deadline:
+        current = upstream.accepted_count()
+        if current >= expected:
+            return current
+        time.sleep(0.01)
+    return upstream.accepted_count()
 
 
 def directory_entries(path: pathlib.Path) -> list[str]:
@@ -346,7 +541,12 @@ def main() -> None:
     futures = []
     completed_execution_ids: list[str] = []
     residue_measurements: list[dict[str, Any]] = []
-    with Upstream(), concurrent.futures.ThreadPoolExecutor(max_workers=max(maximum, 4)) as pool:
+    with Upstream() as upstream, \
+            concurrent.futures.ThreadPoolExecutor(max_workers=max(maximum, 4)) as pool:
+        live_health_start = reset_resolve_health_window(
+            args.unit, args.ingress_port, target, completed_execution_ids,
+            args.deadline_ms, "live",
+        )
         previous = 0
         for checkpoint in checkpoints[1:]:
             for slot in range(previous, checkpoint):
@@ -373,18 +573,28 @@ def main() -> None:
         if None in execution_ids or len(set(execution_ids)) != maximum:
             raise RuntimeError("sampled child attribution omitted or reused an ExecutionId")
         completed_execution_ids.extend(execution_ids)
+        live_health = finish_resolve_health_window(
+            args.evidence, "live", args.unit, args.ingress_port, target,
+            live_health_start, args.live, completed_execution_ids, args.deadline_ms,
+        )
+        assert_supported_health(live_health, args.live, args.evidence)
         results["live"] = {
             "requested_sockets": args.live,
             "per_execution": per_execution,
             "sampled_children": live_results,
             "measurements": live_values,
             "correct_attribution": True,
+            "resolve_health": live_health,
         }
         wait_children(target, 0, 15)
         residue_measurements.append(measure_execution_residue(
             args.evidence, "live", args.state, completed_execution_ids
         ))
 
+        churn_health_start = reset_resolve_health_window(
+            args.unit, args.ingress_port, target, completed_execution_ids,
+            args.deadline_ms, "churn",
+        )
         churn_invocation = invoke(
             args.ingress_port,
             f"b7-churn-report 11.0.0.1:443 {args.churn} /tmp/b7-churn.json",
@@ -395,7 +605,12 @@ def main() -> None:
         if churn_invocation["execution_id"] is None:
             raise RuntimeError("churn workload omitted its ExecutionId")
         completed_execution_ids.append(churn_invocation["execution_id"])
-        results["churn"] = churn
+        churn_health = finish_resolve_health_window(
+            args.evidence, "churn", args.unit, args.ingress_port, target,
+            churn_health_start, args.churn, completed_execution_ids, args.deadline_ms,
+        )
+        assert_supported_health(churn_health, args.churn, args.evidence)
+        results["churn"] = {"measurement": churn, "resolve_health": churn_health}
         wait_children(target, 0, 15)
         residue_measurements.append(measure_execution_residue(
             args.evidence, "churn", args.state, completed_execution_ids
@@ -404,6 +619,11 @@ def main() -> None:
         rate_results = []
         for specification in filter(None, args.rates.split(",")):
             rate, duration = (int(value) for value in specification.split("x", 1))
+            rate_label = f"rate-{rate}x{duration}"
+            rate_health_start = reset_resolve_health_window(
+                args.unit, args.ingress_port, target, completed_execution_ids,
+                args.deadline_ms, rate_label,
+            )
             rate_invocation = invoke(
                 args.ingress_port,
                 f"b7-rate-report 11.0.0.1:443 {rate} {duration} /tmp/b7-rate.json",
@@ -414,15 +634,36 @@ def main() -> None:
             if rate_invocation["execution_id"] is None:
                 raise RuntimeError(f"rate {specification} omitted its ExecutionId")
             completed_execution_ids.append(rate_invocation["execution_id"])
-            rate_results.append(measured)
+            rate_health = finish_resolve_health_window(
+                args.evidence, rate_label, args.unit, args.ingress_port, target,
+                rate_health_start, rate * duration, completed_execution_ids,
+                args.deadline_ms,
+            )
+            assert_supported_health(rate_health, rate * duration, args.evidence)
+            rate_results.append({
+                "measurement": measured,
+                "resolve_health": rate_health,
+                "one_attempt_per_scheduled_connection": True,
+                "refusal_retry": False,
+            })
             wait_children(target, 0, 15)
             residue_measurements.append(measure_execution_residue(
-                args.evidence, f"rate-{rate}x{duration}", args.state,
+                args.evidence, rate_label, args.state,
                 completed_execution_ids,
             ))
         results["rates"] = rate_results
 
         if args.burst:
+            burst_health_start = reset_resolve_health_window(
+                args.unit, args.ingress_port, target, completed_execution_ids,
+                args.deadline_ms, "burst",
+            )
+            upstream_before = upstream.accepted_count()
+            dns_before = {
+                "udp": nft_counter("b7_dns_udp"),
+                "tcp": nft_counter("b7_dns_tcp"),
+            }
+            outbound_syn_before = nft_counter("b7_outbound_syn")
             burst = invoke(
                 args.ingress_port,
                 f"b7-burst-report 11.0.0.1:443 {args.burst} /tmp/b7-burst.json",
@@ -436,21 +677,76 @@ def main() -> None:
             if burst["execution_id"] is None:
                 raise RuntimeError("burst workload omitted its ExecutionId")
             completed_execution_ids.append(burst["execution_id"])
-            results["burst"] = burst
+            succeeded = int(burst["body"].get("succeeded", -1))
+            failed = int(burst["body"].get("failed", -1))
+            requested = int(burst["body"].get("requested", -1))
+            upstream_after = wait_upstream(upstream, upstream_before + succeeded)
+            dns_after = {
+                "udp": nft_counter("b7_dns_udp"),
+                "tcp": nft_counter("b7_dns_tcp"),
+            }
+            outbound_syn_after = nft_counter("b7_outbound_syn")
+            immediate_control = invoke_control(
+                args.ingress_port, "/tmp/b7-burst-control.json", args.deadline_ms
+            )
+            completed_execution_ids.append(immediate_control["execution_id"])
+            burst_health = finish_resolve_health_window(
+                args.evidence, "burst", args.unit, args.ingress_port, target,
+                burst_health_start, requested, completed_execution_ids,
+                args.deadline_ms, prior_controls=1,
+            )
+            totals = burst_health["workload_totals"]
+            rejected_outbound = upstream_after - upstream_before - succeeded
+            rejected_outbound_syn = outbound_syn_after - outbound_syn_before - succeeded
+            dns_delta = {
+                protocol: dns_after[protocol] - dns_before[protocol]
+                for protocol in dns_before
+            }
+            characterization_pass = (
+                requested == args.burst
+                and succeeded + failed == requested
+                and totals["resolved"] == succeeded
+                and totals["queue_refusal"] == failed
+                and all(totals[field] == 0 for field in RESOLVE_FAILURES
+                        if field != "queue_refusal")
+                and totals["stale_generation"] == 0
+                and rejected_outbound == 0
+                and rejected_outbound_syn == 0
+                and all(value == 0 for value in dns_delta.values())
+                and workload_value(immediate_control)["succeeded"] == 1
+            )
+            characterization = {
+                "classification": "OUTSIDE_SUPPORTED_ENVELOPE_REFUSAL_CHARACTERIZATION",
+                "supported_capacity_claim": False,
+                "requested": requested,
+                "succeeded": succeeded,
+                "refused": failed,
+                "failure_class": "QueueFull",
+                "resolve_health": burst_health,
+                "effects": {
+                    "upstream_accepts_before": upstream_before,
+                    "upstream_accepts_after": upstream_after,
+                    "successful_connections": succeeded,
+                    "rejected_connection_outbound_accepts": rejected_outbound,
+                    "outbound_syn_before": outbound_syn_before,
+                    "outbound_syn_after": outbound_syn_after,
+                    "rejected_connection_outbound_syn": rejected_outbound_syn,
+                    "dns_packets_before": dns_before,
+                    "dns_packets_after": dns_after,
+                    "dns_packet_delta": dns_delta,
+                },
+                "immediate_control": immediate_control,
+                "verdict": "PASS" if characterization_pass else "FAIL",
+            }
+            write_json(args.evidence / "burst-characterization.json", characterization)
+            if not characterization_pass:
+                raise RuntimeError(f"burst refusal characterization failed: {characterization}")
+            results["burst"] = {"invocation": burst, "characterization": characterization}
             wait_children(target, 0, 15)
             residue_measurements.append(measure_execution_residue(
                 args.evidence, "burst", args.state, completed_execution_ids
             ))
 
-        time.sleep(2)
-        flush_invocation = invoke(
-            args.ingress_port, "b7-rate-report 11.0.0.1:443 1 1 /tmp/b7-flush.json", 30
-        )
-        flush = workload_value(flush_invocation)
-        assert_measurement(flush, 1, 1, args.deadline_ms)
-        if flush_invocation["execution_id"] is None:
-            raise RuntimeError("flush workload omitted its ExecutionId")
-        completed_execution_ids.append(flush_invocation["execution_id"])
         wait_children(target, 0, 15)
         residue_measurements.append(measure_execution_residue(
             args.evidence, "final", args.state, completed_execution_ids

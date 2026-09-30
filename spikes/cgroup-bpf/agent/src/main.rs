@@ -1317,9 +1317,7 @@ fn b7_burst_report(target: &str, count: usize, report: &str) -> String {
             }
             Ok(())
         })();
-        max_us = max_us.max(
-            u64::try_from(attempt.elapsed().as_micros()).unwrap_or(u64::MAX),
-        );
+        max_us = max_us.max(u64::try_from(attempt.elapsed().as_micros()).unwrap_or(u64::MAX));
         if result.is_ok() {
             succeeded += 1;
         } else {
@@ -1327,7 +1325,7 @@ fn b7_burst_report(target: &str, count: usize, report: &str) -> String {
     }
     let failed = count.saturating_sub(succeeded);
     let value = format!(
-        "{{\"kind\":\"burst\",\"strategy\":\"open-all-write-all-read-all\",\"requested\":{count},\"succeeded\":{succeeded},\"failed\":{failed},\"elapsed_ms\":{},\"max_us\":{max_us}}}",
+        "{{\"kind\":\"burst\",\"strategy\":\"open-all-write-all-read-all-no-retry\",\"requested\":{count},\"attempts\":{count},\"retry_count\":0,\"succeeded\":{succeeded},\"failed\":{failed},\"elapsed_ms\":{},\"max_us\":{max_us}}}",
         started.elapsed().as_millis()
     );
     let _ = fs::write(report, format!("{value}\n"));

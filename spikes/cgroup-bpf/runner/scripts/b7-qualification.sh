@@ -175,6 +175,8 @@ jq -n --arg run_id "$run_id" --arg vm_name "$vm_name" --argjson authoritative "$
   /root/.cargo/bin/rustc +1.97.0 --version --verbose
   hostname; cat /etc/machine-id; cat /proc/sys/kernel/random/boot_id; mount; ulimit -a
 } > "$evidence/environment.txt"
+[[ -z $(find /soglia/spikes/cgroup-bpf/runner/scripts -type d -name __pycache__ -print -quit) ]]
+[[ -z $(find /soglia/spikes/cgroup-bpf/runner/scripts -type f -name '*.pyc' -print -quit) ]]
 {
   git -C /soglia rev-parse HEAD
   git -C /soglia status --short --untracked-files=all
@@ -206,6 +208,7 @@ nft add rule inet soglia_b7_observe output meta skuid 65534 udp dport 53 \
   counter comment b7_dns_udp
 nft add rule inet soglia_b7_observe output meta skuid 65534 tcp dport 53 \
   counter comment b7_dns_tcp
+nft 'add rule inet soglia_b7_observe output meta skuid 65534 ip daddr 11.0.0.1 tcp dport 443 tcp flags & (syn | ack) == syn counter comment b7_outbound_syn'
 nft -j list table inet soglia_b7_observe > "$evidence/effects-observer-baseline.json"
 
 wait_ready() {

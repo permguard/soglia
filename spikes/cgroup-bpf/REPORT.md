@@ -980,3 +980,57 @@ the exact commits it records but does not replace that unified final run.
 Historical note: the first authoritative B2 run
 [`b2-20260928T060551Z-8414`](evidence/authoritative/b2-20260928T060551Z-8414/)
 must not be cited as qualification of the source-port byte-order invariant.
+
+## Deferred work: independent Resolve queue depth
+
+Status: decided on 2026-09-30 during the B7 review; the Phase 1 choice is recorded here, the follow-up is not implemented.
+
+### What was observed
+
+In B7 diagnostic run `b7-diagnostic-20260930T204331Z-1087755`, M0, M1 and M2 recorded zero `queue_refusal` outcomes in the production `cgroup_bpf.resolve_health` events.
+M3, with `max_concurrency: 32`, recorded 1,015 `queue_refusal` outcomes in eight waves of about 140, including the 256-connection burst in which 120 connections succeeded and 136 were refused.
+Every other failure class stayed at zero: no timeout, `Unavailable`, identity mismatch, not-found or integrity failure.
+
+### Why it happens
+
+The Supervisor bounds pending Candidate-A Resolve requests with a queue whose depth equals `runtime.max_concurrency`.
+New proxy connections that arrive at the same moment beyond that depth are refused with the typed `QueueFull` outcome, before any DNS lookup or outbound connection.
+The refusal is fail-closed: nothing leaves the Execution, and each refusal is counted as `queue_refusal`.
+
+### Phase 1 decision: option A
+
+Production is not changed for Phase 1.
+The declared B7 envelope states the simultaneity that the qualification proves without refusals, and states that bursts of new connections beyond the Resolve queue depth are refused fail-closed.
+B7 requires zero refusals inside the declared envelope and keeps the 256-connection burst as a characterization of the refusal path, not as a supported capacity.
+
+The consequences are availability-only:
+
+- an agent, or several Executions together, that opens more new proxy connections at the same instant than `max_concurrency` sees the excess connections fail;
+- connections that keep their tunnel open are not affected, because Resolve runs once per new proxy connection, not per HTTP request;
+- the workloads most exposed are aggressive fan-out patterns such as parallel downloads, crawlers and headless browsers, which can mitigate by bounding their own parallelism or retrying with a short backoff;
+- the only way to deepen the queue today is to raise `max_concurrency`, which also raises the number of Executions admitted at once.
+
+### Follow-up: option B, a configurable Resolve queue
+
+How the queue works today, in `crates/soglia-supervisor/src/helpers.rs`: every new proxy connection takes a permit from a semaphore sized `max_concurrency` with a non-blocking `try_acquire`, and no free permit means an immediate `QueueFull`.
+Permit holders then exchange with the Enforcer one at a time over a single channel guarded by the IPC gate, retrying every 2 ms while the tuple is not yet published, up to `resolve_timeout_ms`.
+The exchange is fast: most Resolve calls complete in under 250 µs, so the limit is how many connections may wait at the same instant, not Resolve throughput.
+
+Option B therefore changes the size of the waiting room, not the number of consumers.
+Choose one variant in the design before implementation:
+
+- **B1, larger waiting room (preferred):** the semaphore size becomes the independent setting and admission stays non-blocking, so a full queue still refuses immediately with `QueueFull`.
+- **B2, bounded wait for a permit:** when the permits are exhausted, a connection waits for a free permit up to a short fixed bound before refusing, trading fewer refusals under bursts for added latency and, past the bound, refusals that arrive later.
+
+A pool of parallel Resolve channels to the Enforcer is out of scope: throughput is not the constraint, and parallel channels would complicate response ordering and the channel-integrity checks.
+
+The steps below apply to either variant:
+
+To be done when a real workload needs larger bursts of new connections, or before `cgroup-bpf` becomes the default backend if operators are expected to hit `queue_refusal`:
+
+1. Add a validated configuration value for the pending-Resolve depth, for example `cgroup_bpf.max_pending_resolves`, independent of `runtime.max_concurrency`, with an explicit implementation ceiling.
+2. Budget file descriptors: every pending connection holds a descriptor, and the production unit does not set `LimitNOFILE`, so the soft limit is 1,024. Either set `LimitNOFILE` in `dev/systemd/soglia.service` or derive the ceiling from `RLIMIT_NOFILE`, and refuse a configuration that cannot fit.
+3. Keep saturation behavior explicit: a full queue still refuses with `QueueFull`; queued requests wait at most `resolve_timeout_ms`; the added latency under load is measured, because a deeper queue trades fast refusals for waits and, past the deadline, timeouts.
+4. Expose the queue depth and its high-water mark in `cgroup_bpf.resolve_health`.
+5. Requalify: this is a production change, so it starts a new production baseline and requires the complete authoritative B1-B7 sequence on it, with a B7 row that declares a burst size and requires zero refusals up to it.
+6. Document the limit and the new setting in `README.md` and in the site's "Run Soglia" page.
