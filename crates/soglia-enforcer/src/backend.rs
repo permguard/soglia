@@ -337,6 +337,7 @@ pub struct NetnsNftBackend {
 pub(crate) struct PreparedNetworkUninstall {
     records: Vec<(String, NetRecord)>,
     host: Option<HostRecord>,
+    fresh: bool,
 }
 
 #[cfg(feature = "cgroup-bpf")]
@@ -351,6 +352,10 @@ impl PreparedNetworkUninstall {
             operations.push("remove host nft table and proxy interface".to_owned());
         }
         operations
+    }
+
+    pub(crate) fn is_fresh(&self) -> bool {
+        self.fresh
     }
 }
 
@@ -418,6 +423,7 @@ mod linux {
         /// Proves the complete network-removal plan without changing host state.
         #[cfg(feature = "cgroup-bpf")]
         pub(crate) fn prepare_uninstall(&self) -> Result<PreparedNetworkUninstall, BackendError> {
+            let records_directory_absent = !self.records().exists();
             let mut planned = Vec::new();
             let entries = match fs::read_dir(self.records()) {
                 Ok(entries) => entries
@@ -492,17 +498,11 @@ mod linux {
                     "UNKNOWN host-network ownership record".to_owned(),
                 ));
             }
-            if host.is_none() && interface_exists(PROXY_INTERFACE) {
-                return Err(BackendError::Unknown(format!(
-                    "UNKNOWN {PROXY_INTERFACE} exists without its ownership record"
-                )));
-            }
-            if host.is_none() && self.host_table_exists()? {
-                return Err(BackendError::Unknown(format!(
-                    "UNKNOWN nft table inet {} exists without its ownership record",
-                    rules::HOST_TABLE
-                )));
-            }
+            Self::validate_unrecorded_host_network(
+                host.is_some(),
+                interface_exists(PROXY_INTERFACE),
+                self.host_table_exists()?,
+            )?;
 
             let expected_veth = planned
                 .iter()
@@ -524,10 +524,36 @@ mod linux {
                 ));
             }
             planned.sort_by(|left, right| left.0.cmp(&right.0));
+            let fresh = records_directory_absent
+                && planned.is_empty()
+                && host.is_none()
+                && actual_veth.is_empty()
+                && actual_netns.is_empty();
             Ok(PreparedNetworkUninstall {
                 records: planned,
                 host,
+                fresh,
             })
+        }
+
+        #[cfg(feature = "cgroup-bpf")]
+        fn validate_unrecorded_host_network(
+            has_record: bool,
+            interface_exists: bool,
+            table_exists: bool,
+        ) -> Result<(), BackendError> {
+            if !has_record && interface_exists {
+                return Err(BackendError::Unknown(format!(
+                    "UNKNOWN {PROXY_INTERFACE} exists without its ownership record"
+                )));
+            }
+            if !has_record && table_exists {
+                return Err(BackendError::Unknown(format!(
+                    "UNKNOWN nft table inet {} exists without its ownership record",
+                    rules::HOST_TABLE
+                )));
+            }
+            Ok(())
         }
 
         /// Applies a plan that was completely validated before the first mutation.
@@ -1030,6 +1056,18 @@ mod tests {
             HelperFailure::IncompatibleBpfTopology { hook, errno, .. }
                 if hook == "connect4" && errno == Some(1)
         ));
+    }
+
+    #[test]
+    #[cfg(feature = "cgroup-bpf")]
+    fn uninstall_rejects_an_unrecorded_host_nft_table() {
+        assert!(matches!(
+            NetnsNftBackend::validate_unrecorded_host_network(false, false, true),
+            Err(BackendError::Unknown(reason))
+                if reason.contains("nft table inet soglia_host")
+        ));
+        assert!(NetnsNftBackend::validate_unrecorded_host_network(false, false, false).is_ok());
+        assert!(NetnsNftBackend::validate_unrecorded_host_network(true, true, true).is_ok());
     }
 
     #[test]

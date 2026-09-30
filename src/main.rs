@@ -438,6 +438,7 @@ mod runtime {
         let enforcer = soglia_enforcer::cgroup_bpf::CgroupBpfBackend::prepare_uninstall(
             &config,
             &sandbox.owned_tags(),
+            sandbox.is_fresh(),
         )
         .map_err(|error| ProcessError::StartupRefused {
             context: "uninstall refused".to_owned(),

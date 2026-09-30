@@ -374,12 +374,12 @@ impl CgroupBpfBackend {
     pub fn prepare_uninstall(
         config: &Config,
         sandbox_tags: &BTreeSet<String>,
+        sandbox_fresh: bool,
     ) -> Result<PreparedCgroupBpfUninstall, BackendError> {
         let backend = Self::from_config(config)?;
         validate_private_directory_if_present(&config.runtime.state_dir)?;
         validate_private_directory_if_present(&backend.settings.state_dir)?;
         validate_private_directory_if_present(&backend.settings.configured_pin_root)?;
-        backend.probe_capabilities()?;
         let generation = backend.classify_generation(true, Some(sandbox_tags))?;
         if let GenerationClassification::Recorded { state, .. } = &generation
             && state
@@ -392,6 +392,7 @@ impl CgroupBpfBackend {
             ));
         }
         let network = backend.network.prepare_uninstall()?;
+        validate_fresh_uninstall_state(&generation, sandbox_fresh, network.is_fresh())?;
         Ok(PreparedCgroupBpfUninstall {
             backend,
             generation,
@@ -496,16 +497,12 @@ impl CgroupBpfBackend {
         sandbox_tags: Option<&BTreeSet<String>>,
     ) -> Result<GenerationClassification, BackendError> {
         let recorded = self.recorded_state(uninstall)?;
-        let pin_entries = directory_entries(&self.settings.configured_pin_root)?;
         let Some(mut state) = recorded else {
-            if !pin_entries.is_empty() {
-                return Err(BackendError::Unknown(format!(
-                    "UNKNOWN cgroup-BPF state: {} contains pins without a trusted record",
-                    self.settings.configured_pin_root.display()
-                )));
-            }
+            validate_no_unrecorded_pin_root(&self.settings.configured_pin_root)?;
             return Ok(GenerationClassification::Fresh);
         };
+        require_bpffs_mount()?;
+        let pin_entries = directory_entries(&self.settings.configured_pin_root)?;
         if state.schema != STATE_SCHEMA
             || state.abi != BPF_ABI
             || state.object_sha256 != Self::object_hash()
@@ -545,8 +542,12 @@ impl CgroupBpfBackend {
         self.validate_manifest_structure(&state)?;
         self.validate_recorded_pins(&state)?;
         self.validate_recovery_policy(&state)?;
-        let current_inode = fs::metadata(&self.settings.executions)?.ino();
-        let target_released = current_inode != state.attachment_inode;
+        let current_inode = match fs::metadata(&self.settings.executions) {
+            Ok(metadata) => Some(metadata.ino()),
+            Err(error) if error.kind() == io::ErrorKind::NotFound => None,
+            Err(error) => return Err(error.into()),
+        };
+        let target_released = target_release_required(state.attachment_inode, current_inode);
         if target_released {
             self.validate_target_released(&state, current_inode)?;
         } else {
@@ -1038,7 +1039,7 @@ impl CgroupBpfBackend {
     fn validate_target_released(
         &self,
         state: &HostState,
-        current_inode: u64,
+        current_inode: Option<u64>,
     ) -> Result<(), BackendError> {
         validate_offline_attachment_handle(&state.attachment_handle)?;
         let actual = recursive_files(&state.pin_root, state.phase == ManifestPhase::Intent)?;
@@ -1063,41 +1064,44 @@ impl CgroupBpfBackend {
             .filter(|link| actual.contains(&link.pin))
             .collect::<Vec<_>>();
         self.observe_released_links(&observable_links, state.attachment_inode)?;
-        let target = self.replacement_target_state(state, current_inode)?;
-        validate_replacement_target(target)?;
+        if let Some(current_inode) = current_inode {
+            let target = self.replacement_target_state(state, current_inode)?;
+            validate_replacement_target(target)?;
 
-        let direct = self.cgroup_attachments(false)?;
-        if !direct.is_empty() {
-            return Err(BackendError::Unknown(
-                "UNKNOWN replacement target has a direct BPF attachment; no object was changed"
-                    .to_owned(),
-            ));
-        }
-        let owned: BTreeSet<u32> = state.programs.iter().map(|program| program.id).collect();
-        let effective = self.cgroup_attachments(true)?;
-        if effective
-            .iter()
-            .any(|attachment| owned.contains(&attachment.id))
-        {
-            return Err(BackendError::Unknown(
-                "UNKNOWN old production program is effective on the replacement target; no object was changed"
-                    .to_owned(),
-            ));
-        }
-        let current_ancestors = self.foreign_effective_fingerprint(&owned)?;
-        if current_ancestors != state.ancestor_bpf
-            && !systemd_external_churn(&state.ancestor_bpf, &current_ancestors)
-        {
-            return Err(BackendError::Unknown(
-                "UNKNOWN non-owned ancestor BPF inventory changed during released-target recovery"
-                    .to_owned(),
-            ));
+            let direct = self.cgroup_attachments(false)?;
+            if !direct.is_empty() {
+                return Err(BackendError::Unknown(
+                    "UNKNOWN replacement target has a direct BPF attachment; no object was changed"
+                        .to_owned(),
+                ));
+            }
+            let owned: BTreeSet<u32> = state.programs.iter().map(|program| program.id).collect();
+            let effective = self.cgroup_attachments(true)?;
+            if effective
+                .iter()
+                .any(|attachment| owned.contains(&attachment.id))
+            {
+                return Err(BackendError::Unknown(
+                    "UNKNOWN old production program is effective on the replacement target; no object was changed"
+                        .to_owned(),
+                ));
+            }
+            let current_ancestors = self.foreign_effective_fingerprint(&owned)?;
+            if current_ancestors != state.ancestor_bpf
+                && !systemd_external_churn(&state.ancestor_bpf, &current_ancestors)
+            {
+                return Err(BackendError::Unknown(
+                    "UNKNOWN non-owned ancestor BPF inventory changed during released-target recovery"
+                        .to_owned(),
+                ));
+            }
         }
 
         eprintln!(
-            "event.name=cgroup_bpf.target_released result=PASS recorded_cgroup_id={} current_cgroup_id={} detach_timeout_ms={} poll_interval_ms={}",
+            "event.name=cgroup_bpf.target_released result=PASS recorded_cgroup_id={} current_cgroup_id={} target_absent={} detach_timeout_ms={} poll_interval_ms={}",
             state.attachment_inode,
-            current_inode,
+            current_inode.unwrap_or(0),
+            current_inode.is_none(),
             TARGET_RELEASED_DETACH_TIMEOUT.as_millis(),
             TARGET_RELEASED_POLL_INTERVAL.as_millis()
         );
@@ -2277,14 +2281,7 @@ impl EnforcementBackend for CgroupBpfBackend {
             ));
         }
         capture_attachment_handle(&self.settings.executions)?;
-        let bpffs = fs::read_to_string("/proc/self/mountinfo")?;
-        if !bpffs.lines().any(|line| {
-            line.split(" - ")
-                .nth(1)
-                .is_some_and(|tail| tail.starts_with("bpf "))
-        }) {
-            return Err(BackendError::Unsupported("bpffs is not mounted".to_owned()));
-        }
+        require_bpffs_mount()?;
         if !Path::new("/sys/kernel/btf/vmlinux").is_file() {
             return Err(BackendError::Unsupported(
                 "kernel BTF is unavailable".to_owned(),
@@ -3460,6 +3457,48 @@ fn directory_entries(path: &Path) -> io::Result<Vec<PathBuf>> {
     }
 }
 
+fn require_bpffs_mount() -> Result<(), BackendError> {
+    let mountinfo = fs::read_to_string("/proc/self/mountinfo")?;
+    if mountinfo.lines().any(|line| {
+        line.split(" - ")
+            .nth(1)
+            .is_some_and(|tail| tail.starts_with("bpf "))
+    }) {
+        Ok(())
+    } else {
+        Err(BackendError::Unsupported("bpffs is not mounted".to_owned()))
+    }
+}
+
+fn validate_fresh_uninstall_state(
+    generation: &GenerationClassification,
+    sandbox_fresh: bool,
+    network_fresh: bool,
+) -> Result<(), BackendError> {
+    if matches!(generation, GenerationClassification::Fresh) && (!sandbox_fresh || !network_fresh) {
+        return Err(BackendError::Unknown(
+            "UNKNOWN Soglia resources exist without a complete cgroup-BPF ownership record"
+                .to_owned(),
+        ));
+    }
+    Ok(())
+}
+
+fn validate_no_unrecorded_pin_root(path: &Path) -> Result<(), BackendError> {
+    if path.exists() {
+        Err(BackendError::Unknown(format!(
+            "UNKNOWN cgroup-BPF state: {} exists without a trusted record",
+            path.display()
+        )))
+    } else {
+        Ok(())
+    }
+}
+
+fn target_release_required(recorded_inode: u64, current_inode: Option<u64>) -> bool {
+    current_inode != Some(recorded_inode)
+}
+
 fn same_recorded_generation(left: &HostState, right: &HostState) -> bool {
     left.schema == right.schema
         && left.abi == right.abi
@@ -4111,6 +4150,44 @@ mod tests {
             select_recorded_state(None, Some(wrong_schema), true),
             Err(BackendError::Incompatible(_))
         ));
+    }
+
+    #[test]
+    fn uninstall_fresh_requires_every_owned_subsystem_to_be_absent() {
+        let fresh = GenerationClassification::Fresh;
+        assert!(validate_fresh_uninstall_state(&fresh, true, true).is_ok());
+        assert!(matches!(
+            validate_fresh_uninstall_state(&fresh, false, true),
+            Err(BackendError::Unknown(_))
+        ));
+        assert!(matches!(
+            validate_fresh_uninstall_state(&fresh, true, false),
+            Err(BackendError::Unknown(_))
+        ));
+    }
+
+    #[test]
+    fn uninstall_rejects_an_unrecorded_pin_root_without_mutating_it() {
+        let root = std::env::temp_dir().join(format!(
+            "soglia-uninstall-unrecorded-pins-{}",
+            ExecutionId::generate().unwrap()
+        ));
+        assert!(validate_no_unrecorded_pin_root(&root).is_ok());
+        fs::create_dir(&root).unwrap();
+        let result = validate_no_unrecorded_pin_root(&root);
+        assert!(matches!(result, Err(BackendError::Unknown(_))));
+        assert!(
+            root.is_dir(),
+            "classification must preserve the unknown root"
+        );
+        fs::remove_dir(&root).unwrap();
+    }
+
+    #[test]
+    fn uninstall_routes_a_missing_or_replaced_target_to_target_released() {
+        assert!(target_release_required(41, None));
+        assert!(target_release_required(41, Some(42)));
+        assert!(!target_release_required(41, Some(41)));
     }
 
     #[test]

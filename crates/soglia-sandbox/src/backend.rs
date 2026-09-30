@@ -203,6 +203,7 @@ pub struct RuncSandbox {
 pub struct PreparedSandboxUninstall {
     backend: RuncSandbox,
     records: Vec<(String, SandboxRecord)>,
+    fresh: bool,
 }
 
 impl PreparedSandboxUninstall {
@@ -220,6 +221,11 @@ impl PreparedSandboxUninstall {
             .iter()
             .map(|(_, record)| record.tag.to_string())
             .collect()
+    }
+
+    /// Whether no Sandbox-owned state or cgroup directory exists at all.
+    pub fn is_fresh(&self) -> bool {
+        self.fresh
     }
 
     /// Removes only the resources named by the records validated by `prepare_uninstall`.
@@ -252,6 +258,7 @@ impl PreparedSandboxUninstall {
 /// Builds the complete sandbox uninstall plan without changing the host.
 pub fn prepare_uninstall(config: &Config) -> Result<PreparedSandboxUninstall, SandboxError> {
     let backend = RuncSandbox::new(SandboxSettings::from_config(config)?);
+    let state_root_absent = !config.runtime.state_dir.exists();
     for directory in [
         &config.runtime.state_dir,
         &backend.settings.records,
@@ -414,9 +421,13 @@ pub fn prepare_uninstall(config: &Config) -> Result<PreparedSandboxUninstall, Sa
             }
         }
     }
+    let cgroup_state_absent = !backend.settings.delegation.executions().exists()
+        && !backend.settings.delegation.root().join("runtime").exists();
+    let fresh = state_root_absent && cgroup_state_absent && planned.is_empty();
     Ok(PreparedSandboxUninstall {
         backend,
         records: planned,
+        fresh,
     })
 }
 
