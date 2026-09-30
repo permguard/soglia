@@ -1010,27 +1010,32 @@ The consequences are availability-only:
 - the workloads most exposed are aggressive fan-out patterns such as parallel downloads, crawlers and headless browsers, which can mitigate by bounding their own parallelism or retrying with a short backoff;
 - the only way to deepen the queue today is to raise `max_concurrency`, which also raises the number of Executions admitted at once.
 
-### Follow-up: option B, a configurable Resolve queue
+### Follow-up: option B, a parallel Resolve path
 
-How the queue works today, in `crates/soglia-supervisor/src/helpers.rs`: every new proxy connection takes a permit from a semaphore sized `max_concurrency` with a non-blocking `try_acquire`, and no free permit means an immediate `QueueFull`.
+Decided on 2026-09-30: option B is implemented as a complete parallel Resolve path, not as a larger queue in front of the current single exchange.
+It starts after the B7 qualification on option A is authoritative and promoted, so that Phase 1 keeps a qualified restart point.
+
+How the path works today, in `crates/soglia-supervisor/src/helpers.rs`: every new proxy connection takes a permit from a semaphore sized `max_concurrency` with a non-blocking `try_acquire`, and no free permit means an immediate `QueueFull`.
 Permit holders then exchange with the Enforcer one at a time over a single channel guarded by the IPC gate, retrying every 2 ms while the tuple is not yet published, up to `resolve_timeout_ms`.
-The exchange is fast: most Resolve calls complete in under 250 µs, so the limit is how many connections may wait at the same instant, not Resolve throughput.
+Each exchange is fast, most under 250 µs, so the limit is how requests enter and wait, not raw Resolve speed.
 
-Option B therefore changes the size of the waiting room, not the number of consumers.
-Choose one variant in the design before implementation:
+The target design has three parts:
 
-- **B1, larger waiting room (preferred):** the semaphore size becomes the independent setting and admission stays non-blocking, so a full queue still refuses immediately with `QueueFull`.
-- **B2, bounded wait for a permit:** when the permits are exhausted, a connection waits for a free permit up to a short fixed bound before refusing, trading fewer refusals under bursts for added latency and, past the bound, refusals that arrive later.
+1. **Bounded, configurable admission in the Supervisor.** The pending-Resolve depth becomes its own validated setting, for example `cgroup_bpf.max_pending_resolves`, independent of `runtime.max_concurrency`, with a ceiling derived from the file-descriptor budget. Admission beyond the ceiling still refuses immediately with the typed `QueueFull`.
+2. **A pipelined channel.** Several requests are in flight on the channel at once, each correlated by its `request_id`. A protocol error, an unknown or duplicate `request_id`, or any unexpected response poisons the channel and triggers the existing one-way fail-closed transition.
+3. **A worker pool in the Enforcer.** K resolver threads serve requests in parallel with read-only access to the BPF maps, outside the backend lock that serializes Execution lifecycle changes. Every answer keeps the generation and identity checks, and a worker failure is an integrity failure, not a degraded mode.
 
-A pool of parallel Resolve channels to the Enforcer is out of scope: throughput is not the constraint, and parallel channels would complicate response ordering and the channel-integrity checks.
+The security properties do not change: kernel-derived attribution, fail-closed on any anomaly, no stale authorization, and no DNS or outbound effect before a Resolve succeeds.
 
-The steps below apply to either variant:
+The pool reuses Soglia's own trusted threads, not agent code: every call still runs in a fresh Execution that is never reused.
+Resolve workers therefore carry no state from one request to the next, with no attribution cache, no per-Execution data and no credentials; each answer is derived again from the kernel-owned maps and the current generation.
 
-To be done when a real workload needs larger bursts of new connections, or before `cgroup-bpf` becomes the default backend if operators are expected to hit `queue_refusal`:
+Work items:
 
-1. Add a validated configuration value for the pending-Resolve depth, for example `cgroup_bpf.max_pending_resolves`, independent of `runtime.max_concurrency`, with an explicit implementation ceiling.
+1. Design review: the parallel protocol, the worker count and its bound, the admission ceiling and the saturation behavior, written into `PRODUCTION-DESIGN.md` before any code.
 2. Budget file descriptors: every pending connection holds a descriptor, and the production unit does not set `LimitNOFILE`, so the soft limit is 1,024. Either set `LimitNOFILE` in `dev/systemd/soglia.service` or derive the ceiling from `RLIMIT_NOFILE`, and refuse a configuration that cannot fit.
-3. Keep saturation behavior explicit: a full queue still refuses with `QueueFull`; queued requests wait at most `resolve_timeout_ms`; the added latency under load is measured, because a deeper queue trades fast refusals for waits and, past the deadline, timeouts.
-4. Expose the queue depth and its high-water mark in `cgroup_bpf.resolve_health`.
-5. Requalify: this is a production change, so it starts a new production baseline and requires the complete authoritative B1-B7 sequence on it, with a B7 row that declares a burst size and requires zero refusals up to it.
-6. Document the limit and the new setting in `README.md` and in the site's "Run Soglia" page.
+3. Implement the three parts with unit tests for correlation, poisoning, concurrent generation checks and saturation.
+4. Expose the queue depth, its high-water mark, in-flight requests and per-worker outcomes in `cgroup_bpf.resolve_health`.
+5. Extend B7 with a burst row that declares a burst size and requires zero refusals up to it, plus a saturation row that proves typed `QueueFull` beyond the ceiling with no effect.
+6. Requalify: this is a production change, so it starts a new production baseline and requires the complete authoritative B1-B7 sequence on it, run through a single `spike:qualify` command with automatic evidence verification.
+7. Document the setting and its limits in `README.md` and in the site's "Run Soglia" page.
