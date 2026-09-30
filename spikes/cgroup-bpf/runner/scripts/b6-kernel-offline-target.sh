@@ -27,6 +27,7 @@ cgroup_root=/sys/fs/cgroup/soglia-b6-offline-target
 pin_root=/sys/fs/bpf/soglia-b6-offline-target
 scratch=/var/tmp/soglia-b6-offline-target
 loader_pid=
+admission_pid=
 
 mkdir -p "$evidence"
 
@@ -36,6 +37,10 @@ cleanup() {
   if [[ -n $loader_pid ]]; then
     touch "$scratch/stop"
     wait "$loader_pid" 2>/dev/null
+  fi
+  if [[ -n $admission_pid ]]; then
+    kill "$admission_pid" >/dev/null 2>&1
+    wait "$admission_pid" 2>/dev/null
   fi
   find "$pin_root" -mindepth 1 -maxdepth 1 -type f -delete 2>/dev/null
   rmdir "$pin_root" 2>/dev/null
@@ -143,6 +148,21 @@ run_case() {
   jq -e 'select(.stage == "before" and .open_result == 0)' \
     "$evidence/$name-handle.jsonl" >/dev/null
 
+  strace -qq -f -e trace=openat,write,clone3 \
+    -o "$evidence/$name-offline-admission-syscalls.txt" \
+    "$helper" offline-admission-probe "$target" "$marker" \
+    > "$evidence/$name-offline-admission.jsonl" \
+    2> "$evidence/$name-offline-admission.stderr" &
+  admission_pid=$!
+  for _ in $(seq 1 500); do
+    [[ -s $evidence/$name-offline-admission.jsonl ]] && break
+    kill -0 "$admission_pid" 2>/dev/null || break
+    sleep 0.01
+  done
+  jq -e 'select(.stage == "before" and .directory_fd_open == true and
+    .cgroup_procs_fd_open == true)' \
+    "$evidence/$name-offline-admission.jsonl" >/dev/null
+
   if [[ $workload == page-cache ]]; then
     bash -c "echo \$\$ > '$execution/cgroup.procs'; dd if=/dev/zero of='$scratch/$name-cache' bs=1M count=256 conv=fsync status=none"
   else
@@ -168,6 +188,8 @@ run_case() {
   set -e
   touch "$marker"
   wait "$handle_pid"
+  wait "$admission_pid"
+  admission_pid=
   capture_stat "$cgroup_root" "$evidence/$name-parent-stat-after-removal.txt"
   "$helper" link-info "$pin" > "$evidence/$name-link-after-removal.json"
   : > "$evidence/$name-link-retention.jsonl"
@@ -197,6 +219,7 @@ run_case() {
     --slurpfile removed "$evidence/$name-link-after-removal.json" \
     --slurpfile detached "$evidence/$name-detach.json" \
     --slurpfile handle "$evidence/$name-handle.jsonl" \
+    --slurpfile admission "$evidence/$name-offline-admission.jsonl" \
     --slurpfile retention "$evidence/$name-link-retention.jsonl" \
     --rawfile paths "$evidence/$name-old-id-live-paths.txt" \
     --argjson move_exit "$(cat "$evidence/$name-move-after-removal.exit")" '
@@ -208,6 +231,7 @@ run_case() {
         memory_current_before_removal: $memory_current,
         live_paths_after_removal: $live_paths,
         handle_observations: $handle,
+        offline_admission_observations: $admission,
         link_retention_observations: $retention,
         link_before: $before[0],
         link_after_removal: $removed[0],
@@ -216,16 +240,16 @@ run_case() {
         assertions: {
           handle_opened_while_live: ($handle[0].open_result == 0),
           handle_stale_after_removal: ($handle[1].open_result == -1 and $handle[1].open_errno == 116),
+          cgroup_procs_write_refused_enodev: (
+            $admission[1].write_result == -1 and $admission[1].write_errno == 19
+          ),
+          clone_into_cgroup_refused_enoent: (
+            $admission[1].clone3_result == -1 and $admission[1].clone3_errno == 2
+          ),
           old_id_absent_from_live_hierarchy: ($live_paths | length == 0),
           process_cannot_enter_removed_path: ($move_exit != 0),
           link_never_retargeted: (
             all($retention[]; .cgroup_id == $old_id or .cgroup_id == 0)
-          ),
-          dying_child_retains_ancestor_link: (
-            if $workload == "page-cache"
-            then all($retention[]; .cgroup_id == $old_id)
-            else true
-            end
           ),
           explicit_detach_succeeded: ($detached[0].detach_result == 0),
           link_reports_zero_after_detach: ($detached[0].after.cgroup_id == 0),

@@ -7,12 +7,15 @@
 #include <fcntl.h>
 #include <linux/bpf.h>
 #include <linux/limits.h>
+#include <linux/sched.h>
+#include <signal.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/syscall.h>
 #include <sys/types.h>
+#include <sys/wait.h>
 #include <unistd.h>
 
 static int bpf_call(enum bpf_cmd command, union bpf_attr *attr)
@@ -177,6 +180,76 @@ static int run_handle_probe(const char *path, const char *marker)
     return 0;
 }
 
+static int run_offline_admission_probe(const char *path, const char *marker)
+{
+    struct clone_args clone_args = {0};
+    char procs_path[PATH_MAX];
+    char pid_text[32];
+    int directory_fd;
+    int procs_fd;
+    int write_result;
+    int write_errno = 0;
+    int clone_result;
+    int clone_errno = 0;
+    int pid_length;
+
+    if (snprintf(procs_path, sizeof(procs_path), "%s/cgroup.procs", path) >=
+        (int)sizeof(procs_path)) {
+        errno = ENAMETOOLONG;
+        perror("cgroup.procs path");
+        return 1;
+    }
+    directory_fd = open(path, O_RDONLY | O_DIRECTORY | O_CLOEXEC);
+    if (directory_fd < 0) {
+        perror("open cgroup directory");
+        return 1;
+    }
+    procs_fd = open(procs_path, O_WRONLY | O_CLOEXEC);
+    if (procs_fd < 0) {
+        perror("open cgroup.procs");
+        close(directory_fd);
+        return 1;
+    }
+    printf("{\"stage\":\"before\",\"directory_fd_open\":true,"
+           "\"cgroup_procs_fd_open\":true}\n");
+    fflush(stdout);
+
+    if (wait_for_marker(marker) != 0) {
+        perror("wait for removal marker");
+        close(procs_fd);
+        close(directory_fd);
+        return 1;
+    }
+
+    pid_length = snprintf(pid_text, sizeof(pid_text), "%ld\n", (long)getpid());
+    write_result = (int)write(procs_fd, pid_text, (size_t)pid_length);
+    if (write_result < 0)
+        write_errno = errno;
+
+    clone_args.flags = CLONE_INTO_CGROUP;
+    clone_args.exit_signal = SIGCHLD;
+    clone_args.cgroup = (uint64_t)directory_fd;
+    clone_result = (int)syscall(__NR_clone3, &clone_args, sizeof(clone_args));
+    if (clone_result < 0) {
+        clone_errno = errno;
+    } else if (clone_result == 0) {
+        _exit(0);
+    } else {
+        (void)waitpid(clone_result, NULL, 0);
+    }
+
+    printf("{\"stage\":\"after\",\"write_result\":%d,"
+           "\"write_errno\":%d,\"write_error\":\"%s\","
+           "\"clone3_result\":%d,\"clone3_errno\":%d,"
+           "\"clone3_error\":\"%s\"}\n",
+           write_result, write_errno,
+           write_errno == 0 ? "" : strerror(write_errno), clone_result,
+           clone_errno, clone_errno == 0 ? "" : strerror(clone_errno));
+    close(procs_fd);
+    close(directory_fd);
+    return 0;
+}
+
 int main(int argc, char **argv)
 {
     if (argc == 3 && strcmp(argv[1], "link-info") == 0)
@@ -185,10 +258,12 @@ int main(int argc, char **argv)
         return run_link_detach(argv[2]);
     if (argc == 4 && strcmp(argv[1], "handle-probe") == 0)
         return run_handle_probe(argv[2], argv[3]);
+    if (argc == 4 && strcmp(argv[1], "offline-admission-probe") == 0)
+        return run_offline_admission_probe(argv[2], argv[3]);
 
     fprintf(stderr,
             "usage: %s link-info PIN | link-detach PIN | "
-            "handle-probe CGROUP MARKER\n",
+            "handle-probe CGROUP MARKER | offline-admission-probe CGROUP MARKER\n",
             argv[0]);
     return 64;
 }

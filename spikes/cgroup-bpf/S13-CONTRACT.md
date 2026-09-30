@@ -53,6 +53,7 @@ The classifier may return `TargetReleased` only after the Sandbox kill-all barri
 - the current `executions/` cgroup is empty, is below the current systemd unit's delegated cgroup, and satisfies the normal ownership, mode and no-internal-process checks;
 - there is no unexpected pin, map, program, link, policy entry or per-Execution ownership record outside the exact durable inventory;
 - the Sandbox kill-all barrier proved every old Execution process dead and every old Execution pathname absent, and the production launch path still cannot pass an Execution-created socket FD outside the Execution.
+- the environment's offline-cgroup capability was qualified on disposable FDs opened before removal: a retained `cgroup.procs` FD rejects PID writes with `ENODEV`, and a retained directory FD rejects `clone3(CLONE_INTO_CGROUP)` with `ENOENT`; neither path creates or moves a process.
 
 Only after all predicates pass may recovery call `BPF_LINK_DETACH` on each descriptor opened from its exact recorded pin. Every detach must succeed; the immediate `BPF_OBJ_GET_INFO_BY_FD` result must report cgroup ID zero with the link ID, program ID and attach type unchanged. Only then may recovery remove the exact recorded links, programs, maps and pins. It must prove every old ID and pin absent, create generation `N+1` against the current empty attachment target, prove the new policy, cookie and tuple maps empty, and publish READY last. No old map entry, `BindingKey` or authorization is imported.
 
