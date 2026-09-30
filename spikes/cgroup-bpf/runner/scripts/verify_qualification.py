@@ -175,16 +175,44 @@ def verify_b7(run: Path) -> None:
         for outcome in NEGATIVE_RESOLVE_OUTCOMES:
             require(totals.get(outcome) == 0, f"{run.name}: {path.relative_to(run)} has {outcome}={totals.get(outcome)!r}")
     burst = load_json(run / "profiles/M3/burst-characterization.json")
+    require(burst.get("verdict") == "PASS", f"{run.name}: B7 burst verdict is not PASS")
+    requested = burst.get("requested")
+    succeeded = burst.get("succeeded")
+    refused = burst.get("refused")
+    require(
+        isinstance(requested, int)
+        and isinstance(succeeded, int)
+        and isinstance(refused, int)
+        and requested == succeeded + refused,
+        f"{run.name}: B7 burst requested count differs from succeeded plus refused",
+    )
     attempts = burst.get("effects", {}).get("outbound_connection_attempts", {})
     require(
-        attempts.get("distinct_connection_attempts") == burst.get("succeeded"),
+        attempts.get("distinct_connection_attempts") == succeeded,
         f"{run.name}: B7 burst outbound attempts differ from successful connections",
     )
     require(
-        burst.get("resolve_health", {}).get("workload_totals", {}).get("queue_refusal") == burst.get("refused"),
+        attempts.get("raw_syn_packets")
+        == attempts.get("distinct_connection_attempts", 0)
+        + attempts.get("duplicate_or_retransmitted_syn_packets", 0),
+        f"{run.name}: B7 raw SYN accounting is inconsistent",
+    )
+    effects = burst.get("effects", {})
+    require(
+        effects.get("rejected_connection_outbound_attempts") == 0,
+        f"{run.name}: B7 refused connections produced outbound attempts",
+    )
+    require(
+        effects.get("rejected_connection_outbound_accepts") == 0,
+        f"{run.name}: B7 refused connections produced outbound accepts",
+    )
+    require(
+        burst.get("resolve_health", {}).get("workload_totals", {}).get("queue_refusal") == refused,
         f"{run.name}: B7 burst refusal count is inconsistent",
     )
-    dns = burst.get("effects", {}).get("dns_packet_delta", {})
+    control = burst.get("immediate_control", {}).get("body", {})
+    require(control.get("succeeded") == 1, f"{run.name}: B7 post-burst control connection did not succeed")
+    dns = effects.get("dns_packet_delta", {})
     require(dns.get("tcp") == 0 and dns.get("udp") == 0, f"{run.name}: B7 refused burst produced DNS traffic")
 
 

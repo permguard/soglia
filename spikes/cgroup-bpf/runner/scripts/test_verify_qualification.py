@@ -96,13 +96,21 @@ class QualificationVerifierTests(unittest.TestCase):
                 run / "profiles/M3/burst-characterization.json",
                 {
                     "verdict": "PASS",
+                    "requested": 4,
                     "succeeded": 3,
                     "refused": 1,
                     "effects": {
                         "dns_packet_delta": {"tcp": 0, "udp": 0},
-                        "outbound_connection_attempts": {"distinct_connection_attempts": 3},
+                        "rejected_connection_outbound_attempts": 0,
+                        "rejected_connection_outbound_accepts": 0,
+                        "outbound_connection_attempts": {
+                            "distinct_connection_attempts": 3,
+                            "raw_syn_packets": 4,
+                            "duplicate_or_retransmitted_syn_packets": 1,
+                        },
                     },
                     "resolve_health": {"workload_totals": {"queue_refusal": 1}},
+                    "immediate_control": {"body": {"succeeded": 1}},
                 },
             )
         self.write_sums(run)
@@ -147,6 +155,30 @@ class QualificationVerifierTests(unittest.TestCase):
         self.write_json(path, value)
         self.write_sums(self.runs[6])
         self.assert_reason("queue_refusal=1")
+
+    def test_b5_tamper_with_recomputed_checksum_fails(self) -> None:
+        path = self.runs[4] / "driver/proxy-steering-boundary.json"
+        value = json.loads(path.read_text(encoding="utf-8"))
+        value["runtime"]["destinations_match"] = False
+        self.write_json(path, value)
+        self.write_sums(self.runs[4])
+        self.assert_reason("runtime destinations differ")
+
+    def test_b6_tamper_with_recomputed_checksum_fails(self) -> None:
+        path = self.runs[5] / "cases/sandbox_sigkill/result.json"
+        value = json.loads(path.read_text(encoding="utf-8"))
+        value["target_released"]["exact_link_detaches_verified"] = 5
+        self.write_json(path, value)
+        self.write_sums(self.runs[5])
+        self.assert_reason("six exact link detaches")
+
+    def test_b7_tamper_with_recomputed_checksum_fails(self) -> None:
+        path = self.runs[6] / "profiles/M3/burst-characterization.json"
+        value = json.loads(path.read_text(encoding="utf-8"))
+        value["effects"]["rejected_connection_outbound_attempts"] = 1
+        self.write_json(path, value)
+        self.write_sums(self.runs[6])
+        self.assert_reason("refused connections produced outbound attempts")
 
 
 if __name__ == "__main__":
