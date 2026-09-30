@@ -25,7 +25,7 @@ fi
 b7_id=$(date -u +%Y%m%dT%H%M%SZ)-$$
 vm="soglia-spike-b7-$b7_id"
 config=$(mktemp -t soglia-spike-b7-lima.XXXXXX.yaml)
-trap 'rm -f "$config"' EXIT
+trap 'cleanup_fresh_vm "$vm" "$config"' EXIT
 render_lima "$config"
 echo "VM ............................... $vm"
 limactl list --json | jq -e --arg name "$vm" 'select(.name == $name)' >/dev/null \

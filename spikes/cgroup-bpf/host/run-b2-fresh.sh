@@ -24,7 +24,7 @@ fi
 b2_id=$(date -u +%Y%m%dT%H%M%SZ)-$$
 vm="soglia-spike-b2-$b2_id"
 config=$(mktemp -t soglia-spike-b2-lima.XXXXXX.yaml)
-trap 'rm -f "$config"' EXIT
+trap 'cleanup_fresh_vm "$vm" "$config"' EXIT
 render_lima "$config"
 
 echo "VM ............................... $vm"

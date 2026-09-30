@@ -59,3 +59,15 @@ run_guest() {
         --artifacts /var/tmp/soglia-spike-2 \
         --evidence /soglia/spikes/cgroup-bpf/evidence/replay
 }
+
+cleanup_fresh_vm() {
+    local vm=$1 config=$2
+    rm -f "$config"
+    if [[ ${SOGLIA_SPIKE_CLEANUP_VM:-0} != 1 ]]; then
+        return
+    fi
+    if limactl list --json | jq -e --arg name "$vm" 'select(.name == $name)' >/dev/null; then
+        limactl stop "$vm" >/dev/null 2>&1 || true
+        limactl delete "$vm" >/dev/null 2>&1 || true
+    fi
+}

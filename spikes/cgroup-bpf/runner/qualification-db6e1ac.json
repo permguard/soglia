@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "production_baseline": "db6e1ac21a957b5fd8de96f5e3a719db1d897723",
+  "reason": "Reviewed final B1-B7 set predates spike:qualify; B1-B6 share one clean harness commit and B7 uses the reviewed B7-only harness commit.",
+  "runs": {
+    "B1": {"run_id": "b1-20260930T150949Z-8734", "source_commit": "4824d1bbb1c567a11ca2c338212cb76cefea805c"},
+    "B2": {"run_id": "b2-20260930T163724Z-8764", "source_commit": "4824d1bbb1c567a11ca2c338212cb76cefea805c"},
+    "B3": {"run_id": "b3-20260930T164122Z-8761", "source_commit": "4824d1bbb1c567a11ca2c338212cb76cefea805c"},
+    "B4": {"run_id": "b4-20260930T164653Z-8823", "source_commit": "4824d1bbb1c567a11ca2c338212cb76cefea805c"},
+    "B5": {"run_id": "b5-20260930T165141Z-8741", "source_commit": "4824d1bbb1c567a11ca2c338212cb76cefea805c"},
+    "B6": {"run_id": "b6-20260930T165432Z-8758", "source_commit": "4824d1bbb1c567a11ca2c338212cb76cefea805c"},
+    "B7": {"run_id": "b7-20260930T220538Z-8812", "source_commit": "57a072154dd538c02efe0bf9ac62a170a294a030"}
+  }
+}
