@@ -252,7 +252,7 @@
   position: relative;
   background: var(--soglia-green);
   color: #0b0c0f;
-  padding: 64px 0 70px;
+  padding: 44px 0 48px;
 }
 
 .soglia-threshold__inner {
@@ -260,18 +260,24 @@
   max-width: 900px;
 }
 
+/* "The threshold" is a label, like every section kicker: small caps in the band's ink, so the
+   sentence that explains the name carries the band. */
 .soglia-threshold h2 {
   border: 0;
-  margin: 0 0 14px;
-  font-size: clamp(30px, 3.2vw, 44px);
-  line-height: 1.08;
-  letter-spacing: -0.03em;
+  margin: 0 0 12px;
+  padding: 0;
+  font-size: 17px;
+  font-weight: 900;
+  line-height: 1.2;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #0b0c0f;
 }
 
 .soglia-threshold p {
   margin: 0 auto;
-  max-width: 830px;
-  font-size: 20px;
+  max-width: 780px;
+  font-size: 18px;
   line-height: 1.55;
 }
 

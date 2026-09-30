@@ -27,6 +27,10 @@ use libbpf_rs::{
     ErrorKind as LibbpfErrorKind, Link, MapCore, MapHandle, ProgramAttachType, ProgramHandle,
     ProgramType,
 };
+use name_to_handle_at::{
+    AT_EMPTY_PATH, AT_HANDLE_MNT_ID_UNIQUE, FileHandle as LinuxFileHandle, MountId,
+    name_to_handle_at, open_by_handle_at,
+};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use soglia_core::config::Config;
@@ -41,7 +45,7 @@ use crate::system;
 
 const OBJECT: &[u8] = include_bytes!(concat!(env!("OUT_DIR"), "/soglia-cgroup-bpf.o"));
 const STATE_FILE: &str = "state.json";
-const STATE_SCHEMA: u32 = 2;
+const STATE_SCHEMA: u32 = 3;
 const BPF_ABI: u32 = 1;
 const META_MAGIC: u64 = 0x534f_474c_4941_4250;
 const POLICY_FROZEN: u32 = 0;
@@ -139,6 +143,7 @@ struct HostState {
     config_sha256: String,
     attachment_target: PathBuf,
     attachment_inode: u64,
+    attachment_handle: AttachmentHandle,
     pin_root: PathBuf,
     maps: Vec<MapManifest>,
     programs: Vec<ProgramManifest>,
@@ -146,6 +151,14 @@ struct HostState {
     ancestor_bpf: Vec<AttachmentFingerprint>,
     resource_envelope: ResourceEnvelope,
     executions: BTreeMap<String, ExecutionState>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+struct AttachmentHandle {
+    handle_type: i32,
+    handle: Vec<u8>,
+    mount_id_unique: u64,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -193,6 +206,13 @@ struct RecordedLinkInfo {
     program_id: u32,
     attach_type: u32,
     cgroup_id: u64,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum OfflineHandleObservation {
+    Stale,
+    Openable,
+    Error(Option<i32>),
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -448,6 +468,9 @@ impl CgroupBpfBackend {
             state.phase = ManifestPhase::Intent;
             self.publish_state(&state)?;
         }
+        if target_released {
+            self.detach_released_links(&state)?;
+        }
         self.remove_recorded_pins(&state)?;
         self.verify_recorded_objects_absent(&state)?;
         let next = state
@@ -476,6 +499,7 @@ impl CgroupBpfBackend {
     }
 
     fn validate_manifest_structure(&self, state: &HostState) -> Result<(), BackendError> {
+        validate_attachment_handle_structure(&state.attachment_handle)?;
         let expected_maps: BTreeSet<(String, PathBuf)> = MAPS
             .iter()
             .map(|name| ((*name).to_owned(), state.pin_root.join("maps").join(name)))
@@ -898,6 +922,7 @@ impl CgroupBpfBackend {
         state: &HostState,
         current_inode: u64,
     ) -> Result<(), BackendError> {
+        validate_offline_attachment_handle(&state.attachment_handle)?;
         let actual = recursive_files(&state.pin_root, state.phase == ManifestPhase::Intent)?;
         let complete = actual == Self::expected_pins(state)
             && state.programs.len() == PROGRAMS.len()
@@ -919,7 +944,7 @@ impl CgroupBpfBackend {
             .iter()
             .filter(|link| actual.contains(&link.pin))
             .collect::<Vec<_>>();
-        self.wait_for_released_links(&observable_links)?;
+        self.observe_released_links(&observable_links, state.attachment_inode)?;
         let target = self.replacement_target_state(state, current_inode)?;
         validate_replacement_target(target)?;
 
@@ -961,7 +986,11 @@ impl CgroupBpfBackend {
         Ok(())
     }
 
-    fn wait_for_released_links(&self, links: &[&LinkManifest]) -> Result<(), BackendError> {
+    fn observe_released_links(
+        &self,
+        links: &[&LinkManifest],
+        recorded_cgroup_id: u64,
+    ) -> Result<(), BackendError> {
         let started = Instant::now();
         loop {
             let elapsed = started.elapsed();
@@ -978,19 +1007,57 @@ impl CgroupBpfBackend {
                     observed.attach_type,
                     observed.cgroup_id
                 );
+                validate_released_link_target(observed, recorded_cgroup_id)?;
                 observations.push(observed);
             }
             if all_recorded_links_released(&observations, links.len()) {
                 return Ok(());
             }
             if elapsed >= TARGET_RELEASED_DETACH_TIMEOUT {
-                return Err(BackendError::Unknown(
-                    "UNKNOWN recorded BPF link remained attached after the released-target observation window; no object was changed"
-                        .to_owned(),
-                ));
+                return Ok(());
             }
             thread::sleep(TARGET_RELEASED_POLL_INTERVAL);
         }
+    }
+
+    fn detach_released_links(&self, state: &HostState) -> Result<(), BackendError> {
+        for recorded in &state.links {
+            if !recorded.pin.exists() {
+                if state.phase == ManifestPhase::Intent {
+                    continue;
+                }
+                return Err(BackendError::Unknown(format!(
+                    "UNKNOWN recorded link pin {} disappeared before detach",
+                    recorded.pin.display()
+                )));
+            }
+            let link = Link::open(&recorded.pin).map_err(|error| {
+                BackendError::Unknown(format!(
+                    "UNKNOWN recorded link at {} cannot be opened for detach: {error:#}",
+                    recorded.pin.display()
+                ))
+            })?;
+            let before = recorded_link_info(recorded, &link)?;
+            validate_recorded_link_identity(recorded, before)?;
+            validate_released_link_target(before, state.attachment_inode)?;
+            if before.cgroup_id == state.attachment_inode {
+                link.detach()
+                    .map_err(|error| exact_detach_error(&recorded.pin, &error))?;
+            }
+            let after = recorded_link_info(recorded, &link)?;
+            validate_recorded_link_identity(recorded, after)?;
+            validate_post_detach_link(after)?;
+            eprintln!(
+                "event.name=cgroup_bpf.target_released_link_detach link={} link_id={} program_id={} attach_type={} before_cgroup_id={} after_cgroup_id={}",
+                recorded.name,
+                after.link_id,
+                after.program_id,
+                after.attach_type,
+                before.cgroup_id,
+                after.cgroup_id
+            );
+        }
+        Ok(())
     }
 
     fn replacement_target_state(
@@ -1246,6 +1313,7 @@ impl CgroupBpfBackend {
         ancestor_bpf: Vec<AttachmentFingerprint>,
     ) -> Result<(), BackendError> {
         let attachment_inode = fs::metadata(&self.settings.executions)?.ino();
+        let attachment_handle = capture_attachment_handle(&self.settings.executions)?;
         let pin_root = self
             .settings
             .configured_pin_root
@@ -1269,6 +1337,7 @@ impl CgroupBpfBackend {
             config_sha256: self.config_hash(),
             attachment_target: self.settings.executions.clone(),
             attachment_inode,
+            attachment_handle,
             pin_root: pin_root.clone(),
             maps: MAPS
                 .iter()
@@ -1825,6 +1894,7 @@ impl EnforcementBackend for CgroupBpfBackend {
                 "the delegated executions target is not a directory".to_owned(),
             ));
         }
+        capture_attachment_handle(&self.settings.executions)?;
         let bpffs = fs::read_to_string("/proc/self/mountinfo")?;
         if !bpffs.lines().any(|line| {
             line.split(" - ")
@@ -2294,6 +2364,142 @@ fn expected_program_contract(symbol: &str) -> Option<(ProgramType, &'static str)
     }
 }
 
+fn capture_attachment_handle(path: &Path) -> Result<AttachmentHandle, BackendError> {
+    let target = File::open(path).map_err(|error| {
+        BackendError::Unsupported(format!(
+            "the cgroup attachment target cannot be opened for a durable handle: {error}"
+        ))
+    })?;
+    let (handle, mount_id) = name_to_handle_at(
+        &target,
+        Path::new(""),
+        AT_EMPTY_PATH | AT_HANDLE_MNT_ID_UNIQUE,
+    )
+    .map_err(|error| {
+        BackendError::Unsupported(format!(
+            "the cgroup attachment target has no supported durable handle: {error}"
+        ))
+    })?;
+    let MountId::Unique(mount_id_unique) = mount_id else {
+        return Err(BackendError::Unsupported(
+            "the cgroup2 mount did not return a unique mount identity".to_owned(),
+        ));
+    };
+    let recorded = AttachmentHandle {
+        handle_type: handle.handle_type,
+        handle: handle.handle,
+        mount_id_unique,
+    };
+    validate_attachment_handle_structure(&recorded).map_err(|_| {
+        BackendError::Unsupported(
+            "the cgroup attachment target returned a malformed durable handle".to_owned(),
+        )
+    })?;
+    validate_live_attachment_handle(path, &recorded)?;
+    Ok(recorded)
+}
+
+fn validate_attachment_handle_structure(handle: &AttachmentHandle) -> Result<(), BackendError> {
+    if handle.handle_type == 0
+        || handle.handle.is_empty()
+        || handle.handle.len() > 128
+        || handle.mount_id_unique == 0
+    {
+        return Err(BackendError::Unknown(
+            "UNKNOWN cgroup attachment handle structure; no object was changed".to_owned(),
+        ));
+    }
+    Ok(())
+}
+
+fn current_cgroup2_mount() -> Result<(File, u64), io::Error> {
+    let mount = File::open("/sys/fs/cgroup")?;
+    let (_, mount_id) = name_to_handle_at(
+        &mount,
+        Path::new(""),
+        AT_EMPTY_PATH | AT_HANDLE_MNT_ID_UNIQUE,
+    )?;
+    match mount_id {
+        MountId::Unique(id) => Ok((mount, id)),
+        MountId::Reusable(_) => Err(io::Error::new(
+            io::ErrorKind::Unsupported,
+            "cgroup2 mount has no unique mount identity",
+        )),
+    }
+}
+
+fn linux_file_handle(recorded: &AttachmentHandle) -> LinuxFileHandle {
+    LinuxFileHandle {
+        handle_type: recorded.handle_type,
+        handle: recorded.handle.clone(),
+    }
+}
+
+fn validate_live_attachment_handle(
+    path: &Path,
+    recorded: &AttachmentHandle,
+) -> Result<(), BackendError> {
+    let (mount, mount_id) = current_cgroup2_mount().map_err(|error| {
+        BackendError::Unsupported(format!("the cgroup2 mount cannot be identified: {error}"))
+    })?;
+    if mount_id != recorded.mount_id_unique {
+        return Err(BackendError::Unsupported(
+            "the attachment handle belongs to a different cgroup2 mount".to_owned(),
+        ));
+    }
+    let opened = open_by_handle_at(&mount, &linux_file_handle(recorded), 0).map_err(|error| {
+        BackendError::Unsupported(format!(
+            "the live cgroup attachment handle cannot be opened: {error}"
+        ))
+    })?;
+    let reopened = File::from(opened);
+    let expected = fs::metadata(path)?;
+    let actual = reopened.metadata()?;
+    if expected.dev() != actual.dev() || expected.ino() != actual.ino() {
+        return Err(BackendError::Unsupported(
+            "the live cgroup attachment handle resolved to a different object".to_owned(),
+        ));
+    }
+    Ok(())
+}
+
+fn validate_offline_attachment_handle(recorded: &AttachmentHandle) -> Result<(), BackendError> {
+    validate_attachment_handle_structure(recorded)?;
+    let (mount, mount_id) = current_cgroup2_mount().map_err(|error| {
+        BackendError::Unknown(format!(
+            "UNKNOWN cgroup2 mount identity cannot be established: {error}; no object was changed"
+        ))
+    })?;
+    if mount_id != recorded.mount_id_unique {
+        return Err(BackendError::Unknown(
+            "UNKNOWN cgroup2 mount identity changed; no object was changed".to_owned(),
+        ));
+    }
+    let observation = match open_by_handle_at(&mount, &linux_file_handle(recorded), 0) {
+        Err(error) if error.raw_os_error() == Some(rustix::io::Errno::STALE.raw_os_error()) => {
+            OfflineHandleObservation::Stale
+        }
+        Ok(_) => OfflineHandleObservation::Openable,
+        Err(error) => OfflineHandleObservation::Error(error.raw_os_error()),
+    };
+    validate_offline_handle_observation(observation)
+}
+
+fn validate_offline_handle_observation(
+    observation: OfflineHandleObservation,
+) -> Result<(), BackendError> {
+    match observation {
+        OfflineHandleObservation::Stale => Ok(()),
+        OfflineHandleObservation::Openable => Err(BackendError::Unknown(
+            "UNKNOWN recorded attachment handle is still openable; no object was changed"
+                .to_owned(),
+        )),
+        OfflineHandleObservation::Error(errno) => Err(BackendError::Unknown(format!(
+            "UNKNOWN recorded attachment handle did not return ESTALE (errno={errno:?}); no object was changed"
+        ))),
+    }
+}
+
 fn inspect_recorded_link(link: &LinkManifest) -> Result<RecordedLinkInfo, BackendError> {
     let pinned = Link::open(&link.pin).map_err(|error| {
         BackendError::Unknown(format!(
@@ -2301,6 +2507,13 @@ fn inspect_recorded_link(link: &LinkManifest) -> Result<RecordedLinkInfo, Backen
             link.pin.display()
         ))
     })?;
+    recorded_link_info(link, &pinned)
+}
+
+fn recorded_link_info(
+    link: &LinkManifest,
+    pinned: &Link,
+) -> Result<RecordedLinkInfo, BackendError> {
     let info = pinned.info().map_err(|error| {
         BackendError::Unknown(format!(
             "UNKNOWN recorded link at {} cannot be inspected: {error:#}; no object was changed",
@@ -2342,6 +2555,36 @@ fn validate_recorded_link_identity(
         )));
     }
     Ok(())
+}
+
+fn validate_released_link_target(
+    observed: RecordedLinkInfo,
+    recorded_cgroup_id: u64,
+) -> Result<(), BackendError> {
+    if recorded_cgroup_id == 0
+        || (observed.cgroup_id != recorded_cgroup_id && observed.cgroup_id != 0)
+    {
+        return Err(BackendError::Unknown(
+            "UNKNOWN recorded BPF link targets another cgroup; no object was changed".to_owned(),
+        ));
+    }
+    Ok(())
+}
+
+fn validate_post_detach_link(observed: RecordedLinkInfo) -> Result<(), BackendError> {
+    if observed.cgroup_id != 0 {
+        return Err(BackendError::Unknown(
+            "UNKNOWN recorded BPF link remained attached after exact detach".to_owned(),
+        ));
+    }
+    Ok(())
+}
+
+fn exact_detach_error(pin: &Path, error: &libbpf_rs::Error) -> BackendError {
+    BackendError::Unknown(format!(
+        "UNKNOWN exact detach failed for {}: {error:#}",
+        pin.display()
+    ))
 }
 
 fn validate_recorded_program(program: &ProgramManifest) -> Result<(), BackendError> {
@@ -3068,6 +3311,45 @@ mod tests {
         }
     }
 
+    fn recorded_attachment_handle() -> AttachmentHandle {
+        AttachmentHandle {
+            handle_type: 254,
+            handle: vec![1, 2, 3, 4, 5, 6, 7, 8],
+            mount_id_unique: 19,
+        }
+    }
+
+    fn serializable_host_state() -> HostState {
+        HostState {
+            schema: STATE_SCHEMA,
+            abi: BPF_ABI,
+            phase: ManifestPhase::Ready,
+            state_id: ExecutionNonce::from_bytes([7; 16]),
+            generation: 1,
+            object_sha256: "object".to_owned(),
+            config_sha256: "config".to_owned(),
+            attachment_target: PathBuf::from("/sys/fs/cgroup/test/executions"),
+            attachment_inode: 41,
+            attachment_handle: recorded_attachment_handle(),
+            pin_root: PathBuf::from("/sys/fs/bpf/soglia/test"),
+            maps: Vec::new(),
+            programs: Vec::new(),
+            links: Vec::new(),
+            ancestor_bpf: Vec::new(),
+            resource_envelope: ResourceEnvelope {
+                memlock_soft: None,
+                memlock_hard: None,
+                nofile_soft: None,
+                nofile_hard: None,
+                enforcer_fds_before_load: 0,
+                policy_capacity: 1,
+                tracked_socket_capacity: 1,
+                ring_buffer_bytes: 4096,
+            },
+            executions: BTreeMap::new(),
+        }
+    }
+
     fn recorded_connect4_link() -> LinkManifest {
         LinkManifest {
             name: "connect4".to_owned(),
@@ -3238,16 +3520,98 @@ mod tests {
     }
 
     #[test]
-    fn target_released_rejects_attached_and_mixed_link_sets() {
+    fn target_released_accepts_old_or_detached_links_for_crash_resume() {
         assert_eq!(TARGET_RELEASED_DETACH_TIMEOUT, Duration::from_secs(5));
         assert_eq!(TARGET_RELEASED_POLL_INTERVAL, Duration::from_millis(10));
         let released = released_connect4_info();
         let mut attached = released;
         attached.cgroup_id = 41;
+        let mut retargeted = released;
+        retargeted.cgroup_id = 42;
         assert!(!all_recorded_links_released(&[attached], 1));
         assert!(!all_recorded_links_released(&[released, attached], 2));
         assert!(all_recorded_links_released(&[released, released], 2));
         assert!(!all_recorded_links_released(&[released], 2));
+        assert!(validate_released_link_target(attached, 41).is_ok());
+        assert!(validate_released_link_target(released, 41).is_ok());
+        assert!(matches!(
+            validate_released_link_target(retargeted, 41),
+            Err(BackendError::Unknown(_))
+        ));
+        for observed in [attached, released] {
+            assert!(validate_released_link_target(observed, 41).is_ok());
+        }
+    }
+
+    #[test]
+    fn target_released_requires_a_well_formed_durable_handle() {
+        assert_eq!(STATE_SCHEMA, 3);
+        assert!(validate_attachment_handle_structure(&recorded_attachment_handle()).is_ok());
+        for invalid in [
+            AttachmentHandle {
+                handle_type: 0,
+                ..recorded_attachment_handle()
+            },
+            AttachmentHandle {
+                handle: Vec::new(),
+                ..recorded_attachment_handle()
+            },
+            AttachmentHandle {
+                handle: vec![0; 129],
+                ..recorded_attachment_handle()
+            },
+            AttachmentHandle {
+                mount_id_unique: 0,
+                ..recorded_attachment_handle()
+            },
+        ] {
+            assert!(matches!(
+                validate_attachment_handle_structure(&invalid),
+                Err(BackendError::Unknown(_))
+            ));
+        }
+    }
+
+    #[test]
+    fn schema_two_state_is_not_implicitly_migrated() {
+        let mut previous = serde_json::to_value(serializable_host_state()).unwrap();
+        previous["schema"] = serde_json::json!(2);
+        previous
+            .as_object_mut()
+            .unwrap()
+            .remove("attachment_handle");
+        assert!(serde_json::from_value::<HostState>(previous).is_err());
+    }
+
+    #[test]
+    fn target_released_requires_exactly_estale_from_the_old_handle() {
+        assert!(validate_offline_handle_observation(OfflineHandleObservation::Stale).is_ok());
+        for observation in [
+            OfflineHandleObservation::Openable,
+            OfflineHandleObservation::Error(Some(2)),
+            OfflineHandleObservation::Error(None),
+        ] {
+            assert!(matches!(
+                validate_offline_handle_observation(observation),
+                Err(BackendError::Unknown(_))
+            ));
+        }
+    }
+
+    #[test]
+    fn target_released_requires_zero_after_exact_detach() {
+        assert!(validate_post_detach_link(released_connect4_info()).is_ok());
+        let mut attached = released_connect4_info();
+        attached.cgroup_id = 41;
+        assert!(matches!(
+            validate_post_detach_link(attached),
+            Err(BackendError::Unknown(_))
+        ));
+        let error = libbpf_rs::Error::from_raw_os_error(1);
+        assert!(matches!(
+            exact_detach_error(Path::new("/sys/fs/bpf/soglia/test"), &error),
+            BackendError::Unknown(_)
+        ));
     }
 
     #[test]

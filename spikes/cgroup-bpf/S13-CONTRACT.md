@@ -42,7 +42,7 @@ Stale policy, cookie or tuple entries are never inherited into the next generati
 
 ### Released-target recovery
 
-`TargetReleased` is the proposed production recovery path for the case in which a real systemd restart has released the cgroup named by the durable attachment-target record. The offline-target form below is a design draft backed by non-authoritative diagnostics and is not implemented or production-qualified. Until implementation and re-qualification, a recorded link that remains nonzero after the current bounded wait is still `Unknown`. The proposal does not weaken the cgroup-ID check and is not a pathname-based ownership inference.
+`TargetReleased` is the production recovery path for the case in which a real systemd restart has released the cgroup named by the durable attachment-target record. The offline-target form below is implemented but remains unqualified until B1-B6 are repeated on the schema-3 backend. It does not weaken the cgroup-ID check and is not a pathname-based ownership inference.
 
 The classifier may return `TargetReleased` only after the Sandbox kill-all barrier and only when every predicate below is proven:
 

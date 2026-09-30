@@ -457,6 +457,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "name-to-handle-at"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6e13544470bcbc798dc9f927b418e85f44d9e72d8e1456f884107e9850dfb22d"
+dependencies = [
+ "libc",
+]
+
+[[package]]
 name = "nix"
 version = "0.31.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -695,6 +704,7 @@ version = "0.1.0"
 dependencies = [
  "aya",
  "libbpf-rs",
+ "name-to-handle-at",
  "rustix",
  "serde",
  "serde_json",

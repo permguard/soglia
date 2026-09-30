@@ -21,7 +21,10 @@ soglia-core.workspace = true
 
 [features]
 default = []
-cgroup-bpf = ["dep:aya", "dep:libbpf-rs", "dep:sha2"]
+cgroup-bpf = ["dep:aya", "dep:libbpf-rs", "dep:name-to-handle-at", "dep:sha2"]
+
+[target.'cfg(target_os = "linux")'.dependencies]
+name-to-handle-at = { workspace = true, optional = true }
 
 [dev-dependencies]
 serde_json.workspace = true
