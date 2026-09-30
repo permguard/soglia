@@ -69,12 +69,12 @@ import { withBase } from 'vitepress'
         </article>
         <article>
           <div class="soglia-num">02</div>
-          <h3>Mediated effects</h3>
+          <h3>Mediated Effects</h3>
           <p>If the agent wants to affect the outside world, the effect must cross a Soglia boundary.</p>
         </article>
         <article>
           <div class="soglia-num">03</div>
-          <h3>Authority continuity</h3>
+          <h3>Authority Continuity</h3>
           <p>PIC proves why authority may continue. Soglia makes that authority enforceable.</p>
         </article>
       </div>
