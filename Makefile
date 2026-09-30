@@ -45,7 +45,7 @@ YES ?=
 scope   = $(if $(PKG),-p $(PKG),--workspace)
 profile = $(if $(RELEASE),--release)
 
-.PHONY: help build check check-headers check-notices check-phase0-deps check-supply-chain check-systems clean coverage coverage-html coverage-lcov dev-image fmt lint notices spike-b1 spike-b2 spike-b2-diagnostic spike-b3 spike-b3-diagnostic spike-b4 spike-b4-diagnostic spike-b5 spike-b5-diagnostic spike-b6 spike-b6-diagnostic spike-b7 spike-b7-diagnostic spike-delete-vms spike-doctor spike-qualify spike-replay spike-run spike-vms test test-acceptance test-portable
+.PHONY: help build check check-headers check-notices check-phase0-deps check-supply-chain check-systems clean coverage coverage-html coverage-lcov dev-image fmt lint notices spike-b1 spike-b2 spike-b2-diagnostic spike-b3 spike-b3-diagnostic spike-b4 spike-b4-diagnostic spike-b5 spike-b5-diagnostic spike-b6 spike-b6-diagnostic spike-b7 spike-b7-diagnostic spike-delete-vms spike-doctor spike-qualify spike-replay spike-run spike-uninstall-diagnostic spike-vms test test-acceptance test-portable
 
 help: ## List the targets.
 	@grep -E '^[a-z0-9-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-20s %s\n", $$1, $$2}'
@@ -151,6 +151,9 @@ spike-doctor: ## Check the cgroup-BPF spike environment on the development VM (c
 
 spike-qualify: ## Run and verify authoritative B1-B7, each on a fresh VM, stopping on first failure.
 	./spikes/cgroup-bpf/host/run-qualification.sh
+
+spike-uninstall-diagnostic: ## Qualify verified uninstall diagnostically on the development VM.
+	./spikes/cgroup-bpf/host/run-uninstall-diagnostic.sh
 
 spike-replay: ## Run the authoritative S0-S14 replay on two newly created VMs, one after the other.
 	SOGLIA_SPIKE_INTERACTIVE=$(INTERACTIVE) ./spikes/cgroup-bpf/host/run-fresh.sh

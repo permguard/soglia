@@ -340,6 +340,17 @@ tasks:
     cmds:
       - ./spikes/cgroup-bpf/host/run-qualification.sh
 
+  spike:uninstall:diagnostic:
+    interactive: true
+    desc: Qualify verified uninstall diagnostically on the reusable development VM.
+    summary: |
+      Build the production cgroup-BPF binary and exercise fresh, recorded, released-target,
+      interrupted-resume and typed-refusal uninstall cases. Residue is measured before the
+      qualification harness removes its own exact cgroup/rootfs resources. This target never
+      creates authoritative evidence.
+    cmds:
+      - ./spikes/cgroup-bpf/host/run-uninstall-diagnostic.sh
+
   spike:replay:
     interactive: true
     desc: Run the authoritative S0-S14 replay on two newly created VMs, one after the other.

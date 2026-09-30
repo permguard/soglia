@@ -158,10 +158,11 @@ fn run() -> Result<(), String> {
                     )?;
                     if boundary_matches(&boundary, &state_path, &bpftool, durable_state)? {
                         let state = read_json(&state_path)?;
-                        let policy_entries = policy_entries(&state, &bpftool)?;
+                        let traced_state = state.get("state").unwrap_or(&state);
+                        let policy_entries = policy_entries(traced_state, &bpftool)?;
                         let state_bytes =
                             fs::read(&state_path).map_err(|error| error.to_string())?;
-                        let existing_recorded_pins = existing_pins(&state);
+                        let existing_recorded_pins = existing_pins(traced_state);
                         let observed = Observation {
                             schema: 1,
                             boundary: boundary.clone(),
@@ -583,6 +584,23 @@ fn boundary_matches(
         return Ok(false);
     }
     let state = read_json(state_path)?;
+    if boundary == "uninstall_intent" {
+        let recorded = state.get("state").and_then(Value::as_object);
+        return Ok(durable
+            && state.get("schema").and_then(Value::as_u64) == Some(1)
+            && recorded
+                .and_then(|value| value.get("phase"))
+                .and_then(Value::as_str)
+                == Some("READY")
+            && recorded
+                .and_then(|value| value.get("maps"))
+                .and_then(Value::as_array)
+                .is_some_and(|maps| maps.len() == 7)
+            && recorded
+                .and_then(|value| value.get("links"))
+                .and_then(Value::as_array)
+                .is_some_and(|links| links.len() == 6));
+    }
     let phase = state.get("phase").and_then(Value::as_str);
     let maps = state
         .get("maps")
@@ -675,6 +693,7 @@ fn boundary_matches(
             let existing = existing_pins(&state).len();
             durable && phase == Some("INTENT") && existing > 0 && existing < expected
         }
+        "uninstall_intent" => unreachable!("handled before the host-state decoder"),
         other => return Err(format!("unknown B6 boundary: {other}")),
     })
 }
