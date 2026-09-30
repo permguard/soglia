@@ -1,0 +1,835 @@
+{
+  "classification": "OUTSIDE_SUPPORTED_ENVELOPE_REFUSAL_CHARACTERIZATION",
+  "effects": {
+    "dns_packet_delta": {
+      "tcp": 0,
+      "udp": 0
+    },
+    "dns_packets_after": {
+      "tcp": 0,
+      "udp": 0
+    },
+    "dns_packets_before": {
+      "tcp": 0,
+      "udp": 0
+    },
+    "outbound_connection_attempts": {
+      "capture_filter": "tcp and dst host 11.0.0.1 and dst port 443 and (tcp[tcpflags] & (tcp-syn|tcp-ack) == tcp-syn)",
+      "capture_interface": "any",
+      "capture_scope": "the controlled burst window to the qualification-only endpoint 11.0.0.1:443",
+      "decoded_evidence": "/soglia/spikes/cgroup-bpf/evidence/replay/b7-20260930T220538Z-8812/profiles/M3/burst-outbound-syn.txt",
+      "deduplication_key": [
+        "source",
+        "source_port",
+        "destination",
+        "destination_port"
+      ],
+      "distinct_connection_attempts": 115,
+      "duplicate_or_retransmitted_syn_packets": 0,
+      "flows": [
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 58360
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 58376
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 58386
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 58406
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 58408
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 58428
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 58442
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 58458
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 58460
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 58470
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 58478
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 58486
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 58488
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 58510
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 58518
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 58532
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 58544
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 58564
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 58578
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 58586
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 58596
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 58602
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 58618
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 58630
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 58644
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 58662
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 58670
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 58678
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 58688
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 58704
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 58710
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 58728
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 58732
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 58748
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 58760
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 58762
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 58772
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 58780
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 58788
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 58794
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 58804
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 58812
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 58826
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 58838
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 58854
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 58858
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 58868
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 58878
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 58892
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 58898
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 58908
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 58928
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 58942
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 58944
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 58960
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 58972
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 58988
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 58996
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 59010
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 59022
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 59036
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 59048
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 59054
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 59070
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 59082
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 59096
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 59106
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 59116
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 59122
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 59130
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 59132
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 59150
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 59164
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 59168
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 59184
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 59192
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 59214
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 59218
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 59230
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 59242
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 59252
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 59266
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 59282
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 59298
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 59310
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 59322
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 59324
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 59338
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 59348
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 59364
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 59370
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 59378
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 59398
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 59400
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 59416
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 59420
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 59434
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 59448
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 59456
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 59470
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 59478
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 59482
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 59500
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 59516
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 59532
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 59540
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 59556
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 59562
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 59564
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 59572
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 59586
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 59590
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 59604
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 59608
+        },
+        {
+          "destination": "11.0.0.1",
+          "destination_port": 443,
+          "source": "11.0.0.1",
+          "source_port": 59610
+        }
+      ],
+      "raw_evidence": "/soglia/spikes/cgroup-bpf/evidence/replay/b7-20260930T220538Z-8812/profiles/M3/burst-outbound-syn.pcap",
+      "raw_syn_packets": 115
+    },
+    "rejected_connection_outbound_accepts": 0,
+    "rejected_connection_outbound_attempts": 0,
+    "successful_connections": 115,
+    "upstream_accepts_after": 15846,
+    "upstream_accepts_before": 15731
+  },
+  "failure_class": "QueueFull",
+  "immediate_control": {
+    "body": {
+      "achieved_rate_per_second": 1000.0,
+      "attempts": 1,
+      "elapsed_ms": 0,
+      "failed": 0,
+      "kind": "rate",
+      "max_us": 252,
+      "minimum_rate_per_second": 0.95,
+      "p50_us": 252,
+      "p95_us": 252,
+      "p99_us": 252,
+      "requested": 1,
+      "requested_rate_per_second": 1,
+      "retry_count": 0,
+      "strategy": "one-shot-no-retry",
+      "succeeded": 1
+    },
+    "command": "b7-rate-report 11.0.0.1:443 1 1 /tmp/b7-burst-control.json",
+    "elapsed_ms": 243,
+    "execution_id": "4997909f6c8677fd10952054ae68db79",
+    "status": 200
+  },
+  "prior_observer_diagnosis": {
+    "cause": "the legacy parser looked for counter as a sibling of rule.comment, but nft -j stores it in rule.expr; it therefore returned zero for every commented rule. The observed service real UID is 65534, so the skuid filter itself does not explain the historical zero",
+    "historical_derived_rejected_syn": -107,
+    "historical_raw_syn_packets": 0,
+    "historical_run": "b7-diagnostic-20260930T210309Z-1170989",
+    "historical_successful_connections": 107,
+    "legacy_filter": "meta skuid 65534",
+    "replacement": "packet capture of target SYNs with distinct 4-tuple counting; retransmissions and capture duplicates do not add attempts",
+    "sandbox_agent_uid": 65534,
+    "service_process": {
+      "main_pid": 71950,
+      "real_uid": 65534
+    }
+  },
+  "refused": 141,
+  "requested": 256,
+  "resolve_health": {
+    "control_resolves_excluded": 2,
+    "event_count": 2,
+    "events": [
+      {
+        "delayed_hit": 0,
+        "identity_mismatch": 0,
+        "integrity_failure": 0,
+        "interval_ms": 2169,
+        "latency_max_us": 4465,
+        "not_found": 0,
+        "queue_refusal": 141,
+        "resolved": 116,
+        "revoked": 0,
+        "stale_generation": 0,
+        "timeout": 0,
+        "unavailable": 0
+      },
+      {
+        "delayed_hit": 0,
+        "identity_mismatch": 0,
+        "integrity_failure": 0,
+        "interval_ms": 1317,
+        "latency_max_us": 597,
+        "not_found": 0,
+        "queue_refusal": 0,
+        "resolved": 1,
+        "revoked": 0,
+        "stale_generation": 0,
+        "timeout": 0,
+        "unavailable": 0
+      }
+    ],
+    "label": "burst",
+    "raw_totals": {
+      "delayed_hit": 0,
+      "identity_mismatch": 0,
+      "integrity_failure": 0,
+      "not_found": 0,
+      "queue_refusal": 141,
+      "resolved": 117,
+      "revoked": 0,
+      "stale_generation": 0,
+      "timeout": 0,
+      "unavailable": 0
+    },
+    "source": "production cgroup_bpf.resolve_health structured events",
+    "verdict": "PASS",
+    "workload_attempts": 256,
+    "workload_totals": {
+      "delayed_hit": 0,
+      "identity_mismatch": 0,
+      "integrity_failure": 0,
+      "not_found": 0,
+      "queue_refusal": 141,
+      "resolved": 115,
+      "revoked": 0,
+      "stale_generation": 0,
+      "timeout": 0,
+      "unavailable": 0
+    }
+  },
+  "succeeded": 115,
+  "supported_capacity_claim": false,
+  "verdict": "PASS"
+}

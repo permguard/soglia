@@ -1,0 +1,63 @@
+{
+  "control_resolves_excluded": 1,
+  "event_count": 2,
+  "events": [
+    {
+      "delayed_hit": 1,
+      "identity_mismatch": 0,
+      "integrity_failure": 0,
+      "interval_ms": 1000,
+      "latency_max_us": 23420,
+      "not_found": 0,
+      "queue_refusal": 0,
+      "resolved": 4408,
+      "revoked": 0,
+      "stale_generation": 0,
+      "timeout": 0,
+      "unavailable": 0
+    },
+    {
+      "delayed_hit": 1,
+      "identity_mismatch": 0,
+      "integrity_failure": 0,
+      "interval_ms": 1971,
+      "latency_max_us": 24988,
+      "not_found": 0,
+      "queue_refusal": 0,
+      "resolved": 3785,
+      "revoked": 0,
+      "stale_generation": 0,
+      "timeout": 0,
+      "unavailable": 0
+    }
+  ],
+  "label": "churn",
+  "raw_totals": {
+    "delayed_hit": 2,
+    "identity_mismatch": 0,
+    "integrity_failure": 0,
+    "not_found": 0,
+    "queue_refusal": 0,
+    "resolved": 8193,
+    "revoked": 0,
+    "stale_generation": 0,
+    "timeout": 0,
+    "unavailable": 0
+  },
+  "source": "production cgroup_bpf.resolve_health structured events",
+  "supported_envelope": true,
+  "verdict": "PASS",
+  "workload_attempts": 8192,
+  "workload_totals": {
+    "delayed_hit": 2,
+    "identity_mismatch": 0,
+    "integrity_failure": 0,
+    "not_found": 0,
+    "queue_refusal": 0,
+    "resolved": 8192,
+    "revoked": 0,
+    "stale_generation": 0,
+    "timeout": 0,
+    "unavailable": 0
+  }
+}

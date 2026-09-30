@@ -1,0 +1,49 @@
+runtime:
+  uid: 65534
+  gid: 65534
+  state_dir: /run/soglia-b2
+  max_concurrency: 2
+  max_queue: 2
+  cleanup_failure_threshold: 1
+  teardown_timeout_ms: 5000
+  runc: /usr/sbin/runc
+  nft: /usr/sbin/nft
+  ip: /usr/sbin/ip
+  bpftool: /usr/sbin/bpftool
+ingress:
+  listen: 127.0.0.1:18092
+network:
+  backend: cgroup-bpf
+  execution_pool: 10.201.0.0/24
+  proxy_address: 10.200.255.1
+  proxy_port: 15001
+egress:
+  connect_timeout_ms: 1000
+  idle_timeout_ms: 2000
+  allow:
+    - { host: allowed.test, ports: [443] }
+cgroup:
+  root: /sys/fs/cgroup/system.slice/soglia-b2.service
+cgroup_bpf:
+  max_tracked_sockets: 64
+  resolve_timeout_ms: 2000
+  ring_buffer_bytes: 65536
+  pin_root: /sys/fs/bpf/soglia-b2
+agents:
+  probe:
+    rootfs: /var/tmp/soglia-b2-rootfs
+    # 40000 == 0x9c40 and byte-swaps to 16540 == 0x409c. Keeping this
+    # deterministic prevents the tuple-byte-order case from receiving a
+    # byte-symmetric ephemeral source port.
+    command: ["/agent", "proxy-http allowed.test:443 40000"]
+    env: {}
+    timeout_ms: 10000
+  concurrent:
+    rootfs: /var/tmp/soglia-b2-rootfs
+    # Four non-byte-symmetric source ports. The agent records every connect outcome in a tmpfs
+    # while remaining alive long enough for the trusted driver to copy the evidence through /proc.
+    command: ["/agent", "proxy-fixed-report 40000 4 /tmp/client-outcomes.jsonl 10"]
+    env: {}
+    timeout_ms: 15000
+    tmpfs:
+      - { path: /tmp, size_bytes: 1048576 }

@@ -1,0 +1,270 @@
+{
+  "mode": "owned_link_detach",
+  "started_monotonic": 364.980310455,
+  "active_state_before_mutation": {
+    "schema": 3,
+    "abi": 2,
+    "phase": "READY",
+    "state_id": [
+      168,
+      149,
+      46,
+      81,
+      74,
+      210,
+      170,
+      46,
+      60,
+      234,
+      102,
+      61,
+      4,
+      87,
+      167,
+      93
+    ],
+    "generation": 1,
+    "object_sha256": "3deda346efe5da381ebe4efa2da222f24edc8b6a007c0afe3d82895addc09102",
+    "config_sha256": "dfdf65fca827b9560901251745cb98d939655779ba1855c21e260a9a7416020c",
+    "attachment_target": "/sys/fs/cgroup/system.slice/soglia-b7-owned-link-detach.service/executions",
+    "attachment_inode": 20506,
+    "attachment_handle": {
+      "handle_type": 254,
+      "handle": [
+        26,
+        80,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "mount_id_unique": 4294967336
+    },
+    "pin_root": "/sys/fs/bpf/soglia-b7/drift-owned-link-detach/a8952e514ad2aa2e3cea663d0457a75d-g1",
+    "maps": [
+      {
+        "name": "soglia_meta",
+        "id": 224,
+        "key_size": 4,
+        "value_size": 40,
+        "max_entries": 1,
+        "pin": "/sys/fs/bpf/soglia-b7/drift-owned-link-detach/a8952e514ad2aa2e3cea663d0457a75d-g1/maps/soglia_meta"
+      },
+      {
+        "name": "soglia_policy",
+        "id": 222,
+        "key_size": 8,
+        "value_size": 40,
+        "max_entries": 2,
+        "pin": "/sys/fs/bpf/soglia-b7/drift-owned-link-detach/a8952e514ad2aa2e3cea663d0457a75d-g1/maps/soglia_policy"
+      },
+      {
+        "name": "soglia_cookie_a",
+        "id": 219,
+        "key_size": 8,
+        "value_size": 32,
+        "max_entries": 64,
+        "pin": "/sys/fs/bpf/soglia-b7/drift-owned-link-detach/a8952e514ad2aa2e3cea663d0457a75d-g1/maps/soglia_cookie_a"
+      },
+      {
+        "name": "soglia_tuples",
+        "id": 221,
+        "key_size": 16,
+        "value_size": 48,
+        "max_entries": 64,
+        "pin": "/sys/fs/bpf/soglia-b7/drift-owned-link-detach/a8952e514ad2aa2e3cea663d0457a75d-g1/maps/soglia_tuples"
+      },
+      {
+        "name": "soglia_counters",
+        "id": 217,
+        "key_size": 4,
+        "value_size": 8,
+        "max_entries": 26,
+        "pin": "/sys/fs/bpf/soglia-b7/drift-owned-link-detach/a8952e514ad2aa2e3cea663d0457a75d-g1/maps/soglia_counters"
+      },
+      {
+        "name": "soglia_denies",
+        "id": 218,
+        "key_size": 32,
+        "value_size": 8,
+        "max_entries": 2,
+        "pin": "/sys/fs/bpf/soglia-b7/drift-owned-link-detach/a8952e514ad2aa2e3cea663d0457a75d-g1/maps/soglia_denies"
+      },
+      {
+        "name": "soglia_events",
+        "id": 220,
+        "key_size": 0,
+        "value_size": 0,
+        "max_entries": 65536,
+        "pin": "/sys/fs/bpf/soglia-b7/drift-owned-link-detach/a8952e514ad2aa2e3cea663d0457a75d-g1/maps/soglia_events"
+      }
+    ],
+    "programs": [
+      {
+        "symbol": "soglia_sock_create",
+        "id": 614,
+        "kernel_name": "soglia_sock_create",
+        "program_type": "BPF_PROG_TYPE_CGROUP_SOCK",
+        "tag": 12626944358849527452
+      },
+      {
+        "symbol": "soglia_connect4",
+        "id": 615,
+        "kernel_name": "soglia_connect4",
+        "program_type": "BPF_PROG_TYPE_CGROUP_SOCK_ADDR",
+        "tag": 12845370664493608589
+      },
+      {
+        "symbol": "soglia_connect6",
+        "id": 616,
+        "kernel_name": "soglia_connect6",
+        "program_type": "BPF_PROG_TYPE_CGROUP_SOCK_ADDR",
+        "tag": 15864753419888867284
+      },
+      {
+        "symbol": "soglia_sendmsg4",
+        "id": 617,
+        "kernel_name": "soglia_sendmsg4",
+        "program_type": "BPF_PROG_TYPE_CGROUP_SOCK_ADDR",
+        "tag": 14872533123478428682
+      },
+      {
+        "symbol": "soglia_sendmsg6",
+        "id": 618,
+        "kernel_name": "soglia_sendmsg6",
+        "program_type": "BPF_PROG_TYPE_CGROUP_SOCK_ADDR",
+        "tag": 10596496531753336652
+      },
+      {
+        "symbol": "soglia_sockops",
+        "id": 619,
+        "kernel_name": "soglia_sockops",
+        "program_type": "BPF_PROG_TYPE_SOCK_OPS",
+        "tag": 11685218317444006836
+      }
+    ],
+    "links": [
+      {
+        "name": "sock_create",
+        "id": 82,
+        "program_id": 614,
+        "link_type": "Cgroup",
+        "target_inode": 20506,
+        "pin": "/sys/fs/bpf/soglia-b7/drift-owned-link-detach/a8952e514ad2aa2e3cea663d0457a75d-g1/links/sock_create"
+      },
+      {
+        "name": "connect4",
+        "id": 83,
+        "program_id": 615,
+        "link_type": "Cgroup",
+        "target_inode": 20506,
+        "pin": "/sys/fs/bpf/soglia-b7/drift-owned-link-detach/a8952e514ad2aa2e3cea663d0457a75d-g1/links/connect4"
+      },
+      {
+        "name": "connect6",
+        "id": 84,
+        "program_id": 616,
+        "link_type": "Cgroup",
+        "target_inode": 20506,
+        "pin": "/sys/fs/bpf/soglia-b7/drift-owned-link-detach/a8952e514ad2aa2e3cea663d0457a75d-g1/links/connect6"
+      },
+      {
+        "name": "sendmsg4",
+        "id": 85,
+        "program_id": 617,
+        "link_type": "Cgroup",
+        "target_inode": 20506,
+        "pin": "/sys/fs/bpf/soglia-b7/drift-owned-link-detach/a8952e514ad2aa2e3cea663d0457a75d-g1/links/sendmsg4"
+      },
+      {
+        "name": "sendmsg6",
+        "id": 86,
+        "program_id": 618,
+        "link_type": "Cgroup",
+        "target_inode": 20506,
+        "pin": "/sys/fs/bpf/soglia-b7/drift-owned-link-detach/a8952e514ad2aa2e3cea663d0457a75d-g1/links/sendmsg6"
+      },
+      {
+        "name": "sock_ops",
+        "id": 87,
+        "program_id": 619,
+        "link_type": "Cgroup",
+        "target_inode": 20506,
+        "pin": "/sys/fs/bpf/soglia-b7/drift-owned-link-detach/a8952e514ad2aa2e3cea663d0457a75d-g1/links/sock_ops"
+      }
+    ],
+    "ancestor_bpf": [],
+    "resource_envelope": {
+      "memlock_soft": 8388608,
+      "memlock_hard": 8388608,
+      "nofile_soft": 1024,
+      "nofile_hard": 524288,
+      "enforcer_fds_before_load": 7,
+      "policy_capacity": 2,
+      "tracked_socket_capacity": 64,
+      "ring_buffer_bytes": 65536
+    },
+    "executions": {
+      "e2dd232b71": {
+        "id": "e2dd232b715a46546d93f3fb5cfc5b39",
+        "tag": "e2dd232b71",
+        "slot": 0,
+        "cgroup_inode": 20653,
+        "binding": {
+          "cgroup_id": 20653,
+          "execution_nonce": [
+            47,
+            8,
+            23,
+            217,
+            38,
+            208,
+            44,
+            254,
+            15,
+            5,
+            96,
+            109,
+            63,
+            0,
+            190,
+            35
+          ],
+          "backend_generation": 1
+        },
+        "phase": "ACTIVE"
+      }
+    }
+  },
+  "owned_link_before": {
+    "id": 83,
+    "type": "cgroup",
+    "prog_id": 615,
+    "cgroup_id": 20506,
+    "attach_type": "cgroup_inet4_connect",
+    "qualification_bpftool_exit_status": 255
+  },
+  "owned_pin": "/sys/fs/bpf/soglia-b7/drift-owned-link-detach/a8952e514ad2aa2e3cea663d0457a75d-g1/links/connect4",
+  "harness_injected_pins": [],
+  "health_interval_ms": 1000,
+  "deterministic_tolerance_ms": 2000,
+  "transition_ms": 937,
+  "process_stopped": true,
+  "admission_refused": true,
+  "request_worker_finished": true,
+  "active_invocation_cancelled": true,
+  "active_invocation_cancel_reason": "eof_without_response",
+  "request": {
+    "response": ""
+  },
+  "runtime_helper_lost_event": true,
+  "silent_in_process_repair": false,
+  "harness_injected_teardown": {
+    "wildcard_deletion": false,
+    "removed_exact_pins": [],
+    "verdict": "PASS"
+  },
+  "verdict": "PASS"
+}

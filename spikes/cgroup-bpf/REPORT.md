@@ -981,6 +981,92 @@ Historical note: the first authoritative B2 run
 [`b2-20260928T060551Z-8414`](evidence/authoritative/b2-20260928T060551Z-8414/)
 must not be cited as qualification of the source-port byte-order invariant.
 
+## Final unified B1-B7 production qualification
+
+**Status: COMPLETE PASS on one unchanged production baseline.**  The final
+authoritative sequence qualifies Candidate A and the production
+`CgroupBpfBackend` at production commit
+`db6e1ac21a957b5fd8de96f5e3a719db1d897723`.  Every gate records
+`production_source_baseline.matches: true`, an empty working-tree diff, a fresh
+authoritative VM and cleanup `PASS`.  The seven promoted runs are:
+
+| Gate | Authoritative run | Source fingerprint | Checksums | Cleanup inventory |
+| ---- | ----------------- | ------------------ | --------- | ----------------- |
+| B1 | [`b1-20260930T150949Z-8734`](evidence/authoritative/b1-20260930T150949Z-8734/) | `4824d1bbb1c567a11ca2c338212cb76cefea805c` | 151/151 | programs `EXTERNAL_CHURN`; links/maps `MATCH` |
+| B2 | [`b2-20260930T163724Z-8764`](evidence/authoritative/b2-20260930T163724Z-8764/) | `4824d1bbb1c567a11ca2c338212cb76cefea805c` | 362/362 | programs `EXTERNAL_CHURN`; links/maps `MATCH` |
+| B3 | [`b3-20260930T164122Z-8761`](evidence/authoritative/b3-20260930T164122Z-8761/) | `4824d1bbb1c567a11ca2c338212cb76cefea805c` | 1920/1920 | programs `EXTERNAL_CHURN`; links/maps `MATCH` |
+| B4 | [`b4-20260930T164653Z-8823`](evidence/authoritative/b4-20260930T164653Z-8823/) | `4824d1bbb1c567a11ca2c338212cb76cefea805c` | 89/89 | programs `EXTERNAL_CHURN`; links/maps `MATCH` |
+| B5 | [`b5-20260930T165141Z-8741`](evidence/authoritative/b5-20260930T165141Z-8741/) | `4824d1bbb1c567a11ca2c338212cb76cefea805c` | 152/152 | programs `EXTERNAL_CHURN`; links/maps `MATCH` |
+| B6 | [`b6-20260930T165432Z-8758`](evidence/authoritative/b6-20260930T165432Z-8758/) | `4824d1bbb1c567a11ca2c338212cb76cefea805c` | 917/917 | programs `EXTERNAL_CHURN`; links/maps `MATCH` |
+| B7 | [`b7-20260930T220538Z-8812`](evidence/authoritative/b7-20260930T220538Z-8812/) | `57a072154dd538c02efe0bf9ac62a170a294a030` | 186/186 | programs `EXTERNAL_CHURN`; links/maps `MATCH` |
+
+All 3,777 recorded checksum entries verify.  The B7 fingerprint differs from
+the B1-B6 harness fingerprint only after the reviewed B7 harness corrections
+and report-only commits; its production tree still matches `db6e1ac` exactly.
+The systemd-owned program replacement accepted as `EXTERNAL_CHURN` preserves
+the complete non-owned name/type/tag set and leaves no Soglia-owned program,
+link, map, pin or runtime resource behind.
+
+The unified sequence closes the normative qualification matrix:
+
+- **B1** qualifies the six-link production attach topology, true effective
+  inventory, real delegation, READY-last ordering, typed startup refusals,
+  synchronous rollback and crash recovery.
+- **B2** proves exact subject placement and Candidate-A attribution, including
+  typed negative outcomes, bounded concurrent timeouts, no pre-Resolve read,
+  no IP fallback and no DNS or outbound side effect.
+- **B3** proves whole-`BindingKey` isolation, lifecycle and generation
+  boundaries, stale-close protection, tunnel revocation and the freeze/Resolve
+  race.  Actual cgroup-ID reuse remains `NOT_PERFORMED` because the recorded
+  kernel did not reuse a destroyed 64-bit identity; deterministic stale-nonce
+  and stale-generation cases are covered.
+- **B4** proves fail-closed admission, policy, cookie, tuple, Resolve-queue and
+  event-ring capacity behavior with recovery controls after every injected
+  saturation or duplicate.
+- **B5** proves the enforcement composition: BPF early deny, nftables as the
+  final post-rewrite destination barrier, namespace confinement, supported
+  foreign-ancestor coexistence and proxy steering outside BPF.  The unreachable
+  `connect6`/`sendmsg4`/`sendmsg6` paths and optional direct TCP Fast Open case
+  remain explicitly `NOT_PERFORMED` as recorded in the run.
+- **B6** proves readiness, typed S13 refusal and preservation, process/helper
+  loss, interrupted recovery and exact `TargetReleased` recovery for an offline
+  systemd target, including the negative controls.
+- **B7** proves the declared M0-M3 resource envelope, constant shared topology
+  of six programs, six links, seven maps and thirteen pins, production
+  observability, both integrity-drift transitions and cleanup.  The supported
+  claims remain bounded to 512 simultaneously live sockets and 32 simultaneous
+  new admissions under the recorded production `RLIMIT_NOFILE=1024`; maps were
+  configured to 4,096 tracked sockets but 4,096 live sockets were not claimed.
+
+In the authoritative B7 out-of-envelope burst, 256 simultaneous requests
+produce 115 successful connections and 141 typed `QueueFull` refusals.  Packet
+capture records exactly 115 raw SYNs and 115 distinct source/destination
+4-tuples, with zero retransmissions, zero outbound attempts or accepts for the
+141 refused connections and zero DNS packets.  The immediate post-burst control
+resolves successfully without retry.  Thus the burst characterizes the bounded
+fail-closed refusal path; it is not promoted into the supported envelope.
+
+B7 records the three cleanup boundaries independently.  With the runtime still
+active, every workload's closed Executions have zero policy, cookie, tuple and
+deny entries and no owned cgroup, netns, veth, runtime bundle or ownership
+record.  After service stop and before harness deletion, each row retains
+exactly its registered persistent generation and no unregistered object.  Only
+then does the harness remove exact registered paths, without wildcard cleanup;
+every row, both drift cases and the final global inventory report `PASS`.
+The foreign-direct-link and owned-link-detach drift cases stop admission and
+effect-producing work in 932 ms and 937 ms respectively, within the recorded
+one-second health interval plus deterministic tolerance, with no silent
+in-process repair.
+
+This COMPLETE PASS closes B1-B7 qualification for the exact recorded platform
+and production baseline.  It does **not** by itself change the default backend,
+replace the T1-T9/H1-H4 and no-eBPF regressions, qualify an installation or
+uninstallation path, or authorize a release.  Those remain separate Phase 1
+steps.  The availability and kernel-pressure follow-ups are intentionally
+unchanged in [Deferred work: independent Resolve queue depth](#deferred-work-independent-resolve-queue-depth)
+and [Deferred work: warm pool of never-used Executions](#deferred-work-warm-pool-of-never-used-executions),
+including the warm-pool and churn risks documented there.
+
 ## Deferred work: independent Resolve queue depth
 
 Status: decided on 2026-09-30 during the B7 review; the Phase 1 choice is recorded here, the follow-up is not implemented.

@@ -1,0 +1,54 @@
+{
+  "after_c_plus_one": {
+    "connect4_deny": 1,
+    "cookie_insert_failed": 1,
+    "cookie_miss": 0,
+    "cookies": 4,
+    "events_dropped": 0,
+    "policies": 1,
+    "published": 5,
+    "tuple_insert_failed": 0,
+    "tuples": 0,
+    "unpublished": 0
+  },
+  "at_capacity": {
+    "connect4_deny": 0,
+    "cookie_insert_failed": 0,
+    "cookie_miss": 0,
+    "cookies": 4,
+    "events_dropped": 0,
+    "policies": 1,
+    "published": 5,
+    "tuple_insert_failed": 0,
+    "tuples": 0,
+    "unpublished": 0
+  },
+  "before": {
+    "connect4_deny": 0,
+    "cookie_insert_failed": 0,
+    "cookie_miss": 0,
+    "cookies": 0,
+    "events_dropped": 0,
+    "policies": 1,
+    "published": 1,
+    "tuple_insert_failed": 0,
+    "tuples": 0,
+    "unpublished": 0
+  },
+  "c_plus_one_client": {
+    "cmd": "proxy-capacity-report",
+    "cookie": 19,
+    "detail": "Operation not permitted (os error 1)",
+    "elapsed_ms": 0,
+    "errno": 1,
+    "ok": false,
+    "phase": "plus_result",
+    "source_port": 40004
+  },
+  "c_plus_one_cookie": 19,
+  "c_plus_one_cookie_absent_before_connect": true,
+  "capacity": 4,
+  "health_failure": null,
+  "proxy_accept_count": 4,
+  "verdict": "PASS"
+}

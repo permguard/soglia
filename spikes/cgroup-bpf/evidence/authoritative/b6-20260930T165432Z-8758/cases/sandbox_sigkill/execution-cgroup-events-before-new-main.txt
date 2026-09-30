@@ -1,0 +1,2 @@
+cgroup=/sys/fs/cgroup/system.slice/soglia-b6-sandbox-sigkill.service/executions/0a722d5a2d state=ABSENT_AFTER_VERIFIED_KILL
+cgroup=/sys/fs/cgroup/system.slice/soglia-b6-sandbox-sigkill.service/executions/ff34d913e3 state=ABSENT_AFTER_VERIFIED_KILL

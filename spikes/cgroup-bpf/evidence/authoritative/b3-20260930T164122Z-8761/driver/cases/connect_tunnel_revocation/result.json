@@ -1,0 +1,74 @@
+{
+  "binding": {
+    "backend_generation": 1,
+    "cgroup_id": 28770,
+    "execution_nonce": [
+      238,
+      46,
+      229,
+      173,
+      57,
+      51,
+      38,
+      222,
+      10,
+      20,
+      176,
+      195,
+      252,
+      14,
+      31,
+      23
+    ]
+  },
+  "case": "CONNECT_TUNNEL_REVOCATION",
+  "effects_after_freeze": {
+    "dns": 1,
+    "outbound": 1
+  },
+  "effects_at_freeze": {
+    "dns": 1,
+    "outbound": 1
+  },
+  "execution_id": "058064c3ffa17accd09998b7bf392ac9",
+  "health_failure": null,
+  "observation": {
+    "cookie": 12466,
+    "dns_when_resolve_returned": 0,
+    "elapsed_ms": 0,
+    "health_failure": null,
+    "index": 0,
+    "local": "10.200.255.1:15001",
+    "mismatch": null,
+    "outbound_when_resolve_returned": 0,
+    "outcome": "RESOLVED",
+    "peer": "10.201.0.1:45000",
+    "recv_q_bytes": 61,
+    "resolved_execution": "058064c3ffa17accd09998b7bf392ac9",
+    "tuple_binding": {
+      "backend_generation": 1,
+      "cgroup_id": 28770,
+      "execution_nonce": [
+        238,
+        46,
+        229,
+        173,
+        57,
+        51,
+        38,
+        222,
+        10,
+        20,
+        176,
+        195,
+        252,
+        14,
+        31,
+        23
+      ]
+    }
+  },
+  "report_after_revocation": "{\"cmd\":\"proxy-connect-report\",\"ok\":true,\"detail\":\"HTTP/1.1 200 OK\",\"i\":0,\"source_port\":45000,\"local\":\"10.201.0.1:45000\",\"proxy_destination\":\"10.200.255.1:15001\",\"mode\":\"hold\",\"phase\":\"established\",\"elapsed_ms\":4}\n{\"cmd\":\"proxy-connect-report\",\"ok\":true,\"detail\":\"proxy closed the tunnel\",\"i\":0,\"source_port\":45000,\"mode\":\"hold\",\"phase\":\"closed\",\"elapsed_ms\":5}\n",
+  "report_before_revocation": "{\"cmd\":\"proxy-connect-report\",\"ok\":true,\"detail\":\"HTTP/1.1 200 OK\",\"i\":0,\"source_port\":45000,\"local\":\"10.201.0.1:45000\",\"proxy_destination\":\"10.200.255.1:15001\",\"mode\":\"hold\",\"phase\":\"established\",\"elapsed_ms\":4}\n",
+  "tunnel_closed_by_revocation": true
+}

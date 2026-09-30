@@ -1,0 +1,816 @@
+{
+  "b2_overlap": [
+    "tuple/execution_nonce",
+    "tuple/backend_generation",
+    "missing cookie was covered separately by B2"
+  ],
+  "durable_record_cells": "recorded after controlled Enforcer restart in backend_generation",
+  "map_and_live_cells": [
+    {
+      "agent_report": "{\"cmd\":\"proxy-connect-report\",\"ok\":false,\"errno\":104,\"error\":\"Connection reset by peer (os error 104)\",\"i\":0,\"source_port\":43000,\"local\":\"10.201.0.1:43000\",\"proxy_destination\":\"10.200.255.1:15001\",\"mode\":\"close\",\"phase\":\"established\",\"elapsed_ms\":15}\n",
+      "boundary": "TUPLE",
+      "covered_by_b2": false,
+      "expected": {
+        "mismatch": "CGROUP_ID",
+        "outcome": "IDENTITY_MISMATCH"
+      },
+      "field": "CGROUP_ID",
+      "index": 0,
+      "observation": {
+        "cookie": 4126,
+        "dns_when_resolve_returned": 0,
+        "elapsed_ms": 11,
+        "health_failure": null,
+        "index": 0,
+        "local": "10.200.255.1:15001",
+        "mismatch": "CGROUP_ID",
+        "outbound_when_resolve_returned": 0,
+        "outcome": "IDENTITY_MISMATCH",
+        "peer": "10.201.0.1:43000",
+        "recv_q_bytes": 61,
+        "resolved_execution": null,
+        "tuple_binding": {
+          "backend_generation": 1,
+          "cgroup_id": 8496,
+          "execution_nonce": [
+            169,
+            26,
+            230,
+            65,
+            209,
+            38,
+            46,
+            185,
+            163,
+            22,
+            136,
+            174,
+            199,
+            205,
+            63,
+            23
+          ]
+        }
+      },
+      "production_code_modified": false,
+      "single_boundary_mutation": true,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": "{\"cmd\":\"proxy-connect-report\",\"ok\":false,\"errno\":104,\"error\":\"Connection reset by peer (os error 104)\",\"i\":0,\"source_port\":43000,\"local\":\"10.201.0.1:43000\",\"proxy_destination\":\"10.200.255.1:15001\",\"mode\":\"close\",\"phase\":\"established\",\"elapsed_ms\":14}\n",
+      "boundary": "TUPLE",
+      "covered_by_b2": true,
+      "expected": {
+        "mismatch": "EXECUTION_NONCE",
+        "outcome": "IDENTITY_MISMATCH"
+      },
+      "field": "EXECUTION_NONCE",
+      "index": 1,
+      "observation": {
+        "cookie": 8225,
+        "dns_when_resolve_returned": 0,
+        "elapsed_ms": 8,
+        "health_failure": null,
+        "index": 0,
+        "local": "10.200.255.1:15001",
+        "mismatch": "EXECUTION_NONCE",
+        "outbound_when_resolve_returned": 0,
+        "outcome": "IDENTITY_MISMATCH",
+        "peer": "10.201.0.1:43000",
+        "recv_q_bytes": 61,
+        "resolved_execution": null,
+        "tuple_binding": {
+          "backend_generation": 1,
+          "cgroup_id": 8589,
+          "execution_nonce": [
+            212,
+            94,
+            77,
+            85,
+            153,
+            67,
+            118,
+            0,
+            250,
+            164,
+            234,
+            209,
+            164,
+            137,
+            131,
+            162
+          ]
+        }
+      },
+      "production_code_modified": false,
+      "single_boundary_mutation": true,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": "{\"cmd\":\"proxy-connect-report\",\"ok\":false,\"errno\":104,\"error\":\"Connection reset by peer (os error 104)\",\"i\":0,\"source_port\":43000,\"local\":\"10.201.0.1:43000\",\"proxy_destination\":\"10.200.255.1:15001\",\"mode\":\"close\",\"phase\":\"established\",\"elapsed_ms\":17}\n",
+      "boundary": "TUPLE",
+      "covered_by_b2": true,
+      "expected": {
+        "mismatch": "BACKEND_GENERATION",
+        "outcome": "IDENTITY_MISMATCH"
+      },
+      "field": "BACKEND_GENERATION",
+      "index": 2,
+      "observation": {
+        "cookie": 4128,
+        "dns_when_resolve_returned": 0,
+        "elapsed_ms": 11,
+        "health_failure": null,
+        "index": 0,
+        "local": "10.200.255.1:15001",
+        "mismatch": "BACKEND_GENERATION",
+        "outbound_when_resolve_returned": 0,
+        "outcome": "IDENTITY_MISMATCH",
+        "peer": "10.201.0.1:43000",
+        "recv_q_bytes": 61,
+        "resolved_execution": null,
+        "tuple_binding": {
+          "backend_generation": 1,
+          "cgroup_id": 8682,
+          "execution_nonce": [
+            110,
+            59,
+            188,
+            169,
+            233,
+            63,
+            166,
+            113,
+            150,
+            4,
+            57,
+            104,
+            189,
+            139,
+            129,
+            240
+          ]
+        }
+      },
+      "production_code_modified": false,
+      "single_boundary_mutation": true,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": "{\"cmd\":\"proxy-connect-report\",\"ok\":false,\"errno\":104,\"error\":\"Connection reset by peer (os error 104)\",\"i\":0,\"source_port\":43000,\"local\":\"10.201.0.1:43000\",\"proxy_destination\":\"10.200.255.1:15001\",\"mode\":\"close\",\"phase\":\"established\",\"elapsed_ms\":13}\n",
+      "boundary": "COOKIE",
+      "covered_by_b2": false,
+      "expected": {
+        "mismatch": "COOKIE",
+        "outcome": "IDENTITY_MISMATCH"
+      },
+      "field": "CGROUP_ID",
+      "index": 3,
+      "observation": {
+        "cookie": 8227,
+        "dns_when_resolve_returned": 0,
+        "elapsed_ms": 7,
+        "health_failure": null,
+        "index": 0,
+        "local": "10.200.255.1:15001",
+        "mismatch": "COOKIE",
+        "outbound_when_resolve_returned": 0,
+        "outcome": "IDENTITY_MISMATCH",
+        "peer": "10.201.0.1:43000",
+        "recv_q_bytes": 61,
+        "resolved_execution": null,
+        "tuple_binding": {
+          "backend_generation": 1,
+          "cgroup_id": 8775,
+          "execution_nonce": [
+            100,
+            196,
+            211,
+            127,
+            5,
+            206,
+            203,
+            114,
+            123,
+            224,
+            116,
+            201,
+            67,
+            247,
+            249,
+            118
+          ]
+        }
+      },
+      "production_code_modified": false,
+      "single_boundary_mutation": true,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": "{\"cmd\":\"proxy-connect-report\",\"ok\":false,\"errno\":104,\"error\":\"Connection reset by peer (os error 104)\",\"i\":0,\"source_port\":43000,\"local\":\"10.201.0.1:43000\",\"proxy_destination\":\"10.200.255.1:15001\",\"mode\":\"close\",\"phase\":\"established\",\"elapsed_ms\":12}\n",
+      "boundary": "COOKIE",
+      "covered_by_b2": false,
+      "expected": {
+        "mismatch": "COOKIE",
+        "outcome": "IDENTITY_MISMATCH"
+      },
+      "field": "EXECUTION_NONCE",
+      "index": 4,
+      "observation": {
+        "cookie": 12304,
+        "dns_when_resolve_returned": 0,
+        "elapsed_ms": 7,
+        "health_failure": null,
+        "index": 0,
+        "local": "10.200.255.1:15001",
+        "mismatch": "COOKIE",
+        "outbound_when_resolve_returned": 0,
+        "outcome": "IDENTITY_MISMATCH",
+        "peer": "10.201.0.1:43000",
+        "recv_q_bytes": 61,
+        "resolved_execution": null,
+        "tuple_binding": {
+          "backend_generation": 1,
+          "cgroup_id": 8868,
+          "execution_nonce": [
+            60,
+            131,
+            213,
+            54,
+            209,
+            216,
+            42,
+            30,
+            218,
+            7,
+            1,
+            6,
+            231,
+            228,
+            218,
+            44
+          ]
+        }
+      },
+      "production_code_modified": false,
+      "single_boundary_mutation": true,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": "{\"cmd\":\"proxy-connect-report\",\"ok\":false,\"errno\":104,\"error\":\"Connection reset by peer (os error 104)\",\"i\":0,\"source_port\":43000,\"local\":\"10.201.0.1:43000\",\"proxy_destination\":\"10.200.255.1:15001\",\"mode\":\"close\",\"phase\":\"established\",\"elapsed_ms\":16}\n",
+      "boundary": "COOKIE",
+      "covered_by_b2": false,
+      "expected": {
+        "mismatch": "COOKIE",
+        "outcome": "IDENTITY_MISMATCH"
+      },
+      "field": "BACKEND_GENERATION",
+      "index": 5,
+      "observation": {
+        "cookie": 30,
+        "dns_when_resolve_returned": 0,
+        "elapsed_ms": 12,
+        "health_failure": null,
+        "index": 0,
+        "local": "10.200.255.1:15001",
+        "mismatch": "COOKIE",
+        "outbound_when_resolve_returned": 0,
+        "outcome": "IDENTITY_MISMATCH",
+        "peer": "10.201.0.1:43000",
+        "recv_q_bytes": 61,
+        "resolved_execution": null,
+        "tuple_binding": {
+          "backend_generation": 1,
+          "cgroup_id": 8961,
+          "execution_nonce": [
+            219,
+            101,
+            237,
+            238,
+            127,
+            24,
+            23,
+            7,
+            241,
+            170,
+            120,
+            227,
+            186,
+            27,
+            41,
+            49
+          ]
+        }
+      },
+      "production_code_modified": false,
+      "single_boundary_mutation": true,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": "{\"cmd\":\"proxy-connect-report\",\"ok\":false,\"errno\":104,\"error\":\"Connection reset by peer (os error 104)\",\"i\":0,\"source_port\":43000,\"local\":\"10.201.0.1:43000\",\"proxy_destination\":\"10.200.255.1:15001\",\"mode\":\"close\",\"phase\":\"established\",\"elapsed_ms\":17}\n",
+      "boundary": "POLICY",
+      "covered_by_b2": false,
+      "expected": {
+        "mismatch": "POLICY",
+        "outcome": "IDENTITY_MISMATCH"
+      },
+      "field": "CGROUP_ID",
+      "index": 6,
+      "observation": {
+        "cookie": 4131,
+        "dns_when_resolve_returned": 0,
+        "elapsed_ms": 13,
+        "health_failure": null,
+        "index": 0,
+        "local": "10.200.255.1:15001",
+        "mismatch": "POLICY",
+        "outbound_when_resolve_returned": 0,
+        "outcome": "IDENTITY_MISMATCH",
+        "peer": "10.201.0.1:43000",
+        "recv_q_bytes": 61,
+        "resolved_execution": null,
+        "tuple_binding": {
+          "backend_generation": 1,
+          "cgroup_id": 9054,
+          "execution_nonce": [
+            124,
+            23,
+            247,
+            178,
+            159,
+            106,
+            243,
+            33,
+            203,
+            17,
+            212,
+            30,
+            234,
+            246,
+            249,
+            83
+          ]
+        }
+      },
+      "production_code_modified": false,
+      "single_boundary_mutation": true,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": "{\"cmd\":\"proxy-connect-report\",\"ok\":false,\"errno\":104,\"error\":\"Connection reset by peer (os error 104)\",\"i\":0,\"source_port\":43000,\"local\":\"10.201.0.1:43000\",\"proxy_destination\":\"10.200.255.1:15001\",\"mode\":\"close\",\"phase\":\"established\",\"elapsed_ms\":16}\n",
+      "boundary": "POLICY",
+      "covered_by_b2": false,
+      "expected": {
+        "mismatch": "POLICY",
+        "outcome": "IDENTITY_MISMATCH"
+      },
+      "field": "EXECUTION_NONCE",
+      "index": 7,
+      "observation": {
+        "cookie": 4133,
+        "dns_when_resolve_returned": 0,
+        "elapsed_ms": 9,
+        "health_failure": null,
+        "index": 0,
+        "local": "10.200.255.1:15001",
+        "mismatch": "POLICY",
+        "outbound_when_resolve_returned": 0,
+        "outcome": "IDENTITY_MISMATCH",
+        "peer": "10.201.0.1:43000",
+        "recv_q_bytes": 61,
+        "resolved_execution": null,
+        "tuple_binding": {
+          "backend_generation": 1,
+          "cgroup_id": 9147,
+          "execution_nonce": [
+            208,
+            145,
+            97,
+            158,
+            38,
+            144,
+            238,
+            188,
+            50,
+            3,
+            104,
+            176,
+            56,
+            32,
+            81,
+            85
+          ]
+        }
+      },
+      "production_code_modified": false,
+      "single_boundary_mutation": true,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": "{\"cmd\":\"proxy-connect-report\",\"ok\":false,\"errno\":104,\"error\":\"Connection reset by peer (os error 104)\",\"i\":0,\"source_port\":43000,\"local\":\"10.201.0.1:43000\",\"proxy_destination\":\"10.200.255.1:15001\",\"mode\":\"close\",\"phase\":\"established\",\"elapsed_ms\":14}\n",
+      "boundary": "POLICY",
+      "covered_by_b2": false,
+      "expected": {
+        "mismatch": "POLICY",
+        "outcome": "IDENTITY_MISMATCH"
+      },
+      "field": "BACKEND_GENERATION",
+      "index": 8,
+      "observation": {
+        "cookie": 31,
+        "dns_when_resolve_returned": 0,
+        "elapsed_ms": 9,
+        "health_failure": null,
+        "index": 0,
+        "local": "10.200.255.1:15001",
+        "mismatch": "POLICY",
+        "outbound_when_resolve_returned": 0,
+        "outcome": "IDENTITY_MISMATCH",
+        "peer": "10.201.0.1:43000",
+        "recv_q_bytes": 61,
+        "resolved_execution": null,
+        "tuple_binding": {
+          "backend_generation": 1,
+          "cgroup_id": 9240,
+          "execution_nonce": [
+            38,
+            88,
+            23,
+            252,
+            79,
+            186,
+            144,
+            211,
+            129,
+            224,
+            158,
+            81,
+            45,
+            34,
+            194,
+            124
+          ]
+        }
+      },
+      "production_code_modified": false,
+      "single_boundary_mutation": true,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": "{\"cmd\":\"proxy-connect-report\",\"ok\":false,\"errno\":104,\"error\":\"Connection reset by peer (os error 104)\",\"i\":0,\"source_port\":43000,\"local\":\"10.201.0.1:43000\",\"proxy_destination\":\"10.200.255.1:15001\",\"mode\":\"close\",\"phase\":\"established\",\"elapsed_ms\":3}\n",
+      "boundary": "LIVE_BINDING",
+      "covered_by_b2": false,
+      "expected": {
+        "mismatch": null,
+        "outcome": "NOT_FOUND"
+      },
+      "field": "CGROUP_ID",
+      "index": 9,
+      "observation": {
+        "cookie": 8229,
+        "dns_when_resolve_returned": 0,
+        "elapsed_ms": 0,
+        "health_failure": null,
+        "index": 0,
+        "local": "10.200.255.1:15001",
+        "mismatch": null,
+        "outbound_when_resolve_returned": 0,
+        "outcome": "NOT_FOUND",
+        "peer": "10.201.0.1:43000",
+        "recv_q_bytes": 61,
+        "resolved_execution": null,
+        "tuple_binding": {
+          "backend_generation": 1,
+          "cgroup_id": 9333,
+          "execution_nonce": [
+            168,
+            176,
+            240,
+            146,
+            217,
+            46,
+            62,
+            18,
+            143,
+            120,
+            33,
+            101,
+            55,
+            127,
+            87,
+            235
+          ]
+        }
+      },
+      "production_code_modified": false,
+      "single_boundary_mutation": true,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": "{\"cmd\":\"proxy-connect-report\",\"ok\":false,\"errno\":104,\"error\":\"Connection reset by peer (os error 104)\",\"i\":0,\"source_port\":43000,\"local\":\"10.201.0.1:43000\",\"proxy_destination\":\"10.200.255.1:15001\",\"mode\":\"close\",\"phase\":\"established\",\"elapsed_ms\":6}\n",
+      "boundary": "LIVE_BINDING",
+      "covered_by_b2": false,
+      "expected": {
+        "mismatch": null,
+        "outcome": "NOT_FOUND"
+      },
+      "field": "EXECUTION_NONCE",
+      "index": 10,
+      "observation": {
+        "cookie": 33,
+        "dns_when_resolve_returned": 0,
+        "elapsed_ms": 0,
+        "health_failure": null,
+        "index": 0,
+        "local": "10.200.255.1:15001",
+        "mismatch": null,
+        "outbound_when_resolve_returned": 0,
+        "outcome": "NOT_FOUND",
+        "peer": "10.201.0.1:43000",
+        "recv_q_bytes": 61,
+        "resolved_execution": null,
+        "tuple_binding": {
+          "backend_generation": 1,
+          "cgroup_id": 9426,
+          "execution_nonce": [
+            238,
+            241,
+            94,
+            182,
+            136,
+            54,
+            150,
+            15,
+            224,
+            156,
+            135,
+            129,
+            55,
+            115,
+            195,
+            19
+          ]
+        }
+      },
+      "production_code_modified": false,
+      "single_boundary_mutation": true,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": "{\"cmd\":\"proxy-connect-report\",\"ok\":false,\"errno\":104,\"error\":\"Connection reset by peer (os error 104)\",\"i\":0,\"source_port\":43000,\"local\":\"10.201.0.1:43000\",\"proxy_destination\":\"10.200.255.1:15001\",\"mode\":\"close\",\"phase\":\"established\",\"elapsed_ms\":12}\n",
+      "boundary": "LIVE_BINDING",
+      "covered_by_b2": false,
+      "expected": {
+        "mismatch": null,
+        "outcome": "NOT_FOUND"
+      },
+      "field": "BACKEND_GENERATION",
+      "index": 11,
+      "observation": {
+        "cookie": 4137,
+        "dns_when_resolve_returned": 0,
+        "elapsed_ms": 0,
+        "health_failure": null,
+        "index": 0,
+        "local": "10.200.255.1:15001",
+        "mismatch": null,
+        "outbound_when_resolve_returned": 0,
+        "outcome": "NOT_FOUND",
+        "peer": "10.201.0.1:43000",
+        "recv_q_bytes": 61,
+        "resolved_execution": null,
+        "tuple_binding": {
+          "backend_generation": 1,
+          "cgroup_id": 9519,
+          "execution_nonce": [
+            106,
+            184,
+            129,
+            226,
+            73,
+            246,
+            57,
+            12,
+            95,
+            97,
+            60,
+            159,
+            184,
+            98,
+            28,
+            54
+          ]
+        }
+      },
+      "production_code_modified": false,
+      "single_boundary_mutation": true,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": "{\"cmd\":\"proxy-connect-report\",\"ok\":false,\"errno\":104,\"error\":\"Connection reset by peer (os error 104)\",\"i\":0,\"source_port\":43000,\"local\":\"10.201.0.1:43000\",\"proxy_destination\":\"10.200.255.1:15001\",\"mode\":\"close\",\"phase\":\"established\",\"elapsed_ms\":11}\n",
+      "boundary": "TUPLE",
+      "covered_by_b2": false,
+      "expected": {
+        "mismatch": "BACKEND_GENERATION",
+        "outcome": "IDENTITY_MISMATCH"
+      },
+      "field": "OLD_COMPLETE",
+      "index": 12,
+      "observation": {
+        "cookie": 8231,
+        "dns_when_resolve_returned": 0,
+        "elapsed_ms": 8,
+        "health_failure": null,
+        "index": 0,
+        "local": "10.200.255.1:15001",
+        "mismatch": "BACKEND_GENERATION",
+        "outbound_when_resolve_returned": 0,
+        "outcome": "IDENTITY_MISMATCH",
+        "peer": "10.201.0.1:43000",
+        "recv_q_bytes": 61,
+        "resolved_execution": null,
+        "tuple_binding": {
+          "backend_generation": 1,
+          "cgroup_id": 9612,
+          "execution_nonce": [
+            171,
+            211,
+            123,
+            26,
+            145,
+            239,
+            242,
+            71,
+            194,
+            133,
+            69,
+            187,
+            43,
+            39,
+            99,
+            144
+          ]
+        }
+      },
+      "production_code_modified": false,
+      "single_boundary_mutation": true,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": "{\"cmd\":\"proxy-connect-report\",\"ok\":false,\"errno\":104,\"error\":\"Connection reset by peer (os error 104)\",\"i\":0,\"source_port\":43000,\"local\":\"10.201.0.1:43000\",\"proxy_destination\":\"10.200.255.1:15001\",\"mode\":\"close\",\"phase\":\"established\",\"elapsed_ms\":15}\n",
+      "boundary": "TUPLE",
+      "covered_by_b2": false,
+      "expected": {
+        "mismatch": "OWNERSHIP_RECORD",
+        "outcome": "IDENTITY_MISMATCH"
+      },
+      "field": "MIXED",
+      "index": 13,
+      "observation": {
+        "cookie": 8232,
+        "dns_when_resolve_returned": 0,
+        "elapsed_ms": 10,
+        "health_failure": null,
+        "index": 0,
+        "local": "10.200.255.1:15001",
+        "mismatch": "OWNERSHIP_RECORD",
+        "outbound_when_resolve_returned": 0,
+        "outcome": "IDENTITY_MISMATCH",
+        "peer": "10.201.0.1:43000",
+        "recv_q_bytes": 61,
+        "resolved_execution": null,
+        "tuple_binding": {
+          "backend_generation": 1,
+          "cgroup_id": 9705,
+          "execution_nonce": [
+            37,
+            55,
+            250,
+            202,
+            5,
+            83,
+            139,
+            128,
+            19,
+            18,
+            252,
+            213,
+            46,
+            151,
+            21,
+            195
+          ]
+        }
+      },
+      "production_code_modified": false,
+      "single_boundary_mutation": true,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": "{\"cmd\":\"proxy-connect-report\",\"ok\":false,\"errno\":104,\"error\":\"Connection reset by peer (os error 104)\",\"i\":0,\"source_port\":43000,\"local\":\"10.201.0.1:43000\",\"proxy_destination\":\"10.200.255.1:15001\",\"mode\":\"close\",\"phase\":\"established\",\"elapsed_ms\":13}\n",
+      "boundary": "COOKIE",
+      "covered_by_b2": false,
+      "expected": {
+        "mismatch": "COOKIE",
+        "outcome": "IDENTITY_MISMATCH"
+      },
+      "field": "OLD_COMPLETE",
+      "index": 14,
+      "observation": {
+        "cookie": 4140,
+        "dns_when_resolve_returned": 0,
+        "elapsed_ms": 6,
+        "health_failure": null,
+        "index": 0,
+        "local": "10.200.255.1:15001",
+        "mismatch": "COOKIE",
+        "outbound_when_resolve_returned": 0,
+        "outcome": "IDENTITY_MISMATCH",
+        "peer": "10.201.0.1:43000",
+        "recv_q_bytes": 61,
+        "resolved_execution": null,
+        "tuple_binding": {
+          "backend_generation": 1,
+          "cgroup_id": 9798,
+          "execution_nonce": [
+            133,
+            11,
+            36,
+            247,
+            16,
+            23,
+            61,
+            50,
+            76,
+            187,
+            174,
+            229,
+            148,
+            137,
+            119,
+            163
+          ]
+        }
+      },
+      "production_code_modified": false,
+      "single_boundary_mutation": true,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": "{\"cmd\":\"proxy-connect-report\",\"ok\":false,\"errno\":104,\"error\":\"Connection reset by peer (os error 104)\",\"i\":0,\"source_port\":43000,\"local\":\"10.201.0.1:43000\",\"proxy_destination\":\"10.200.255.1:15001\",\"mode\":\"close\",\"phase\":\"established\",\"elapsed_ms\":16}\n",
+      "boundary": "COOKIE",
+      "covered_by_b2": false,
+      "expected": {
+        "mismatch": "COOKIE",
+        "outcome": "IDENTITY_MISMATCH"
+      },
+      "field": "MIXED",
+      "index": 15,
+      "observation": {
+        "cookie": 12317,
+        "dns_when_resolve_returned": 0,
+        "elapsed_ms": 12,
+        "health_failure": null,
+        "index": 0,
+        "local": "10.200.255.1:15001",
+        "mismatch": "COOKIE",
+        "outbound_when_resolve_returned": 0,
+        "outcome": "IDENTITY_MISMATCH",
+        "peer": "10.201.0.1:43000",
+        "recv_q_bytes": 61,
+        "resolved_execution": null,
+        "tuple_binding": {
+          "backend_generation": 1,
+          "cgroup_id": 9891,
+          "execution_nonce": [
+            32,
+            204,
+            215,
+            121,
+            151,
+            242,
+            22,
+            201,
+            134,
+            41,
+            68,
+            87,
+            120,
+            113,
+            209,
+            126
+          ]
+        }
+      },
+      "production_code_modified": false,
+      "single_boundary_mutation": true,
+      "verdict": "PASS"
+    }
+  ],
+  "required_classes": {
+    "current_cgroup_current_nonce_stale_generation": "covered across tuple, cookie, policy and live_binding",
+    "current_cgroup_stale_nonce": "covered across tuple, cookie, policy and live_binding",
+    "old_complete_or_mixed_cookie_tuple": "covered by four additional cells",
+    "stale_cgroup_current_nonce_generation": "covered across tuple, cookie, policy and live_binding"
+  }
+}

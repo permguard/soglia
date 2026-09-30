@@ -1,0 +1,6 @@
+cgroup=/sys/fs/cgroup/system.slice/soglia-b6-sandbox-sigkill.service/executions/0a722d5a2d
+populated 1
+frozen 1
+cgroup=/sys/fs/cgroup/system.slice/soglia-b6-sandbox-sigkill.service/executions/ff34d913e3
+populated 1
+frozen 0

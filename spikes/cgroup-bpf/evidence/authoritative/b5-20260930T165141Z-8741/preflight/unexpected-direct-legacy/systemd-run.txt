@@ -1,0 +1,7 @@
+Running as unit: soglia-b5-unexpected-legacy.service; invocation ID: 4be37500c4b04ec99ab606f4ad7c6dc2
+Finished with result: exit-code
+Main processes terminated with: code=exited/status=20
+Service runtime: 102ms
+CPU time consumed: 21ms
+Memory peak: 332.0K
+Memory swap peak: 0B

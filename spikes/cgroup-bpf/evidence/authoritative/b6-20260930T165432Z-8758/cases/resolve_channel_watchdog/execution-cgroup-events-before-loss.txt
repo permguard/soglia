@@ -1,0 +1,6 @@
+cgroup=/sys/fs/cgroup/system.slice/soglia-b6-resolve-channel-watchdog.service/executions/c066eacfa3
+populated 1
+frozen 0
+cgroup=/sys/fs/cgroup/system.slice/soglia-b6-resolve-channel-watchdog.service/executions/dfc9c74560
+populated 1
+frozen 0

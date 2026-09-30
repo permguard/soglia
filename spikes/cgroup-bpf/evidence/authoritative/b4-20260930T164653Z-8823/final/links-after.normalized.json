@@ -1,0 +1,17 @@
+[
+  {
+    "attach_type": "modify_return",
+    "id": 1,
+    "prog_id": 2,
+    "prog_type": "tracing",
+    "target_btf_id": 130765,
+    "target_obj_id": 1,
+    "type": "tracing"
+  },
+  {
+    "id": 2,
+    "prog_id": 97,
+    "tracepoint": "sys_exit_bind",
+    "type": "perf_event"
+  }
+]

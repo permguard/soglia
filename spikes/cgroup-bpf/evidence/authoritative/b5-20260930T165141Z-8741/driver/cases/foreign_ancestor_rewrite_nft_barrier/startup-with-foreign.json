@@ -1,0 +1,6 @@
+{
+  "enforcer_swept": [],
+  "foreign_present_before_startup": true,
+  "foreign_program": "foreign_rewrite",
+  "production_backend": "cgroup-bpf"
+}

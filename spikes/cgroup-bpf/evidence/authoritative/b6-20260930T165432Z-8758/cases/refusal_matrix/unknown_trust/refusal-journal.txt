@@ -1,0 +1,6 @@
+Started soglia-b6-refusal-5.service - /var/tmp/b6-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b6-20260930T165432Z-8758/cases/refusal_matrix/unknown_trust/config.yaml.
+soglia: the cgroup-bpf backend could not start: refused: /run/soglia-b6-refusal-5/cgroup-bpf/state.json is not a singly-linked root-owned mode-0600 regular file
+[2m2026-09-30T16:55:49.336099Z[0m [31mERROR[0m Soglia refused startup [3mevent.name[0m[2m=[0m"startup.refused" [3mrefusal.class[0m[2m=[0m"UNKNOWN"
+soglia: the enforcer did not start: the cgroup-bpf backend could not start: refused: /run/soglia-b6-refusal-5/cgroup-bpf/state.json is not a singly-linked root-owned mode-0600 regular file
+soglia-b6-refusal-5.service: Main process exited, code=exited, status=21/n/a
+soglia-b6-refusal-5.service: Failed with result 'exit-code'.

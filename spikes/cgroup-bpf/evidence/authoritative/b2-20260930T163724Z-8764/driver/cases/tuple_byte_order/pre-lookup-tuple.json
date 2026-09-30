@@ -1,0 +1,31 @@
+{
+  "captured_before_userspace_lookup": true,
+  "captured_while_socket_open": true,
+  "counters": {
+    "active_baseline": {
+      "C_PUBLISHED": 3,
+      "C_UNPUBLISHED": 0
+    },
+    "pre_lookup": {
+      "C_PUBLISHED": 4,
+      "C_TUPLE_INSERT_FAILED": 0,
+      "C_UNPUBLISHED": 0
+    },
+    "publication_delta": 1,
+    "unpublication_delta_before_lookup": 0
+  },
+  "queried": {
+    "key_hex": "0ac900010ac8ff019c40993a00000000",
+    "local": "10.200.255.1:15001",
+    "peer": "10.201.0.1:16540",
+    "present": false
+  },
+  "real": {
+    "cookie": 12300,
+    "cookie_nonzero": true,
+    "key_hex": "0ac900010ac8ff01409c993a00000000",
+    "local": "10.200.255.1:15001",
+    "peer": "10.201.0.1:40000",
+    "present": true
+  }
+}

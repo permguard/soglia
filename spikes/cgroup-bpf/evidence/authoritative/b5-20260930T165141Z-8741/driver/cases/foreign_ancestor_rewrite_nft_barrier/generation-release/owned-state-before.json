@@ -1,0 +1,215 @@
+{
+  "abi": 2,
+  "ancestor_bpf": [
+    {
+      "attach_type": "cgroup_inet4_connect",
+      "name": "foreign_rewrite",
+      "program_id": 199,
+      "program_type": "cgroup_sock_addr",
+      "tag": "8ee3f7fbc98e427b"
+    }
+  ],
+  "attachment_handle": {
+    "handle": [
+      134,
+      22,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "handle_type": 254,
+    "mount_id_unique": 4294967335
+  },
+  "attachment_inode": 5766,
+  "attachment_target": "/sys/fs/cgroup/system.slice/soglia-b5-root.service/executions",
+  "config_sha256": "ddff191215f3d690834b3733a5808dd4de8ffc83f661ef206160a0eae9cc922c",
+  "executions": {},
+  "generation": 1,
+  "links": [
+    {
+      "id": 34,
+      "link_type": "Cgroup",
+      "name": "sock_create",
+      "pin": "/sys/fs/bpf/soglia-b5/2ea7d05496561e481adbeb77a98bfb4c-g1/links/sock_create",
+      "program_id": 210,
+      "target_inode": 5766
+    },
+    {
+      "id": 35,
+      "link_type": "Cgroup",
+      "name": "connect4",
+      "pin": "/sys/fs/bpf/soglia-b5/2ea7d05496561e481adbeb77a98bfb4c-g1/links/connect4",
+      "program_id": 211,
+      "target_inode": 5766
+    },
+    {
+      "id": 36,
+      "link_type": "Cgroup",
+      "name": "connect6",
+      "pin": "/sys/fs/bpf/soglia-b5/2ea7d05496561e481adbeb77a98bfb4c-g1/links/connect6",
+      "program_id": 212,
+      "target_inode": 5766
+    },
+    {
+      "id": 37,
+      "link_type": "Cgroup",
+      "name": "sendmsg4",
+      "pin": "/sys/fs/bpf/soglia-b5/2ea7d05496561e481adbeb77a98bfb4c-g1/links/sendmsg4",
+      "program_id": 213,
+      "target_inode": 5766
+    },
+    {
+      "id": 38,
+      "link_type": "Cgroup",
+      "name": "sendmsg6",
+      "pin": "/sys/fs/bpf/soglia-b5/2ea7d05496561e481adbeb77a98bfb4c-g1/links/sendmsg6",
+      "program_id": 214,
+      "target_inode": 5766
+    },
+    {
+      "id": 39,
+      "link_type": "Cgroup",
+      "name": "sock_ops",
+      "pin": "/sys/fs/bpf/soglia-b5/2ea7d05496561e481adbeb77a98bfb4c-g1/links/sock_ops",
+      "program_id": 215,
+      "target_inode": 5766
+    }
+  ],
+  "maps": [
+    {
+      "id": 89,
+      "key_size": 4,
+      "max_entries": 1,
+      "name": "soglia_meta",
+      "pin": "/sys/fs/bpf/soglia-b5/2ea7d05496561e481adbeb77a98bfb4c-g1/maps/soglia_meta",
+      "value_size": 40
+    },
+    {
+      "id": 94,
+      "key_size": 8,
+      "max_entries": 5,
+      "name": "soglia_policy",
+      "pin": "/sys/fs/bpf/soglia-b5/2ea7d05496561e481adbeb77a98bfb4c-g1/maps/soglia_policy",
+      "value_size": 40
+    },
+    {
+      "id": 93,
+      "key_size": 8,
+      "max_entries": 128,
+      "name": "soglia_cookie_a",
+      "pin": "/sys/fs/bpf/soglia-b5/2ea7d05496561e481adbeb77a98bfb4c-g1/maps/soglia_cookie_a",
+      "value_size": 32
+    },
+    {
+      "id": 95,
+      "key_size": 16,
+      "max_entries": 128,
+      "name": "soglia_tuples",
+      "pin": "/sys/fs/bpf/soglia-b5/2ea7d05496561e481adbeb77a98bfb4c-g1/maps/soglia_tuples",
+      "value_size": 48
+    },
+    {
+      "id": 92,
+      "key_size": 4,
+      "max_entries": 26,
+      "name": "soglia_counters",
+      "pin": "/sys/fs/bpf/soglia-b5/2ea7d05496561e481adbeb77a98bfb4c-g1/maps/soglia_counters",
+      "value_size": 8
+    },
+    {
+      "id": 91,
+      "key_size": 32,
+      "max_entries": 5,
+      "name": "soglia_denies",
+      "pin": "/sys/fs/bpf/soglia-b5/2ea7d05496561e481adbeb77a98bfb4c-g1/maps/soglia_denies",
+      "value_size": 8
+    },
+    {
+      "id": 90,
+      "key_size": 0,
+      "max_entries": 65536,
+      "name": "soglia_events",
+      "pin": "/sys/fs/bpf/soglia-b5/2ea7d05496561e481adbeb77a98bfb4c-g1/maps/soglia_events",
+      "value_size": 0
+    }
+  ],
+  "object_sha256": "3deda346efe5da381ebe4efa2da222f24edc8b6a007c0afe3d82895addc09102",
+  "phase": "READY",
+  "pin_root": "/sys/fs/bpf/soglia-b5/2ea7d05496561e481adbeb77a98bfb4c-g1",
+  "programs": [
+    {
+      "id": 210,
+      "kernel_name": "soglia_sock_create",
+      "program_type": "BPF_PROG_TYPE_CGROUP_SOCK",
+      "symbol": "soglia_sock_create",
+      "tag": 12626944358849527452
+    },
+    {
+      "id": 211,
+      "kernel_name": "soglia_connect4",
+      "program_type": "BPF_PROG_TYPE_CGROUP_SOCK_ADDR",
+      "symbol": "soglia_connect4",
+      "tag": 12845370664493608589
+    },
+    {
+      "id": 212,
+      "kernel_name": "soglia_connect6",
+      "program_type": "BPF_PROG_TYPE_CGROUP_SOCK_ADDR",
+      "symbol": "soglia_connect6",
+      "tag": 15864753419888867284
+    },
+    {
+      "id": 213,
+      "kernel_name": "soglia_sendmsg4",
+      "program_type": "BPF_PROG_TYPE_CGROUP_SOCK_ADDR",
+      "symbol": "soglia_sendmsg4",
+      "tag": 14872533123478428682
+    },
+    {
+      "id": 214,
+      "kernel_name": "soglia_sendmsg6",
+      "program_type": "BPF_PROG_TYPE_CGROUP_SOCK_ADDR",
+      "symbol": "soglia_sendmsg6",
+      "tag": 10596496531753336652
+    },
+    {
+      "id": 215,
+      "kernel_name": "soglia_sockops",
+      "program_type": "BPF_PROG_TYPE_SOCK_OPS",
+      "symbol": "soglia_sockops",
+      "tag": 11685218317444006836
+    }
+  ],
+  "resource_envelope": {
+    "enforcer_fds_before_load": 7,
+    "memlock_hard": 8388608,
+    "memlock_soft": 8388608,
+    "nofile_hard": 524288,
+    "nofile_soft": 1024,
+    "policy_capacity": 5,
+    "ring_buffer_bytes": 65536,
+    "tracked_socket_capacity": 128
+  },
+  "schema": 3,
+  "state_id": [
+    46,
+    167,
+    208,
+    84,
+    150,
+    86,
+    30,
+    72,
+    26,
+    219,
+    235,
+    119,
+    169,
+    139,
+    251,
+    76
+  ]
+}

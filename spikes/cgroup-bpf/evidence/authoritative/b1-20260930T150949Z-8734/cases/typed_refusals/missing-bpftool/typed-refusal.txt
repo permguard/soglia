@@ -1,0 +1,2 @@
+Sep 30 17:09:58 lima-soglia-spike-b1-20260930T150749Z-17414 soglia[10845]: soglia: the cgroup-bpf probe failed: refused: bpftool is unavailable: /usr/sbin/soglia-missing-bpftool: No such file or directory (os error 2)
+Sep 30 17:09:58 lima-soglia-spike-b1-20260930T150749Z-17414 soglia[10839]: soglia: the enforcer did not start: the cgroup-bpf probe failed: refused: bpftool is unavailable: /usr/sbin/soglia-missing-bpftool: No such file or directory (os error 2)

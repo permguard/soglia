@@ -1,0 +1,465 @@
+{
+  "mode": "foreign_link",
+  "started_monotonic": 363.296644885,
+  "active_state_before_mutation": {
+    "schema": 3,
+    "abi": 2,
+    "phase": "READY",
+    "state_id": [
+      148,
+      82,
+      116,
+      103,
+      4,
+      44,
+      159,
+      98,
+      168,
+      56,
+      29,
+      168,
+      193,
+      90,
+      190,
+      81
+    ],
+    "generation": 1,
+    "object_sha256": "3deda346efe5da381ebe4efa2da222f24edc8b6a007c0afe3d82895addc09102",
+    "config_sha256": "22128d5a1accd2f8d66459952f5dc6b946d1d8ef4565a50943f2c3dfe54c0386",
+    "attachment_target": "/sys/fs/cgroup/system.slice/soglia-b7-foreign-link.service/executions",
+    "attachment_inode": 18700,
+    "attachment_handle": {
+      "handle_type": 254,
+      "handle": [
+        12,
+        73,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "mount_id_unique": 4294967336
+    },
+    "pin_root": "/sys/fs/bpf/soglia-b7/drift-foreign-link/94527467042c9f62a8381da8c15abe51-g1",
+    "maps": [
+      {
+        "name": "soglia_meta",
+        "id": 176,
+        "key_size": 4,
+        "value_size": 40,
+        "max_entries": 1,
+        "pin": "/sys/fs/bpf/soglia-b7/drift-foreign-link/94527467042c9f62a8381da8c15abe51-g1/maps/soglia_meta"
+      },
+      {
+        "name": "soglia_policy",
+        "id": 173,
+        "key_size": 8,
+        "value_size": 40,
+        "max_entries": 2,
+        "pin": "/sys/fs/bpf/soglia-b7/drift-foreign-link/94527467042c9f62a8381da8c15abe51-g1/maps/soglia_policy"
+      },
+      {
+        "name": "soglia_cookie_a",
+        "id": 175,
+        "key_size": 8,
+        "value_size": 32,
+        "max_entries": 64,
+        "pin": "/sys/fs/bpf/soglia-b7/drift-foreign-link/94527467042c9f62a8381da8c15abe51-g1/maps/soglia_cookie_a"
+      },
+      {
+        "name": "soglia_tuples",
+        "id": 174,
+        "key_size": 16,
+        "value_size": 48,
+        "max_entries": 64,
+        "pin": "/sys/fs/bpf/soglia-b7/drift-foreign-link/94527467042c9f62a8381da8c15abe51-g1/maps/soglia_tuples"
+      },
+      {
+        "name": "soglia_counters",
+        "id": 180,
+        "key_size": 4,
+        "value_size": 8,
+        "max_entries": 26,
+        "pin": "/sys/fs/bpf/soglia-b7/drift-foreign-link/94527467042c9f62a8381da8c15abe51-g1/maps/soglia_counters"
+      },
+      {
+        "name": "soglia_denies",
+        "id": 177,
+        "key_size": 32,
+        "value_size": 8,
+        "max_entries": 2,
+        "pin": "/sys/fs/bpf/soglia-b7/drift-foreign-link/94527467042c9f62a8381da8c15abe51-g1/maps/soglia_denies"
+      },
+      {
+        "name": "soglia_events",
+        "id": 178,
+        "key_size": 0,
+        "value_size": 0,
+        "max_entries": 65536,
+        "pin": "/sys/fs/bpf/soglia-b7/drift-foreign-link/94527467042c9f62a8381da8c15abe51-g1/maps/soglia_events"
+      }
+    ],
+    "programs": [
+      {
+        "symbol": "soglia_sock_create",
+        "id": 522,
+        "kernel_name": "soglia_sock_create",
+        "program_type": "BPF_PROG_TYPE_CGROUP_SOCK",
+        "tag": 12626944358849527452
+      },
+      {
+        "symbol": "soglia_connect4",
+        "id": 523,
+        "kernel_name": "soglia_connect4",
+        "program_type": "BPF_PROG_TYPE_CGROUP_SOCK_ADDR",
+        "tag": 12845370664493608589
+      },
+      {
+        "symbol": "soglia_connect6",
+        "id": 524,
+        "kernel_name": "soglia_connect6",
+        "program_type": "BPF_PROG_TYPE_CGROUP_SOCK_ADDR",
+        "tag": 15864753419888867284
+      },
+      {
+        "symbol": "soglia_sendmsg4",
+        "id": 525,
+        "kernel_name": "soglia_sendmsg4",
+        "program_type": "BPF_PROG_TYPE_CGROUP_SOCK_ADDR",
+        "tag": 14872533123478428682
+      },
+      {
+        "symbol": "soglia_sendmsg6",
+        "id": 526,
+        "kernel_name": "soglia_sendmsg6",
+        "program_type": "BPF_PROG_TYPE_CGROUP_SOCK_ADDR",
+        "tag": 10596496531753336652
+      },
+      {
+        "symbol": "soglia_sockops",
+        "id": 527,
+        "kernel_name": "soglia_sockops",
+        "program_type": "BPF_PROG_TYPE_SOCK_OPS",
+        "tag": 11685218317444006836
+      }
+    ],
+    "links": [
+      {
+        "name": "sock_create",
+        "id": 57,
+        "program_id": 522,
+        "link_type": "Cgroup",
+        "target_inode": 18700,
+        "pin": "/sys/fs/bpf/soglia-b7/drift-foreign-link/94527467042c9f62a8381da8c15abe51-g1/links/sock_create"
+      },
+      {
+        "name": "connect4",
+        "id": 58,
+        "program_id": 523,
+        "link_type": "Cgroup",
+        "target_inode": 18700,
+        "pin": "/sys/fs/bpf/soglia-b7/drift-foreign-link/94527467042c9f62a8381da8c15abe51-g1/links/connect4"
+      },
+      {
+        "name": "connect6",
+        "id": 59,
+        "program_id": 524,
+        "link_type": "Cgroup",
+        "target_inode": 18700,
+        "pin": "/sys/fs/bpf/soglia-b7/drift-foreign-link/94527467042c9f62a8381da8c15abe51-g1/links/connect6"
+      },
+      {
+        "name": "sendmsg4",
+        "id": 60,
+        "program_id": 525,
+        "link_type": "Cgroup",
+        "target_inode": 18700,
+        "pin": "/sys/fs/bpf/soglia-b7/drift-foreign-link/94527467042c9f62a8381da8c15abe51-g1/links/sendmsg4"
+      },
+      {
+        "name": "sendmsg6",
+        "id": 61,
+        "program_id": 526,
+        "link_type": "Cgroup",
+        "target_inode": 18700,
+        "pin": "/sys/fs/bpf/soglia-b7/drift-foreign-link/94527467042c9f62a8381da8c15abe51-g1/links/sendmsg6"
+      },
+      {
+        "name": "sock_ops",
+        "id": 62,
+        "program_id": 527,
+        "link_type": "Cgroup",
+        "target_inode": 18700,
+        "pin": "/sys/fs/bpf/soglia-b7/drift-foreign-link/94527467042c9f62a8381da8c15abe51-g1/links/sock_ops"
+      }
+    ],
+    "ancestor_bpf": [],
+    "resource_envelope": {
+      "memlock_soft": 8388608,
+      "memlock_hard": 8388608,
+      "nofile_soft": 1024,
+      "nofile_hard": 524288,
+      "enforcer_fds_before_load": 7,
+      "policy_capacity": 2,
+      "tracked_socket_capacity": 64,
+      "ring_buffer_bytes": 65536
+    },
+    "executions": {
+      "832463852a": {
+        "id": "832463852a2499d9e2509722c3ddbad0",
+        "tag": "832463852a",
+        "slot": 0,
+        "cgroup_inode": 18847,
+        "binding": {
+          "cgroup_id": 18847,
+          "execution_nonce": [
+            109,
+            152,
+            146,
+            136,
+            20,
+            92,
+            20,
+            57,
+            144,
+            96,
+            26,
+            95,
+            208,
+            170,
+            72,
+            38
+          ],
+          "backend_generation": 1
+        },
+        "phase": "ACTIVE"
+      }
+    }
+  },
+  "foreign_program": {
+    "id": 537,
+    "type": "cgroup_sock_addr",
+    "name": "foreign_allow",
+    "tag": "824ab03dccc4ea22",
+    "gpl_compatible": false,
+    "loaded_at": 1790806199,
+    "uid": 0,
+    "orphaned": false,
+    "bytes_xlated": 184,
+    "jited": true,
+    "bytes_jited": 240,
+    "bytes_memlock": 4096,
+    "map_ids": [
+      183,
+      185
+    ],
+    "btf_id": 147,
+    "qualification_bpftool_exit_status": 0
+  },
+  "foreign_link": {
+    "id": 63,
+    "type": "cgroup",
+    "prog_id": 537,
+    "cgroup_id": 18700,
+    "attach_type": "cgroup_inet4_connect",
+    "qualification_bpftool_exit_status": 255
+  },
+  "harness_injected_pins": [
+    {
+      "kind": "link",
+      "path": "/sys/fs/bpf/soglia-b7/drift-foreign-link/qualification-foreign/foreign-link",
+      "id": 63,
+      "observed": {
+        "id": 63,
+        "type": "cgroup",
+        "prog_id": 537,
+        "cgroup_id": 18700,
+        "attach_type": "cgroup_inet4_connect",
+        "qualification_bpftool_exit_status": 255
+      }
+    },
+    {
+      "kind": "prog",
+      "path": "/sys/fs/bpf/soglia-b7/drift-foreign-link/qualification-foreign/foreign_allow",
+      "id": 537,
+      "observed": {
+        "id": 537,
+        "type": "cgroup_sock_addr",
+        "name": "foreign_allow",
+        "tag": "824ab03dccc4ea22",
+        "gpl_compatible": false,
+        "loaded_at": 1790806199,
+        "uid": 0,
+        "orphaned": false,
+        "bytes_xlated": 184,
+        "jited": true,
+        "bytes_jited": 240,
+        "bytes_memlock": 4096,
+        "map_ids": [
+          183,
+          185
+        ],
+        "btf_id": 147,
+        "qualification_bpftool_exit_status": 0
+      }
+    },
+    {
+      "kind": "prog",
+      "path": "/sys/fs/bpf/soglia-b7/drift-foreign-link/qualification-foreign/foreign_rewrite",
+      "id": 539,
+      "observed": {
+        "id": 539,
+        "type": "cgroup_sock_addr",
+        "name": "foreign_rewrite",
+        "tag": "8ee3f7fbc98e427b",
+        "gpl_compatible": false,
+        "loaded_at": 1790806199,
+        "uid": 0,
+        "orphaned": false,
+        "bytes_xlated": 384,
+        "jited": true,
+        "bytes_jited": 368,
+        "bytes_memlock": 4096,
+        "map_ids": [
+          185,
+          183
+        ],
+        "btf_id": 147,
+        "qualification_bpftool_exit_status": 0
+      }
+    }
+  ],
+  "health_interval_ms": 1000,
+  "deterministic_tolerance_ms": 2000,
+  "transition_ms": 932,
+  "process_stopped": true,
+  "admission_refused": true,
+  "request_worker_finished": true,
+  "active_invocation_cancelled": true,
+  "active_invocation_cancel_reason": "eof_without_response",
+  "request": {
+    "response": ""
+  },
+  "runtime_helper_lost_event": true,
+  "silent_in_process_repair": false,
+  "harness_injected_teardown": {
+    "wildcard_deletion": false,
+    "removed_exact_pins": [
+      {
+        "kind": "link",
+        "path": "/sys/fs/bpf/soglia-b7/drift-foreign-link/qualification-foreign/foreign-link",
+        "id": 63,
+        "observed": {
+          "id": 63,
+          "type": "cgroup",
+          "prog_id": 537,
+          "cgroup_id": 18700,
+          "attach_type": "cgroup_inet4_connect",
+          "qualification_bpftool_exit_status": 255
+        },
+        "observed_before_removal": {
+          "id": 63,
+          "type": "cgroup",
+          "prog_id": 537,
+          "cgroup_id": 0,
+          "attach_type": "cgroup_inet4_connect",
+          "qualification_bpftool_exit_status": 255
+        }
+      },
+      {
+        "kind": "prog",
+        "path": "/sys/fs/bpf/soglia-b7/drift-foreign-link/qualification-foreign/foreign_allow",
+        "id": 537,
+        "observed": {
+          "id": 537,
+          "type": "cgroup_sock_addr",
+          "name": "foreign_allow",
+          "tag": "824ab03dccc4ea22",
+          "gpl_compatible": false,
+          "loaded_at": 1790806199,
+          "uid": 0,
+          "orphaned": false,
+          "bytes_xlated": 184,
+          "jited": true,
+          "bytes_jited": 240,
+          "bytes_memlock": 4096,
+          "map_ids": [
+            183,
+            185
+          ],
+          "btf_id": 147,
+          "qualification_bpftool_exit_status": 0
+        },
+        "observed_before_removal": {
+          "id": 537,
+          "type": "cgroup_sock_addr",
+          "name": "foreign_allow",
+          "tag": "824ab03dccc4ea22",
+          "gpl_compatible": false,
+          "loaded_at": 1790806199,
+          "uid": 0,
+          "orphaned": false,
+          "bytes_xlated": 184,
+          "jited": true,
+          "bytes_jited": 240,
+          "bytes_memlock": 4096,
+          "map_ids": [
+            183,
+            185
+          ],
+          "btf_id": 147,
+          "qualification_bpftool_exit_status": 0
+        }
+      },
+      {
+        "kind": "prog",
+        "path": "/sys/fs/bpf/soglia-b7/drift-foreign-link/qualification-foreign/foreign_rewrite",
+        "id": 539,
+        "observed": {
+          "id": 539,
+          "type": "cgroup_sock_addr",
+          "name": "foreign_rewrite",
+          "tag": "8ee3f7fbc98e427b",
+          "gpl_compatible": false,
+          "loaded_at": 1790806199,
+          "uid": 0,
+          "orphaned": false,
+          "bytes_xlated": 384,
+          "jited": true,
+          "bytes_jited": 368,
+          "bytes_memlock": 4096,
+          "map_ids": [
+            185,
+            183
+          ],
+          "btf_id": 147,
+          "qualification_bpftool_exit_status": 0
+        },
+        "observed_before_removal": {
+          "id": 539,
+          "type": "cgroup_sock_addr",
+          "name": "foreign_rewrite",
+          "tag": "8ee3f7fbc98e427b",
+          "gpl_compatible": false,
+          "loaded_at": 1790806199,
+          "uid": 0,
+          "orphaned": false,
+          "bytes_xlated": 384,
+          "jited": true,
+          "bytes_jited": 368,
+          "bytes_memlock": 4096,
+          "map_ids": [
+            185,
+            183
+          ],
+          "btf_id": 147,
+          "qualification_bpftool_exit_status": 0
+        }
+      }
+    ],
+    "verdict": "PASS"
+  },
+  "verdict": "PASS"
+}

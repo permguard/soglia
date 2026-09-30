@@ -1,0 +1,324 @@
+{
+  "programs": [
+    1723,
+    1724,
+    1725,
+    1726,
+    1727,
+    1728
+  ],
+  "links": [
+    561,
+    562,
+    563,
+    564,
+    565,
+    566
+  ],
+  "maps": [
+    917,
+    918,
+    919,
+    920,
+    921,
+    922,
+    924
+  ],
+  "owned_program_objects": [
+    {
+      "id": 1723,
+      "type": "cgroup_sock",
+      "name": "soglia_sock_create",
+      "tag": "af3beafe73d93e9c",
+      "gpl_compatible": false,
+      "loaded_at": 1790787349,
+      "uid": 0,
+      "orphaned": false,
+      "bytes_xlated": 768,
+      "jited": true,
+      "bytes_jited": 592,
+      "bytes_memlock": 4096,
+      "map_ids": [
+        924,
+        921
+      ],
+      "btf_id": 565
+    },
+    {
+      "id": 1724,
+      "type": "cgroup_sock_addr",
+      "name": "soglia_connect4",
+      "tag": "b243ec8fc95d6e8d",
+      "gpl_compatible": false,
+      "loaded_at": 1790787349,
+      "uid": 0,
+      "orphaned": false,
+      "bytes_xlated": 2752,
+      "jited": true,
+      "bytes_jited": 1944,
+      "bytes_memlock": 4096,
+      "map_ids": [
+        924,
+        918,
+        923,
+        920,
+        921,
+        917
+      ],
+      "btf_id": 565
+    },
+    {
+      "id": 1725,
+      "type": "cgroup_sock_addr",
+      "name": "soglia_connect6",
+      "tag": "dc2aed2e29a3b7d4",
+      "gpl_compatible": false,
+      "loaded_at": 1790787349,
+      "uid": 0,
+      "orphaned": false,
+      "bytes_xlated": 704,
+      "jited": true,
+      "bytes_jited": 544,
+      "bytes_memlock": 4096,
+      "map_ids": [
+        924,
+        921
+      ],
+      "btf_id": 565
+    },
+    {
+      "id": 1726,
+      "type": "cgroup_sock_addr",
+      "name": "soglia_sendmsg4",
+      "tag": "ce65da13e7299c0a",
+      "gpl_compatible": false,
+      "loaded_at": 1790787349,
+      "uid": 0,
+      "orphaned": false,
+      "bytes_xlated": 704,
+      "jited": true,
+      "bytes_jited": 544,
+      "bytes_memlock": 4096,
+      "map_ids": [
+        924,
+        921
+      ],
+      "btf_id": 565
+    },
+    {
+      "id": 1727,
+      "type": "cgroup_sock_addr",
+      "name": "soglia_sendmsg6",
+      "tag": "930e5173f6d0ff4c",
+      "gpl_compatible": false,
+      "loaded_at": 1790787349,
+      "uid": 0,
+      "orphaned": false,
+      "bytes_xlated": 704,
+      "jited": true,
+      "bytes_jited": 544,
+      "bytes_memlock": 4096,
+      "map_ids": [
+        924,
+        921
+      ],
+      "btf_id": 565
+    },
+    {
+      "id": 1728,
+      "type": "sock_ops",
+      "name": "soglia_sockops",
+      "tag": "a22a3c26162343b4",
+      "gpl_compatible": false,
+      "loaded_at": 1790787349,
+      "uid": 0,
+      "orphaned": false,
+      "bytes_xlated": 2504,
+      "jited": true,
+      "bytes_jited": 1832,
+      "bytes_memlock": 4096,
+      "map_ids": [
+        924,
+        917,
+        921,
+        919,
+        920
+      ],
+      "btf_id": 565
+    }
+  ],
+  "owned_link_objects": [
+    {
+      "id": 561,
+      "type": "cgroup",
+      "prog_id": 1723,
+      "cgroup_id": 0,
+      "attach_type": "cgroup_inet_sock_create"
+    },
+    {
+      "id": 562,
+      "type": "cgroup",
+      "prog_id": 1724,
+      "cgroup_id": 0,
+      "attach_type": "cgroup_inet4_connect"
+    },
+    {
+      "id": 563,
+      "type": "cgroup",
+      "prog_id": 1725,
+      "cgroup_id": 0,
+      "attach_type": "cgroup_inet6_connect"
+    },
+    {
+      "id": 564,
+      "type": "cgroup",
+      "prog_id": 1726,
+      "cgroup_id": 0,
+      "attach_type": "cgroup_udp4_sendmsg"
+    },
+    {
+      "id": 565,
+      "type": "cgroup",
+      "prog_id": 1727,
+      "cgroup_id": 0,
+      "attach_type": "cgroup_udp6_sendmsg"
+    },
+    {
+      "id": 566,
+      "type": "cgroup",
+      "prog_id": 1728,
+      "cgroup_id": 0,
+      "attach_type": "cgroup_sock_ops"
+    }
+  ],
+  "owned_map_objects": [
+    {
+      "id": 917,
+      "type": "hash",
+      "name": "soglia_cookie_a",
+      "flags": 0,
+      "bytes_key": 8,
+      "bytes_value": 32,
+      "max_entries": 64,
+      "bytes_memlock": 8128,
+      "frozen": 0,
+      "btf_id": 565
+    },
+    {
+      "id": 918,
+      "type": "hash",
+      "name": "soglia_policy",
+      "flags": 0,
+      "bytes_key": 8,
+      "bytes_value": 40,
+      "max_entries": 3,
+      "bytes_memlock": 1856,
+      "frozen": 0,
+      "btf_id": 565
+    },
+    {
+      "id": 919,
+      "type": "hash",
+      "name": "soglia_tuples",
+      "flags": 0,
+      "bytes_key": 16,
+      "bytes_value": 48,
+      "max_entries": 64,
+      "bytes_memlock": 9760,
+      "frozen": 0,
+      "btf_id": 565
+    },
+    {
+      "id": 920,
+      "type": "hash",
+      "name": "soglia_denies",
+      "flags": 0,
+      "bytes_key": 32,
+      "bytes_value": 8,
+      "max_entries": 3,
+      "bytes_memlock": 1800,
+      "frozen": 0,
+      "btf_id": 565
+    },
+    {
+      "id": 921,
+      "type": "ringbuf",
+      "name": "soglia_events",
+      "flags": 0,
+      "bytes_key": 0,
+      "bytes_value": 0,
+      "max_entries": 65536,
+      "bytes_memlock": 78488,
+      "frozen": 0
+    },
+    {
+      "id": 922,
+      "type": "array",
+      "name": "soglia_meta",
+      "flags": 0,
+      "bytes_key": 4,
+      "bytes_value": 40,
+      "max_entries": 1,
+      "bytes_memlock": 424,
+      "frozen": 0,
+      "btf_id": 565
+    },
+    {
+      "id": 924,
+      "type": "array",
+      "name": "soglia_counters",
+      "flags": 0,
+      "bytes_key": 4,
+      "bytes_value": 8,
+      "max_entries": 26,
+      "bytes_memlock": 592,
+      "frozen": 0,
+      "btf_id": 565
+    }
+  ],
+  "observed_programs": [
+    2,
+    97,
+    1087,
+    1723,
+    1724,
+    1725,
+    1726,
+    1727,
+    1728,
+    1741,
+    1742,
+    1743,
+    1744,
+    1745,
+    1746,
+    1747,
+    1748,
+    1749,
+    1750,
+    1751,
+    1752
+  ],
+  "observed_links": [
+    1,
+    2,
+    561,
+    562,
+    563,
+    564,
+    565,
+    566
+  ],
+  "observed_maps": [
+    2,
+    5,
+    917,
+    918,
+    919,
+    920,
+    921,
+    922,
+    923,
+    924
+  ]
+}

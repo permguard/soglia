@@ -1,0 +1,45 @@
+{
+  "actual_capacity": 4,
+  "after": {
+    "connect4_deny": 2,
+    "cookie_insert_failed": 2,
+    "cookie_miss": 0,
+    "cookies": 0,
+    "events_dropped": 0,
+    "policies": 1,
+    "published": 7,
+    "tuple_insert_failed": 1,
+    "tuples": 4,
+    "unpublished": 0
+  },
+  "before": {
+    "connect4_deny": 2,
+    "cookie_insert_failed": 2,
+    "cookie_miss": 0,
+    "cookies": 0,
+    "events_dropped": 0,
+    "policies": 1,
+    "published": 7,
+    "tuple_insert_failed": 0,
+    "tuples": 4,
+    "unpublished": 0
+  },
+  "c_plus_one_failed": true,
+  "dns_calls": 0,
+  "injections_removed_before_health_or_restart": true,
+  "inserted": 4,
+  "observation": {
+    "dns_when_resolve_returned": 0,
+    "elapsed_ms": 2000,
+    "health_failure": null,
+    "local": "10.200.255.1:15001",
+    "mismatch": null,
+    "outbound_when_resolve_returned": 0,
+    "outcome": "TIMEOUT",
+    "peer": "10.201.0.1:42000",
+    "recv_q_bytes": 61,
+    "resolved_execution": null,
+    "tuple_cookie": null
+  },
+  "verdict": "PASS"
+}

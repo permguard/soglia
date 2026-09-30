@@ -1,0 +1,2 @@
+Sep 30 17:09:58 lima-soglia-spike-b1-20260930T150749Z-17414 soglia[10797]: soglia: the runc backend could not start: refused: /sys/fs/cgroup/system.slice/soglia-b1-absent-root.service is not a usable cgroup v2 directory: No such file or directory (os error 2)
+Sep 30 17:09:58 lima-soglia-spike-b1-20260930T150749Z-17414 soglia[10795]: soglia: the sandboxd did not start: the runc backend could not start: refused: /sys/fs/cgroup/system.slice/soglia-b1-absent-root.service is not a usable cgroup v2 directory: No such file or directory (os error 2)

@@ -1,0 +1,4 @@
+Restart=no
+ControlGroup=/system.slice/soglia-b6-refusal-11.service
+Delegate=yes
+KillMode=mixed

@@ -1,0 +1,15 @@
+× soglia-b1-exclusive-app.service - /var/tmp/soglia-b1-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b1-diagnostic-exclusive-20260930T150955Z-9260/config.yaml
+     Loaded: loaded (/run/systemd/transient/soglia-b1-exclusive-app.service; transient)
+  Transient: yes
+     Active: failed (Result: exit-code) since Wed 2026-09-30 17:09:56 CEST; 31ms ago
+   Duration: 117ms
+    Process: 9581 ExecStart=/var/tmp/soglia-b1-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b1-diagnostic-exclusive-20260930T150955Z-9260/config.yaml (code=exited, status=24)
+   Main PID: 9581 (code=exited, status=24)
+        CPU: 46ms
+
+Sep 30 17:09:56 lima-soglia-spike-b1-20260930T150749Z-17414 systemd[1]: Started soglia-b1-exclusive-app.service - /var/tmp/soglia-b1-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b1-diagnostic-exclusive-20260930T150955Z-9260/config.yaml.
+Sep 30 17:09:56 lima-soglia-spike-b1-20260930T150749Z-17414 soglia[9584]: soglia: the cgroup-bpf backend could not start: refused: INCOMPATIBLE_BPF_TOPOLOGY hook=soglia_connect4 errno=Some(1)
+Sep 30 17:09:56 lima-soglia-spike-b1-20260930T150749Z-17414 soglia[9581]: 2026-09-30T15:09:56.901099Z ERROR Soglia refused startup event.name="startup.refused" refusal.class="INCOMPATIBLE_BPF_TOPOLOGY" refusal.hook="soglia_connect4" refusal.errno=1
+Sep 30 17:09:56 lima-soglia-spike-b1-20260930T150749Z-17414 soglia[9581]: soglia: the enforcer did not start: the cgroup-bpf backend could not start: refused: INCOMPATIBLE_BPF_TOPOLOGY hook=soglia_connect4 errno=Some(1)
+Sep 30 17:09:56 lima-soglia-spike-b1-20260930T150749Z-17414 systemd[1]: soglia-b1-exclusive-app.service: Main process exited, code=exited, status=24/n/a
+Sep 30 17:09:56 lima-soglia-spike-b1-20260930T150749Z-17414 systemd[1]: soglia-b1-exclusive-app.service: Failed with result 'exit-code'.

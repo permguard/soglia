@@ -1,0 +1,15 @@
+× soglia-b1-unknown-app.service - /var/tmp/soglia-b1-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b1-diagnostic-refusals-20260930T150958Z-10770/unknown-state/config.yaml
+     Loaded: loaded (/run/systemd/transient/soglia-b1-unknown-app.service; transient)
+  Transient: yes
+     Active: failed (Result: exit-code) since Wed 2026-09-30 17:09:59 CEST; 20ms ago
+   Duration: 74ms
+    Process: 11332 ExecStart=/var/tmp/soglia-b1-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b1-diagnostic-refusals-20260930T150958Z-10770/unknown-state/config.yaml (code=exited, status=21)
+   Main PID: 11332 (code=exited, status=21)
+        CPU: 12ms
+
+Sep 30 17:09:59 lima-soglia-spike-b1-20260930T150749Z-17414 systemd[1]: Started soglia-b1-unknown-app.service - /var/tmp/soglia-b1-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b1-diagnostic-refusals-20260930T150958Z-10770/unknown-state/config.yaml.
+Sep 30 17:09:59 lima-soglia-spike-b1-20260930T150749Z-17414 soglia[11339]: soglia: the cgroup-bpf backend could not start: refused: UNKNOWN cgroup-BPF state: /sys/fs/bpf/soglia-b1-unknown contains pins without a trusted record
+Sep 30 17:09:59 lima-soglia-spike-b1-20260930T150749Z-17414 soglia[11332]: 2026-09-30T15:09:59.968968Z ERROR Soglia refused startup event.name="startup.refused" refusal.class="UNKNOWN"
+Sep 30 17:09:59 lima-soglia-spike-b1-20260930T150749Z-17414 soglia[11332]: soglia: the enforcer did not start: the cgroup-bpf backend could not start: refused: UNKNOWN cgroup-BPF state: /sys/fs/bpf/soglia-b1-unknown contains pins without a trusted record
+Sep 30 17:09:59 lima-soglia-spike-b1-20260930T150749Z-17414 systemd[1]: soglia-b1-unknown-app.service: Main process exited, code=exited, status=21/n/a
+Sep 30 17:09:59 lima-soglia-spike-b1-20260930T150749Z-17414 systemd[1]: soglia-b1-unknown-app.service: Failed with result 'exit-code'.

@@ -1,0 +1,8 @@
+{
+  "configured_max_concurrency": 2,
+  "enforcer_swept": [],
+  "production_backend": "cgroup-bpf",
+  "production_binary": "/var/tmp/soglia-b3-production-target/release/soglia",
+  "race_iterations": 200,
+  "sandbox_swept": []
+}

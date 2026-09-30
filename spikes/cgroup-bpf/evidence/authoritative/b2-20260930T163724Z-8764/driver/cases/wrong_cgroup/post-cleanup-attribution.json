@@ -1,0 +1,11 @@
+{
+  "C_TUPLE_INSERT_FAILED": 0,
+  "binding": null,
+  "case": "WRONG_CGROUP",
+  "cookie_entries_after_cleanup": 0,
+  "execution_attribution_absent": true,
+  "execution_id": "05271f7afca21ccaf386be2e7a1be5dd",
+  "tuple_entries_after_cleanup": 0,
+  "tuple_entries_before_cleanup": null,
+  "tuple_insert_failed_invariant": true
+}

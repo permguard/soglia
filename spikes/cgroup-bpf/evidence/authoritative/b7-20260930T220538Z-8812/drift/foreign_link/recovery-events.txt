@@ -1,0 +1,45 @@
+Starting soglia-b7-foreign-link.service - /var/tmp/b7-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b7-20260930T220538Z-8812/profiles/drift-foreign-link/config.yaml...
+Started soglia-b7-foreign-link.service - /var/tmp/b7-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b7-20260930T220538Z-8812/profiles/drift-foreign-link/config.yaml.
+event.name=cgroup_bpf.attach_probe result=PASS mode=single hooks=6 effective=true
+event.name=cgroup_bpf.ready generation=1 programs=6 links=6 maps=7 policy_capacity=2 socket_capacity=64 ring_bytes=65536
+event.name=cgroup_bpf.startup result=PASS generation=1 duration_ms=111 swept=0 readiness=READY
+[2m2026-09-30T22:09:59.507663Z[0m [32m INFO[0m privileges dropped [3mevent.name[0m[2m=[0m"startup.privileges_dropped" [3muid[0m[2m=[0m65534 [3mgid[0m[2m=[0m65534
+[2m2026-09-30T22:09:59.507873Z[0m [32m INFO[0m soglia is ready [3mevent.name[0m[2m=[0m"startup.ready" [3mingress[0m[2m=[0m127.0.0.1:18104 [3megress[0m[2m=[0m10.200.255.1:15001
+[2m2026-09-30T22:09:59.566757Z[0m [32m INFO[0m execution admitted [3mevent.name[0m[2m=[0m"execution.admitted" [3mexecution_id[0m[2m=[0m832463852a2499d9e2509722c3ddbad0 [3magent[0m[2m=[0mworkload [3mslot[0m[2m=[0m0
+[2m2026-09-30T22:09:59.566769Z[0m [32m INFO[0m execution phase [3mevent.name[0m[2m=[0m"execution.phase" [3mexecution_id[0m[2m=[0m832463852a2499d9e2509722c3ddbad0 [3mphase[0m[2m=[0mCreating
+[2m2026-09-30T22:09:59.580127Z[0m [32m INFO[0m execution phase [3mevent.name[0m[2m=[0m"execution.phase" [3mexecution_id[0m[2m=[0m832463852a2499d9e2509722c3ddbad0 [3mphase[0m[2m=[0mStarting
+[2m2026-09-30T22:09:59.643520Z[0m [32m INFO[0m execution phase [3mevent.name[0m[2m=[0m"execution.phase" [3mexecution_id[0m[2m=[0m832463852a2499d9e2509722c3ddbad0 [3mphase[0m[2m=[0mReady
+[2m2026-09-30T22:09:59.643534Z[0m [32m INFO[0m execution phase [3mevent.name[0m[2m=[0m"execution.phase" [3mexecution_id[0m[2m=[0m832463852a2499d9e2509722c3ddbad0 [3mphase[0m[2m=[0mRunning
+[2m2026-09-30T22:10:00.518168Z[0m [31mERROR[0m a privileged helper is gone; the runtime stops fail-closed [3mevent.name[0m[2m=[0m"runtime.helper_lost" [3mhelper[0m[2m=[0m"enforcer-health" [3mreason[0m[2m=[0mthe Enforcer request failed: refused: direct production attachment count is 7, expected 6
+[2m2026-09-30T22:10:00.518545Z[0m [32m INFO[0m execution phase [3mevent.name[0m[2m=[0m"execution.phase" [3mexecution_id[0m[2m=[0m832463852a2499d9e2509722c3ddbad0 [3mphase[0m[2m=[0mTearingDown
+[2m2026-09-30T22:10:00.518703Z[0m [32m INFO[0m execution phase [3mevent.name[0m[2m=[0m"execution.phase" [3mexecution_id[0m[2m=[0m832463852a2499d9e2509722c3ddbad0 [3mphase[0m[2m=[0mCleanupFailed
+[2m2026-09-30T22:10:00.518713Z[0m [31mERROR[0m teardown could not be verified; the Execution is quarantined [3mevent.name[0m[2m=[0m"execution.cleanup_failed" [3mexecution_id[0m[2m=[0m832463852a2499d9e2509722c3ddbad0 [3mslot[0m[2m=[0m0 [3mreason[0m[2m=[0mfreeze: the helper channel failed: the channel failed: Broken pipe (os error 32); kill: the helper channel failed: the channel failed: Broken pipe (os error 32); sandbox destroy: the helper channel failed: the channel failed: Broken pipe (os error 32); network destroy skipped because Sandbox destruction was not verified [3mfailures[0m[2m=[0m1
+[2m2026-09-30T22:10:00.518715Z[0m [31mERROR[0m the cleanup-failure threshold is reached; no new Execution is admitted [3mevent.name[0m[2m=[0m"runtime.admission_stopped" [3mfailures[0m[2m=[0m1
+event.name=cgroup_bpf.freeze result=PASS correlation=832463852a duration_ms=8
+soglia: a privileged helper was lost
+soglia-b7-foreign-link.service: Main process exited, code=exited, status=1/FAILURE
+soglia-b7-foreign-link.service: Failed with result 'exit-code'.
+Starting soglia-b7-foreign-link.service - /var/tmp/b7-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b7-20260930T220538Z-8812/profiles/drift-foreign-link/config.yaml...
+Started soglia-b7-foreign-link.service - /var/tmp/b7-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b7-20260930T220538Z-8812/profiles/drift-foreign-link/config.yaml.
+[2m2026-09-30T22:10:00.731701Z[0m [32m INFO[0m a resource left by a previous run was removed [3mevent.name[0m[2m=[0m"startup.swept" [3mhelper[0m[2m=[0m"sandboxd" [3mresource[0m[2m=[0msandbox of Execution 832463852a2499d9e2509722c3ddbad0
+event.name=cgroup_bpf.target_released_link_observation elapsed_ms=0 link=sock_create link_id=57 program_id=522 attach_type=2 cgroup_id=0
+event.name=cgroup_bpf.target_released_link_observation elapsed_ms=0 link=connect4 link_id=58 program_id=523 attach_type=10 cgroup_id=0
+event.name=cgroup_bpf.target_released_link_observation elapsed_ms=0 link=connect6 link_id=59 program_id=524 attach_type=11 cgroup_id=0
+event.name=cgroup_bpf.target_released_link_observation elapsed_ms=0 link=sendmsg4 link_id=60 program_id=525 attach_type=14 cgroup_id=0
+event.name=cgroup_bpf.target_released_link_observation elapsed_ms=0 link=sendmsg6 link_id=61 program_id=526 attach_type=15 cgroup_id=0
+event.name=cgroup_bpf.target_released_link_observation elapsed_ms=0 link=sock_ops link_id=62 program_id=527 attach_type=3 cgroup_id=0
+event.name=cgroup_bpf.target_released result=PASS recorded_cgroup_id=18700 current_cgroup_id=19731 detach_timeout_ms=5000 poll_interval_ms=10
+event.name=cgroup_bpf.target_released_link_detach link=sock_create link_id=57 program_id=522 attach_type=2 before_cgroup_id=0 after_cgroup_id=0
+event.name=cgroup_bpf.target_released_link_detach link=connect4 link_id=58 program_id=523 attach_type=10 before_cgroup_id=0 after_cgroup_id=0
+event.name=cgroup_bpf.target_released_link_detach link=connect6 link_id=59 program_id=524 attach_type=11 before_cgroup_id=0 after_cgroup_id=0
+event.name=cgroup_bpf.target_released_link_detach link=sendmsg4 link_id=60 program_id=525 attach_type=14 before_cgroup_id=0 after_cgroup_id=0
+event.name=cgroup_bpf.target_released_link_detach link=sendmsg6 link_id=61 program_id=526 attach_type=15 before_cgroup_id=0 after_cgroup_id=0
+event.name=cgroup_bpf.target_released_link_detach link=sock_ops link_id=62 program_id=527 attach_type=3 before_cgroup_id=0 after_cgroup_id=0
+event.name=cgroup_bpf.recovery_cleanup_observation elapsed_ms=0 surviving=map:173,map:175,map:174,map:180,map:177,map:178
+event.name=cgroup_bpf.attach_probe result=PASS mode=single hooks=6 effective=true
+event.name=cgroup_bpf.ready generation=2 programs=6 links=6 maps=7 policy_capacity=2 socket_capacity=64 ring_bytes=65536
+event.name=cgroup_bpf.startup result=PASS generation=2 duration_ms=136 swept=2 readiness=READY
+[2m2026-09-30T22:10:00.870401Z[0m [32m INFO[0m a resource left by a previous run was removed [3mevent.name[0m[2m=[0m"startup.swept" [3mhelper[0m[2m=[0m"enforcer" [3mresource[0m[2m=[0mnetwork of Execution 832463852a2499d9e2509722c3ddbad0
+[2m2026-09-30T22:10:00.870410Z[0m [32m INFO[0m a resource left by a previous run was removed [3mevent.name[0m[2m=[0m"startup.swept" [3mhelper[0m[2m=[0m"enforcer" [3mresource[0m[2m=[0mTargetReleased cgroup-BPF generation 1
+[2m2026-09-30T22:10:00.870453Z[0m [32m INFO[0m privileges dropped [3mevent.name[0m[2m=[0m"startup.privileges_dropped" [3muid[0m[2m=[0m65534 [3mgid[0m[2m=[0m65534
+[2m2026-09-30T22:10:00.870670Z[0m [32m INFO[0m soglia is ready [3mevent.name[0m[2m=[0m"startup.ready" [3mingress[0m[2m=[0m127.0.0.1:18104 [3megress[0m[2m=[0m10.200.255.1:15001

@@ -1,0 +1,41 @@
+{
+  "swept": [
+    "network of Execution fe04b1bb57c8269a46963c62c0de7f43",
+    "TargetReleased cgroup-BPF generation 1"
+  ],
+  "old_generation": 1,
+  "new_generation": 2,
+  "old_kernel_ids": {
+    "maps": [
+      295,
+      296,
+      297,
+      298,
+      299,
+      300,
+      302
+    ],
+    "programs": [
+      545,
+      546,
+      547,
+      548,
+      549,
+      550
+    ],
+    "links": [
+      177,
+      178,
+      179,
+      180,
+      181,
+      182
+    ]
+  },
+  "old_kernel_ids_absent": true,
+  "policy_entries": 0,
+  "cookie_entries": 0,
+  "tuple_entries": 0,
+  "ready_manifest": true,
+  "verdict": "PASS"
+}

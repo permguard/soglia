@@ -1,0 +1,36 @@
+{
+  "durable_manifest_after_shutdown": true,
+  "durable_state_disposition": "validated and swept by the immediately following production helper startup",
+  "first_response": {
+    "body": "{\"slept_ms\":3000}",
+    "execution": null,
+    "status": 200
+  },
+  "map_below_capacity": true,
+  "max_concurrency": 2,
+  "max_queue": 0,
+  "policy_capacity": 3,
+  "policy_occupancy_when_refused": 2,
+  "post_refusal_connection_outcome": "RESOLVED",
+  "post_refusal_response": {
+    "body": "{\"cmd\":\"tunnel\",\"ok\":true,\"detail\":\"HTTP/1.1 200 OK; tunnel closed by the proxy\",\"held_ms\":0}",
+    "execution": null,
+    "status": 200
+  },
+  "production_privilege_path": "production soglia run performs its normal root helper startup and Supervisor uid/gid drop",
+  "production_process_exit": "exit status: 0",
+  "second_response": {
+    "body": "{\"slept_ms\":3000}",
+    "execution": null,
+    "status": 200
+  },
+  "third_elapsed_ms": 1,
+  "third_execution_allocated": false,
+  "third_refused": true,
+  "third_response": {
+    "body": "{\"error\":\"the invocation queue is full\"}",
+    "execution": null,
+    "status": 503
+  },
+  "verdict": "PASS"
+}

@@ -1,0 +1,5 @@
+cgroup=/sys/fs/cgroup/system.slice/soglia-b6-sandbox-sigkill.service/executions/ff34d913e3
+populated 1
+frozen 0
+procs:
+41955

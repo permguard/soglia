@@ -1,0 +1,36 @@
+{
+  "agent_matches_owned_netns": true,
+  "case": "MISSING_COOKIE",
+  "cookie": {
+    "criterion": "PROVEN",
+    "supported": true,
+    "unique_across_b2_cases": true,
+    "value": 2
+  },
+  "current_owned_path_absent_after_teardown": true,
+  "informational_inode": 4026532356,
+  "inode_used_as_identity": false,
+  "observed_netns_cookies": [
+    4098,
+    8193,
+    12289,
+    4099,
+    4100,
+    12290,
+    8194,
+    2
+  ],
+  "observed_netns_paths": [
+    "/run/netns/soglia-612cc444cc",
+    "/run/netns/soglia-a6c77bd4ed",
+    "/run/netns/soglia-05271f7afc",
+    "/run/netns/soglia-0ff9a6f38a",
+    "/run/netns/soglia-3c8e522cd7",
+    "/run/netns/soglia-cde0de1945",
+    "/run/netns/soglia-f65baf64c5",
+    "/run/netns/soglia-8008ab210b"
+  ],
+  "owned_path": "/run/netns/soglia-8008ab210b",
+  "owned_path_unique": true,
+  "previous_owned_path_absent_before_case": true
+}

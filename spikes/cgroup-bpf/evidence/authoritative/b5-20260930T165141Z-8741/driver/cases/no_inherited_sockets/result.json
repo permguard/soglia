@@ -1,0 +1,19 @@
+{
+  "agent_start_fd_table": {
+    "cmd": "fd_table",
+    "detail": "descriptors=[0=/dev/null,1=pipe:[23921],2=pipe:[23921]] sockets=[]",
+    "elapsed_ms": 0,
+    "ok": true
+  },
+  "artificial_external_control": {
+    "cmd": "b5-inherited-fd-report",
+    "current_netns_cookie": 8194,
+    "external_to_current_netns": true,
+    "inherited_netns_cookie": 1,
+    "ok": true,
+    "stdin_target": "socket:[23967]"
+  },
+  "case": "NO_INHERITED_SOCKETS",
+  "production_passes_socket_fds": false,
+  "runtime_fd_path_audit": "/soglia/spikes/cgroup-bpf/evidence/replay/b5-20260930T165141Z-8741/driver/runtime-fd-boundary.json"
+}

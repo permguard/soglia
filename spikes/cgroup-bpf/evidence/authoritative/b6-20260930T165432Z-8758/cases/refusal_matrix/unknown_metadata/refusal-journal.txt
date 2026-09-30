@@ -1,0 +1,6 @@
+Started soglia-b6-refusal-9.service - /var/tmp/b6-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b6-20260930T165432Z-8758/cases/refusal_matrix/unknown_metadata/config.yaml.
+soglia: the cgroup-bpf backend could not start: refused: UNKNOWN cgroup-BPF generation metadata; no object was changed
+[2m2026-09-30T16:55:52.669151Z[0m [31mERROR[0m Soglia refused startup [3mevent.name[0m[2m=[0m"startup.refused" [3mrefusal.class[0m[2m=[0m"UNKNOWN"
+soglia: the enforcer did not start: the cgroup-bpf backend could not start: refused: UNKNOWN cgroup-BPF generation metadata; no object was changed
+soglia-b6-refusal-9.service: Main process exited, code=exited, status=21/n/a
+soglia-b6-refusal-9.service: Failed with result 'exit-code'.

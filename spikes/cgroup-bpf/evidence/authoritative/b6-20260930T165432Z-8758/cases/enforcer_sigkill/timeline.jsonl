@@ -1,0 +1,11 @@
+{"boottime_seconds":163.44,"main_pid":39609,"nrestarts":0,"old_agents_alive":2}
+{"boottime_seconds":163.46,"main_pid":39609,"nrestarts":0,"old_agents_alive":2}
+{"boottime_seconds":163.48,"main_pid":39609,"nrestarts":0,"old_agents_alive":1}
+{"boottime_seconds":163.50,"main_pid":39609,"nrestarts":0,"old_agents_alive":0}
+{"boottime_seconds":163.52,"main_pid":0,"nrestarts":0,"old_agents_alive":0}
+{"boottime_seconds":163.54,"main_pid":0,"nrestarts":0,"old_agents_alive":0}
+{"boottime_seconds":163.56,"main_pid":0,"nrestarts":0,"old_agents_alive":0}
+{"boottime_seconds":163.58,"main_pid":0,"nrestarts":0,"old_agents_alive":0}
+{"boottime_seconds":163.60,"main_pid":0,"nrestarts":0,"old_agents_alive":0}
+{"boottime_seconds":163.62,"main_pid":0,"nrestarts":1,"old_agents_alive":0}
+{"boottime_seconds":163.64,"main_pid":40092,"nrestarts":1,"old_agents_alive":0}

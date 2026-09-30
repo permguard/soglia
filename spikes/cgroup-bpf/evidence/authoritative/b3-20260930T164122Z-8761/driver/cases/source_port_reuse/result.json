@@ -1,0 +1,82 @@
+{
+  "agent_report": "{\"cmd\":\"proxy-reuse-report\",\"ok\":true,\"iteration\":1,\"phase\":\"established\",\"source_port\":40000,\"detail\":\"HTTP/1.1 200 OK\"}\n{\"cmd\":\"proxy-reuse-report\",\"ok\":true,\"iteration\":2,\"phase\":\"established\",\"source_port\":40000,\"detail\":\"HTTP/1.1 200 OK\"}\n",
+  "case": "SOURCE_PORT_REUSE",
+  "health_failure": null,
+  "injected_tuple_removed_by": "qualification harness before the second connection",
+  "observations": [
+    {
+      "cookie": 22,
+      "dns_when_resolve_returned": 0,
+      "elapsed_ms": 0,
+      "health_failure": null,
+      "index": 0,
+      "local": "10.200.255.1:15001",
+      "mismatch": null,
+      "outbound_when_resolve_returned": 0,
+      "outcome": "RESOLVED",
+      "peer": "10.201.0.1:40000",
+      "recv_q_bytes": 61,
+      "resolved_execution": "8640fd521669ad9ff2883e2d92f4a6f3",
+      "tuple_binding": {
+        "backend_generation": 1,
+        "cgroup_id": 8217,
+        "execution_nonce": [
+          209,
+          114,
+          49,
+          87,
+          176,
+          192,
+          208,
+          109,
+          3,
+          137,
+          86,
+          40,
+          167,
+          194,
+          253,
+          120
+        ]
+      }
+    },
+    {
+      "cookie": 23,
+      "dns_when_resolve_returned": 1,
+      "elapsed_ms": 0,
+      "health_failure": null,
+      "index": 1,
+      "local": "10.200.255.1:15001",
+      "mismatch": null,
+      "outbound_when_resolve_returned": 1,
+      "outcome": "RESOLVED",
+      "peer": "10.201.0.1:40000",
+      "recv_q_bytes": 61,
+      "resolved_execution": "8640fd521669ad9ff2883e2d92f4a6f3",
+      "tuple_binding": {
+        "backend_generation": 1,
+        "cgroup_id": 8217,
+        "execution_nonce": [
+          209,
+          114,
+          49,
+          87,
+          176,
+          192,
+          208,
+          109,
+          3,
+          137,
+          86,
+          40,
+          167,
+          194,
+          253,
+          120
+        ]
+      }
+    }
+  ],
+  "old_close_cookie_guard_proven": true,
+  "source_port": 40000
+}

@@ -1,0 +1,7 @@
+{
+  "actual_agent_pid": 9340,
+  "fault": "WRONG_PID",
+  "refusal": "the Enforcer request failed: refused: paused pid 8934 is not in the exact Execution cgroup",
+  "submitted_pid": 8934,
+  "target_cgroup_unchanged": true
+}

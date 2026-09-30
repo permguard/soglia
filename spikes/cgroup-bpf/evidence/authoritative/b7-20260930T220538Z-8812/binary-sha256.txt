@@ -1,0 +1,5 @@
+fe6d717db1ed94b095fe98aa158f132c8587f4b6b1ce0119c05b80eb84e35da4  /var/tmp/b7-production-target/release/soglia
+b63cead90b40f9fd6b555c79d07ddece6ae2093913eae11d8f3a4f10fb365d2a  /var/tmp/soglia-spike-2/bin/soglia-spike-agent
+1971ee3039186e5a542e814b30b754d2c9c8f37b9861bba1c8ce76e7d1e1d3d2  /var/tmp/b7-link-injector
+afe5a404dd76f04cd5b7cc039df90fca8159fb50f5bee2791ae2295f2ad8011a  /var/tmp/b7-link-detach
+a107a0631256669e4994e92af86a847813d4da09118989c850d9b766f21f383a  /var/tmp/soglia-spike-2/bpf/foreign.o
