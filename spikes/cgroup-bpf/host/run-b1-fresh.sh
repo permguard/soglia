@@ -43,7 +43,7 @@ limactl shell "$vm" -- sudo env \
   --release \
   --bin soglia \
   --features cgroup-bpf
-limactl shell "$vm" -- sudo bash \
+limactl shell "$vm" -- sudo env SOGLIA_B1_VM_NAME="$vm" bash \
   /soglia/spikes/cgroup-bpf/runner/scripts/b1-qualification.sh \
   /var/tmp/soglia-b1-production-target/release/soglia \
   --authoritative

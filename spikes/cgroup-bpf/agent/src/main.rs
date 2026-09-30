@@ -1189,6 +1189,34 @@ fn answer(mut stream: TcpStream) {
             proxy_fixed(first_port, count, Some((report, hold_secs)));
             format!("{{\"proxy_fixed_count\":{count}}}")
         }
+        Some("b7-churn-report") => {
+            let target = words.get(1).copied().unwrap_or("allowed.test:443");
+            let count = words.get(2).and_then(|s| s.parse().ok()).unwrap_or(1);
+            let report = words.get(3).copied().unwrap_or("/tmp/b7-churn.json");
+            b7_churn_report(target, count, report)
+        }
+        Some("b7-rate-report") => {
+            let target = words.get(1).copied().unwrap_or("allowed.test:443");
+            let rate = words.get(2).and_then(|s| s.parse().ok()).unwrap_or(1);
+            let duration = words.get(3).and_then(|s| s.parse().ok()).unwrap_or(1);
+            let report = words.get(4).copied().unwrap_or("/tmp/b7-rate.json");
+            b7_rate_report(target, rate, duration, report)
+        }
+        Some("delayed-b7-live-report") => {
+            let delay_ms = words.get(1).and_then(|s| s.parse().ok()).unwrap_or(30_000);
+            let target = words.get(2).copied().unwrap_or("allowed.test:443");
+            let count = words.get(3).and_then(|s| s.parse().ok()).unwrap_or(1);
+            let hold_secs = words.get(4).and_then(|s| s.parse().ok()).unwrap_or(3);
+            let report = words.get(5).copied().unwrap_or("/tmp/b7-live.json");
+            thread::sleep(Duration::from_millis(delay_ms));
+            b7_live_report(target, count, hold_secs, report)
+        }
+        Some("b7-burst-report") => {
+            let target = words.get(1).copied().unwrap_or("allowed.test:443");
+            let count = words.get(2).and_then(|s| s.parse().ok()).unwrap_or(1);
+            let report = words.get(3).copied().unwrap_or("/tmp/b7-burst.json");
+            b7_burst_report(target, count, report)
+        }
         Some("delayed-proxy-fixed-report") => {
             let delay_ms = words.get(1).and_then(|s| s.parse().ok()).unwrap_or(3_000);
             let first_port = words.get(2).and_then(|s| s.parse().ok()).unwrap_or(40_000);
@@ -1206,6 +1234,128 @@ fn answer(mut stream: TcpStream) {
         "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{result}",
         result.len()
     );
+}
+
+/// Runs a bounded sequence of complete proxy handshakes and emits aggregate, non-secret
+/// qualification measurements. The production proxy and Candidate-A resolver remain unchanged.
+fn b7_churn_report(target: &str, count: usize, report: &str) -> String {
+    b7_connection_workload(target, count, None, report, "churn")
+}
+
+/// Runs complete proxy handshakes at a monotonic-clock rate for the declared B7 interval.
+fn b7_rate_report(target: &str, rate: usize, duration_secs: u64, report: &str) -> String {
+    let count = rate.saturating_mul(duration_secs as usize);
+    b7_connection_workload(target, count, Some(rate), report, "rate")
+}
+
+fn b7_live_report(target: &str, count: usize, hold_secs: u64, report: &str) -> String {
+    let started = Instant::now();
+    let mut sockets = Vec::with_capacity(count);
+    let mut failed = 0_usize;
+    let mut latencies = Vec::with_capacity(count);
+    for _ in 0..count {
+        let attempt = Instant::now();
+        match TcpStream::connect_timeout(&SocketAddr::V4(PROXY), CONNECT_TIMEOUT)
+            .and_then(|mut stream| establish_connect(&mut stream, target).map(|_| stream))
+        {
+            Ok(stream) => sockets.push(stream),
+            Err(_) => failed += 1,
+        }
+        latencies.push(u64::try_from(attempt.elapsed().as_micros()).unwrap_or(u64::MAX));
+    }
+    let value = format!(
+        "{{\"kind\":\"live\",\"requested\":{count},\"succeeded\":{},\"failed\":{failed},\"elapsed_ms\":{},\"max_us\":{}}}",
+        sockets.len(),
+        started.elapsed().as_millis(),
+        latencies.into_iter().max().unwrap_or(0)
+    );
+    let _ = fs::write(report, format!("{value}\n"));
+    thread::sleep(Duration::from_secs(hold_secs));
+    value
+}
+
+fn b7_burst_report(target: &str, count: usize, report: &str) -> String {
+    let started = Instant::now();
+    let workers: Vec<_> = (0..count)
+        .map(|_| {
+            let target = target.to_owned();
+            thread::spawn(move || {
+                let attempt = Instant::now();
+                let result = TcpStream::connect_timeout(&SocketAddr::V4(PROXY), CONNECT_TIMEOUT)
+                    .and_then(|mut stream| establish_connect(&mut stream, &target));
+                (
+                    result.is_ok(),
+                    u64::try_from(attempt.elapsed().as_micros()).unwrap_or(u64::MAX),
+                )
+            })
+        })
+        .collect();
+    let outcomes: Vec<_> = workers
+        .into_iter()
+        .filter_map(|worker| worker.join().ok())
+        .collect();
+    let succeeded = outcomes.iter().filter(|(ok, _)| *ok).count();
+    let failed = count.saturating_sub(succeeded);
+    let max_us = outcomes
+        .iter()
+        .map(|(_, latency)| *latency)
+        .max()
+        .unwrap_or(0);
+    let value = format!(
+        "{{\"kind\":\"burst\",\"requested\":{count},\"succeeded\":{succeeded},\"failed\":{failed},\"elapsed_ms\":{},\"max_us\":{max_us}}}",
+        started.elapsed().as_millis()
+    );
+    let _ = fs::write(report, format!("{value}\n"));
+    value
+}
+
+fn b7_connection_workload(
+    target: &str,
+    count: usize,
+    rate: Option<usize>,
+    report: &str,
+    kind: &str,
+) -> String {
+    let started = Instant::now();
+    let mut latencies = Vec::with_capacity(count);
+    let mut succeeded = 0_usize;
+    let mut failed = 0_usize;
+    for index in 0..count {
+        if let Some(rate) = rate.filter(|rate| *rate > 0) {
+            let due = Duration::from_secs_f64(index as f64 / rate as f64);
+            if let Some(delay) = due.checked_sub(started.elapsed()) {
+                thread::sleep(delay);
+            }
+        }
+        let attempt = Instant::now();
+        let result = TcpStream::connect_timeout(&SocketAddr::V4(PROXY), CONNECT_TIMEOUT)
+            .and_then(|mut stream| establish_connect(&mut stream, target));
+        latencies.push(u64::try_from(attempt.elapsed().as_micros()).unwrap_or(u64::MAX));
+        if result.is_ok() {
+            succeeded += 1;
+        } else {
+            failed += 1;
+        }
+    }
+    latencies.sort_unstable();
+    let percentile = |numerator: usize| -> u64 {
+        if latencies.is_empty() {
+            return 0;
+        }
+        let index = (latencies.len().saturating_sub(1) * numerator) / 100;
+        latencies[index]
+    };
+    let elapsed_ms = u64::try_from(started.elapsed().as_millis()).unwrap_or(u64::MAX);
+    let value = format!(
+        "{{\"kind\":{},\"requested\":{count},\"succeeded\":{succeeded},\"failed\":{failed},\"elapsed_ms\":{elapsed_ms},\"p50_us\":{},\"p95_us\":{},\"p99_us\":{},\"max_us\":{}}}",
+        quote(kind),
+        percentile(50),
+        percentile(95),
+        percentile(99),
+        latencies.last().copied().unwrap_or(0)
+    );
+    let _ = fs::write(report, format!("{value}\n"));
+    value
 }
 
 fn tunnel(target: &str, secs: u64) -> String {

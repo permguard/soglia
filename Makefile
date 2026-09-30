@@ -137,6 +137,12 @@ spike-b6: ## Run authoritative production B6 once on a newly created Lima VM.
 spike-b6-diagnostic: ## Run diagnostic production B6 on the reusable development VM.
 	./spikes/cgroup-bpf/host/run-b6-diagnostic.sh
 
+spike-b7: ## Run authoritative production B7 once on a newly created Lima VM.
+	./spikes/cgroup-bpf/host/run-b7-fresh.sh
+
+spike-b7-diagnostic: ## Run diagnostic production B7 on the reusable development VM.
+	./spikes/cgroup-bpf/host/run-b7-diagnostic.sh
+
 spike-delete-vms: ## Stop and delete every soglia-spike* Lima VM (asks first; YES=1 skips the question).
 	./spikes/cgroup-bpf/host/delete-vms.sh $(if $(YES),--yes)
 

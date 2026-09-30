@@ -11,6 +11,11 @@ authoritative=false
 if [[ "${2:-}" == --authoritative ]]; then authoritative=true; fi
 production_baseline=db6e1ac21a957b5fd8de96f5e3a719db1d897723
 production_source_matches=false
+vm_name=${SOGLIA_B1_VM_NAME:-}
+if [[ "$authoritative" == true && "$vm_name" != soglia-spike-b1-* ]]; then
+  echo "authoritative B1 requires a recorded soglia-spike-b1-* VM name" >&2
+  exit 13
+fi
 run_id="b1-$(date -u +%Y%m%dT%H%M%SZ)-$$"
 evidence="/soglia/spikes/cgroup-bpf/evidence/replay/$run_id"
 scripts=/soglia/spikes/cgroup-bpf/runner/scripts
@@ -60,9 +65,9 @@ trap 'record_failure "$LINENO" "$?"' ERR
 
 printf '%s\n' RUNNING > "$evidence/verdict.txt"
 persist_state
-jq -n --arg run_id "$run_id" --argjson authoritative "$authoritative" \
+jq -n --arg run_id "$run_id" --arg vm_name "$vm_name" --argjson authoritative "$authoritative" \
   '{schema:1,run_id:$run_id,gate:"B1",authoritative:$authoritative,
-    started_at:(now|todateiso8601)}' > "$evidence/run.json"
+    vm_name:$vm_name,started_at:(now|todateiso8601)}' > "$evidence/run.json"
 
 {
   date -u +%FT%T.%NZ
