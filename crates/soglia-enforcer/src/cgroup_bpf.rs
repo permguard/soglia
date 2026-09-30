@@ -28,8 +28,7 @@ use libbpf_rs::{
     ProgramType,
 };
 use name_to_handle_at::{
-    AT_EMPTY_PATH, AT_HANDLE_MNT_ID_UNIQUE, FileHandle as LinuxFileHandle, MountId,
-    name_to_handle_at, open_by_handle_at,
+    AT_EMPTY_PATH, FileHandle as LinuxFileHandle, name_to_handle_at, open_by_handle_at,
 };
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
@@ -56,6 +55,9 @@ const BPF_NOEXIST: u64 = 1;
 // qualified against the same bounded convergence contract.
 const TARGET_RELEASED_DETACH_TIMEOUT: Duration = Duration::from_secs(5);
 const TARGET_RELEASED_POLL_INTERVAL: Duration = Duration::from_millis(10);
+// rustix 1.1 does not yet name Linux 6.8's STATX_MNT_ID_UNIQUE bit. Keep the numeric ABI value
+// local and require the kernel to echo it in stx_mask; a reusable STATX_MNT_ID is never accepted.
+const STATX_MNT_ID_UNIQUE: u32 = 0x0000_4000;
 const PROGRAMS: [ProgramSpec; 6] = [
     ProgramSpec::single("soglia_sock_create", "sock_create"),
     ProgramSpec::single("soglia_connect4", "connect4"),
@@ -2370,21 +2372,17 @@ fn capture_attachment_handle(path: &Path) -> Result<AttachmentHandle, BackendErr
             "the cgroup attachment target cannot be opened for a durable handle: {error}"
         ))
     })?;
-    let (handle, mount_id) = name_to_handle_at(
-        &target,
-        Path::new(""),
-        AT_EMPTY_PATH | AT_HANDLE_MNT_ID_UNIQUE,
-    )
-    .map_err(|error| {
+    let (handle, _) =
+        name_to_handle_at(&target, Path::new(""), AT_EMPTY_PATH).map_err(|error| {
+            BackendError::Unsupported(format!(
+                "the cgroup attachment target has no supported durable handle: {error}"
+            ))
+        })?;
+    let mount_id_unique = unique_mount_id(&target).map_err(|error| {
         BackendError::Unsupported(format!(
-            "the cgroup attachment target has no supported durable handle: {error}"
+            "the cgroup attachment target has no unique mount identity: {error}"
         ))
     })?;
-    let MountId::Unique(mount_id_unique) = mount_id else {
-        return Err(BackendError::Unsupported(
-            "the cgroup2 mount did not return a unique mount identity".to_owned(),
-        ));
-    };
     let recorded = AttachmentHandle {
         handle_type: handle.handle_type,
         handle: handle.handle,
@@ -2414,18 +2412,25 @@ fn validate_attachment_handle_structure(handle: &AttachmentHandle) -> Result<(),
 
 fn current_cgroup2_mount() -> Result<(File, u64), io::Error> {
     let mount = File::open("/sys/fs/cgroup")?;
-    let (_, mount_id) = name_to_handle_at(
-        &mount,
+    let mount_id = unique_mount_id(&mount)?;
+    Ok((mount, mount_id))
+}
+
+fn unique_mount_id(file: &File) -> Result<u64, io::Error> {
+    let requested = rustix::fs::StatxFlags::from_bits_retain(STATX_MNT_ID_UNIQUE);
+    let stat = rustix::fs::statx(
+        file,
         Path::new(""),
-        AT_EMPTY_PATH | AT_HANDLE_MNT_ID_UNIQUE,
+        rustix::fs::AtFlags::EMPTY_PATH | rustix::fs::AtFlags::NO_AUTOMOUNT,
+        requested,
     )?;
-    match mount_id {
-        MountId::Unique(id) => Ok((mount, id)),
-        MountId::Reusable(_) => Err(io::Error::new(
+    if stat.stx_mask & STATX_MNT_ID_UNIQUE == 0 || stat.stx_mnt_id == 0 {
+        return Err(io::Error::new(
             io::ErrorKind::Unsupported,
-            "cgroup2 mount has no unique mount identity",
-        )),
+            "STATX_MNT_ID_UNIQUE is unavailable",
+        ));
     }
+    Ok(stat.stx_mnt_id)
 }
 
 fn linux_file_handle(recorded: &AttachmentHandle) -> LinuxFileHandle {
