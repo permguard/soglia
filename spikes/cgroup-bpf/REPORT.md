@@ -1173,3 +1173,31 @@ Not a concern by design: the six shared BPF programs and links stay constant as 
 
 Required before pushing volume: an Execution churn soak of tens of thousands of lifecycles that tracks, over time, `nr_dying_descendants`, kernel memory, namespace-teardown backlog, zombie processes, TIME_WAIT sockets and free ephemeral ports per destination, and creation latency; a rising creation latency is the signature of accumulation.
 The soak raises the rate until one of these starts to grow; that rate becomes the declared sustainable rate, and admission-stop valves on the same signals keep the host from degrading beyond it.
+
+## Deferred work: VM-isolation profile with Firecracker
+
+Status: proposed on 2026-10-01; not scheduled in the current phases. The architecture already allows it through the pluggable `SandboxBackend` (`soglia-architecture.md` §22.3).
+
+A Firecracker profile would add hardware-virtualization isolation for agents that are very poorly trusted, or for customers who require a VM boundary: each Execution would run in its own microVM with its own guest kernel, so a guest-kernel exploit stays inside the VM.
+It is an additional profile beside the container profile, not a replacement: the container profile on `runc` with the `CgroupBpfBackend` remains the default.
+
+### What is reused as it is
+
+- The `CgroupBpfBackend` and its B1-B7 qualification, for the container profile.
+- The egress proxy, destination policy, DNS resolution and address validation, which do not depend on the sandbox.
+- The Supervisor: one Execution per call, admission queue, readiness, fail-closed helper loss and typed refusal classes.
+- The durable-state and recovery model of S13, applied to the new backend's objects, and the rule that unknown state is refused and preserved.
+- The qualification method: B1-B7-style gates, checksummed and fingerprinted evidence, residue measured before any harness teardown, and `spike:qualify` once it exists.
+- cgroup-BPF as defense in depth: the host-side Firecracker process still runs in a cgroup, and the shared programs can keep it from opening host sockets of its own.
+
+### What must be built for it
+
+- A `SandboxBackend` for microVMs: the jailer, microVM start and teardown, the rootfs as a block device, and agent communication over vsock or the network.
+- An `EnforcementBackend` at the TAP boundary. Inside a microVM the agent's sockets live in the guest kernel and are invisible to host cgroup hooks, so socket-cookie attribution does not apply; the trusted identity is the microVM and its TAP device, one per microVM, closer to the `netns-nft` design, with the Soglia proxy as the only exit.
+- Its own qualification gates, analogous to B1-B7, for that backend.
+
+### Caution: snapshots and the warm pool
+
+Firecracker's fast start uses snapshots, and restoring several microVMs from one snapshot copies one memory state into all of them: the same random-generator state and the same memory layout, as with a forked zygote.
+Firecracker's own documentation flags this.
+A warm pool on this profile must reseed entropy in every clone, or use microVMs prepared fresh rather than cloned from a shared snapshot, so that no two calls share generator state.
