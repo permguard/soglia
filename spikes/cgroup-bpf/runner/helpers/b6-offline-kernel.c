@@ -9,18 +9,20 @@
 #include <linux/bpf.h>
 #include <linux/limits.h>
 #include <linux/sched.h>
+#include <linux/stat.h>
 #include <signal.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
 #include <sys/syscall.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
 
-#ifndef AT_HANDLE_MNT_ID_UNIQUE
-#define AT_HANDLE_MNT_ID_UNIQUE 0x001
+#ifndef STATX_MNT_ID_UNIQUE
+#define STATX_MNT_ID_UNIQUE 0x00004000U
 #endif
 
 static int bpf_call(enum bpf_cmd command, union bpf_attr *attr)
@@ -141,16 +143,27 @@ static int run_handle_probe(const char *path, const char *marker)
     int before_errno = 0;
     int after_errno = 0;
     uint64_t mount_id = 0;
+    struct statx statx_buffer = {0};
     int mount_fd;
     int before_fd;
     int after_fd;
 
     handle->handle_bytes = 128;
-    if (name_to_handle_at(AT_FDCWD, path, handle, (int *)&mount_id,
-                          AT_HANDLE_MNT_ID_UNIQUE) != 0) {
+    if (name_to_handle_at(AT_FDCWD, path, handle, (int *)&mount_id, 0) != 0) {
         perror("name_to_handle_at");
         return 1;
     }
+    if (statx(AT_FDCWD, path, AT_SYMLINK_NOFOLLOW | AT_NO_AUTOMOUNT,
+              STATX_MNT_ID_UNIQUE, &statx_buffer) != 0) {
+        perror("statx STATX_MNT_ID_UNIQUE");
+        return 1;
+    }
+    if ((statx_buffer.stx_mask & STATX_MNT_ID_UNIQUE) == 0 ||
+        statx_buffer.stx_mnt_id == 0) {
+        fputs("statx did not return STATX_MNT_ID_UNIQUE\n", stderr);
+        return 1;
+    }
+    mount_id = statx_buffer.stx_mnt_id;
     mount_fd = open("/sys/fs/cgroup", O_RDONLY | O_DIRECTORY);
     if (mount_fd < 0) {
         perror("open cgroup2 mount");
