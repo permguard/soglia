@@ -5,10 +5,22 @@
 set -euo pipefail
 
 host_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+repo_dir=$(CDPATH= cd -- "$host_dir/../.." && pwd)
 # shellcheck source=common.sh
 source "$host_dir/common.sh"
 
 require_host
+production_baseline=db6e1ac21a957b5fd8de96f5e3a719db1d897723
+
+git -C "$repo_dir" cat-file -e "$production_baseline^{commit}"
+git -C "$repo_dir" diff --exit-code "$production_baseline" -- \
+  crates src Cargo.toml Cargo.lock
+if [[ -n $(git -C "$repo_dir" status --short --untracked-files=all) ]]; then
+  echo "authoritative B1 requires a clean working tree" >&2
+  git -C "$repo_dir" status --short --untracked-files=all >&2
+  exit 13
+fi
+
 b1_id=$(date -u +%Y%m%dT%H%M%SZ)-$$
 vm="soglia-spike-b1-$b1_id"
 config=$(mktemp -t soglia-spike-b1-lima.XXXXXX.yaml)

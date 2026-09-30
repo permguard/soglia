@@ -9,6 +9,8 @@ set -euo pipefail
 binary="${1:?usage: b1-qualification.sh <soglia> [--authoritative]}"
 authoritative=false
 if [[ "${2:-}" == --authoritative ]]; then authoritative=true; fi
+production_baseline=db6e1ac21a957b5fd8de96f5e3a719db1d897723
+production_source_matches=false
 run_id="b1-$(date -u +%Y%m%dT%H%M%SZ)-$$"
 evidence="/soglia/spikes/cgroup-bpf/evidence/replay/$run_id"
 scripts=/soglia/spikes/cgroup-bpf/runner/scripts
@@ -41,11 +43,14 @@ record_failure() {
   jq -n \
     --arg run_id "$run_id" \
     --arg last_case "$last_case" \
+    --arg baseline "$production_baseline" \
     --argjson authoritative "$authoritative" \
+    --argjson production_source_matches "$production_source_matches" \
     --argjson line "$line" \
     --argjson status "$status" \
     '{schema:1,run_id:$run_id,gate:"B1",authoritative:$authoritative,
       verdict:"FAIL",failure:{last_case:$last_case,line:$line,status:$status},
+      production_source_baseline:{commit:$baseline,matches:$production_source_matches},
       remaining_gates:{B2:"NOT_EXECUTED",B3:"NOT_EXECUTED",B4:"NOT_EXECUTED",
         B5:"NOT_EXECUTED",B6:"NOT_EXECUTED",B7:"NOT_EXECUTED"}}' \
     > "$evidence/summary.json"
@@ -86,6 +91,30 @@ jq -n --arg run_id "$run_id" --argjson authoritative "$authoritative" \
     | sort -z | xargs -0 sha256sum
   sha256sum spikes/cgroup-bpf/PRODUCTION-DESIGN.md
 } > "$evidence/source-fingerprint.txt"
+current_phase=SOURCE_BASELINE
+last_case=production_source_baseline
+persist_state
+production_status=$(git -C /soglia status --short --untracked-files=all -- \
+  crates src Cargo.toml Cargo.lock)
+{
+  printf 'baseline_commit=%s\n' "$production_baseline"
+  printf 'current_commit=%s\n' "$(git -C /soglia rev-parse HEAD)"
+  printf 'command=git diff --exit-code %s -- crates src Cargo.toml Cargo.lock\n' \
+    "$production_baseline"
+  git -C /soglia cat-file -e "$production_baseline^{commit}"
+  git -C /soglia diff --exit-code "$production_baseline" -- \
+    crates src Cargo.toml Cargo.lock
+  printf 'diff_exit=0\n'
+  for production_path in crates src Cargo.toml Cargo.lock; do
+    printf 'object %s baseline=%s current=%s\n' \
+      "$production_path" \
+      "$(git -C /soglia rev-parse "$production_baseline:$production_path")" \
+      "$(git -C /soglia rev-parse "HEAD:$production_path")"
+  done
+  printf 'production_status=%s\n' "${production_status:-CLEAN}"
+  [[ -z "$production_status" ]]
+} > "$evidence/production-source-baseline.txt"
+production_source_matches=true
 sha256sum "$binary" > "$evidence/binary-sha256.txt"
 bpf_inventory_begin "$evidence" "$pin_parent"
 
@@ -191,7 +220,10 @@ jq -n \
   --arg run_id "$run_id" \
   --argjson authoritative "$authoritative" \
   --arg inventory "$program_classification" \
+  --arg baseline "$production_baseline" \
+  --argjson production_source_matches "$production_source_matches" \
   '{schema:1,run_id:$run_id,gate:"B1",authoritative:$authoritative,verdict:"PASS",
+    production_source_baseline:{commit:$baseline,matches:$production_source_matches},
     qualified:{production_backend:true,production_bpf_object:true,true_effective_inventory:true,
       attach_plan:"six Aya Single links (kernel reports multi)",ready_last:true,
       actual_delegation:true,typed_exclusive_ancestor_refusal:true,
