@@ -17,7 +17,7 @@ Where a package declares none, the entry says so and its repository is the autho
 
 ## Packages
 
-93 packages.
+94 packages.
 
 | Package                 | Version      | Licence                                             | Source                                                |
 | ----------------------- | ------------ | --------------------------------------------------- | ----------------------------------------------------- |
@@ -71,6 +71,7 @@ Where a package declares none, the entry says so and its repository is the autho
 | `log`                   | 0.4.34       | MIT OR Apache-2.0                                   | <https://github.com/rust-lang/log>                    |
 | `memchr`                | 2.8.3        | Unlicense OR MIT                                    | <https://github.com/BurntSushi/memchr>                |
 | `mio`                   | 1.2.3        | MIT                                                 | <https://github.com/tokio-rs/mio>                     |
+| `name-to-handle-at`     | 0.1.0        | MIT OR Apache-2.0                                   | <https://github.com/swick/name-to-handle-at-rs>       |
 | `nix`                   | 0.31.3       | MIT                                                 | <https://github.com/nix-rust/nix>                     |
 | `nu-ansi-term`          | 0.50.3       | MIT                                                 | <https://github.com/nushell/nu-ansi-term>             |
 | `object`                | 0.39.1       | Apache-2.0 OR MIT                                   | <https://github.com/gimli-rs/object>                  |

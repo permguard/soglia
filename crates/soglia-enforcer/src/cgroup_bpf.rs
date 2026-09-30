@@ -15,7 +15,7 @@ use std::path::{Path, PathBuf};
 use std::thread;
 use std::time::{Duration, Instant};
 
-use aya::maps::{Array, HashMap, Map as AyaMap, MapData, MapError, MapInfo, loaded_maps};
+use aya::maps::{Array, HashMap, Map as AyaMap, MapData, MapError, MapInfo, RingBuf, loaded_maps};
 use aya::programs::links::{FdLink, LinkError, PinnedLink};
 use aya::programs::{
     CgroupAttachMode, CgroupSock, CgroupSockAddr, ProgramError, SockOps, loaded_links,
@@ -45,11 +45,14 @@ use crate::system;
 const OBJECT: &[u8] = include_bytes!(concat!(env!("OUT_DIR"), "/soglia-cgroup-bpf.o"));
 const STATE_FILE: &str = "state.json";
 const STATE_SCHEMA: u32 = 3;
-const BPF_ABI: u32 = 1;
+const BPF_ABI: u32 = 2;
 const META_MAGIC: u64 = 0x534f_474c_4941_4250;
 const POLICY_FROZEN: u32 = 0;
 const POLICY_ACTIVE: u32 = 1;
 const BPF_NOEXIST: u64 = 1;
+const COUNTER_COUNT: usize = 26;
+const DENY_REASON_COUNT: u32 = 9;
+const RING_EVENT_WIDTH: usize = 56;
 // Target release can become visible asynchronously after systemd removes the old cgroup. These
 // production constants are intentionally not configuration knobs: every supported environment is
 // qualified against the same bounded convergence contract.
@@ -117,6 +120,8 @@ pub struct CgroupBpfBackend {
     live: StdHashMap<ResourceTag, ExecutionState>,
     cookie_high_water: usize,
     tuple_high_water: usize,
+    ring_events_consumed: u64,
+    health_sequence: u64,
 }
 
 #[derive(Clone)]
@@ -321,6 +326,8 @@ impl CgroupBpfBackend {
             live: StdHashMap::new(),
             cookie_high_water: 0,
             tuple_high_water: 0,
+            ring_events_consumed: 0,
+            health_sequence: 0,
         })
     }
 
@@ -1671,7 +1678,7 @@ impl CgroupBpfBackend {
         }
     }
 
-    fn update_occupancy(&mut self) -> Result<(), BackendError> {
+    fn update_occupancy(&mut self) -> Result<(usize, usize), BackendError> {
         let cookie_count = {
             let map = self
                 .bpf_mut()?
@@ -1707,6 +1714,121 @@ impl CgroupBpfBackend {
                 self.cookie_high_water, self.tuple_high_water, self.settings.socket_capacity
             );
         }
+        Ok((cookie_count, tuple_count))
+    }
+
+    fn read_counters(&mut self) -> Result<[u64; COUNTER_COUNT], BackendError> {
+        let map = self
+            .bpf_mut()?
+            .map("soglia_counters")
+            .ok_or_else(|| BackendError::Failed("soglia_counters is absent".to_owned()))?;
+        let counters = Array::<_, u64>::try_from(map)
+            .map_err(|error| BackendError::Failed(format!("open counter map: {error:#}")))?;
+        if counters.len() != u32::try_from(COUNTER_COUNT).unwrap_or(u32::MAX) {
+            return Err(BackendError::Failed(format!(
+                "counter map has {} entries, expected {COUNTER_COUNT}",
+                counters.len()
+            )));
+        }
+        let mut snapshot = [0_u64; COUNTER_COUNT];
+        for (index, value) in snapshot.iter_mut().enumerate() {
+            *value = counters
+                .get(&u32::try_from(index).unwrap_or(u32::MAX), 0)
+                .map_err(|error| {
+                    BackendError::Failed(format!("read counter {index}: {error:#}"))
+                })?;
+        }
+        Ok(snapshot)
+    }
+
+    fn drain_ring_events(&mut self) -> Result<u64, BackendError> {
+        let drain_limit = ring_drain_limit(self.settings.ring_bytes);
+        let map = self
+            .bpf_mut()?
+            .map_mut("soglia_events")
+            .ok_or_else(|| BackendError::Failed("soglia_events is absent".to_owned()))?;
+        let mut events = RingBuf::try_from(map)
+            .map_err(|error| BackendError::Failed(format!("open event ring: {error:#}")))?;
+        let mut drained = 0_u64;
+        for _ in 0..drain_limit {
+            let Some(event) = events.next() else {
+                break;
+            };
+            validate_ring_event(&event)?;
+            drained = drained.saturating_add(1);
+        }
+        self.ring_events_consumed = self.ring_events_consumed.saturating_add(drained);
+        Ok(drained)
+    }
+
+    fn emit_health_snapshot(
+        &mut self,
+        state: &HostState,
+        cookie_count: usize,
+        tuple_count: usize,
+    ) -> Result<(), BackendError> {
+        let drained = self.drain_ring_events()?;
+        let counters = self.read_counters()?;
+        let active = self
+            .live
+            .values()
+            .filter(|execution| execution.phase == ExecutionPhase::Active)
+            .count();
+        let prepared = self
+            .live
+            .values()
+            .filter(|execution| execution.phase == ExecutionPhase::NetworkPreparedFrozen)
+            .count();
+        let frozen = self
+            .live
+            .values()
+            .filter(|execution| execution.phase == ExecutionPhase::Frozen)
+            .count();
+        let ancestor_fingerprint = hex(&Sha256::digest(
+            serde_json::to_vec(&state.ancestor_bpf).map_err(|error| {
+                BackendError::Failed(format!("encode ancestor fingerprint: {error}"))
+            })?,
+        ));
+        self.health_sequence = self.health_sequence.saturating_add(1);
+        eprintln!(
+            "event.name=cgroup_bpf.health sequence={} generation={} programs={} links={} maps={} policy_active={active} policy_prepared={prepared} policy_frozen={frozen} policy_capacity={} cookie={cookie_count} cookie_high_water={} tuple={tuple_count} tuple_high_water={} socket_capacity={} ring_drained={drained} ring_consumed_total={} ring_dropped={} cookie_insert_failed={} tuple_insert_failed={} published={} unpublished={} sock_create_deny={} connect4_deny={} connect6_deny={} sendmsg4_deny={} sendmsg6_deny={} cookie_miss={} sock_create_entry={} connect4_entry={} connect6_entry={} sendmsg4_entry={} sendmsg6_entry={} sockops_entry={} deny_not_active={} deny_not_tcp={} deny_not_proxy={} deny_ipv6={} deny_family={} deny_udp={} deny_cookie_full={} deny_tuple_full={} deny_cookie_missing={} ancestor_fingerprint={ancestor_fingerprint}",
+            self.health_sequence,
+            state.generation,
+            state.programs.len(),
+            state.links.len(),
+            state.maps.len(),
+            self.settings.policy_capacity,
+            self.cookie_high_water,
+            self.tuple_high_water,
+            self.settings.socket_capacity,
+            self.ring_events_consumed,
+            counters[0],
+            counters[1],
+            counters[2],
+            counters[3],
+            counters[4],
+            counters[5],
+            counters[6],
+            counters[7],
+            counters[8],
+            counters[9],
+            counters[10],
+            counters[11],
+            counters[12],
+            counters[13],
+            counters[14],
+            counters[15],
+            counters[16],
+            counters[17],
+            counters[18],
+            counters[19],
+            counters[20],
+            counters[21],
+            counters[22],
+            counters[23],
+            counters[24],
+            counters[25]
+        );
         Ok(())
     }
 
@@ -1741,6 +1863,33 @@ impl CgroupBpfBackend {
         })?;
         Ok(Some((cookie, binding)))
     }
+}
+
+fn validate_ring_event(event: &[u8]) -> Result<u32, BackendError> {
+    if event.len() != RING_EVENT_WIDTH {
+        return Err(BackendError::Failed(format!(
+            "ring event has width {}, expected {RING_EVENT_WIDTH}",
+            event.len()
+        )));
+    }
+    let reason =
+        u32::from_ne_bytes(event[0..4].try_into().map_err(|_| {
+            BackendError::Failed("ring event reason has the wrong width".to_owned())
+        })?);
+    if !(1..=DENY_REASON_COUNT).contains(&reason) {
+        return Err(BackendError::Failed(format!(
+            "ring event contains invalid deny reason {reason}"
+        )));
+    }
+    Ok(reason)
+}
+
+fn ring_drain_limit(ring_bytes: u32) -> usize {
+    usize::try_from(ring_bytes)
+        .unwrap_or(usize::MAX)
+        .checked_div(RING_EVENT_WIDTH)
+        .unwrap_or(0)
+        .max(1)
 }
 
 /// A cleanup key may disappear after it was observed: sockops owns socket-state expiry, and a deny
@@ -1914,6 +2063,7 @@ impl EnforcementBackend for CgroupBpfBackend {
     }
 
     fn initialize(&mut self) -> Result<Vec<String>, BackendError> {
+        let started = Instant::now();
         let state_dir_existed = self.settings.state_dir.exists();
         let pin_root_existed = self.settings.configured_pin_root.exists();
         ensure_private_directory(&self.settings.state_dir)?;
@@ -1928,7 +2078,18 @@ impl EnforcementBackend for CgroupBpfBackend {
             self.load_generation(state_id, generation, ancestor_bpf)
         })();
         match bpf_result {
-            Ok(()) => Ok(swept),
+            Ok(()) => {
+                let state = self.state.as_ref().ok_or_else(|| {
+                    BackendError::Failed("startup completed without durable state".to_owned())
+                })?;
+                eprintln!(
+                    "event.name=cgroup_bpf.startup result=PASS generation={} duration_ms={} swept={} readiness=READY",
+                    state.generation,
+                    started.elapsed().as_millis(),
+                    swept.len()
+                );
+                Ok(swept)
+            }
             Err(error) => {
                 let network = self.network.rollback_initialization();
                 let directories =
@@ -1986,7 +2147,8 @@ impl EnforcementBackend for CgroupBpfBackend {
             };
             self.require_policy(execution.binding, expected)?;
         }
-        self.update_occupancy()?;
+        let (cookie_count, tuple_count) = self.update_occupancy()?;
+        self.emit_health_snapshot(&state, cookie_count, tuple_count)?;
         Ok(())
     }
 
@@ -2205,6 +2367,7 @@ impl EnforcementBackend for CgroupBpfBackend {
     }
 
     fn freeze(&mut self, tag: &ResourceTag) -> Result<(), BackendError> {
+        let started = Instant::now();
         let execution = self
             .live
             .get(tag)
@@ -2222,10 +2385,16 @@ impl EnforcementBackend for CgroupBpfBackend {
         frozen.phase = ExecutionPhase::Frozen;
         self.live.insert(*tag, frozen.clone());
         self.network.freeze(tag)?;
-        self.update_execution(frozen)
+        self.update_execution(frozen)?;
+        eprintln!(
+            "event.name=cgroup_bpf.freeze result=PASS correlation={tag} duration_ms={}",
+            started.elapsed().as_millis()
+        );
+        Ok(())
     }
 
     fn destroy_execution(&mut self, tag: &ResourceTag) -> Result<(), BackendError> {
+        let started = Instant::now();
         let execution = self
             .live
             .get(tag)
@@ -2252,7 +2421,12 @@ impl EnforcementBackend for CgroupBpfBackend {
             ));
         }
         self.network.destroy_execution(tag)?;
-        self.remove_execution_record(tag)
+        self.remove_execution_record(tag)?;
+        eprintln!(
+            "event.name=cgroup_bpf.destroy result=PASS correlation={tag} duration_ms={}",
+            started.elapsed().as_millis()
+        );
+        Ok(())
     }
 }
 
@@ -3115,7 +3289,7 @@ fn expected_map_shape(name: &str, settings: &Settings) -> Option<(u32, u32, u32)
         "soglia_policy" => Some((8, 40, settings.policy_capacity)),
         "soglia_cookie_a" => Some((8, 32, settings.socket_capacity)),
         "soglia_tuples" => Some((16, 48, settings.socket_capacity)),
-        "soglia_counters" => Some((4, 8, 11)),
+        "soglia_counters" => Some((4, 8, COUNTER_COUNT as u32)),
         "soglia_denies" => Some((32, 8, settings.policy_capacity)),
         "soglia_events" => Some((0, 0, settings.ring_bytes)),
         _ => None,
@@ -3586,6 +3760,50 @@ mod tests {
             .unwrap()
             .remove("attachment_handle");
         assert!(serde_json::from_value::<HostState>(previous).is_err());
+    }
+
+    #[test]
+    fn observability_counter_layout_is_a_versioned_bpf_abi() {
+        let settings = Settings {
+            state_dir: PathBuf::from("/run/soglia-test"),
+            configured_pin_root: PathBuf::from("/sys/fs/bpf/soglia-test"),
+            executions: PathBuf::from("/sys/fs/cgroup/soglia-test/executions"),
+            bpftool: PathBuf::from("/usr/sbin/bpftool"),
+            proxy_ip: "10.200.255.1".parse().unwrap(),
+            proxy_port: 15_001,
+            policy_capacity: 4,
+            socket_capacity: 64,
+            ring_bytes: 4096,
+            required_controllers: vec!["memory", "pids"],
+        };
+        assert_eq!(BPF_ABI, 2);
+        assert_eq!(COUNTER_COUNT, 26);
+        assert_eq!(
+            expected_map_shape("soglia_counters", &settings),
+            Some((4, 8, 26))
+        );
+    }
+
+    #[test]
+    fn ring_events_accept_only_the_fixed_non_secret_reason_abi() {
+        for reason in 1..=DENY_REASON_COUNT {
+            let mut event = [0_u8; RING_EVENT_WIDTH];
+            event[0..4].copy_from_slice(&reason.to_ne_bytes());
+            assert_eq!(validate_ring_event(&event).unwrap(), reason);
+        }
+        assert!(validate_ring_event(&[0; RING_EVENT_WIDTH - 1]).is_err());
+        for reason in [0, DENY_REASON_COUNT + 1] {
+            let mut event = [0_u8; RING_EVENT_WIDTH];
+            event[0..4].copy_from_slice(&reason.to_ne_bytes());
+            assert!(validate_ring_event(&event).is_err());
+        }
+    }
+
+    #[test]
+    fn ring_drain_is_bounded_by_the_configured_ring_capacity() {
+        assert_eq!(ring_drain_limit(4096), 4096 / RING_EVENT_WIDTH);
+        assert_eq!(ring_drain_limit(RING_EVENT_WIDTH as u32), 1);
+        assert_eq!(ring_drain_limit(0), 1);
     }
 
     #[test]

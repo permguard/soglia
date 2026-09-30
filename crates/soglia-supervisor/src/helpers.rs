@@ -28,13 +28,13 @@ use std::sync::{Arc, Mutex};
 use serde::Serialize;
 use serde::de::DeserializeOwned;
 use soglia_core::helper::{
-    Hello, HelperFailure, HelperResponse, ResolveAttempt, ResolvePending, ResolveResult,
-    ResolverReply, ResolverRequest, SocketTupleV4,
+    Hello, HelperFailure, HelperResponse, ResolveAttempt, ResolveMismatch, ResolvePending,
+    ResolveResult, ResolverReply, ResolverRequest, SocketTupleV4,
 };
 use soglia_core::ipc::{read_frame, write_frame};
 use soglia_proxy::attribution::{AttributionResult, AttributionTable, ConnectionAttributor};
 use tokio::sync::{Mutex as AsyncMutex, OwnedMutexGuard, Semaphore};
-use tracing::{debug, warn};
+use tracing::{debug, info, warn};
 
 /// Callback invoked once when the Resolve channel first becomes permanently unhealthy.
 pub type ResolveHealthCallback = Arc<dyn Fn(ResolveHealthFailure) + Send + Sync>;
@@ -260,6 +260,7 @@ pub struct CandidateAAttributor {
     exchange_watchdog: std::time::Duration,
     queue: Semaphore,
     on_health_failure: ResolveHealthCallback,
+    observability: ResolveObservability,
 }
 
 /// A one-shot IPC exchange performs one try-lock and at most one BPF map lookup. One second leaves
@@ -267,6 +268,120 @@ pub struct CandidateAAttributor {
 const RESOLVE_EXCHANGE_WATCHDOG: std::time::Duration = std::time::Duration::from_secs(1);
 /// This preserves the previously qualified publication polling cadence without holding any lock.
 const RESOLVE_RETRY_INTERVAL: std::time::Duration = std::time::Duration::from_millis(2);
+const RESOLVE_OBSERVABILITY_INTERVAL: std::time::Duration = std::time::Duration::from_secs(1);
+const RESOLVE_LATENCY_BUCKET_US: [u64; 8] = [100, 250, 500, 1_000, 2_000, 5_000, 10_000, u64::MAX];
+const RESOLVE_OUTCOME_COUNT: usize = 8;
+
+struct ResolveObservability {
+    state: Mutex<ResolveMetricState>,
+}
+
+struct ResolveMetricState {
+    interval_started: std::time::Instant,
+    outcomes: [u64; RESOLVE_OUTCOME_COUNT],
+    delayed_hits: u64,
+    stale_generation: u64,
+    latency_buckets: [u64; RESOLVE_LATENCY_BUCKET_US.len()],
+    latency_max_us: u64,
+}
+
+impl ResolveObservability {
+    fn new() -> Self {
+        Self {
+            state: Mutex::new(ResolveMetricState {
+                interval_started: std::time::Instant::now(),
+                outcomes: [0; RESOLVE_OUTCOME_COUNT],
+                delayed_hits: 0,
+                stale_generation: 0,
+                latency_buckets: [0; RESOLVE_LATENCY_BUCKET_US.len()],
+                latency_max_us: 0,
+            }),
+        }
+    }
+
+    fn record(&self, result: &AttributionResult, attempts: u32, elapsed: std::time::Duration) {
+        let Ok(mut state) = self.state.lock() else {
+            warn!(
+                event.name = "cgroup_bpf.resolve_observability_unavailable",
+                "Resolve telemetry state is poisoned"
+            );
+            return;
+        };
+        let outcome = match result {
+            AttributionResult::Resolved(_) => 0,
+            AttributionResult::NotFound => 1,
+            AttributionResult::IdentityMismatch(reason) => {
+                if *reason == ResolveMismatch::BackendGeneration {
+                    state.stale_generation = state.stale_generation.saturating_add(1);
+                }
+                2
+            }
+            AttributionResult::Revoked => 3,
+            AttributionResult::Timeout => 4,
+            AttributionResult::QueueFull => 5,
+            AttributionResult::Unavailable => 6,
+            AttributionResult::IntegrityFailure => 7,
+        };
+        state.outcomes[outcome] = state.outcomes[outcome].saturating_add(1);
+        if matches!(result, AttributionResult::Resolved(_)) && attempts > 1 {
+            state.delayed_hits = state.delayed_hits.saturating_add(1);
+        }
+        let latency_us = u64::try_from(elapsed.as_micros()).unwrap_or(u64::MAX);
+        if latency_us > RESOLVE_LATENCY_BUCKET_US[RESOLVE_LATENCY_BUCKET_US.len() - 2] {
+            let last = RESOLVE_LATENCY_BUCKET_US.len() - 1;
+            state.latency_buckets[last] = state.latency_buckets[last].saturating_add(1);
+        } else {
+            for (index, bound) in RESOLVE_LATENCY_BUCKET_US[..RESOLVE_LATENCY_BUCKET_US.len() - 1]
+                .iter()
+                .enumerate()
+            {
+                if latency_us <= *bound {
+                    state.latency_buckets[index] = state.latency_buckets[index].saturating_add(1);
+                }
+            }
+        }
+        state.latency_max_us = state.latency_max_us.max(latency_us);
+        let interval = state.interval_started.elapsed();
+        if interval < RESOLVE_OBSERVABILITY_INTERVAL {
+            return;
+        }
+        let interval_ms = duration_millis(interval);
+        info!(
+            event.name = "cgroup_bpf.resolve_health",
+            interval_ms,
+            resolved = state.outcomes[0],
+            delayed_hit = state.delayed_hits,
+            not_found = state.outcomes[1],
+            identity_mismatch = state.outcomes[2],
+            stale_generation = state.stale_generation,
+            revoked = state.outcomes[3],
+            timeout = state.outcomes[4],
+            queue_refusal = state.outcomes[5],
+            unavailable = state.outcomes[6],
+            integrity_failure = state.outcomes[7],
+            latency_le_100us = state.latency_buckets[0],
+            latency_le_250us = state.latency_buckets[1],
+            latency_le_500us = state.latency_buckets[2],
+            latency_le_1ms = state.latency_buckets[3],
+            latency_le_2ms = state.latency_buckets[4],
+            latency_le_5ms = state.latency_buckets[5],
+            latency_le_10ms = state.latency_buckets[6],
+            latency_over_10ms = state.latency_buckets[7],
+            latency_max_us = state.latency_max_us,
+            "bounded Candidate-A Resolve health snapshot"
+        );
+        state.interval_started = std::time::Instant::now();
+        state.outcomes = [0; RESOLVE_OUTCOME_COUNT];
+        state.delayed_hits = 0;
+        state.stale_generation = 0;
+        state.latency_buckets = [0; RESOLVE_LATENCY_BUCKET_US.len()];
+        state.latency_max_us = 0;
+    }
+}
+
+fn duration_millis(duration: std::time::Duration) -> u64 {
+    u64::try_from(duration.as_millis()).unwrap_or(u64::MAX)
+}
 
 impl CandidateAAttributor {
     /// Builds a bounded fail-closed proxy attribution service.
@@ -285,6 +400,7 @@ impl CandidateAAttributor {
             exchange_watchdog: RESOLVE_EXCHANGE_WATCHDOG,
             queue: Semaphore::new(queue_depth.max(1)),
             on_health_failure,
+            observability: ResolveObservability::new(),
         }
     }
 }
@@ -296,15 +412,23 @@ impl ConnectionAttributor for CandidateAAttributor {
         local: SocketAddr,
     ) -> Pin<Box<dyn Future<Output = AttributionResult> + Send + 'a>> {
         Box::pin(async move {
+            let started = std::time::Instant::now();
+            let mut attempts = 0_u32;
             let (IpAddr::V4(peer_ip), IpAddr::V4(local_ip)) = (peer.ip(), local.ip()) else {
-                return AttributionResult::NotFound;
+                let result = AttributionResult::NotFound;
+                self.observability
+                    .record(&result, attempts, started.elapsed());
+                return result;
             };
             let Ok(_permit) = self.queue.try_acquire() else {
                 warn!(
                     event.name = "cgroup_bpf.resolve_queue_full",
                     "Candidate-A Resolve denied"
                 );
-                return AttributionResult::QueueFull;
+                let result = AttributionResult::QueueFull;
+                self.observability
+                    .record(&result, attempts, started.elapsed());
+                return result;
             };
             let tuple = SocketTupleV4 {
                 source_address: peer_ip.octets(),
@@ -313,53 +437,87 @@ impl ConnectionAttributor for CandidateAAttributor {
                 destination_port: local.port(),
             };
             let deadline = tokio::time::Instant::now() + self.publication_timeout;
-            let mut attempted = false;
             let mut tuple_absent = false;
             let mut backend_busy = false;
             loop {
                 if tokio::time::Instant::now() >= deadline {
-                    return self.publication_timed_out(tuple_absent, backend_busy);
+                    let result = self.publication_timed_out(tuple_absent, backend_busy);
+                    self.observability
+                        .record(&result, attempts, started.elapsed());
+                    return result;
                 }
                 let lease = match tokio::time::timeout_at(deadline, self.resolver.acquire()).await {
                     Ok(Ok(lease)) => lease,
-                    Ok(Err(error)) => return self.unavailable(error),
-                    Err(_) if attempted => {
-                        return self.publication_timed_out(tuple_absent, backend_busy);
+                    Ok(Err(error)) => {
+                        let result = self.unavailable(error);
+                        self.observability
+                            .record(&result, attempts, started.elapsed());
+                        return result;
+                    }
+                    Err(_) if attempts > 0 => {
+                        let result = self.publication_timed_out(tuple_absent, backend_busy);
+                        self.observability
+                            .record(&result, attempts, started.elapsed());
+                        return result;
                     }
                     Err(_) => {
                         warn!(
                             event.name = "cgroup_bpf.resolve_queue_full",
                             "Candidate-A Resolve expired waiting for the IPC gate"
                         );
-                        return AttributionResult::QueueFull;
+                        let result = AttributionResult::QueueFull;
+                        self.observability
+                            .record(&result, attempts, started.elapsed());
+                        return result;
                     }
                 };
-                attempted = true;
+                attempts = attempts.saturating_add(1);
                 // The authenticated-channel watchdog is deliberately independent from the
                 // publication deadline. A healthy exchange that starts just before the deadline
                 // must not be mistaken for channel loss merely because its response arrives
                 // after that deadline.
                 let exchange = match lease.start(tuple, self.exchange_watchdog) {
                     Ok(exchange) => exchange,
-                    Err(error) => return self.unavailable(error),
+                    Err(error) => {
+                        let result = self.unavailable(error);
+                        self.observability
+                            .record(&result, attempts, started.elapsed());
+                        return result;
+                    }
                 };
                 let attempt = match tokio::time::timeout(self.exchange_watchdog, exchange).await {
                     Ok(Ok(Ok(attempt))) => attempt,
-                    Ok(Ok(Err(error))) => return self.unavailable(error),
+                    Ok(Ok(Err(error))) => {
+                        let result = self.unavailable(error);
+                        self.observability
+                            .record(&result, attempts, started.elapsed());
+                        return result;
+                    }
                     Ok(Err(error)) => {
                         self.resolver.poison();
-                        return self.unavailable(HelperError::Channel(error.to_string()));
+                        let result = self.unavailable(HelperError::Channel(error.to_string()));
+                        self.observability
+                            .record(&result, attempts, started.elapsed());
+                        return result;
                     }
                     Err(_) => {
                         self.resolver.poison();
-                        return self.unavailable(HelperError::Channel(format!(
+                        let result = self.unavailable(HelperError::Channel(format!(
                             "the active Resolve exchange exceeded its {} ms watchdog",
                             self.exchange_watchdog.as_millis()
                         )));
+                        self.observability
+                            .record(&result, attempts, started.elapsed());
+                        return result;
                     }
                 };
                 match attempt {
-                    ResolveAttempt::Complete { result } => return self.complete(result),
+                    ResolveAttempt::Complete { result } => {
+                        let result = self.complete(result);
+                        self.observability
+                            .record(&result, attempts, started.elapsed());
+                        return result;
+                    }
                     ResolveAttempt::Pending {
                         reason: ResolvePending::TupleAbsent,
                     } => tuple_absent = true,
@@ -368,7 +526,10 @@ impl ConnectionAttributor for CandidateAAttributor {
                     } => backend_busy = true,
                 }
                 if tokio::time::Instant::now() >= deadline {
-                    return self.publication_timed_out(tuple_absent, backend_busy);
+                    let result = self.publication_timed_out(tuple_absent, backend_busy);
+                    self.observability
+                        .record(&result, attempts, started.elapsed());
+                    return result;
                 }
                 let wake = tokio::time::Instant::now() + RESOLVE_RETRY_INTERVAL;
                 if wake < deadline {
@@ -687,6 +848,25 @@ mod tests {
             execution_nonce: ExecutionNonce::generate().unwrap(),
             backend_generation: 5,
         }
+    }
+
+    #[test]
+    fn resolve_observability_has_bounded_typed_outcomes_and_latency_buckets() {
+        let observability = ResolveObservability::new();
+        observability.record(&AttributionResult::NotFound, 1, Duration::from_micros(600));
+        observability.record(
+            &AttributionResult::IdentityMismatch(ResolveMismatch::BackendGeneration),
+            2,
+            Duration::from_millis(12),
+        );
+        let state = observability.state.lock().unwrap();
+        assert_eq!(state.outcomes[1], 1);
+        assert_eq!(state.outcomes[2], 1);
+        assert_eq!(state.stale_generation, 1);
+        assert_eq!(state.latency_buckets[3], 1);
+        assert_eq!(state.latency_buckets[7], 1);
+        assert_eq!(state.latency_max_us, 12_000);
+        assert_eq!(duration_millis(Duration::from_millis(1_234)), 1_234);
     }
 
     async fn resolve_once(result: ResolveResult) -> (AttributionResult, Vec<ResolveHealthFailure>) {

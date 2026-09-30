@@ -26,7 +26,22 @@ char LICENSE[] SEC("license") = "Apache-2.0";
 #define C_SENDMSG4_DENY 8
 #define C_SENDMSG6_DENY 9
 #define C_COOKIE_MISS 10
-#define C_COUNT 11
+#define C_SOCK_CREATE_ENTRY 11
+#define C_CONNECT4_ENTRY 12
+#define C_CONNECT6_ENTRY 13
+#define C_SENDMSG4_ENTRY 14
+#define C_SENDMSG6_ENTRY 15
+#define C_SOCKOPS_ENTRY 16
+#define C_DENY_NOT_ACTIVE 17
+#define C_DENY_NOT_TCP 18
+#define C_DENY_NOT_PROXY 19
+#define C_DENY_IPV6 20
+#define C_DENY_FAMILY 21
+#define C_DENY_UDP 22
+#define C_DENY_COOKIE_FULL 23
+#define C_DENY_TUPLE_FULL 24
+#define C_DENY_COOKIE_MISSING 25
+#define C_COUNT 26
 
 #define R_NOT_ACTIVE 1
 #define R_NOT_TCP 2
@@ -139,8 +154,24 @@ static __always_inline void bump(__u32 index)
         __sync_fetch_and_add(value, 1);
 }
 
+static __always_inline void bump_deny_reason(__u32 reason)
+{
+    switch (reason) {
+    case R_NOT_ACTIVE: bump(C_DENY_NOT_ACTIVE); break;
+    case R_NOT_TCP: bump(C_DENY_NOT_TCP); break;
+    case R_NOT_PROXY: bump(C_DENY_NOT_PROXY); break;
+    case R_IPV6: bump(C_DENY_IPV6); break;
+    case R_FAMILY: bump(C_DENY_FAMILY); break;
+    case R_UDP: bump(C_DENY_UDP); break;
+    case R_COOKIE_FULL: bump(C_DENY_COOKIE_FULL); break;
+    case R_TUPLE_FULL: bump(C_DENY_TUPLE_FULL); break;
+    case R_COOKIE_MISSING: bump(C_DENY_COOKIE_MISSING); break;
+    }
+}
+
 static __always_inline void deny(struct binding_key *binding, __u32 reason, __u64 cookie)
 {
+    bump_deny_reason(reason);
     if (binding) {
         __u64 *count = bpf_map_lookup_elem(&soglia_denies, binding);
         if (count) {
@@ -174,6 +205,7 @@ static __always_inline struct policy_value *active_policy(__u64 cgroup_id)
 SEC("cgroup/sock_create")
 int soglia_sock_create(struct bpf_sock *sk)
 {
+    bump(C_SOCK_CREATE_ENTRY);
     if (sk->family == AF_INET && sk->type == SOCK_STREAM && sk->protocol == IPPROTO_TCP)
         return 1;
     bump(C_SOCK_CREATE_DENY);
@@ -184,6 +216,7 @@ int soglia_sock_create(struct bpf_sock *sk)
 SEC("cgroup/connect4")
 int soglia_connect4(struct bpf_sock_addr *ctx)
 {
+    bump(C_CONNECT4_ENTRY);
     __u64 cgroup_id = bpf_get_current_cgroup_id();
     struct policy_value *policy = active_policy(cgroup_id);
     __u32 dport = bpf_ntohs((__u16)ctx->user_port);
@@ -214,6 +247,7 @@ int soglia_connect4(struct bpf_sock_addr *ctx)
 SEC("cgroup/connect6")
 int soglia_connect6(struct bpf_sock_addr *ctx)
 {
+    bump(C_CONNECT6_ENTRY);
     (void)ctx;
     bump(C_CONNECT6_DENY);
     deny(0, R_IPV6, 0);
@@ -223,6 +257,7 @@ int soglia_connect6(struct bpf_sock_addr *ctx)
 SEC("cgroup/sendmsg4")
 int soglia_sendmsg4(struct bpf_sock_addr *ctx)
 {
+    bump(C_SENDMSG4_ENTRY);
     (void)ctx;
     bump(C_SENDMSG4_DENY);
     deny(0, R_UDP, 0);
@@ -232,6 +267,7 @@ int soglia_sendmsg4(struct bpf_sock_addr *ctx)
 SEC("cgroup/sendmsg6")
 int soglia_sendmsg6(struct bpf_sock_addr *ctx)
 {
+    bump(C_SENDMSG6_ENTRY);
     (void)ctx;
     bump(C_SENDMSG6_DENY);
     deny(0, R_IPV6, 0);
@@ -292,6 +328,7 @@ static __always_inline void unpublish(struct bpf_sock_ops *skops)
 SEC("sockops")
 int soglia_sockops(struct bpf_sock_ops *skops)
 {
+    bump(C_SOCKOPS_ENTRY);
     switch (skops->op) {
     case BPF_SOCK_OPS_TCP_CONNECT_CB:
         bpf_sock_ops_cb_flags_set(skops, BPF_SOCK_OPS_STATE_CB_FLAG);
