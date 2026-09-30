@@ -14,7 +14,7 @@ An owned state is identified by all of the following, never by a pathname or nam
 - magic `SOGLIA_CGROUP_BPF_SPIKE_STATE`, schema version 1 and ABI version 1;
 - a random 128-bit `state_id` and monotonically increasing nonzero generation;
 - exact BPF object SHA-256 and exact per-run pin root;
-- exact target cgroup path and inode;
+- exact target cgroup path, inode, cgroup v2 file handle and mount identity;
 - exact map IDs, program identities and link identities in the READY manifest;
 - a 48-byte `soglia_meta` value binding magic, schema, ABI, state ID and generation.
 
@@ -42,21 +42,23 @@ Stale policy, cookie or tuple entries are never inherited into the next generati
 
 ### Released-target recovery
 
-`TargetReleased` is the approved production recovery path for the case in which a real systemd restart has released the cgroup named by the durable attachment-target record. It does not weaken the inode check and it is not a pathname-based ownership inference.
+`TargetReleased` is the proposed production recovery path for the case in which a real systemd restart has released the cgroup named by the durable attachment-target record. The offline-target form below is a design draft backed by non-authoritative diagnostics and is not implemented or production-qualified. Until implementation and re-qualification, a recorded link that remains nonzero after the current bounded wait is still `Unknown`. The proposal does not weaken the cgroup-ID check and is not a pathname-based ownership inference.
 
 The classifier may return `TargetReleased` only after the Sandbox kill-all barrier and only when every predicate below is proven:
 
 - the durable record is otherwise fully trusted and compatible, including schema, ABI, state ID, generation, object/configuration hashes, pin root and exact recorded map, program and link IDs;
-- every recorded link pin opens the exact recorded link, program and attach type, and direct `BPF_OBJ_GET_INFO_BY_FD` polling every 10 ms converges to cgroup ID zero for every link inside a fixed, non-configurable five-second window, proving that the kernel has detached it from any cgroup; target release may become visible asynchronously after cgroup removal, so the fixed parameters and every intermediate value are recorded and no object is modified while waiting; `bpftool`, its exit status and text parsing are never ownership sources;
+- the durable record contains the exact cgroup v2 file handle obtained with `name_to_handle_at` while the attachment target was live, including handle type, length, bytes and mount identity; `open_by_handle_at` on that handle now returns exactly `ESTALE`, and a complete scan of the live cgroup2 hierarchy contains no cgroup with the recorded ID;
+- every recorded link pin opens the exact recorded link, program and attach type, and direct `BPF_OBJ_GET_INFO_BY_FD` reports only the recorded old target ID or zero, never another live or unknown ID; every value is recorded and no object is modified while classifying; `bpftool`, its exit status and text parsing are never ownership sources;
 - the current `executions/` cgroup has an ID different from the recorded attachment-target ID;
 - the current `executions/` cgroup is empty, is below the current systemd unit's delegated cgroup, and satisfies the normal ownership, mode and no-internal-process checks;
-- there is no unexpected pin, map, program, link, policy entry or per-Execution ownership record outside the exact durable inventory.
+- there is no unexpected pin, map, program, link, policy entry or per-Execution ownership record outside the exact durable inventory;
+- the Sandbox kill-all barrier proved every old Execution process dead and every old Execution pathname absent, and the production launch path still cannot pass an Execution-created socket FD outside the Execution.
 
-The old cgroup ID being absent from the live cgroup hierarchy is recorded as corroborating evidence. It never substitutes for the per-link kernel result.
+Only after all predicates pass may recovery call `BPF_LINK_DETACH` on each descriptor opened from its exact recorded pin. Every detach must succeed; the immediate `BPF_OBJ_GET_INFO_BY_FD` result must report cgroup ID zero with the link ID, program ID and attach type unchanged. Only then may recovery remove the exact recorded links, programs, maps and pins. It must prove every old ID and pin absent, create generation `N+1` against the current empty attachment target, prove the new policy, cookie and tuple maps empty, and publish READY last. No old map entry, `BindingKey` or authorization is imported.
 
-Only after all predicates pass may recovery remove the exact recorded detached links, programs, maps and pins. It must prove every old ID and pin absent, create generation `N+1` against the current empty attachment target, prove the new policy, cookie and tuple maps empty, and publish READY last. No old map entry, `BindingKey` or authorization is imported.
+If the old handle is openable or returns anything other than `ESTALE`, the old ID is present in the live hierarchy, any recorded link reports an ID other than its recorded old ID or zero, a recorded identity differs, or the current target is non-empty or belongs to another unit, the classification is `Unknown`. Unknown state remains byte-for-byte and ID-for-ID untouched. A detach error or post-detach identity mismatch also stops recovery without broad cleanup.
 
-If any recorded link still reports a nonzero cgroup ID when the fixed five-second observation window expires, if only some links are detached, if a recorded identity differs, or if the current target is non-empty or belongs to another unit, the classification is `Unknown`. Unknown state remains byte-for-byte and ID-for-ID untouched.
+Non-authoritative run `b6-target-offline-final-20260929T234729Z-67073` on Linux 6.8.0-142-generic aarch64 with systemd 255 supplies the diagnostic basis: `ESTALE` from the stored pre-loss handle, no live path for the old ID, six links retaining only that old ID while the target was offline, and six successful direct `BPF_LINK_DETACH` operations that preserved link/program/attach identity and changed cgroup ID to zero. B5 authoritative run `b5-20260929T140856Z-8731` supplies the current no-socket-FD-transfer evidence. Both are environment-specific and must be repeated by B1/B5/B6 for every supported production environment.
 
 ## Refusal and cleanup
 
