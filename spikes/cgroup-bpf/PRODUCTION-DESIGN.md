@@ -443,6 +443,19 @@ The first implementation's availability envelope is the exact configuration pass
 It must not claim support above the largest qualified `max_concurrency`, `max_tracked_sockets`, Resolve rate, FD budget or kernel-memory budget.
 S14's Candidate-C `EMFILE` boundary is not directly inherited by Candidate A, but it remains a requirement to measure actual FDs rather than assume loader cost.
 
+The declared B7 support matrix is:
+
+| Profile | `max_concurrency` | `max_tracked_sockets` | Execution-count checkpoints | Simultaneous live sockets proved | Connection churn | Resolve workload |
+| ------- | ----------------- | --------------------- | --------------------------- | ------------------------------- | ---------------- | ---------------- |
+| M0      | 1                 | 64                    | 0, 1                        | 48                              | 64               | 1/s for 30 s     |
+| M1      | 4                 | 512                   | 0, 1, 2, 4                  | 384                             | 1,024            | 50/s for 30 s    |
+| M2      | 4                 | 4,096                 | 0, 1, 2, 4                  | 512                             | 8,192            | 100/s for 30 s, then 250/s for 30 s |
+| M3      | 32                | 4,096                 | 0, 1, 8, 16, 32             | 512, distributed across live Executions | 8,192 | 250/s for 30 s plus a 256-simultaneous-request burst |
+
+This matrix declares maps configured for as many as 4,096 tracked sockets, but qualifies only 512 simultaneously live sockets; it makes no claim that 4,096 sockets were held live at once.
+The 512-live-socket boundary is imposed by the production service environment measured by qualification: `RLIMIT_NOFILE` has a soft limit of 1,024 because the production systemd unit does not set `LimitNOFILE` and therefore inherits systemd's default.
+Raising that limit is a separate product and production-unit decision and requires a new resource qualification; B7 does not tune it to force PASS.
+
 ## Observability and health
 
 The production backend exposes bounded, non-secret metrics and structured events for:
@@ -460,6 +473,14 @@ The production backend exposes bounded, non-secret metrics and structured events
 
 High-cardinality cookies and raw `ExecutionId` values are not metric labels.
 Structured diagnostic logs may include a bounded correlation token, but must not expose policy secrets or agent data.
+
+The production BPF ABI reserves fixed `soglia_counters` indices for every hook entry, enforcement failure, publication/close cleanup and deny reason.
+ABI 2 expands this array from 11 to 26 entries; an ABI-1 durable generation is incompatible and is never migrated implicitly.
+The Enforcer drains the bounded `soglia_events` ring during each health interval, validates only its fixed reason/width ABI and aggregates it without logging the embedded cookie or `BindingKey`.
+Each drain is capped by the configured ring capacity divided by the fixed event width; events beyond that per-interval budget remain for the next health interval.
+The same health snapshot reads the non-droppable counters and reports exact owned inventory, policy-state cardinality, occupancy/high-water/capacity, ring consumption/drop totals and a digest of the ancestor fingerprint.
+The Supervisor records every typed Resolve outcome, delayed success and stale-generation mismatch into fixed counters and fixed latency buckets, emitting at most one aggregate snapshot per health interval together with the real `interval_ms` covered by that snapshot.
+Failure to read the counter map or a malformed ring event indicates an observability-map integrity failure: the health check fails and the runtime enters the same fail-closed transition as other owned-state integrity failures.
 
 The Enforcer periodically revalidates exact link attachment, map IDs, metadata, target inode and ownership record.
 Integrity drift triggers the same one-way fail-closed transition as helper loss.
@@ -571,7 +592,11 @@ At every Execution-count point, B7 loads the real production object once, attach
 B7 must prove constant host-wide inventory of six Soglia programs and six Soglia links, zero per-Execution program/link instances, correct attribution for every sampled child and unchanged effective enforcement as Execution count grows.
 This is an independent production qualification gate; S9/S10 foreign-ancestor PASS results are requirements for B5 and do not satisfy or waive the B7 topology proof.
 It measures map memory, occupancy/high-water, FDs, program/link/map/pin counts, load/recovery latency, Resolve latency and event loss without tuning the host to force PASS.
-It injects observable integrity drift and verifies the health transition, then runs representative full lifecycles and proves zero Soglia-owned process, cgroup, runtime, netns/veth/nft, BPF, pin, map-entry and ownership-record residue.
+Resolve latency is recorded as p50, p95, p99 and maximum for every rate point; these observations do not create an unevidenced latency objective.
+PASS requires every successful Resolve to remain within the configured deadline and at least 95% of the requested rate to be achieved for each declared workload.
+It injects both required integrity-drift classes: an unexpected foreign direct link on the production target and the detach of one of the six owned Soglia links.
+Each must trigger the same one-way fail-closed health transition as helper loss, stop admission and effect-producing work, and must not be silently repaired in process.
+It then runs representative full lifecycles and proves zero Soglia-owned process, cgroup, runtime, netns/veth/nft, BPF, pin, map-entry and ownership-record residue.
 PASS requires the constant shared-attachment model as well as the measured resource envelope, and does not generalize beyond the tested topology or limits.
 
 B1-B7 do not replace the existing full regression obligations for both backends, T1-T9/H1-H4 or the T10 no-eBPF build.
