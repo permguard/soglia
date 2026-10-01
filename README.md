@@ -245,6 +245,32 @@ A compatibility deployment must set `network.backend: netns-nft` explicitly.
 Run it inside a cgroup subtree delegated to it.
 [dev/systemd/soglia.service](dev/systemd/soglia.service) shows the unit, with `Delegate=yes`.
 
+### Uninstalling
+
+Stop the Soglia runtime before uninstalling it, and verify that the unit is no longer running.
+Use the dry run first to validate ownership and inspect the exact removal plan without changing the host:
+
+```sh
+soglia uninstall --dry-run -f /etc/soglia/soglia.yaml
+soglia uninstall -f /etc/soglia/soglia.yaml
+```
+
+Verified uninstall removes only resources whose durable records and current kernel identities prove that Soglia owns them.
+It has no `--force` option and preserves any state whose ownership cannot be proved.
+If the command is interrupted after recording its intent, run the same command again to resume the exact recorded plan.
+
+| Exit status | Meaning | Operator action |
+| --- | --- | --- |
+| `0` | Uninstall completed, resumed successfully, or the host was already clean | No further cleanup is required |
+| `20` | Recorded schema, ABI or object is incompatible | Use the matching Soglia version or a qualified migration; do not delete the state manually |
+| `21` | Ownership is unknown or recorded and kernel identities disagree | Inspect the reported trusted state path and preserve the objects until ownership is resolved |
+| `22` | A required kernel or host capability is unsupported | Restore the required capability on a qualified host and retry |
+| `23` | An independent host, I/O or service operation failed | Correct the reported infrastructure problem and retry |
+| `24` | The cgroup-BPF attachment topology is incompatible | Resolve the reported hook and errno conflict, then retry without deleting pins manually |
+
+On systemd 255, a stopped unit can occasionally leave an empty `runtime` cgroup after systemd ignores an `EBUSY` pruning race.
+The empty leaf contains no process and is harmless: the next trusted startup reuses it, and verified uninstall removes it by exact path.
+
 ## Development
 
 The repository exposes the same workflows through `Taskfile.yml` and `Makefile`.

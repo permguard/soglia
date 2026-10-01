@@ -983,6 +983,9 @@ must not be cited as qualification of the source-port byte-order invariant.
 
 ## Final unified B1-B7 production qualification
 
+**Historical status: SUPERSEDED by [Phase 1 release qualification](#phase-1-release-qualification).**
+This section records the earlier seven-gate qualification on production baseline `db6e1ac`; it remains valid for that exact baseline but is not the release qualification.
+
 **Status: COMPLETE PASS on one unchanged production baseline.**  The final
 authoritative sequence qualifies Candidate A and the production
 `CgroupBpfBackend` at production commit
@@ -1066,6 +1069,46 @@ steps.  The availability and kernel-pressure follow-ups are intentionally
 unchanged in [Deferred work: independent Resolve queue depth](#deferred-work-independent-resolve-queue-depth)
 and [Deferred work: warm pool of never-used Executions](#deferred-work-warm-pool-of-never-used-executions),
 including the warm-pool and churn risks documented there.
+
+## Phase 1 release qualification
+
+**Status: QUALIFIED on production baseline `17d8fc732bfdbdc99d7924193965c427e52a0b68`.**
+The single `spike:qualify` run `qualification-20261001T084920Z-77909` executed B1 through B7 plus verified uninstall on eight fresh VMs and stopped only after the aggregate verifier returned `PASS`.
+All eight authoritative runs record `production_source_baseline.matches: true`, the same clean harness fingerprint `d5ea9eadb2872eea504d95bc3d32bc96b19f3478`, an empty working-tree diff and cleanup `PASS`.
+The promoted verifier result is [`qualification-17d8fc73.json`](evidence/authoritative/qualification-17d8fc73.json) and records the `single_commit` policy with 4,924 verified checksums.
+
+| Gate | Authoritative run | Checksums | `SYSTEMD_PRUNE_RACE` |
+| ---- | ----------------- | --------- | -------------------- |
+| B1 | [`b1-20261001T085130Z-9419`](evidence/authoritative/b1-20261001T085130Z-9419/) | 338/338 | 0 |
+| B2 | [`b2-20261001T085336Z-9439`](evidence/authoritative/b2-20261001T085336Z-9439/) | 370/370 | 0 |
+| B3 | [`b3-20261001T085550Z-9450`](evidence/authoritative/b3-20261001T085550Z-9450/) | 1928/1928 | 0 |
+| B4 | [`b4-20261001T090103Z-9422`](evidence/authoritative/b4-20261001T090103Z-9422/) | 97/97 | 0 |
+| B5 | [`b5-20261001T090820Z-9453`](evidence/authoritative/b5-20261001T090820Z-9453/) | 177/177 | 0 |
+| B6 | [`b6-20261001T091053Z-9423`](evidence/authoritative/b6-20261001T091053Z-9423/) | 1448/1448 | 2 |
+| B7 | [`b7-20261001T091538Z-9461`](evidence/authoritative/b7-20261001T091538Z-9461/) | 352/352 | 0 |
+| Uninstall | [`uninstall-20261001T092201Z-9500`](evidence/authoritative/uninstall-20261001T092201Z-9500/) | 214/214 | 0 |
+
+The B7 out-of-envelope burst requested 256 connections: 105 succeeded and 151 received the typed `QueueFull` refusal.
+Packet capture recorded exactly 105 distinct outbound connection attempts, equal to the successful connections, with zero attempts or accepts for refused connections, zero retransmissions and zero TCP or UDP DNS packets.
+The immediate post-burst control connection succeeded without retry.
+Within the supported envelope, all Resolve outcomes remained clean; the constant six-program, six-link, seven-map and thirteen-pin topology, both integrity-drift transitions and all three independently measured residue boundaries passed.
+
+Verified uninstall passed all eleven required cases: `fresh_host`, `interrupted_startup_pin_root`, `normal_service_stop`, `known_compatible`, `live_runtime_refusal`, `incompatible_refusal`, `unknown_refusal`, `unsupported_refusal`, `nonempty_refusal`, `interrupted_resume` and `target_released`.
+Each positive case measured zero owned residue before harness teardown, and every negative case preserved unproved state with its typed refusal.
+The default backend is `cgroup-bpf`; startup never falls back automatically, and an operator must select `network.backend: netns-nft` explicitly for a compatibility deployment.
+The release baseline also passed T1-T10 and H1-H4 against both backends, including the two-build T10 dependency contract.
+
+The B6 verifier records two `SYSTEMD_PRUNE_RACE` classifications, in `unknown_unexpected_pin` and `incompatible_schema`.
+On the recorded systemd 255 host, systemd can ignore an `EBUSY` while pruning an already stopped unit cgroup and leave the empty `runtime` leaf under `system.slice`.
+Both cases prove `populated 0`, no surviving process and exactly the expected empty leaf before the harness removes the two paths by exact `rmdir` and verifies their absence.
+This is operationally harmless in production because startup reuses an existing trusted `runtime` leaf and verified uninstall removes it; qualification records and counts the race instead of hiding it as generic churn.
+
+The historical [`qualification-db6e1ac.json`](runner/qualification-db6e1ac.json) is explicitly superseded by this release qualification.
+It remains reproducible as a seven-gate historical result with verifier commit `443b06c4a0170ad948870a63e3abd8981e9bc534`, where it still verifies 3,777 checksums and returns `PASS`.
+The current verifier intentionally requires B1-B7 plus uninstall and therefore must not be used to reinterpret that older manifest.
+
+Phase 1 qualification is closed for the exact recorded platform and release baseline.
+The optimization work below remains deferred and unchanged; it is not part of the release qualification claim.
 
 ## Deferred work: independent Resolve queue depth
 

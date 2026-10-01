@@ -5,7 +5,7 @@
 
 ## Status and decision
 
-Status: `APPROVED_FOR_IMPLEMENTATION`.
+Status: `PHASE_1_RELEASE_QUALIFIED` on production baseline `17d8fc732bfdbdc99d7924193965c427e52a0b68`.
 
 Candidate A, socket cookie to cgroup identity, was selected explicitly after the completed candidate review on 2026-09-27.
 This document defines the normative production contract and its B1-B7 qualification gates.
@@ -764,4 +764,5 @@ gate set to be repeated before release.
 - Full kernel/distro/architecture portability, upgrades between BPF ABI versions and rolling multi-instance coordination remain unqualified.
 - Phase-0 CONNECT mediation still does not provide L7 TLS identity or prevent domain-fronting behavior after an allowed tunnel is established.
 
-Implementation and default enablement were explicitly authorized against this contract. Release remains blocked on the final B1-B7 plus uninstall qualification and full dual-backend regressions.
+Implementation and default enablement were explicitly authorized against this contract.
+The final B1-B7 plus uninstall qualification and the full T1-T10/H1-H4 dual-backend regressions passed on production baseline `17d8fc732bfdbdc99d7924193965c427e52a0b68`.

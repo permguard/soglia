@@ -117,6 +117,32 @@ curl -X POST --data 'echo hello' http://127.0.0.1:8088/v1/execute/echo
 The call runs in a fresh Execution of the `echo` agent.
 By the time the response reaches you, that Execution has been destroyed.
 
+## Uninstall Soglia
+
+Stop the Soglia runtime before uninstalling it, and verify that the systemd unit is no longer running.
+Start with a dry run, which performs the same ownership validation and displays the exact plan without changing the host:
+
+```sh
+soglia uninstall --dry-run -f /etc/soglia/soglia.yaml
+soglia uninstall -f /etc/soglia/soglia.yaml
+```
+
+Verified uninstall removes only resources whose durable records and current kernel identities prove that Soglia owns them.
+There is no `--force` option, and unproved state is preserved for operator inspection.
+If an uninstall is interrupted after its durable intent is recorded, run the same command again to resume that exact plan.
+
+| Exit status | Meaning | What to do |
+| ----------- | ------- | ---------- |
+| `0` | Uninstall completed, resumed successfully, or the host was already clean | No further cleanup is required |
+| `20` | Recorded schema, ABI or object is incompatible | Use the matching Soglia version or a qualified migration, and do not delete the state manually |
+| `21` | Ownership is unknown or recorded and kernel identities disagree | Inspect the reported trusted state path and preserve the objects until ownership is resolved |
+| `22` | A required kernel or host capability is unsupported | Restore the required capability on a qualified host and retry |
+| `23` | An independent host, I/O or service operation failed | Correct the reported infrastructure problem and retry |
+| `24` | The cgroup-BPF attachment topology is incompatible | Resolve the reported hook and errno conflict, then retry without deleting pins manually |
+
+On systemd 255, a stopped unit can occasionally leave an empty `runtime` cgroup after systemd ignores an `EBUSY` pruning race.
+The empty leaf contains no process and is harmless: the next trusted startup reuses it, and verified uninstall removes it by exact path.
+
 ## Next
 
 - [How it works](../how-it-works): what happens between the call and the response.
