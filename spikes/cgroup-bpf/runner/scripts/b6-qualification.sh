@@ -25,7 +25,7 @@ if [[ $# -eq 6 ]]; then
 fi
 
 # Updated after the production recovery follow-up is committed.
-production_baseline=36ca2ee52d9ba6e88e729754567f59db3d744bc3
+production_baseline=17d8fc732bfdbdc99d7924193965c427e52a0b68
 vm_name=${SOGLIA_B6_VM_NAME:-}
 if [[ "$authoritative" == true && "$vm_name" != soglia-spike-b6-* ]]; then
   echo "authoritative B6 requires a recorded soglia-spike-b6-* VM name" >&2
