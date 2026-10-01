@@ -105,6 +105,20 @@ The immediate unit-test fix is not to serialize unrelated tests globally.
 It is to remove wall-clock scheduling from the Candidate-A timing tests and restore the ordinary parallel test runner.
 Privileged kernel integration suites should remain isolated at a disposable environment boundary even if their internal names later become unique.
 
+## Clean-environment portability finding closed by SOG-1.03
+
+The first clean CI run after making `cgroup-bpf` the default exposed two assumptions that were hidden by the qualification VMs.
+An effective external BPF program in the CI container had no `name` field in `bpftool prog show`, so the startup inventory rejected the host before it could attach Soglia's programs.
+An unprivileged unit test also created a mode-0700 temporary directory and incorrectly expected it to satisfy the production requirement that an unrecorded pin root be owned by root.
+
+Commit `7dd0840e4d51078c01ab26343c9eebfd315e5e5e` closes both findings without weakening an owned-resource check.
+An external program name is optional evidence, but two reported names must agree when both are present, and the external fingerprint still requires the exact program ID, type, tag and attach type.
+The six Soglia-owned programs retain their existing exact recorded and kernel identity checks.
+The pin-root test now exercises the pure classification rule without pretending to have root ownership, while the filesystem test continues to prove that an untrusted directory is `Unknown`.
+
+The clean Linux image then passed workspace tests and Clippy, the two T10 builds, and T1-T10/H1-H4 with both `netns-nft` and `cgroup-bpf`.
+This is the concrete application of the rule in `EXECUTION-PLATFORM.md`: VM qualification alone does not finish a work item; its CI-equivalent checks must also pass in a clean environment.
+
 ## Gate coverage and closure order
 
 | Phase         | Required new evidence                                                                                                                              |
