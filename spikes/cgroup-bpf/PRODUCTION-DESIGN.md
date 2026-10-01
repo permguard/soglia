@@ -5,7 +5,7 @@
 
 ## Status and decision
 
-Status: `PHASE_1_RELEASE_QUALIFIED` on production baseline `17d8fc732bfdbdc99d7924193965c427e52a0b68`.
+Status: `PHASE_1_RELEASE_QUALIFIED` on production baseline `7dd0840e4d51078c01ab26343c9eebfd315e5e5e`.
 
 Candidate A, socket cookie to cgroup identity, was selected explicitly after the completed candidate review on 2026-09-27.
 This document defines the normative production contract and its B1-B7 qualification gates.
@@ -765,4 +765,4 @@ gate set to be repeated before release.
 - Phase-0 CONNECT mediation still does not provide L7 TLS identity or prevent domain-fronting behavior after an allowed tunnel is established.
 
 Implementation and default enablement were explicitly authorized against this contract.
-The final B1-B7 plus uninstall qualification and the full T1-T10/H1-H4 dual-backend regressions passed on production baseline `17d8fc732bfdbdc99d7924193965c427e52a0b68`.
+The final B1-B7 plus uninstall qualification and the full T1-T10/H1-H4 dual-backend regressions passed on production baseline `7dd0840e4d51078c01ab26343c9eebfd315e5e5e`.
