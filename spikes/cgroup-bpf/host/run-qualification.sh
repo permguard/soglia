@@ -23,38 +23,50 @@ snapshot_vms() {
   limactl list --json | jq -r '.name // empty' | sort
 }
 
-for gate in 1 2 3 4 5 6 7; do
+gate_specs=(
+  'B1|soglia-spike-b1-|b1-*|run-b1-fresh.sh'
+  'B2|soglia-spike-b2-|b2-*|run-b2-fresh.sh'
+  'B3|soglia-spike-b3-|b3-*|run-b3-fresh.sh'
+  'B4|soglia-spike-b4-|b4-*|run-b4-fresh.sh'
+  'B5|soglia-spike-b5-|b5-*|run-b5-fresh.sh'
+  'B6|soglia-spike-b6-|b6-*|run-b6-fresh.sh'
+  'B7|soglia-spike-b7-|b7-*|run-b7-fresh.sh'
+  'UNINSTALL|soglia-spike-uninstall-|uninstall-*|run-uninstall-fresh.sh'
+)
+
+for spec in "${gate_specs[@]}"; do
+  IFS='|' read -r gate vm_prefix run_pattern runner <<< "$spec"
   before_vms=$(mktemp -t soglia-qualify-before-vms.XXXXXX)
   after_vms=$(mktemp -t soglia-qualify-after-vms.XXXXXX)
   before_runs=$(mktemp -t soglia-qualify-before-runs.XXXXXX)
   after_runs=$(mktemp -t soglia-qualify-after-runs.XXXXXX)
   snapshot_vms > "$before_vms"
-  find "$evidence_root" -mindepth 1 -maxdepth 1 -type d -name "b${gate}-*" -print | sort > "$before_runs"
+  find "$evidence_root" -mindepth 1 -maxdepth 1 -type d -name "$run_pattern" -print | sort > "$before_runs"
 
   set +e
-  SOGLIA_SPIKE_CLEANUP_VM=1 PYTHONDONTWRITEBYTECODE=1 "$host_dir/run-b${gate}-fresh.sh"
+  SOGLIA_SPIKE_CLEANUP_VM=1 PYTHONDONTWRITEBYTECODE=1 "$host_dir/$runner"
   gate_status=$?
   set -e
 
   snapshot_vms > "$after_vms"
-  remaining_vms=$(comm -13 "$before_vms" "$after_vms" | awk -v prefix="soglia-spike-b${gate}-" 'index($0,prefix)==1 {print}')
+  remaining_vms=$(comm -13 "$before_vms" "$after_vms" | awk -v prefix="$vm_prefix" 'index($0,prefix)==1 {print}')
   vm_count=$(printf '%s\n' "$remaining_vms" | awk 'NF {count++} END {print count+0}')
   rm -f "$before_vms" "$after_vms"
   if [[ $vm_count -ne 0 ]]; then
-    echo "B${gate}: fresh qualification VM was not deleted: $remaining_vms" >&2
+    echo "$gate: fresh qualification VM was not deleted: $remaining_vms" >&2
     exit 13
   fi
 
   if [[ $gate_status -ne 0 ]]; then
-    echo "B${gate}: authoritative gate failed with status $gate_status; stopping" >&2
+    echo "$gate: authoritative gate failed with status $gate_status; stopping" >&2
     exit "$gate_status"
   fi
-  find "$evidence_root" -mindepth 1 -maxdepth 1 -type d -name "b${gate}-*" -print | sort > "$after_runs"
+  find "$evidence_root" -mindepth 1 -maxdepth 1 -type d -name "$run_pattern" -print | sort > "$after_runs"
   run=$(comm -13 "$before_runs" "$after_runs")
   run_count=$(printf '%s\n' "$run" | awk 'NF {count++} END {print count+0}')
   rm -f "$before_runs" "$after_runs"
   if [[ $run_count -ne 1 ]]; then
-    echo "B${gate}: expected exactly one new evidence directory, found $run_count" >&2
+    echo "$gate: expected exactly one new evidence directory, found $run_count" >&2
     exit 13
   fi
   printf '%s\n' "$run" >> "$qualification_dir/runs.txt"

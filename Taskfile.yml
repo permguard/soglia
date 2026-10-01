@@ -56,7 +56,7 @@ tasks:
       - ./scripts/third-party-notices.sh --check
 
   check:phase0-deps:
-    desc: Check that the binary links no PIC, gRPC, eBPF or TLS crate (T10).
+    desc: Check exact default eBPF deps and no eBPF/PIC/gRPC/TLS without defaults (T10).
     cmds:
       - ./scripts/check-phase0-dependencies.sh
 
@@ -331,14 +331,20 @@ tasks:
 
   spike:qualify:
     interactive: true
-    desc: Run and verify authoritative B1-B7, each on a fresh VM, stopping on first failure.
+    desc: Run and verify authoritative B1-B7 plus uninstall, each on a fresh VM.
     summary: |
-      Require a clean tree, run B1 through B7 in order on seven fresh VMs, delete each VM after
-      its gate even when the gate fails, and stop at the first non-PASS result. If all gates pass,
+      Require a clean tree, run B1 through B7 and verified uninstall in order on eight fresh VMs,
+      delete each VM after its gate even when the gate fails, and stop at the first non-PASS result. If all gates pass,
       verify checksums, fingerprints, the common production baseline, every case/group verdict,
       and the B5-B7 gate-specific invariants. Do not use this target for a partial diagnostic run.
     cmds:
       - ./spikes/cgroup-bpf/host/run-qualification.sh
+
+  spike:uninstall:
+    interactive: true
+    desc: Run authoritative verified-uninstall qualification on a new VM.
+    cmds:
+      - ./spikes/cgroup-bpf/host/run-uninstall-fresh.sh
 
   spike:uninstall:diagnostic:
     interactive: true

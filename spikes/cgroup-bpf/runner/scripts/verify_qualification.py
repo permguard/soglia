@@ -2,7 +2,7 @@
 # Copyright (c) 2022 Nitro Agility S.r.l.
 # SPDX-License-Identifier: Apache-2.0
 
-"""Verify a complete B1-B7 authoritative cgroup-BPF qualification set."""
+"""Verify a complete B1-B7 plus uninstall authoritative qualification set."""
 
 from __future__ import annotations
 
@@ -16,7 +16,7 @@ from typing import Any
 
 
 EMPTY_DIFF_SHA256 = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-EXPECTED_GATES = tuple(f"B{number}" for number in range(1, 8))
+EXPECTED_GATES = (*tuple(f"B{number}" for number in range(1, 8)), "UNINSTALL")
 NEGATIVE_RESOLVE_OUTCOMES = (
     "identity_mismatch",
     "integrity_failure",
@@ -216,6 +216,36 @@ def verify_b7(run: Path) -> None:
     require(dns.get("tcp") == 0 and dns.get("udp") == 0, f"{run.name}: B7 refused burst produced DNS traffic")
 
 
+def verify_uninstall(run: Path) -> None:
+    summary = load_json(run / "summary.json")
+    cases = summary.get("cases", {})
+    expected = {
+        "fresh_host",
+        "interrupted_startup_pin_root",
+        "normal_service_stop",
+        "known_compatible",
+        "live_runtime_refusal",
+        "incompatible_refusal",
+        "unknown_refusal",
+        "unsupported_refusal",
+        "nonempty_refusal",
+        "interrupted_resume",
+        "target_released",
+    }
+    require(set(cases) == expected, f"{run.name}: uninstall case set is incomplete")
+    for name in sorted(expected):
+        require(cases.get(name) == "PASS", f"{run.name}: uninstall case {name} is not PASS")
+    residues = sorted(run.glob("cases/*/residue-before-harness-teardown.json"))
+    require(bool(residues), f"{run.name}: uninstall pre-teardown residue evidence is missing")
+    for path in residues:
+        value = load_json(path)
+        require(
+            value.get("measured_before_harness_teardown") is True
+            and value.get("owned_residue") is False,
+            f"{run.name}: {path.relative_to(run)} does not prove zero residue before harness teardown",
+        )
+
+
 def verify_run(run: Path) -> dict[str, Any]:
     require(run.is_dir(), f"run directory does not exist: {run}")
     summary = load_json(run / "summary.json")
@@ -238,6 +268,8 @@ def verify_run(run: Path) -> dict[str, Any]:
         verify_b6(run)
     elif gate == "B7":
         verify_b7(run)
+    elif gate == "UNINSTALL":
+        verify_uninstall(run)
     return {
         "gate": gate,
         "run_id": run.name,
@@ -257,7 +289,7 @@ def verify_manifest(results: list[dict[str, Any]], path: Path | None) -> str:
     require(manifest.get("schema") == 1, f"{path}: unsupported manifest schema")
     declared = manifest.get("runs")
     require(isinstance(declared, dict), f"{path}: runs must be an object")
-    require(set(declared) == set(EXPECTED_GATES), f"{path}: manifest must declare exactly B1-B7")
+    require(set(declared) == set(EXPECTED_GATES), f"{path}: manifest must declare exactly B1-B7 and UNINSTALL")
     require(manifest.get("production_baseline") == results[0]["production_baseline"], f"{path}: baseline mismatch")
     for result in results:
         expected = declared[result["gate"]]
@@ -267,10 +299,14 @@ def verify_manifest(results: list[dict[str, Any]], path: Path | None) -> str:
 
 
 def verify(runs: list[Path], manifest: Path | None = None) -> dict[str, Any]:
-    require(len(runs) == 7, "qualification requires exactly seven run directories")
+    require(len(runs) == 8, "qualification requires exactly eight run directories")
     results = [verify_run(run) for run in runs]
-    results.sort(key=lambda result: int(result["gate"][1:]))
-    require(tuple(result["gate"] for result in results) == EXPECTED_GATES, "qualification must contain exactly one run for each gate B1-B7")
+    order = {gate: index for index, gate in enumerate(EXPECTED_GATES)}
+    results.sort(key=lambda result: order[result["gate"]])
+    require(
+        tuple(result["gate"] for result in results) == EXPECTED_GATES,
+        "qualification must contain exactly one run for each gate B1-B7 and UNINSTALL",
+    )
     baselines = {result["production_baseline"] for result in results}
     require(len(baselines) == 1, "qualification runs have different production baselines")
     commit_policy = verify_manifest(results, manifest)

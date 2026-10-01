@@ -22,6 +22,7 @@ class QualificationVerifierTests(unittest.TestCase):
         self.temporary = tempfile.TemporaryDirectory()
         self.root = Path(self.temporary.name)
         self.runs = [self.make_run(number) for number in range(1, 8)]
+        self.runs.append(self.make_uninstall_run())
 
     def tearDown(self) -> None:
         self.temporary.cleanup()
@@ -116,6 +117,48 @@ class QualificationVerifierTests(unittest.TestCase):
         self.write_sums(run)
         return run
 
+    def make_uninstall_run(self) -> Path:
+        run = self.root / "uninstall-fixture"
+        run.mkdir()
+        cases = {
+            name: "PASS"
+            for name in (
+                "fresh_host",
+                "interrupted_startup_pin_root",
+                "normal_service_stop",
+                "known_compatible",
+                "live_runtime_refusal",
+                "incompatible_refusal",
+                "unknown_refusal",
+                "unsupported_refusal",
+                "nonempty_refusal",
+                "interrupted_resume",
+                "target_released",
+            )
+        }
+        self.write_json(
+            run / "summary.json",
+            {
+                "gate": "UNINSTALL",
+                "run_id": run.name,
+                "authoritative": True,
+                "verdict": "PASS",
+                "cleanup": {"verdict": "PASS"},
+                "production_source_baseline": {"commit": "b" * 40, "matches": True},
+                "cases": cases,
+            },
+        )
+        (run / "verdict.txt").write_text("PASS\n", encoding="utf-8")
+        (run / "source-fingerprint.txt").write_text(
+            f"{'a' * 40}\n{VERIFY.EMPTY_DIFF_SHA256}  -\n", encoding="utf-8"
+        )
+        self.write_json(
+            run / "cases/known_compatible/residue-before-harness-teardown.json",
+            {"measured_before_harness_teardown": True, "owned_residue": False},
+        )
+        self.write_sums(run)
+        return run
+
     @staticmethod
     def write_sums(run: Path) -> None:
         entries = []
@@ -179,6 +222,55 @@ class QualificationVerifierTests(unittest.TestCase):
         self.write_json(path, value)
         self.write_sums(self.runs[6])
         self.assert_reason("refused connections produced outbound attempts")
+
+    def tamper_b7(self, mutate: object, reason: str) -> None:
+        path = self.runs[6] / "profiles/M3/burst-characterization.json"
+        value = json.loads(path.read_text(encoding="utf-8"))
+        assert callable(mutate)
+        mutate(value)
+        self.write_json(path, value)
+        self.write_sums(self.runs[6])
+        self.assert_reason(reason)
+
+    def test_b7_rejected_accept_tamper_fails(self) -> None:
+        self.tamper_b7(
+            lambda value: value["effects"].__setitem__("rejected_connection_outbound_accepts", 1),
+            "refused connections produced outbound accepts",
+        )
+
+    def test_b7_requested_accounting_tamper_fails(self) -> None:
+        self.tamper_b7(lambda value: value.__setitem__("requested", 5), "requested count differs")
+
+    def test_b7_control_success_tamper_fails(self) -> None:
+        self.tamper_b7(
+            lambda value: value["immediate_control"]["body"].__setitem__("succeeded", 0),
+            "control connection did not succeed",
+        )
+
+    def test_b7_syn_accounting_tamper_fails(self) -> None:
+        self.tamper_b7(
+            lambda value: value["effects"]["outbound_connection_attempts"].__setitem__("raw_syn_packets", 5),
+            "raw SYN accounting is inconsistent",
+        )
+
+    def test_b7_burst_verdict_tamper_fails(self) -> None:
+        self.tamper_b7(lambda value: value.__setitem__("verdict", "FAIL"), "burst verdict is not PASS")
+
+    def test_uninstall_case_tamper_fails(self) -> None:
+        path = self.runs[7] / "summary.json"
+        value = json.loads(path.read_text(encoding="utf-8"))
+        value["cases"]["normal_service_stop"] = "FAIL"
+        self.write_json(path, value)
+        self.write_sums(self.runs[7])
+        self.assert_reason("normal_service_stop is not PASS")
+
+    def test_uninstall_residue_tamper_fails(self) -> None:
+        path = self.runs[7] / "cases/known_compatible/residue-before-harness-teardown.json"
+        value = json.loads(path.read_text(encoding="utf-8"))
+        value["owned_residue"] = True
+        self.write_json(path, value)
+        self.write_sums(self.runs[7])
+        self.assert_reason("does not prove zero residue")
 
 
 if __name__ == "__main__":

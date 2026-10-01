@@ -45,7 +45,7 @@ YES ?=
 scope   = $(if $(PKG),-p $(PKG),--workspace)
 profile = $(if $(RELEASE),--release)
 
-.PHONY: help build check check-headers check-notices check-phase0-deps check-supply-chain check-systems clean coverage coverage-html coverage-lcov dev-image fmt lint notices spike-b1 spike-b2 spike-b2-diagnostic spike-b3 spike-b3-diagnostic spike-b4 spike-b4-diagnostic spike-b5 spike-b5-diagnostic spike-b6 spike-b6-diagnostic spike-b7 spike-b7-diagnostic spike-delete-vms spike-doctor spike-qualify spike-replay spike-run spike-uninstall-diagnostic spike-vms test test-acceptance test-portable
+.PHONY: help build check check-headers check-notices check-phase0-deps check-supply-chain check-systems clean coverage coverage-html coverage-lcov dev-image fmt lint notices spike-b1 spike-b2 spike-b2-diagnostic spike-b3 spike-b3-diagnostic spike-b4 spike-b4-diagnostic spike-b5 spike-b5-diagnostic spike-b6 spike-b6-diagnostic spike-b7 spike-b7-diagnostic spike-delete-vms spike-doctor spike-qualify spike-replay spike-run spike-uninstall spike-uninstall-diagnostic spike-vms test test-acceptance test-portable
 
 help: ## List the targets.
 	@grep -E '^[a-z0-9-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-20s %s\n", $$1, $$2}'
@@ -61,7 +61,7 @@ check-headers: ## Check that every source file carries the licence header.
 check-notices: ## Check that THIRD_PARTY_NOTICES.md matches the dependency graph.
 	./scripts/third-party-notices.sh --check
 
-check-phase0-deps: ## Check that the binary links no PIC, gRPC, eBPF or TLS crate (T10).
+check-phase0-deps: ## Check exact default eBPF deps and no eBPF/PIC/gRPC/TLS without defaults (T10).
 	./scripts/check-phase0-dependencies.sh
 
 check-supply-chain: ## Check advisories, licences, duplicate crates and sources with cargo-deny.
@@ -149,8 +149,11 @@ spike-delete-vms: ## Stop and delete every soglia-spike* Lima VM (asks first; YE
 spike-doctor: ## Check the cgroup-BPF spike environment on the development VM (created if missing).
 	SOGLIA_SPIKE_INTERACTIVE=$(INTERACTIVE) ./spikes/cgroup-bpf/host/run-dev.sh doctor
 
-spike-qualify: ## Run and verify authoritative B1-B7, each on a fresh VM, stopping on first failure.
+spike-qualify: ## Run and verify authoritative B1-B7 plus uninstall on fresh VMs.
 	./spikes/cgroup-bpf/host/run-qualification.sh
+
+spike-uninstall: ## Run authoritative verified-uninstall qualification on a fresh VM.
+	./spikes/cgroup-bpf/host/run-uninstall-fresh.sh
 
 spike-uninstall-diagnostic: ## Qualify verified uninstall diagnostically on the development VM.
 	./spikes/cgroup-bpf/host/run-uninstall-diagnostic.sh

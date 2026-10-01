@@ -2,7 +2,7 @@
 # Copyright (c) 2022 Nitro Agility S.r.l.
 # SPDX-License-Identifier: Apache-2.0
 
-# Diagnostic qualification for the production verified-uninstall command.
+# Qualification for the production verified-uninstall command.
 
 set -euo pipefail
 
@@ -11,16 +11,32 @@ inventory_classifier="$scripts/bpf_inventory_classifier.py"
 # shellcheck source=spikes/cgroup-bpf/runner/scripts/bpf-inventory-common.sh
 source "$scripts/bpf-inventory-common.sh"
 
-if [[ $# -ne 4 ]]; then
-  echo 'usage: uninstall-qualification.sh <soglia> <b6-trace> <agent> <foreign.o>' >&2
+if [[ $# -ne 4 && $# -ne 5 ]]; then
+  echo 'usage: uninstall-qualification.sh <soglia> <b6-trace> <agent> <foreign.o> [--authoritative]' >&2
   exit 13
 fi
 binary=$1
 tracer=$2
 agent=$3
 foreign_object=$4
+authoritative=false
+if [[ $# -eq 5 ]]; then
+  [[ $5 == --authoritative ]] || { echo "unknown argument: $5" >&2; exit 13; }
+  authoritative=true
+fi
+vm_name=${SOGLIA_UNINSTALL_VM_NAME:-}
+if [[ $authoritative == true ]]; then
+  [[ $vm_name == soglia-spike-uninstall-* ]] || {
+    echo 'authoritative uninstall requires SOGLIA_UNINSTALL_VM_NAME=soglia-spike-uninstall-<id>' >&2
+    exit 13
+  }
+fi
 production_baseline=a74037d617b64afe3b7e0d902ef50ffb57c026c3
-run_id="uninstall-diagnostic-$(date -u +%Y%m%dT%H%M%SZ)-$$"
+if [[ $authoritative == true ]]; then
+  run_id="uninstall-$(date -u +%Y%m%dT%H%M%SZ)-$$"
+else
+  run_id="uninstall-diagnostic-$(date -u +%Y%m%dT%H%M%SZ)-$$"
+fi
 evidence="/soglia/spikes/cgroup-bpf/evidence/replay/$run_id"
 registry="$evidence/harness-owned.tsv"
 foreign_root="/sys/fs/bpf/soglia-uninstall-foreign-$run_id"
@@ -29,6 +45,7 @@ cleanup_status=NOT_RUN
 program_classification=NOT_RUN
 links_classification=NOT_RUN
 maps_classification=NOT_RUN
+unit_cleanup_failed=false
 production_source_matches=false
 failure_detail=
 
@@ -38,7 +55,8 @@ printf '%s\n' RUNNING > "$evidence/verdict.txt"
 
 persist_state() {
   jq -n --arg run_id "$run_id" --arg current_case "$current_case" \
-    '{schema:1,run_id:$run_id,gate:"UNINSTALL",authoritative:false,current_case:$current_case}' \
+    --argjson authoritative "$authoritative" \
+    '{schema:1,run_id:$run_id,gate:"UNINSTALL",authoritative:$authoritative,current_case:$current_case}' \
     > "$evidence/state.json"
 }
 
@@ -247,7 +265,8 @@ cleanup() {
   persist_state
   if [[ -n ${runtime_pid:-} ]]; then kill -TERM "$runtime_pid" >/dev/null 2>&1; wait "$runtime_pid" 2>/dev/null; fi
   if [[ -n ${active_unit:-} ]]; then
-    systemctl stop "$active_unit" >/dev/null 2>&1
+    stop_and_prune_unit_cgroup "$active_unit" "$evidence/final/active-unit-stop" \
+      || unit_cleanup_failed=true
     systemctl reset-failed "$active_unit" >/dev/null 2>&1
   fi
   if [[ -d $foreign_root ]]; then
@@ -287,6 +306,7 @@ cleanup() {
   jq -S 'sort_by(.id)' "$evidence/baseline-maps.json" > "$evidence/final/maps-before.json"
   jq -S 'sort_by(.id)' "$evidence/final/maps.json" > "$evidence/final/maps-after.json"
   cleanup_status=PASS
+  [[ $unit_cleanup_failed == false ]] || cleanup_status=CLEANUP_FAIL
   bpf_inventory_is_clean "$program_classification" || cleanup_status=CLEANUP_FAIL
   cmp -s "$evidence/final/links-before.json" "$evidence/final/links-after.json" \
     && links_classification=MATCH || links_classification=FAIL
@@ -315,7 +335,8 @@ cleanup() {
     --arg interrupted "$(case_scope interrupted_resume)" \
     --arg released "$(case_scope target_released)" \
     --argjson production_source_matches "$production_source_matches" \
-    '{schema:1,run_id:$run_id,gate:"UNINSTALL",authoritative:false,verdict:$verdict,
+    --argjson authoritative "$authoritative" --arg vm_name "$vm_name" \
+    '{schema:1,run_id:$run_id,gate:"UNINSTALL",authoritative:$authoritative,verdict:$verdict,
       stopped_at_case:$stopped_case,failure_detail:$failure_detail,
       cleanup:{verdict:$cleanup,programs:$programs,links:$links,maps:$maps},
       production_source_baseline:{commit:$baseline,matches:$production_source_matches},
@@ -339,7 +360,8 @@ cleanup() {
           else "NOT_EXECUTED" end),
         target_released:(if $released == "PASS" then "PERFORMED" else "NOT_EXECUTED" end),
         every_detach_unlink_boundary:"NOT_PERFORMED in first diagnostic; blocked if an earlier production defect is found",
-        previous_release_compatibility:"NOT_PERFORMED: no released predecessor exists"}}' \
+        previous_release_compatibility:"NOT_PERFORMED: no released predecessor exists"},
+      authoritative_vm:(if $authoritative then {name:$vm_name} else null end)}' \
     > "$evidence/summary.json"
   printf '%s\n' "$verdict" > "$evidence/verdict.txt"
   (cd "$evidence" && find . -type f ! -name SHA256SUMS -print0 | sort -z \
@@ -353,8 +375,9 @@ trap 'on_error "$?" "$LINENO"' ERR
 trap cleanup EXIT
 persist_state
 
-jq -n --arg run_id "$run_id" \
-  '{schema:1,run_id:$run_id,gate:"UNINSTALL",authoritative:false,started_at:(now|todateiso8601)}' \
+jq -n --arg run_id "$run_id" --arg vm_name "$vm_name" --argjson authoritative "$authoritative" \
+  '{schema:1,run_id:$run_id,gate:"UNINSTALL",authoritative:$authoritative,
+    vm_name:(if $authoritative then $vm_name else null end),started_at:(now|todateiso8601)}' \
   > "$evidence/run.json"
 {
   date -u +%FT%T.%NZ; uname -a; cat /etc/os-release; systemd --version | head -1
@@ -428,7 +451,7 @@ for _ in $(seq 1 1000); do
 done
 [[ -f $case_dir/state-ready.json ]]
 systemctl show "$active_unit" > "$case_dir/unit-before-stop.txt"
-systemctl stop "$active_unit"
+stop_and_prune_unit_cgroup "$active_unit" "$case_dir/unit-stop"
 systemctl reset-failed "$active_unit" >/dev/null 2>&1 || true
 release_started_ns=$(date +%s%N)
 for _ in $(seq 1 3000); do
