@@ -148,7 +148,7 @@ grep -F 'is not a usable cgroup v2 directory' "$case_dir/journal.txt" \
   > "$case_dir/typed-refusal.txt"
 assert_no_owned_effect /run/soglia-b1-no-delegation \
   /sys/fs/bpf/soglia-b1-no-delegation 18095
-systemctl stop soglia-b1-no-delegation.service >/dev/null 2>&1 || true
+stop_and_prune_unit_cgroup soglia-b1-no-delegation "$case_dir/unit-stop"
 systemctl reset-failed soglia-b1-no-delegation.service >/dev/null 2>&1 || true
 cleanup_runtime /run/soglia-b1-no-delegation
 printf '%s\n' PASS > "$case_dir/verdict.txt"
@@ -201,7 +201,7 @@ cmp "$case_dir/direct-before.json" "$case_dir/direct-after.json"
 bpftool cgroup detach "$direct_root/executions" cgroup_inet4_connect \
   pinned "$foreign_pin/foreign_allow"
 direct_attached=0
-systemctl stop soglia-b1-direct-app.service >/dev/null 2>&1 || true
+stop_and_prune_unit_cgroup soglia-b1-direct-app "$case_dir/app-unit-stop"
 stop_and_prune_unit_cgroup soglia-b1-direct-root "$case_dir/root-unit-stop"
 systemctl reset-failed soglia-b1-direct-app.service soglia-b1-direct-root.service \
   >/dev/null 2>&1 || true
@@ -237,7 +237,7 @@ if nft list table inet soglia_host >/dev/null 2>&1; then exit 41; fi
 [[ ! -e /sys/class/net/soglia0 ]]
 find /sys/fs/bpf/soglia-b1-unknown -type f -delete
 rmdir /sys/fs/bpf/soglia-b1-unknown
-systemctl stop soglia-b1-unknown-app.service >/dev/null 2>&1 || true
+stop_and_prune_unit_cgroup soglia-b1-unknown-app "$case_dir/app-unit-stop"
 stop_and_prune_unit_cgroup soglia-b1-unknown-root "$case_dir/root-unit-stop"
 systemctl reset-failed soglia-b1-unknown-app.service soglia-b1-unknown-root.service \
   >/dev/null 2>&1 || true

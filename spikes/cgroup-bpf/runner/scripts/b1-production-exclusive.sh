@@ -30,7 +30,7 @@ printf '%s\n' RUNNING > "$evidence/verdict.txt"
 
 cleanup() {
   set +e
-  systemctl stop "$app_unit.service" >/dev/null 2>&1
+  stop_and_prune_unit_cgroup "$app_unit" "$evidence/abort-app-unit-stop" >/dev/null 2>&1
   if [[ "$foreign_attached" == 1 ]]; then
     bpftool cgroup detach "$root_cgroup" cgroup_inet4_connect \
       pinned "$foreign_root/foreign_allow" >/dev/null 2>&1
@@ -129,7 +129,7 @@ if bpftool -j map show | jq -e \
   'any(.[]; (.name // "") | startswith("soglia_"))' >/dev/null; then exit 23; fi
 printf '%s\n' PASS > "$evidence/pre-intent-rollback.txt"
 
-systemctl stop "$app_unit.service" >/dev/null 2>&1 || true
+stop_and_prune_unit_cgroup "$app_unit" "$evidence/app-unit-stop"
 bpftool cgroup detach "$root_cgroup" cgroup_inet4_connect \
   pinned "$foreign_root/foreign_allow"
 foreign_attached=0

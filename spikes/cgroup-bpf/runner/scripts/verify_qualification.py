@@ -118,6 +118,20 @@ def verdict_files_pass(run: Path) -> None:
                 )
 
 
+def verify_stop_classifications(run: Path) -> int:
+    classifications = sorted(run.rglob("stop-classification.txt"))
+    require(bool(classifications), f"{run.name}: stop-classification evidence is missing")
+    prune_races = 0
+    for path in classifications:
+        value = path.read_text(encoding="utf-8").strip()
+        require(
+            value in {"NATIVE", "SYSTEMD_PRUNE_RACE"},
+            f"{run.name}: {path.relative_to(run)} has invalid stop classification {value!r}",
+        )
+        prune_races += int(value == "SYSTEMD_PRUNE_RACE")
+    return prune_races
+
+
 def verify_b5(run: Path) -> None:
     steering = load_json(run / "driver/proxy-steering-boundary.json")
     require(steering.get("verdict") == "PASS", f"{run.name}: B5 steering verdict is not PASS")
@@ -262,6 +276,7 @@ def verify_run(run: Path) -> dict[str, Any]:
     checksums = checksum_count(run)
     commit = source_fingerprint(run)
     verdict_files_pass(run)
+    systemd_prune_races = verify_stop_classifications(run)
     if gate == "B5":
         verify_b5(run)
     elif gate == "B6":
@@ -276,6 +291,7 @@ def verify_run(run: Path) -> dict[str, Any]:
         "checksums": checksums,
         "source_commit": commit,
         "production_baseline": baseline["commit"],
+        "systemd_prune_races": systemd_prune_races,
         "verdict": "PASS",
     }
 
@@ -346,7 +362,10 @@ def main() -> int:
         print(f"Production baseline: {result['production_baseline']}")
         print(f"Checksums verified: {result['total_checksums']}")
         for run in result["runs"]:
-            print(f"{run['gate']}: {run['run_id']} ({run['checksums']} checksums)")
+            print(
+                f"{run['gate']}: {run['run_id']} ({run['checksums']} checksums, "
+                f"{run['systemd_prune_races']} SYSTEMD_PRUNE_RACE)"
+            )
     else:
         print(f"Reason: {result['reason']}", file=sys.stderr)
     return exit_code

@@ -51,6 +51,7 @@ class QualificationVerifierTests(unittest.TestCase):
         (run / "source-fingerprint.txt").write_text(
             f"{'a' * 40}\n{VERIFY.EMPTY_DIFF_SHA256}  -\n", encoding="utf-8"
         )
+        (run / "stop-classification.txt").write_text("NATIVE\n", encoding="utf-8")
         if number == 5:
             self.write_json(
                 run / "driver/proxy-steering-boundary.json",
@@ -152,6 +153,7 @@ class QualificationVerifierTests(unittest.TestCase):
         (run / "source-fingerprint.txt").write_text(
             f"{'a' * 40}\n{VERIFY.EMPTY_DIFF_SHA256}  -\n", encoding="utf-8"
         )
+        (run / "stop-classification.txt").write_text("NATIVE\n", encoding="utf-8")
         self.write_json(
             run / "cases/known_compatible/residue-before-harness-teardown.json",
             {"measured_before_harness_teardown": True, "owned_residue": False},
@@ -174,6 +176,20 @@ class QualificationVerifierTests(unittest.TestCase):
     def test_valid_qualification_passes(self) -> None:
         result = VERIFY.verify(self.runs)
         self.assertEqual(result["verdict"], "PASS")
+        self.assertTrue(all(run["systemd_prune_races"] == 0 for run in result["runs"]))
+
+    def test_systemd_prune_race_is_counted(self) -> None:
+        path = self.runs[0] / "stop-classification.txt"
+        path.write_text("SYSTEMD_PRUNE_RACE\n", encoding="utf-8")
+        self.write_sums(self.runs[0])
+        result = VERIFY.verify(self.runs)
+        self.assertEqual(result["runs"][0]["systemd_prune_races"], 1)
+
+    def test_invalid_stop_classification_fails(self) -> None:
+        path = self.runs[0] / "stop-classification.txt"
+        path.write_text("IGNORED_CHURN\n", encoding="utf-8")
+        self.write_sums(self.runs[0])
+        self.assert_reason("invalid stop classification")
 
     def test_broken_checksum_fails(self) -> None:
         (self.runs[0] / "verdict.txt").write_text("tampered\n", encoding="utf-8")
