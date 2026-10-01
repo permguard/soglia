@@ -399,17 +399,7 @@ pub fn prepare_uninstall(config: &Config) -> Result<PreparedSandboxUninstall, Sa
     }
     if backend.settings.runc_root.exists() {
         let listed = backend.runc(&["list", "--format", "json"])?;
-        let containers = serde_json::from_str::<Value>(&listed)
-            .map_err(|error| SandboxError::UninstallRefused {
-                class: RefusalClass::Infrastructure,
-                reason: format!("decode runc container inventory: {error}"),
-            })?
-            .as_array()
-            .cloned()
-            .ok_or_else(|| SandboxError::UninstallRefused {
-                class: RefusalClass::Infrastructure,
-                reason: "runc container inventory is not a JSON array".to_owned(),
-            })?;
+        let containers = decode_runc_inventory(&listed)?;
         for container in containers {
             if let Some(id) = container.get("id").and_then(Value::as_str)
                 && !expected.contains(id)
@@ -429,6 +419,21 @@ pub fn prepare_uninstall(config: &Config) -> Result<PreparedSandboxUninstall, Sa
         records: planned,
         fresh,
     })
+}
+
+fn decode_runc_inventory(listed: &str) -> Result<Vec<Value>, SandboxError> {
+    match serde_json::from_str::<Value>(listed).map_err(|error| SandboxError::UninstallRefused {
+        class: RefusalClass::Infrastructure,
+        reason: format!("decode runc container inventory: {error}"),
+    })? {
+        Value::Array(containers) => Ok(containers),
+        // runc serializes its nil container slice as JSON null when its root has no containers.
+        Value::Null => Ok(Vec::new()),
+        _ => Err(SandboxError::UninstallRefused {
+            class: RefusalClass::Infrastructure,
+            reason: "runc container inventory is neither an array nor null".to_owned(),
+        }),
+    }
 }
 
 impl RuncSandbox {
@@ -991,4 +996,22 @@ fn relay_output(id: ExecutionId, stream: io::PipeReader) {
             }
         }
     });
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn runc_null_is_the_empty_inventory_but_other_shapes_are_refused() {
+        assert!(decode_runc_inventory("null").unwrap().is_empty());
+        assert!(decode_runc_inventory("[]").unwrap().is_empty());
+        assert!(matches!(
+            decode_runc_inventory("{}"),
+            Err(SandboxError::UninstallRefused {
+                class: RefusalClass::Infrastructure,
+                ..
+            })
+        ));
+    }
 }
