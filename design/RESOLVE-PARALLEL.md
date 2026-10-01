@@ -5,14 +5,13 @@
 
 ## Status and scope
 
-Status: `DESIGN_FOR_REVIEW`.
+Status: `APPROVED`.
 
 This is the SOG-2.02 design for deferred Resolve option B.
 It replaces the one-exchange-at-a-time Candidate-A channel with a bounded, request-ID-correlated pipeline and a fixed stateless Enforcer worker pool.
 It also closes the Phase 2 R3-R5 gaps for accepted ingress connections, proxy connections, pending Resolve work and attribution registries.
 
-This document does not authorize implementation.
-The choices in [Decisions requiring approval](#decisions-requiring-approval) must be accepted before SOG-2.03 changes production code.
+SOG-2.03 is authorized to implement this contract.
 
 ## Baseline and unchanged security properties
 
@@ -141,19 +140,20 @@ The following values are the recommended initial contract and require approval:
 | Setting                           | Default | Valid range | Saturation result               |
 | --------------------------------- | ------: | ----------: | ------------------------------- |
 | `runtime.max_ingress_connections` |      32 |      1-1024 | HTTP refusal/close              |
-| `network.max_proxy_connections`   |     256 |      1-4096 | TCP close before read           |
+| `network.max_proxy_connections`   |     512 |      1-4096 | TCP close before read           |
 | `cgroup_bpf.max_pending_resolves` |      64 |      1-4096 | `QueueFull`                     |
 | `cgroup_bpf.resolve_workers`      |       4 |        1-64 | bounded queue, then `QueueFull` |
 
 `max_pending_resolves` is independent of `runtime.max_concurrency` because one active Execution may open more than one connection and lifecycle concurrency is not a proxy-connection budget.
 Configuration validation requires `resolve_workers <= max_pending_resolves <= network.max_proxy_connections <= cgroup_bpf.max_tracked_sockets`.
+It also requires `runtime.max_ingress_connections >= runtime.max_concurrency + runtime.max_queue`, with checked arithmetic.
 The Enforcer request queue, result queue and in-flight set each have capacity `max_pending_resolves` and allocate that capacity before `READY`.
 
 The ingress limit is acquired immediately after accept and before spawning a connection task.
 The proxy limit is acquired immediately after accept and before attribution or reading application bytes.
 Refusal at either boundary is counted, bounded and produces no DNS or outbound effect.
 
-The IP and Candidate-A attribution tables get a local hard ceiling equal to `network.execution_pool`.
+The IP and Candidate-A attribution tables get a local hard ceiling equal to `runtime.max_concurrency + runtime.cleanup_failure_threshold`.
 Insertion above that ceiling is an integrity failure because Supervisor admission should already have prevented it; the runtime stops admitting work and follows the fail-closed health path.
 The cgroup-BPF live registry gets the same explicit execution capacity plus the qualified cleanup-failure allowance.
 
@@ -232,7 +232,10 @@ An out-of-envelope burst must produce only the exact number of typed `QueueFull`
 Fault injection covers duplicate and unknown IDs, out-of-order replies, caller cancellation before and after write, partial frames, wrong protocol version, stalled writer, stalled worker, worker panic, malformed result, lifecycle write contention and helper exit.
 
 The gate also runs a mixed workload of ingress calls, multiple outbound connections per Execution and lifecycle churn.
-It asserts that ingress, proxy and Resolve high-water marks never exceed their configured limits and that the attribution maps never exceed `network.execution_pool`.
+It asserts that ingress, proxy and Resolve high-water marks never exceed their configured limits and that the attribution maps never exceed `runtime.max_concurrency + runtime.cleanup_failure_threshold`.
+
+After the supported-profile PASS workload, B8 performs a step ramp until either p99 exceeds 20 ms or a typed `QueueFull` first appears.
+The maximum sustained throughput before that boundary is recorded as characterization for capacity planning and is not an additional PASS criterion.
 
 ## Alternatives rejected
 
@@ -246,12 +249,12 @@ It asserts that ingress, proxy and Resolve high-water marks never exceed their c
 - **Treat unknown or late response IDs as harmless:** rejected because a response could be delivered to the wrong connection after cancellation or timeout.
 - **Automatic downgrade to the version-1 channel or `netns-nft`:** rejected because it would silently weaken a selected and qualified security contract.
 
-## Decisions requiring approval
+## Approved decisions
 
-1. Adopt resolver protocol version 2 with a strict pre-`READY` handshake and no version-1 fallback.
-2. Approve the initial defaults and hard ranges for ingress connections, proxy connections, pending Resolves and workers.
-3. Approve the `ResolveView` split with shared reads and exclusive lifecycle publication instead of the current single backend mutex.
-4. Treat a worker panic or watchdog expiry as permanent channel poison followed by S8, with no in-process worker replacement.
-5. Add B8 to `spike:qualify` with the proposed 64-pending/four-worker/500-per-second profile, p99 target and 60-second baseline-return deadline.
-6. Keep the current two-second publication deadline, two-millisecond retry interval and one-second independent exchange watchdog for the first implementation.
-7. Defer aggregate host memory/disk reservation to Phase 3 while requiring checked pipeline preallocation and typed startup refusal in Phase 2.
+1. Resolver protocol version 2 uses a strict pre-`READY` handshake and has no version-1 fallback.
+2. The initial defaults and hard ranges are the values in [Declared bounds and configuration](#declared-bounds-and-configuration), including 512 proxy connections.
+3. `ResolveView` uses shared reads and exclusive lifecycle publication instead of the current single backend mutex.
+4. A worker panic or watchdog expiry permanently poisons the channel and is followed by S8, with no in-process worker replacement.
+5. B8 enters `spike:qualify` with the 64-pending/four-worker/500-per-second supported profile, p99 target, 60-second baseline-return deadline and separate step-ramp characterization.
+6. The first implementation keeps the two-second publication deadline, two-millisecond retry interval and one-second independent exchange watchdog.
+7. Aggregate host memory and disk reservation remain Phase 3 work, while Phase 2 requires checked pipeline preallocation and typed startup refusal.
