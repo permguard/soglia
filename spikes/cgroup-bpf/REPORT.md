@@ -1072,7 +1072,7 @@ including the warm-pool and churn risks documented there.
 
 ## Phase 1 release qualification
 
-**Status: QUALIFIED on production baseline `17d8fc732bfdbdc99d7924193965c427e52a0b68`.**
+**Historical status: SUPERSEDED by [Phase 1 requalification on `7dd0840e`](#phase-1-requalification-on-7dd0840e).**
 The single `spike:qualify` run `qualification-20261001T084920Z-77909` executed B1 through B7 plus verified uninstall on eight fresh VMs and stopped only after the aggregate verifier returned `PASS`.
 All eight authoritative runs record `production_source_baseline.matches: true`, the same clean harness fingerprint `d5ea9eadb2872eea504d95bc3d32bc96b19f3478`, an empty working-tree diff and cleanup `PASS`.
 The promoted verifier result is [`qualification-17d8fc73.json`](evidence/authoritative/qualification-17d8fc73.json) and records the `single_commit` policy with 4,924 verified checksums.
@@ -1107,7 +1107,33 @@ The historical [`qualification-db6e1ac.json`](runner/qualification-db6e1ac.json)
 It remains reproducible as a seven-gate historical result with verifier commit `443b06c4a0170ad948870a63e3abd8981e9bc534`, where it still verifies 3,777 checksums and returns `PASS`.
 The current verifier intentionally requires B1-B7 plus uninstall and therefore must not be used to reinterpret that older manifest.
 
-Phase 1 qualification is closed for the exact recorded platform and release baseline.
+### Phase 1 requalification on `7dd0840e`
+
+**Status: QUALIFIED on production baseline `7dd0840e4d51078c01ab26343c9eebfd315e5e5e`.**
+The single `spike:qualify` run `qualification-20261001T151901Z-13424` executed B1 through B7 plus verified uninstall on eight fresh VMs and stopped only after the aggregate verifier returned `PASS`.
+All eight authoritative runs record `production_source_baseline.matches: true`, the same clean harness fingerprint `22cfba0c93e78621c6abe6849fa0d046fbd285f6`, an empty working-tree diff, cleanup `PASS` and zero `SYSTEMD_PRUNE_RACE` classifications.
+The promoted verifier result is [`qualification-7dd0840e.json`](evidence/authoritative/qualification-7dd0840e.json) and records the `single_commit` policy with 5,003 verified checksums.
+
+The requalification was required because external BPF programs without a name, including container device filters, were treated as untrusted during startup and prevented Soglia from starting in containers.
+The correction makes an external program name optional while retaining program ID, type, tag and attach type as mandatory identity evidence; Soglia-owned programs retain their exact-name checks.
+B1 now includes a positive case in which an effective unnamed ancestor program is preserved across startup and uninstall, and a negative case in which an unnamed replacement with a different tag is refused as `Unknown` and preserved.
+The clean-environment rule is now explicit: unit tests run as a non-root user in a clean Ubuntu 24.04 environment, while both `netns-nft` and `cgroup-bpf` acceptance passes run inside the privileged `dev/linux` container with an unnamed external BPF program kept active throughout.
+
+| Gate      | Authoritative run                                                                                                       | Checksums |
+| --------- | ----------------------------------------------------------------------------------------------------------------------- | --------- |
+| B1        | [`b1-20261001T152116Z-9439`](evidence/authoritative/b1-20261001T152116Z-9439/)                                           | 431/431   |
+| B2        | [`b2-20261001T152321Z-9420`](evidence/authoritative/b2-20261001T152321Z-9420/)                                           | 370/370   |
+| B3        | [`b3-20261001T152530Z-9420`](evidence/authoritative/b3-20261001T152530Z-9420/)                                           | 1928/1928 |
+| B4        | [`b4-20261001T153041Z-9439`](evidence/authoritative/b4-20261001T153041Z-9439/)                                           | 97/97     |
+| B5        | [`b5-20261001T153433Z-9427`](evidence/authoritative/b5-20261001T153433Z-9427/)                                           | 177/177   |
+| B6        | [`b6-20261001T153638Z-9445`](evidence/authoritative/b6-20261001T153638Z-9445/)                                           | 1434/1434 |
+| B7        | [`b7-20261001T154122Z-9465`](evidence/authoritative/b7-20261001T154122Z-9465/)                                           | 352/352   |
+| Uninstall | [`uninstall-20261001T154743Z-9416`](evidence/authoritative/uninstall-20261001T154743Z-9416/)                             | 214/214   |
+
+The historical [`qualification-17d8fc73.json`](evidence/authoritative/qualification-17d8fc73.json) is explicitly superseded by this requalification.
+The current verifier rejects that historical set because its B1 predates the unnamed-external cases; verifier commit `c594b77968b95114d8436fd989708d315c86774a` still verifies its 4,924 checksums and returns `PASS`.
+
+Phase 1 qualification is closed for the exact recorded platform and release baseline `7dd0840e4d51078c01ab26343c9eebfd315e5e5e`.
 The optimization work below remains deferred and unchanged; it is not part of the release qualification claim.
 
 ## Deferred work: independent Resolve queue depth
