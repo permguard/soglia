@@ -6,6 +6,10 @@
 
 set -euo pipefail
 
+scripts=/soglia/spikes/cgroup-bpf/runner/scripts
+# shellcheck source=spikes/cgroup-bpf/runner/scripts/systemd-cgroup-common.sh
+source "$scripts/systemd-cgroup-common.sh"
+
 if [[ $# -ne 4 ]]; then
   echo 'usage: b6-systemd-loss.sh <soglia> <agent> <case> <evidence>' >&2
   exit 13
@@ -230,7 +234,7 @@ cleanup() {
     find "$unit_cgroup/executions" -mindepth 1 -maxdepth 1 -type d -exec sh -c \
       'echo 0 > "$1/cgroup.freeze" 2>/dev/null || true' _ {} \;
   fi
-  systemctl stop "$unit.service" >/dev/null 2>&1
+  stop_and_prune_unit_cgroup "$unit" "$evidence/unit-stop" >/dev/null 2>&1
   systemctl reset-failed "$unit.service" >/dev/null 2>&1
   if [[ -f $runtime/cgroup-bpf/state.json ]]; then
     jq -r '.executions[].tag // empty' "$runtime/cgroup-bpf/state.json" | while read -r tag; do

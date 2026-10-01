@@ -41,6 +41,7 @@ cleanup_status=NOT_RUN
 program_classification=NOT_RUN
 links_classification=NOT_RUN
 maps_classification=NOT_RUN
+unit_cleanup_failed=false
 production_source_matches=false
 
 mkdir -p "$evidence/final"
@@ -95,7 +96,9 @@ cleanup() {
   rm -f "$injector"
   for unit in $(systemctl list-units --all --plain --no-legend 'soglia-b6-*.service' \
     | awk '{print $1}'); do
-    systemctl stop "$unit" >/dev/null 2>&1
+    unit_slug=${unit%.service}
+    stop_and_prune_unit_cgroup "$unit" "$evidence/final/unit-stops/$unit_slug" \
+      || unit_cleanup_failed=true
     systemctl reset-failed "$unit" >/dev/null 2>&1
   done
   : > "$evidence/final/program-settle.jsonl"
@@ -116,6 +119,7 @@ cleanup() {
   jq -S 'sort_by(.id)' "$evidence/baseline-maps.json" > "$evidence/final/maps-before.normalized.json"
   jq -S 'sort_by(.id)' "$evidence/final/maps.json" > "$evidence/final/maps-after.normalized.json"
   cleanup_status=PASS
+  [[ $unit_cleanup_failed == false ]] || cleanup_status=CLEANUP_FAIL
   bpf_inventory_is_clean "$program_classification" || cleanup_status=CLEANUP_FAIL
   cmp -s "$evidence/final/links-before.normalized.json" "$evidence/final/links-after.normalized.json" \
     && links_classification=MATCH || links_classification=FAIL

@@ -7,6 +7,10 @@
 
 set -euo pipefail
 
+scripts=/soglia/spikes/cgroup-bpf/runner/scripts
+# shellcheck source=spikes/cgroup-bpf/runner/scripts/systemd-cgroup-common.sh
+source "$scripts/systemd-cgroup-common.sh"
+
 binary="${1:?usage: b1-production-sync-rollback.sh <soglia>}"
 run_id="b1-diagnostic-sync-rollback-$(date -u +%Y%m%dT%H%M%SZ)-$$"
 evidence="/soglia/spikes/cgroup-bpf/evidence/replay/$run_id"
@@ -26,7 +30,7 @@ printf '%s\n' RUNNING > "$evidence/verdict.txt"
 cleanup() {
   set +e
   if [[ -n "$watcher" ]]; then kill "$watcher" 2>/dev/null; wait "$watcher" 2>/dev/null; fi
-  systemctl stop "$unit.service" >/dev/null 2>&1
+  stop_and_prune_unit_cgroup "$unit" "$evidence/abort-unit-stop" >/dev/null 2>&1
   systemctl reset-failed "$unit.service" >/dev/null 2>&1
   if [[ -d "$foreign_root" ]]; then
     find "$foreign_root" -type f -delete 2>/dev/null
@@ -136,7 +140,7 @@ if bpftool -j map show | jq -e \
   'any(.[]; (.name // "") | startswith("soglia_"))' >/dev/null; then exit 34; fi
 printf '%s\n' PASS > "$evidence/synchronous-rollback.txt"
 
-systemctl stop "$unit.service" >/dev/null 2>&1 || true
+stop_and_prune_unit_cgroup "$unit" "$evidence/unit-stop"
 systemctl reset-failed "$unit.service" || true
 rm "$foreign_root/foreign_allow" "$foreign_root/foreign_rewrite"
 rmdir "$foreign_root"

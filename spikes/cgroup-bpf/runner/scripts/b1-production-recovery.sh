@@ -7,6 +7,10 @@
 
 set -euo pipefail
 
+scripts=/soglia/spikes/cgroup-bpf/runner/scripts
+# shellcheck source=spikes/cgroup-bpf/runner/scripts/systemd-cgroup-common.sh
+source "$scripts/systemd-cgroup-common.sh"
+
 binary="${1:?usage: b1-production-recovery.sh <soglia>}"
 run_id="b1-diagnostic-recovery-$(date -u +%Y%m%dT%H%M%SZ)-$$"
 evidence="/soglia/spikes/cgroup-bpf/evidence/replay/$run_id"
@@ -25,7 +29,7 @@ printf '%s\n' RUNNING > "$evidence/verdict.txt"
 cleanup() {
   set +e
   touch "$control/stop" 2>/dev/null
-  systemctl stop "$unit.service" >/dev/null 2>&1
+  stop_and_prune_unit_cgroup "$unit" "$evidence/abort-unit-stop" >/dev/null 2>&1
   systemctl reset-failed "$unit.service" >/dev/null 2>&1
   if [[ -f "$state" ]] && jq -e '.pin_root and .links and .maps' "$state" >/dev/null 2>&1; then
     while IFS= read -r pin; do if [[ -e "$pin" ]]; then rm "$pin"; fi; done \
@@ -164,7 +168,7 @@ for _ in $(seq 1 400); do
 done
 [[ $(cat "$control/cycle-2.exit") == 137 ]]
 touch "$control/stop"
-systemctl stop "$unit.service"
+stop_and_prune_unit_cgroup "$unit" "$evidence/unit-stop"
 systemctl reset-failed "$unit.service" || true
 
 while IFS= read -r pin; do if [[ -e "$pin" ]]; then rm "$pin"; fi; done \

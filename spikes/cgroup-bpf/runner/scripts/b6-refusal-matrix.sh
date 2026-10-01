@@ -13,13 +13,14 @@ fi
 binary=$1
 agent=$2
 evidence=$3
+scripts=/soglia/spikes/cgroup-bpf/runner/scripts
+# shellcheck source=spikes/cgroup-bpf/runner/scripts/systemd-cgroup-common.sh
+source "$scripts/systemd-cgroup-common.sh"
 active_unit=
 active_runtime=
 active_pin_parent=
 active_rootfs=
 active_case_evidence=
-stop_wait_iterations=200
-stop_wait_interval=0.05
 
 cases=(
   incompatible_schema incompatible_abi incompatible_object incompatible_config
@@ -41,101 +42,6 @@ wait_for() {
     sleep 0.01
   done
   echo "timed out waiting for $description" >&2
-  return 1
-}
-
-capture_cgroup_file() {
-  local path=$1 output=$2
-  if [[ -f $path ]]; then
-    cat "$path" > "$output"
-  else
-    printf '%s\n' ABSENT > "$output"
-  fi
-}
-
-stop_and_prune_unit_cgroup() {
-  local unit=$1 evidence_dir=${2:-}
-  local unit_cgroup="/sys/fs/cgroup/system.slice/$unit.service"
-  local runtime_cgroup="$unit_cgroup/runtime"
-  local cursor classification=NATIVE
-  cursor=$(journalctl -n 0 --show-cursor --no-pager | sed -n 's/^-- cursor: //p')
-  systemctl stop "$unit.service" >/dev/null 2>&1 || true
-  journalctl --sync
-
-  if [[ -n $evidence_dir ]]; then
-    mkdir -p "$evidence_dir"
-    systemd --version > "$evidence_dir/systemd-version.txt"
-    SYSTEMD_COLORS=0 journalctl -u "$unit.service" --after-cursor "$cursor" \
-      -o cat --no-pager --no-hostname > "$evidence_dir/stop-journal.txt"
-    SYSTEMD_COLORS=0 journalctl _PID=1 --after-cursor "$cursor" \
-      -o cat --no-pager --no-hostname > "$evidence_dir/stop-systemd-journal.txt"
-    capture_cgroup_file "$unit_cgroup/cgroup.events" \
-      "$evidence_dir/unit-cgroup.events.after-stop.txt"
-    capture_cgroup_file "$unit_cgroup/cgroup.procs" \
-      "$evidence_dir/unit-cgroup.procs.after-stop.txt"
-    capture_cgroup_file "$unit_cgroup/cgroup.subtree_control" \
-      "$evidence_dir/unit-cgroup.subtree_control.after-stop.txt"
-    capture_cgroup_file "$runtime_cgroup/cgroup.events" \
-      "$evidence_dir/runtime-cgroup.events.after-stop.txt"
-    capture_cgroup_file "$runtime_cgroup/cgroup.procs" \
-      "$evidence_dir/runtime-cgroup.procs.after-stop.txt"
-    capture_cgroup_file "$runtime_cgroup/cgroup.subtree_control" \
-      "$evidence_dir/runtime-cgroup.subtree_control.after-stop.txt"
-  fi
-
-  if [[ -f $runtime_cgroup/cgroup.procs ]] \
-    && [[ -s $runtime_cgroup/cgroup.procs ]]; then
-    [[ -z $evidence_dir ]] || cp "$runtime_cgroup/cgroup.procs" \
-      "$evidence_dir/runtime-processes.failure.txt"
-    [[ -z $evidence_dir ]] || printf '%s\n' FAIL_RUNTIME_POPULATED \
-      > "$evidence_dir/stop-classification.txt"
-    return 1
-  fi
-
-  for _ in $(seq 1 "$stop_wait_iterations"); do
-    if [[ $(systemctl show "$unit.service" -p ActiveState --value 2>/dev/null) == inactive ]] \
-      && [[ ! -d $unit_cgroup ]]; then
-      [[ -z $evidence_dir ]] || printf '%s\n' "$classification" \
-        > "$evidence_dir/stop-classification.txt"
-      return 0
-    fi
-    sleep "$stop_wait_interval"
-  done
-
-  local parent_children runtime_children
-  parent_children=$(find "$unit_cgroup" -mindepth 1 -maxdepth 1 -type d \
-    -printf '%f\n' 2>/dev/null | sort)
-  runtime_children=$(find "$runtime_cgroup" -mindepth 1 -maxdepth 1 -type d \
-    -printf '%f\n' 2>/dev/null | sort)
-  if [[ $(systemctl show "$unit.service" -p ActiveState --value 2>/dev/null) == inactive ]] \
-    && [[ $parent_children == runtime ]] \
-    && [[ -z $runtime_children ]] \
-    && [[ -f $unit_cgroup/cgroup.events ]] \
-    && grep -Fxq 'populated 0' "$unit_cgroup/cgroup.events" \
-    && [[ ! -s $unit_cgroup/cgroup.procs ]] \
-    && [[ -f $runtime_cgroup/cgroup.events ]] \
-    && grep -Fxq 'populated 0' "$runtime_cgroup/cgroup.events" \
-    && [[ ! -s $runtime_cgroup/cgroup.procs ]]; then
-    classification=SYSTEMD_PRUNE_RACE
-    rmdir "$runtime_cgroup" || return 1
-    rmdir "$unit_cgroup" || return 1
-    [[ ! -e $unit_cgroup ]] || return 1
-    if [[ -n $evidence_dir ]]; then
-      jq -n --arg unit "$unit.service" --arg classification "$classification" \
-        --argjson wait_ms 10000 \
-        '{unit:$unit,classification:$classification,wait_ms:$wait_ms,
-          unit_populated:false,runtime_populated:false,runtime_children:0,
-          exact_rmdir_verified:true}' > "$evidence_dir/systemd-prune-race.json"
-      printf '%s\n' "$classification" > "$evidence_dir/stop-classification.txt"
-    fi
-    return 0
-  fi
-
-  if [[ -n $evidence_dir ]]; then
-    printf '%s\n' "$parent_children" > "$evidence_dir/unit-child-cgroups.failure.txt"
-    printf '%s\n' "$runtime_children" > "$evidence_dir/runtime-child-cgroups.failure.txt"
-    printf '%s\n' FAIL_UNEXPECTED_CGROUP_SHAPE > "$evidence_dir/stop-classification.txt"
-  fi
   return 1
 }
 
@@ -453,8 +359,8 @@ YAML
       ready_emitted_on_refusal:false,positive_recovery:true,
       old_generation:$old_generation,new_generation:$new_generation,verdict:"PASS"}' \
     > "$case_evidence/result.json"
-  printf '%s\n' PASS > "$case_evidence/verdict.txt"
   remove_case_resources "$unit" "$runtime" "$pin_parent" "$rootfs" "$case_evidence/stop"
+  printf '%s\n' PASS > "$case_evidence/verdict.txt"
   active_unit=
   active_runtime=
   active_pin_parent=

@@ -7,6 +7,10 @@
 
 set -euo pipefail
 
+scripts=/soglia/spikes/cgroup-bpf/runner/scripts
+# shellcheck source=spikes/cgroup-bpf/runner/scripts/systemd-cgroup-common.sh
+source "$scripts/systemd-cgroup-common.sh"
+
 if [[ $# -ne 5 ]]; then
   echo 'usage: b6-recovery-interrupted.sh <soglia> <driver> <trace> <agent> <evidence>' >&2
   exit 13
@@ -36,7 +40,7 @@ wait_for() {
 cleanup() {
   local status=$?
   set +e
-  systemctl stop "$unit.service" >/dev/null 2>&1
+  stop_and_prune_unit_cgroup "$unit" "$evidence/abort-unit-stop" >/dev/null 2>&1
   systemctl reset-failed "$unit.service" >/dev/null 2>&1
   if [[ -f $runtime/cgroup-bpf/state.json ]]; then
     jq -r '.links[].pin,.maps[].pin' "$runtime/cgroup-bpf/state.json" | while read -r owned; do

@@ -6,6 +6,10 @@
 
 set -euo pipefail
 
+scripts=/soglia/spikes/cgroup-bpf/runner/scripts
+# shellcheck source=spikes/cgroup-bpf/runner/scripts/systemd-cgroup-common.sh
+source "$scripts/systemd-cgroup-common.sh"
+
 binary="${1:?usage: b1-production-refusals.sh <soglia>}"
 run_id="b1-diagnostic-refusals-$(date -u +%Y%m%dT%H%M%SZ)-$$"
 evidence="/soglia/spikes/cgroup-bpf/evidence/replay/$run_id"
@@ -31,7 +35,7 @@ cleanup() {
     soglia-b1-direct-root \
     soglia-b1-unknown-app \
     soglia-b1-unknown-root; do
-    systemctl stop "$unit.service" >/dev/null 2>&1
+    stop_and_prune_unit_cgroup "$unit" "$evidence/abort-unit-stops/$unit" >/dev/null 2>&1
     systemctl reset-failed "$unit.service" >/dev/null 2>&1
   done
   if [[ "$direct_attached" == 1 ]]; then
@@ -161,7 +165,7 @@ systemd-run --unit=soglia-b1-no-bpftool --property=Delegate=yes --property=Type=
 capture_failure soglia-b1-no-bpftool "$started" "$case_dir"
 grep -F 'bpftool is unavailable' "$case_dir/journal.txt" > "$case_dir/typed-refusal.txt"
 assert_no_owned_effect /run/soglia-b1-no-bpftool /sys/fs/bpf/soglia-b1-no-bpftool 18096
-systemctl stop soglia-b1-no-bpftool.service >/dev/null 2>&1 || true
+stop_and_prune_unit_cgroup soglia-b1-no-bpftool "$case_dir/unit-stop"
 systemctl reset-failed soglia-b1-no-bpftool.service >/dev/null 2>&1 || true
 cleanup_runtime /run/soglia-b1-no-bpftool
 printf '%s\n' PASS > "$case_dir/verdict.txt"
@@ -198,7 +202,7 @@ bpftool cgroup detach "$direct_root/executions" cgroup_inet4_connect \
   pinned "$foreign_pin/foreign_allow"
 direct_attached=0
 systemctl stop soglia-b1-direct-app.service >/dev/null 2>&1 || true
-systemctl stop soglia-b1-direct-root.service
+stop_and_prune_unit_cgroup soglia-b1-direct-root "$case_dir/root-unit-stop"
 systemctl reset-failed soglia-b1-direct-app.service soglia-b1-direct-root.service \
   >/dev/null 2>&1 || true
 cleanup_runtime /run/soglia-b1-direct
@@ -234,7 +238,7 @@ if nft list table inet soglia_host >/dev/null 2>&1; then exit 41; fi
 find /sys/fs/bpf/soglia-b1-unknown -type f -delete
 rmdir /sys/fs/bpf/soglia-b1-unknown
 systemctl stop soglia-b1-unknown-app.service >/dev/null 2>&1 || true
-systemctl stop soglia-b1-unknown-root.service
+stop_and_prune_unit_cgroup soglia-b1-unknown-root "$case_dir/root-unit-stop"
 systemctl reset-failed soglia-b1-unknown-app.service soglia-b1-unknown-root.service \
   >/dev/null 2>&1 || true
 cleanup_runtime /run/soglia-b1-unknown

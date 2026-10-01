@@ -7,6 +7,10 @@
 
 set -euo pipefail
 
+scripts=/soglia/spikes/cgroup-bpf/runner/scripts
+# shellcheck source=spikes/cgroup-bpf/runner/scripts/systemd-cgroup-common.sh
+source "$scripts/systemd-cgroup-common.sh"
+
 prod_obj="${1:?usage: b1-attach-matrix.sh <production-object> <diagnostic-loader>}"
 diag_bin="${2:?usage: b1-attach-matrix.sh <production-object> <diagnostic-loader>}"
 run_id="b1-attach-diag-$(date -u +%Y%m%dT%H%M%SZ)-$$"
@@ -38,7 +42,7 @@ cleanup() {
       >/dev/null 2>&1
   fi
   if [[ "$unit_started" == 1 ]]; then
-    systemctl stop "$unit.service" >/dev/null 2>&1
+    stop_and_prune_unit_cgroup "$unit" "$evidence/abort-unit-stop" >/dev/null 2>&1
     systemctl reset-failed "$unit.service" >/dev/null 2>&1
   fi
   find "$pin_root" -type f -delete 2>/dev/null
@@ -351,7 +355,7 @@ if not cleanup["passed"]:
     raise SystemExit(94)
 PY
 
-systemctl stop "$unit.service"
+stop_and_prune_unit_cgroup "$unit" "$evidence/unit-stop"
 systemctl reset-failed "$unit.service" || true
 unit_started=0
 for _ in $(seq 1 100); do

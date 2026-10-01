@@ -7,6 +7,10 @@
 
 set -euo pipefail
 
+scripts=/soglia/spikes/cgroup-bpf/runner/scripts
+# shellcheck source=spikes/cgroup-bpf/runner/scripts/systemd-cgroup-common.sh
+source "$scripts/systemd-cgroup-common.sh"
+
 binary="${1:?usage: b1-production-exclusive.sh <soglia>}"
 run_id="b1-diagnostic-exclusive-$(date -u +%Y%m%dT%H%M%SZ)-$$"
 evidence="/soglia/spikes/cgroup-bpf/evidence/replay/$run_id"
@@ -35,7 +39,7 @@ cleanup() {
     find "$foreign_root" -type f -delete 2>/dev/null
     rmdir "$foreign_root" 2>/dev/null
   fi
-  systemctl stop "$root_unit.service" >/dev/null 2>&1
+  stop_and_prune_unit_cgroup "$root_unit" "$evidence/abort-root-unit-stop" >/dev/null 2>&1
   systemctl reset-failed "$app_unit.service" "$root_unit.service" >/dev/null 2>&1
   rm -f "$runtime/lock"
   find "$runtime" -depth -type d -empty -delete 2>/dev/null
@@ -131,7 +135,7 @@ bpftool cgroup detach "$root_cgroup" cgroup_inet4_connect \
 foreign_attached=0
 rm "$foreign_root/foreign_allow" "$foreign_root/foreign_rewrite"
 rmdir "$foreign_root"
-systemctl stop "$root_unit.service"
+stop_and_prune_unit_cgroup "$root_unit" "$evidence/root-unit-stop"
 systemctl reset-failed "$app_unit.service" "$root_unit.service" || true
 rm -f "$runtime/lock"
 find "$runtime" -depth -type d -empty -delete 2>/dev/null || true

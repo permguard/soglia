@@ -7,6 +7,10 @@
 
 set -euo pipefail
 
+scripts=/soglia/spikes/cgroup-bpf/runner/scripts
+# shellcheck source=spikes/cgroup-bpf/runner/scripts/systemd-cgroup-common.sh
+source "$scripts/systemd-cgroup-common.sh"
+
 if [[ $# -ne 6 ]]; then
   echo 'usage: b6-target-released-negative.sh <soglia> <agent> <link-injector> <b6-driver> <case> <evidence>' >&2
   exit 13
@@ -94,9 +98,9 @@ unknown_refusal_count() {
 
 remove_owned() {
   set +e
-  systemctl stop "$consumer.service" >/dev/null 2>&1
+  stop_and_prune_unit_cgroup "$consumer" "$evidence/consumer-unit-stop" >/dev/null 2>&1
   systemctl reset-failed "$consumer.service" >/dev/null 2>&1
-  systemctl stop "$owner.service" >/dev/null 2>&1
+  stop_and_prune_unit_cgroup "$owner" "$evidence/owner-unit-stop" >/dev/null 2>&1
   systemctl reset-failed "$owner.service" >/dev/null 2>&1
   if [[ -f $state ]]; then
     jq -r '.links[].pin,.maps[].pin' "$state" | while read -r pin; do
@@ -289,7 +293,7 @@ if [[ "$case_name" == link_still_attached ]]; then
   wait_for repeated-typed-unknown "[[ \$(unknown_refusal_count '$refusal_unit' '$cursor') -ge 2 ]]"
   systemctl show "$refusal_unit.service" -p Restart -p NRestarts \
     > "$evidence/refusal-restart-properties.txt"
-  systemctl stop "$refusal_unit.service"
+  stop_and_prune_unit_cgroup "$refusal_unit" "$evidence/refusal-unit-stop"
 else
   wait_for typed-unknown "[[ \$(systemctl show '$refusal_unit.service' -p ActiveState --value) != active ]]"
 fi

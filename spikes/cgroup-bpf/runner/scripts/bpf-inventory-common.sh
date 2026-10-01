@@ -4,6 +4,10 @@
 
 # Shared B1-B7 qualification inventory capture and strict external attribution.
 
+scripts=${scripts:-/soglia/spikes/cgroup-bpf/runner/scripts}
+# shellcheck source=spikes/cgroup-bpf/runner/scripts/systemd-cgroup-common.sh
+source "$scripts/systemd-cgroup-common.sh"
+
 BPF_INVENTORY_WATCHER_PID=
 BPF_INVENTORY_WATCHER_MARKER=
 

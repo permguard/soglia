@@ -4,6 +4,10 @@
 
 set -Eeuo pipefail
 
+scripts=/soglia/spikes/cgroup-bpf/runner/scripts
+# shellcheck source=spikes/cgroup-bpf/runner/scripts/systemd-cgroup-common.sh
+source "$scripts/systemd-cgroup-common.sh"
+
 if [[ $# -ne 1 ]]; then
     echo "usage: $0 EVIDENCE_DIR" >&2
     exit 64
@@ -33,7 +37,7 @@ cleanup() {
         touch "$scratch/stop"
         wait "$loader_pid" 2>/dev/null
     fi
-    systemctl stop "$unit" >/dev/null 2>&1
+    stop_and_prune_unit_cgroup "$unit" "$evidence/abort-unit-stop" >/dev/null 2>&1
     systemctl reset-failed "$unit" >/dev/null 2>&1
     rm -f "$pin_root/manual-link" "$pin_root/systemd-link"
     rmdir "$pin_root" 2>/dev/null

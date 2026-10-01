@@ -6,6 +6,10 @@
 
 set -euo pipefail
 
+scripts=/soglia/spikes/cgroup-bpf/runner/scripts
+# shellcheck source=spikes/cgroup-bpf/runner/scripts/systemd-cgroup-common.sh
+source "$scripts/systemd-cgroup-common.sh"
+
 binary="${1:?usage: b1-production-smoke.sh <soglia> <config>}"
 config="${2:?usage: b1-production-smoke.sh <soglia> <config>}"
 run_id="b1-diagnostic-smoke-$(date -u +%Y%m%dT%H%M%SZ)-$$"
@@ -22,7 +26,7 @@ printf '%s\n' RUNNING > "$evidence/verdict.txt"
 
 cleanup() {
   set +e
-  systemctl stop "$unit.service" >/dev/null 2>&1
+  stop_and_prune_unit_cgroup "$unit" "$evidence/abort-unit-stop" >/dev/null 2>&1
   systemctl reset-failed "$unit.service" >/dev/null 2>&1
   if [[ -f "$state" ]] && jq -e '.pin_root and .links and .maps' "$state" >/dev/null 2>&1; then
     while IFS= read -r pin; do
@@ -129,7 +133,7 @@ jq -s -e \
   'all(.[]; (.phase != "INTENT") or (.ingress_listening == false)) and any(.[]; .phase == "READY" and .ingress_listening == true)' \
   "$evidence/positive/ready-observer.jsonl" >/dev/null
 
-systemctl stop "$unit.service"
+stop_and_prune_unit_cgroup "$unit" "$evidence/unit-stop"
 systemctl reset-failed "$unit.service" || true
 for _ in $(seq 1 200); do
   [[ ! -e "$cgroup" ]] && break

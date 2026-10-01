@@ -49,6 +49,7 @@ program_classification=NOT_RUN
 links_classification=NOT_RUN
 maps_classification=NOT_RUN
 production_source_matches=false
+unit_cleanup_failed=false
 
 mkdir -p "$evidence/final"
 printf '%s\n' RUNNING > "$evidence/verdict.txt"
@@ -99,7 +100,7 @@ cleanup() {
   bpf_inventory_stop_watcher
   current_phase=CLEANUP
   persist_state
-  systemctl stop "$unit.service" >/dev/null 2>&1
+  stop_and_prune_unit_cgroup "$unit" "$evidence/final/unit-stop" || unit_cleanup_failed=true
   systemctl reset-failed "$unit.service" >/dev/null 2>&1
   ip link delete b4-upstream >/dev/null 2>&1
 
@@ -151,6 +152,7 @@ cleanup() {
   jq -S 'sort_by(.id)' "$evidence/baseline-maps.json" > "$evidence/final/maps-before.normalized.json"
   jq -S 'sort_by(.id)' "$evidence/final/maps.json" > "$evidence/final/maps-after.normalized.json"
   cleanup_status=PASS
+  [[ $unit_cleanup_failed == false ]] || cleanup_status=CLEANUP_FAIL
   bpf_inventory_is_clean "$program_classification" || cleanup_status=CLEANUP_FAIL
   cmp -s "$evidence/final/links-before.normalized.json" "$evidence/final/links-after.normalized.json" \
     && links_classification=MATCH || links_classification=FAIL

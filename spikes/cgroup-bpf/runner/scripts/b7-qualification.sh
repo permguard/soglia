@@ -43,6 +43,7 @@ links_classification=NOT_RUN
 maps_classification=NOT_RUN
 production_source_matches=false
 teardown_blocked=false
+unit_cleanup_failed=false
 effect_observer_created=false
 
 mkdir -p "$evidence/final" "$evidence/profiles" "$evidence/drift" "$pin_parent" "$runtime_parent"
@@ -86,7 +87,8 @@ stop_test_units() {
   set +e
   for unit in soglia-b7-m0 soglia-b7-m1 soglia-b7-m2 soglia-b7-m3 \
     soglia-b7-foreign-link soglia-b7-owned-link-detach; do
-    systemctl stop "$unit.service" >/dev/null 2>&1
+    stop_and_prune_unit_cgroup "$unit" "$evidence/final/unit-stops/$unit" \
+      || unit_cleanup_failed=true
     systemctl reset-failed "$unit.service" >/dev/null 2>&1
   done
   set -e
@@ -130,6 +132,7 @@ final_cleanup() {
   jq -S 'sort_by(.id)' "$evidence/baseline-maps.json" > "$evidence/final/maps-before.normalized.json"
   jq -S 'sort_by(.id)' "$evidence/final/maps.json" > "$evidence/final/maps-after.normalized.json"
   cleanup_status=PASS
+  [[ $unit_cleanup_failed == false ]] || cleanup_status=CLEANUP_FAIL
   bpf_inventory_is_clean "$program_classification" || cleanup_status=CLEANUP_FAIL
   cmp -s "$evidence/final/links-before.normalized.json" "$evidence/final/links-after.normalized.json" \
     && links_classification=MATCH || links_classification=FAIL
@@ -280,14 +283,8 @@ stop_and_verify_row() {
   local measurement="$case_evidence/persistent-generation.json"
   local teardown="$case_evidence/harness-teardown.json"
   cp -- "$state" "$case_evidence/registered-state-before-stop.json"
-  systemctl stop "$unit.service" >/dev/null 2>&1 || true
+  stop_and_prune_unit_cgroup "$unit" "$case_evidence/unit-stop"
   systemctl reset-failed "$unit.service" >/dev/null 2>&1 || true
-  for _ in $(seq 1 200); do
-    if [[ ! -e "/sys/fs/cgroup/system.slice/$unit.service" ]]; then
-      break
-    fi
-    sleep 0.05
-  done
   [[ ! -e "/sys/fs/cgroup/system.slice/$unit.service" ]]
   cmp -s "$case_evidence/registered-state-before-stop.json" "$state"
   local verify_args=(verify --state "$state" --runtime-parent "$runtime_parent"
@@ -343,15 +340,8 @@ run_drift() {
     --evidence "$case_evidence" --injector "$injector" --detacher "$detacher" \
     --foreign-object "$foreign_object"
   grep -Fx PASS "$case_evidence/verdict.txt" >/dev/null
-  systemctl stop "$unit.service" >/dev/null 2>&1 || true
+  stop_and_prune_unit_cgroup "$unit" "$case_evidence/pre-recovery-unit-stop"
   systemctl reset-failed "$unit.service" >/dev/null 2>&1 || true
-  for _ in $(seq 1 200); do
-    if [[ ! -e "/sys/fs/cgroup/system.slice/$unit.service" ]] \
-      && [[ $(systemctl show "$unit.service" -p LoadState --value 2>/dev/null) == not-found ]]; then
-      break
-    fi
-    sleep 0.05
-  done
   [[ ! -e "/sys/fs/cgroup/system.slice/$unit.service" ]]
   [[ $(systemctl show "$unit.service" -p LoadState --value 2>/dev/null) == not-found ]]
   start_unit "$unit" "$config" "$case_evidence/recovery-systemd-run.txt"

@@ -49,6 +49,7 @@ cleanup_status=NOT_RUN
 program_classification=NOT_RUN
 links_classification=NOT_RUN
 maps_classification=NOT_RUN
+unit_cleanup_failed=false
 production_source_matches=false
 legacy_attached=0
 legacy_root=/sys/fs/bpf/soglia-b5-unexpected-legacy
@@ -107,7 +108,8 @@ write_summary() {
 
 remove_runtime_objects() {
   set +e
-  systemctl stop "$driver_unit.service" >/dev/null 2>&1
+  stop_and_prune_unit_cgroup "$driver_unit" "$evidence/final/driver-unit-stop" \
+    || unit_cleanup_failed=true
   systemctl reset-failed "$driver_unit.service" >/dev/null 2>&1
   ip link delete b3-upstream >/dev/null 2>&1
   if [[ -f "$state" ]] && jq -e '.pin_root and .links and .maps' "$state" >/dev/null 2>&1; then
@@ -156,7 +158,8 @@ cleanup() {
     rmdir "$root" 2>/dev/null
   done
   remove_runtime_objects
-  systemctl stop "$root_unit.service" >/dev/null 2>&1
+  stop_and_prune_unit_cgroup "$root_unit" "$evidence/final/root-unit-stop" \
+    || unit_cleanup_failed=true
   systemctl reset-failed "$root_unit.service" >/dev/null 2>&1
   : > "$evidence/final/program-settle.jsonl"
   for attempt in $(seq 0 720); do
@@ -175,6 +178,7 @@ cleanup() {
   jq -S 'sort_by(.id)' "$evidence/baseline-maps.json" > "$evidence/final/maps-before.normalized.json"
   jq -S 'sort_by(.id)' "$evidence/final/maps.json" > "$evidence/final/maps-after.normalized.json"
   cleanup_status=PASS
+  [[ $unit_cleanup_failed == false ]] || cleanup_status=CLEANUP_FAIL
   bpf_inventory_is_clean "$program_classification" || cleanup_status=CLEANUP_FAIL
   cmp -s "$evidence/final/links-before.normalized.json" "$evidence/final/links-after.normalized.json" \
     && links_classification=MATCH || links_classification=FAIL

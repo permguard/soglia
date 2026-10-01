@@ -9,6 +9,10 @@
 
 set -euo pipefail
 
+scripts=/soglia/spikes/cgroup-bpf/runner/scripts
+# shellcheck source=spikes/cgroup-bpf/runner/scripts/systemd-cgroup-common.sh
+source "$scripts/systemd-cgroup-common.sh"
+
 if [[ $# -ne 5 ]]; then
   echo 'usage: b6-systemd-boundaries.sh <soglia> <driver> <trace> <agent> <evidence>' >&2
   exit 13
@@ -50,7 +54,7 @@ remove_case_resources() {
   local unit=$1 runtime=$2 pin_parent=$3 rootfs=$4
   local state="$runtime/cgroup-bpf/state.json"
   set +e
-  systemctl stop "$unit.service" >/dev/null 2>&1
+  stop_and_prune_unit_cgroup "$unit" "$evidence/cases/$unit/unit-stop" || return 1
   systemctl reset-failed "$unit.service" >/dev/null 2>&1
   if [[ -f "$state" ]] && jq -e '.pin_root and .links and .maps' "$state" >/dev/null 2>&1; then
     while IFS= read -r pin; do
