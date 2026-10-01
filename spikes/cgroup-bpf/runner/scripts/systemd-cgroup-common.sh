@@ -7,6 +7,11 @@
 SYSTEMD_CGROUP_STOP_WAIT_ITERATIONS=${SYSTEMD_CGROUP_STOP_WAIT_ITERATIONS:-200}
 SYSTEMD_CGROUP_STOP_WAIT_INTERVAL=${SYSTEMD_CGROUP_STOP_WAIT_INTERVAL:-0.05}
 
+systemd_cgroup_is_stopped_state() {
+  local active_state=$1
+  [[ $active_state == inactive || $active_state == failed ]]
+}
+
 systemd_cgroup_capture_file() {
   local path=$1 output=$2
   if [[ -f $path ]]; then
@@ -90,7 +95,7 @@ stop_and_prune_unit_cgroup() {
 
   for _ in $(seq 1 "$SYSTEMD_CGROUP_STOP_WAIT_ITERATIONS"); do
     active_state=$(systemctl show "$service" -p ActiveState --value 2>/dev/null || true)
-    if [[ $active_state == inactive && ! -d $unit_cgroup ]]; then
+    if systemd_cgroup_is_stopped_state "$active_state" && [[ ! -d $unit_cgroup ]]; then
       [[ -z $evidence_dir ]] || printf '%s\n' "$classification" \
         > "$evidence_dir/stop-classification.txt"
       return 0
@@ -118,7 +123,7 @@ stop_and_prune_unit_cgroup() {
     exact_empty_shape=true
   fi
 
-  if [[ $active_state == inactive ]] \
+  if systemd_cgroup_is_stopped_state "$active_state" \
     && [[ $exact_empty_shape == true ]] \
     && [[ -f $unit_cgroup/cgroup.events ]] \
     && grep -Fxq 'populated 0' "$unit_cgroup/cgroup.events" \
