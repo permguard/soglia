@@ -542,7 +542,14 @@ mod runtime {
     ) -> Result<(), String> {
         let config = Arc::new(config);
         let pool = config.pool().map_err(|error| error.to_string())?;
-        let attribution = Arc::new(AttributionTable::new());
+        let attribution_capacity = config
+            .runtime
+            .max_concurrency
+            .checked_add(config.runtime.cleanup_failure_threshold)
+            .ok_or_else(|| "the attribution table capacity overflowed".to_owned())?;
+        let attribution = Arc::new(AttributionTable::with_capacity(
+            usize::try_from(attribution_capacity).unwrap_or(usize::MAX),
+        ));
         let resolver_client =
             if config.network.backend == NetworkBackend::CgroupBpf {
                 Some(enforcer.resolver_client().map_err(|error| {
@@ -571,7 +578,7 @@ mod runtime {
                     resolver,
                     Arc::clone(&attribution),
                     Duration::from_millis(config.cgroup_bpf.resolve_timeout_ms),
-                    usize::try_from(config.runtime.max_concurrency).unwrap_or(usize::MAX),
+                    usize::try_from(config.cgroup_bpf.max_pending_resolves).unwrap_or(usize::MAX),
                     Arc::new(move |failure| match failure {
                         ResolveHealthFailure::Unavailable => observed.helper_exited(
                             "enforcer-resolve",
@@ -603,15 +610,18 @@ mod runtime {
                 )
             })?;
 
-        let egress = Arc::new(EgressProxy::new(
+        let egress = Arc::new(EgressProxy::new_bounded(
             Arc::new(policy),
             connection_attribution,
             Arc::new(SystemResolver),
             EgressLimits::from_config(&config.egress),
+            usize::try_from(config.network.max_proxy_connections).unwrap_or(usize::MAX),
         ));
         tokio::spawn(egress.serve(egress_listener, stopped.clone()));
         let limits = IngressLimits {
             max_request_bytes: usize::try_from(config.ingress.max_request_bytes)
+                .unwrap_or(usize::MAX),
+            max_connections: usize::try_from(config.runtime.max_ingress_connections)
                 .unwrap_or(usize::MAX),
         };
         let executor: Arc<dyn Executor> = Arc::new(supervisor.clone());

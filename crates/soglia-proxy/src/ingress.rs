@@ -12,6 +12,7 @@ use std::convert::Infallible;
 use std::future::Future;
 use std::pin::Pin;
 use std::sync::Arc;
+use std::sync::atomic::{AtomicU64, AtomicUsize, Ordering};
 
 use bytes::Bytes;
 use http::header::{self, HeaderValue};
@@ -23,7 +24,7 @@ use hyper::service::service_fn;
 use hyper_util::rt::TokioIo;
 use soglia_core::ExecutionId;
 use tokio::net::TcpListener;
-use tokio::sync::watch;
+use tokio::sync::{Semaphore, watch};
 use tracing::warn;
 
 /// One invocation, as the caller sent it.
@@ -76,6 +77,8 @@ pub trait Executor: Send + Sync {
 pub struct IngressLimits {
     /// The largest request body accepted.
     pub max_request_bytes: usize,
+    /// Maximum accepted connections with a live task.
+    pub max_connections: usize,
 }
 
 /// Accepts invocations on `listener` until `shutdown` turns true.
@@ -85,6 +88,9 @@ pub async fn serve(
     limits: IngressLimits,
     mut shutdown: watch::Receiver<bool>,
 ) {
+    let connections = Arc::new(Semaphore::new(limits.max_connections));
+    let high_water = Arc::new(AtomicUsize::new(0));
+    let refused = Arc::new(AtomicU64::new(0));
     loop {
         let accepted = tokio::select! {
             biased;
@@ -98,9 +104,33 @@ pub async fn serve(
                 continue;
             }
         };
+        let Ok(connection_permit) = Arc::clone(&connections).try_acquire_owned() else {
+            let refused_total = refused.fetch_add(1, Ordering::Relaxed).saturating_add(1);
+            warn!(
+                event.name = "ingress.connection_limit",
+                limit = limits.max_connections,
+                refused_total,
+                "ingress connection refused before a task was created"
+            );
+            drop(stream);
+            continue;
+        };
+        let active = limits
+            .max_connections
+            .saturating_sub(connections.available_permits());
+        high_water.fetch_max(active, Ordering::Relaxed);
+        tracing::debug!(
+            event.name = "ingress.connection_occupancy",
+            active,
+            high_water = high_water.load(Ordering::Relaxed),
+            limit = limits.max_connections,
+            refused_total = refused.load(Ordering::Relaxed),
+            "bounded ingress connection occupancy"
+        );
         let executor = Arc::clone(&executor);
         let mut connection_shutdown = shutdown.clone();
         tokio::spawn(async move {
+            let _connection_permit = connection_permit;
             let service = service_fn(move |request| {
                 let executor = Arc::clone(&executor);
                 async move { Ok::<_, Infallible>(handle(executor, limits, request).await) }
@@ -291,6 +321,7 @@ mod tests {
             Arc::clone(&executor) as Arc<dyn Executor>,
             IngressLimits {
                 max_request_bytes: 64,
+                max_connections: 8,
             },
             stopped,
         ));
@@ -413,6 +444,7 @@ mod tests {
             executor as Arc<dyn Executor>,
             IngressLimits {
                 max_request_bytes: 64,
+                max_connections: 8,
             },
             stopped,
         ));

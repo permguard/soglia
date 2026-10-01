@@ -13,6 +13,7 @@
 //! would report the credentials at socketpair creation, which were root, and says nothing about the
 //! Supervisor after it dropped privileges, so it is not used as proof.
 
+use std::collections::HashMap;
 use std::fmt;
 use std::future::Future;
 use std::io;
@@ -23,17 +24,21 @@ use std::path::Path;
 use std::pin::Pin;
 use std::process::{Child, Command, ExitStatus, Stdio};
 use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
+use std::sync::mpsc::{SyncSender, TrySendError, sync_channel};
 use std::sync::{Arc, Mutex};
 
 use serde::Serialize;
 use serde::de::DeserializeOwned;
 use soglia_core::helper::{
-    Hello, HelperFailure, HelperResponse, ResolveAttempt, ResolveMismatch, ResolvePending,
-    ResolveResult, ResolverReply, ResolverRequest, SocketTupleV4,
+    Hello, HelperFailure, HelperResponse, RESOLVER_PROTOCOL_VERSION, ResolveAttempt,
+    ResolveMismatch, ResolvePending, ResolveResult, ResolverHello, ResolverReady, ResolverReply,
+    ResolverRequest, SocketTupleV4,
 };
-use soglia_core::ipc::{read_frame, write_frame};
+use soglia_core::ipc::{
+    MAX_RESOLVER_FRAME_BYTES, read_frame, read_frame_limited, write_frame, write_frame_limited,
+};
 use soglia_proxy::attribution::{AttributionResult, AttributionTable, ConnectionAttributor};
-use tokio::sync::{Mutex as AsyncMutex, OwnedMutexGuard, Semaphore};
+use tokio::sync::{Semaphore, oneshot};
 use tracing::{debug, info, warn};
 
 /// Callback invoked once when the Resolve channel first becomes permanently unhealthy.
@@ -92,9 +97,11 @@ impl Helper {
             let poison_shutdown = ours.try_clone()?;
             (
                 Some(Arc::new(ResolverState {
-                    channel: Mutex::new(ours),
+                    channel: Mutex::new(Some(ours)),
+                    sender: Mutex::new(None),
+                    inflight: Mutex::new(HashMap::new()),
+                    submission: Mutex::new(()),
                     shutdown: poison_shutdown,
-                    gate: Arc::new(AsyncMutex::new(())),
                     poisoned: AtomicBool::new(false),
                     next_request_id: AtomicU64::new(1),
                     on_unavailable: Mutex::new(None),
@@ -187,7 +194,32 @@ impl Helper {
         let hello = Hello {
             config_yaml: config_yaml.to_owned(),
         };
-        match exchange(&self.channel, &hello)? {
+        let answer = if let Some(resolver) = &self.resolver {
+            let mut lifecycle = self
+                .channel
+                .lock()
+                .map_err(|_| HelperError::Channel("the channel lock is poisoned".to_owned()))?;
+            write_frame(&mut *lifecycle, &hello)
+                .map_err(|error| HelperError::Channel(error.to_string()))?;
+            let config = soglia_core::config::Config::from_yaml(config_yaml)
+                .map_err(|error| HelperError::Unexpected(error.to_string()))?;
+            resolver.begin_negotiation(
+                config.cgroup_bpf.max_pending_resolves,
+                config.cgroup_bpf.resolve_workers,
+            )?;
+            let answer: HelperResponse = read_frame(&mut *lifecycle)
+                .map_err(|error| HelperError::Channel(error.to_string()))?;
+            if matches!(answer, HelperResponse::Ready { .. }) {
+                resolver.finish_negotiation(
+                    config.cgroup_bpf.max_pending_resolves,
+                    config.cgroup_bpf.resolve_workers,
+                )?;
+            }
+            answer
+        } else {
+            exchange(&self.channel, &hello)?
+        };
+        match answer {
             HelperResponse::Ready { swept } => Ok(swept),
             HelperResponse::Failed { failure } => Err(HelperError::Failed(failure)),
             other => Err(HelperError::Unexpected(format!("{other:?}"))),
@@ -225,22 +257,30 @@ impl Helper {
 
 /// The unprivileged endpoint of the Enforcer's authenticated Resolve socketpair.
 struct ResolverState {
-    channel: Mutex<UnixStream>,
+    channel: Mutex<Option<UnixStream>>,
+    sender: Mutex<Option<SyncSender<ResolverCommand>>>,
+    inflight: Mutex<HashMap<u64, InflightResolve>>,
+    submission: Mutex<()>,
     shutdown: UnixStream,
-    gate: Arc<AsyncMutex<()>>,
     poisoned: AtomicBool,
     next_request_id: AtomicU64,
     on_unavailable: Mutex<Option<ResolveHealthCallback>>,
 }
 
+struct InflightResolve {
+    response: oneshot::Sender<Result<ResolveAttempt, HelperError>>,
+    written_at: Option<std::time::Instant>,
+}
+
+#[derive(Debug, Clone, Copy)]
+struct ResolverCommand {
+    request_id: u64,
+    tuple: SocketTupleV4,
+}
+
 #[derive(Clone)]
 pub struct ResolverClient {
     state: Arc<ResolverState>,
-}
-
-struct ResolveLease {
-    state: Arc<ResolverState>,
-    guard: OwnedMutexGuard<()>,
 }
 
 /// A Resolve failure that makes the runtime unsafe to keep ready.
@@ -259,6 +299,9 @@ pub struct CandidateAAttributor {
     publication_timeout: std::time::Duration,
     exchange_watchdog: std::time::Duration,
     queue: Semaphore,
+    queue_capacity: usize,
+    queue_high_water: AtomicU64,
+    queue_refused: AtomicU64,
     on_health_failure: ResolveHealthCallback,
     observability: ResolveObservability,
 }
@@ -399,6 +442,9 @@ impl CandidateAAttributor {
             publication_timeout,
             exchange_watchdog: RESOLVE_EXCHANGE_WATCHDOG,
             queue: Semaphore::new(queue_depth.max(1)),
+            queue_capacity: queue_depth.max(1),
+            queue_high_water: AtomicU64::new(0),
+            queue_refused: AtomicU64::new(0),
             on_health_failure,
             observability: ResolveObservability::new(),
         }
@@ -421,8 +467,14 @@ impl ConnectionAttributor for CandidateAAttributor {
                 return result;
             };
             let Ok(_permit) = self.queue.try_acquire() else {
+                let refused_total = self
+                    .queue_refused
+                    .fetch_add(1, Ordering::Relaxed)
+                    .saturating_add(1);
                 warn!(
                     event.name = "cgroup_bpf.resolve_queue_full",
+                    limit = self.queue_capacity,
+                    refused_total,
                     "Candidate-A Resolve denied"
                 );
                 let result = AttributionResult::QueueFull;
@@ -430,6 +482,19 @@ impl ConnectionAttributor for CandidateAAttributor {
                     .record(&result, attempts, started.elapsed());
                 return result;
             };
+            let active = self
+                .queue_capacity
+                .saturating_sub(self.queue.available_permits());
+            let active = u64::try_from(active).unwrap_or(u64::MAX);
+            self.queue_high_water.fetch_max(active, Ordering::Relaxed);
+            debug!(
+                event.name = "cgroup_bpf.resolve_queue_occupancy",
+                active,
+                high_water = self.queue_high_water.load(Ordering::Relaxed),
+                limit = self.queue_capacity,
+                refused_total = self.queue_refused.load(Ordering::Relaxed),
+                "bounded Candidate-A Resolve queue occupancy"
+            );
             let tuple = SocketTupleV4 {
                 source_address: peer_ip.octets(),
                 destination_address: local_ip.octets(),
@@ -446,56 +511,21 @@ impl ConnectionAttributor for CandidateAAttributor {
                         .record(&result, attempts, started.elapsed());
                     return result;
                 }
-                let lease = match tokio::time::timeout_at(deadline, self.resolver.acquire()).await {
-                    Ok(Ok(lease)) => lease,
-                    Ok(Err(error)) => {
-                        let result = self.unavailable(error);
-                        self.observability
-                            .record(&result, attempts, started.elapsed());
-                        return result;
-                    }
-                    Err(_) if attempts > 0 => {
-                        let result = self.publication_timed_out(tuple_absent, backend_busy);
-                        self.observability
-                            .record(&result, attempts, started.elapsed());
-                        return result;
-                    }
-                    Err(_) => {
-                        warn!(
-                            event.name = "cgroup_bpf.resolve_queue_full",
-                            "Candidate-A Resolve expired waiting for the IPC gate"
-                        );
-                        let result = AttributionResult::QueueFull;
-                        self.observability
-                            .record(&result, attempts, started.elapsed());
-                        return result;
-                    }
-                };
                 attempts = attempts.saturating_add(1);
                 // The authenticated-channel watchdog is deliberately independent from the
                 // publication deadline. A healthy exchange that starts just before the deadline
                 // must not be mistaken for channel loss merely because its response arrives
                 // after that deadline.
-                let exchange = match lease.start(tuple, self.exchange_watchdog) {
-                    Ok(exchange) => exchange,
-                    Err(error) => {
-                        let result = self.unavailable(error);
-                        self.observability
-                            .record(&result, attempts, started.elapsed());
-                        return result;
-                    }
-                };
-                let attempt = match tokio::time::timeout(self.exchange_watchdog, exchange).await {
-                    Ok(Ok(Ok(attempt))) => attempt,
-                    Ok(Ok(Err(error))) => {
-                        let result = self.unavailable(error);
-                        self.observability
-                            .record(&result, attempts, started.elapsed());
-                        return result;
-                    }
+                let attempt = match tokio::time::timeout(
+                    self.exchange_watchdog,
+                    self.resolver.request(tuple),
+                )
+                .await
+                {
+                    Ok(Ok(attempt)) => attempt,
                     Ok(Err(error)) => {
                         self.resolver.poison();
-                        let result = self.unavailable(HelperError::Channel(error.to_string()));
+                        let result = self.unavailable(error);
                         self.observability
                             .record(&result, attempts, started.elapsed());
                         return result;
@@ -524,6 +554,12 @@ impl ConnectionAttributor for CandidateAAttributor {
                     ResolveAttempt::Pending {
                         reason: ResolvePending::BackendBusy,
                     } => backend_busy = true,
+                    ResolveAttempt::QueueFull => {
+                        let result = AttributionResult::QueueFull;
+                        self.observability
+                            .record(&result, attempts, started.elapsed());
+                        return result;
+                    }
                 }
                 if tokio::time::Instant::now() >= deadline {
                     let result = self.publication_timed_out(tuple_absent, backend_busy);
@@ -612,22 +648,59 @@ impl ResolverClient {
         }
     }
 
-    async fn acquire(&self) -> Result<ResolveLease, HelperError> {
+    async fn request(&self, tuple: SocketTupleV4) -> Result<ResolveAttempt, HelperError> {
         if self.state.poisoned.load(Ordering::Acquire) {
             return Err(HelperError::Channel(
                 "the Resolve channel is permanently unavailable".to_owned(),
             ));
         }
-        let guard = Arc::clone(&self.state.gate).lock_owned().await;
-        if self.state.poisoned.load(Ordering::Acquire) {
-            return Err(HelperError::Channel(
-                "the Resolve channel is permanently unavailable".to_owned(),
-            ));
-        }
-        Ok(ResolveLease {
-            state: Arc::clone(&self.state),
-            guard,
-        })
+        let receiver = {
+            let _submission = self.state.submission.lock().map_err(|_| {
+                HelperError::Channel("the Resolve submission lock is poisoned".to_owned())
+            })?;
+            let request_id = self.state.next_request_id()?;
+            let (response, receiver) = oneshot::channel();
+            self.state
+                .inflight
+                .lock()
+                .map_err(|_| HelperError::Channel("the Resolve table lock is poisoned".to_owned()))?
+                .insert(
+                    request_id,
+                    InflightResolve {
+                        response,
+                        written_at: None,
+                    },
+                );
+            let sender = self
+                .state
+                .sender
+                .lock()
+                .map_err(|_| {
+                    HelperError::Channel("the Resolve sender lock is poisoned".to_owned())
+                })?
+                .clone()
+                .ok_or_else(|| {
+                    HelperError::Channel("the Resolve protocol is not ready".to_owned())
+                })?;
+            match sender.try_send(ResolverCommand { request_id, tuple }) {
+                Ok(()) => {}
+                Err(TrySendError::Full(_)) => {
+                    self.state.remove_inflight(request_id);
+                    return Ok(ResolveAttempt::QueueFull);
+                }
+                Err(TrySendError::Disconnected(_)) => {
+                    self.state.remove_inflight(request_id);
+                    self.state.poison();
+                    return Err(HelperError::Channel(
+                        "the Resolve writer is unavailable".to_owned(),
+                    ));
+                }
+            }
+            receiver
+        };
+        receiver
+            .await
+            .map_err(|_| HelperError::Channel("the Resolve response was abandoned".to_owned()))?
     }
 
     fn poison(&self) {
@@ -636,6 +709,187 @@ impl ResolverClient {
 }
 
 impl ResolverState {
+    fn begin_negotiation(
+        &self,
+        max_pending_resolves: u32,
+        resolve_workers: u16,
+    ) -> Result<(), HelperError> {
+        let mut channel = self
+            .channel
+            .lock()
+            .map_err(|_| HelperError::Channel("the Resolve channel lock is poisoned".to_owned()))?;
+        let channel = channel
+            .as_mut()
+            .ok_or_else(|| HelperError::Unexpected("Resolve was negotiated twice".to_owned()))?;
+        let hello = ResolverHello {
+            version: RESOLVER_PROTOCOL_VERSION,
+            max_pending_resolves,
+            resolve_workers,
+        };
+        write_frame_limited(channel, &hello, MAX_RESOLVER_FRAME_BYTES)
+            .map_err(|error| HelperError::Channel(error.to_string()))
+    }
+
+    fn finish_negotiation(
+        self: &Arc<Self>,
+        max_pending_resolves: u32,
+        resolve_workers: u16,
+    ) -> Result<(), HelperError> {
+        let mut channel = self
+            .channel
+            .lock()
+            .map_err(|_| HelperError::Channel("the Resolve channel lock is poisoned".to_owned()))?
+            .take()
+            .ok_or_else(|| HelperError::Unexpected("Resolve was negotiated twice".to_owned()))?;
+        let ready: ResolverReady = read_frame_limited(&mut channel, MAX_RESOLVER_FRAME_BYTES)
+            .map_err(|error| HelperError::Channel(error.to_string()))?;
+        if ready
+            != (ResolverReady {
+                version: RESOLVER_PROTOCOL_VERSION,
+                max_pending_resolves,
+                resolve_workers,
+            })
+        {
+            return Err(HelperError::Unexpected(format!(
+                "the Enforcer accepted a different Resolve contract: {ready:?}"
+            )));
+        }
+        self.start_pipeline(
+            channel,
+            usize::try_from(max_pending_resolves).unwrap_or(usize::MAX),
+        )
+    }
+
+    fn start_pipeline(
+        self: &Arc<Self>,
+        channel: UnixStream,
+        capacity: usize,
+    ) -> Result<(), HelperError> {
+        self.inflight
+            .lock()
+            .map_err(|_| HelperError::Channel("the Resolve table lock is poisoned".to_owned()))?
+            .try_reserve(capacity)
+            .map_err(|error| {
+                HelperError::Unexpected(format!(
+                    "the bounded Resolve table could not reserve {capacity} entries: {error}"
+                ))
+            })?;
+        let mut reader = channel
+            .try_clone()
+            .map_err(|error| HelperError::Channel(error.to_string()))?;
+        let mut writer = channel;
+        let (sender, receiver) = sync_channel(capacity.max(1));
+        *self.sender.lock().map_err(|_| {
+            HelperError::Channel("the Resolve sender lock is poisoned".to_owned())
+        })? = Some(sender);
+
+        let writer_state = Arc::clone(self);
+        std::thread::Builder::new()
+            .name("soglia-resolve-write".to_owned())
+            .spawn(move || {
+                while let Ok(command) = receiver.recv() {
+                    let request = ResolverRequest::Resolve {
+                        request_id: command.request_id,
+                        tuple: command.tuple,
+                    };
+                    let should_write = writer_state.prepare_write(command.request_id);
+                    if !should_write {
+                        continue;
+                    }
+                    if write_frame_limited(&mut writer, &request, MAX_RESOLVER_FRAME_BYTES).is_err()
+                    {
+                        writer_state.poison();
+                        return;
+                    }
+                }
+            })
+            .map_err(|error| {
+                HelperError::Unexpected(format!("the Resolve writer could not start: {error}"))
+            })?;
+
+        let reader_state = Arc::clone(self);
+        std::thread::Builder::new()
+            .name("soglia-resolve-read".to_owned())
+            .spawn(move || {
+                loop {
+                    let reply: ResolverReply =
+                        match read_frame_limited(&mut reader, MAX_RESOLVER_FRAME_BYTES) {
+                            Ok(reply) => reply,
+                            Err(_) => {
+                                reader_state.poison();
+                                return;
+                            }
+                        };
+                    let entry = reader_state
+                        .inflight
+                        .lock()
+                        .ok()
+                        .and_then(|mut inflight| inflight.remove(&reply.request_id));
+                    let Some(entry) = entry else {
+                        reader_state.poison();
+                        return;
+                    };
+                    let _ = entry.response.send(Ok(reply.attempt));
+                }
+            })
+            .map_err(|error| {
+                HelperError::Unexpected(format!("the Resolve reader could not start: {error}"))
+            })?;
+
+        let watchdog_state = Arc::clone(self);
+        std::thread::Builder::new()
+            .name("soglia-resolve-watchdog".to_owned())
+            .spawn(move || {
+                loop {
+                    std::thread::sleep(std::time::Duration::from_millis(10));
+                    if watchdog_state.poisoned.load(Ordering::Acquire) {
+                        return;
+                    }
+                    let expired = watchdog_state.inflight.lock().map_or(true, |inflight| {
+                        inflight.values().any(|entry| {
+                            entry.written_at.is_some_and(|started| {
+                                started.elapsed() > RESOLVE_EXCHANGE_WATCHDOG
+                            })
+                        })
+                    });
+                    if expired {
+                        watchdog_state.poison();
+                        return;
+                    }
+                }
+            })
+            .map_err(|error| {
+                HelperError::Unexpected(format!("the Resolve watchdog could not start: {error}"))
+            })?;
+        Ok(())
+    }
+
+    fn remove_inflight(&self, request_id: u64) {
+        if let Ok(mut inflight) = self.inflight.lock() {
+            inflight.remove(&request_id);
+        }
+    }
+
+    fn prepare_write(&self, request_id: u64) -> bool {
+        match self.inflight.lock() {
+            Ok(mut inflight) => match inflight.get_mut(&request_id) {
+                Some(entry) if !entry.response.is_closed() => {
+                    entry.written_at = Some(std::time::Instant::now());
+                    true
+                }
+                Some(_) => {
+                    inflight.remove(&request_id);
+                    false
+                }
+                None => false,
+            },
+            Err(_) => {
+                self.poison();
+                false
+            }
+        }
+    }
+
     fn next_request_id(&self) -> Result<u64, HelperError> {
         self.next_request_id
             .fetch_update(Ordering::Relaxed, Ordering::Relaxed, |current| {
@@ -650,6 +904,13 @@ impl ResolverState {
     fn poison(&self) {
         if !self.poisoned.swap(true, Ordering::AcqRel) {
             let _ = self.shutdown.shutdown(std::net::Shutdown::Both);
+            if let Ok(mut inflight) = self.inflight.lock() {
+                for (_, entry) in inflight.drain() {
+                    let _ = entry.response.send(Err(HelperError::Channel(
+                        "the Resolve channel is permanently unavailable".to_owned(),
+                    )));
+                }
+            }
             let callback = self
                 .on_unavailable
                 .lock()
@@ -659,30 +920,6 @@ impl ResolverState {
                 callback(ResolveHealthFailure::Unavailable);
             }
         }
-    }
-}
-
-impl ResolveLease {
-    fn start(
-        self,
-        tuple: SocketTupleV4,
-        watchdog: std::time::Duration,
-    ) -> Result<tokio::task::JoinHandle<Result<ResolveAttempt, HelperError>>, HelperError> {
-        let request_id = self.state.next_request_id()?;
-        let request = ResolverRequest::Resolve { request_id, tuple };
-        let state = Arc::clone(&self.state);
-        let guard = self.guard;
-        Ok(tokio::task::spawn_blocking(move || {
-            // The blocking task, not its caller, owns the gate. Dropping or timing out the caller
-            // cannot let another write overtake this request's still-pending read.
-            let _guard = guard;
-            let result =
-                correlated_resolve_exchange(&state.channel, &request, request_id, watchdog);
-            if result.is_err() {
-                state.poison();
-            }
-            result
-        }))
     }
 }
 
@@ -722,38 +959,6 @@ fn exchange<R: Serialize, A: DeserializeOwned>(
     read_frame(&mut *stream).map_err(|error| HelperError::Channel(error.to_string()))
 }
 
-fn correlated_resolve_exchange(
-    channel: &Mutex<UnixStream>,
-    request: &ResolverRequest,
-    expected_request_id: u64,
-    watchdog: std::time::Duration,
-) -> Result<ResolveAttempt, HelperError> {
-    let mut stream = channel
-        .lock()
-        .map_err(|_| HelperError::Channel("the channel lock is poisoned".to_owned()))?;
-    stream
-        .set_write_timeout(Some(watchdog))
-        .map_err(|error| HelperError::Channel(error.to_string()))?;
-    stream
-        .set_read_timeout(Some(watchdog))
-        .map_err(|error| HelperError::Channel(error.to_string()))?;
-    let result = (|| {
-        write_frame(&mut *stream, request)
-            .map_err(|error| HelperError::Channel(error.to_string()))?;
-        read_frame(&mut *stream).map_err(|error| HelperError::Channel(error.to_string()))
-    })();
-    let _ = stream.set_write_timeout(None);
-    let _ = stream.set_read_timeout(None);
-    let reply: ResolverReply = result?;
-    if reply.request_id != expected_request_id {
-        return Err(HelperError::Channel(format!(
-            "Resolve response id {} did not match request id {expected_request_id}",
-            reply.request_id
-        )));
-    }
-    Ok(reply.attempt)
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -765,16 +970,18 @@ mod tests {
 
     fn resolver_client(stream: UnixStream) -> ResolverClient {
         let shutdown = stream.try_clone().unwrap();
-        ResolverClient {
-            state: Arc::new(ResolverState {
-                channel: Mutex::new(stream),
-                shutdown,
-                gate: Arc::new(AsyncMutex::new(())),
-                poisoned: AtomicBool::new(false),
-                next_request_id: AtomicU64::new(1),
-                on_unavailable: Mutex::new(None),
-            }),
-        }
+        let state = Arc::new(ResolverState {
+            channel: Mutex::new(None),
+            sender: Mutex::new(None),
+            inflight: Mutex::new(HashMap::new()),
+            submission: Mutex::new(()),
+            shutdown,
+            poisoned: AtomicBool::new(false),
+            next_request_id: AtomicU64::new(1),
+            on_unavailable: Mutex::new(None),
+        });
+        state.start_pipeline(stream, 1024).unwrap();
+        ResolverClient { state }
     }
 
     #[test]
@@ -838,6 +1045,7 @@ mod tests {
                 },
             )
             .unwrap();
+            std::thread::sleep(Duration::from_secs(1));
         });
         resolver_client(ours)
     }
@@ -1058,6 +1266,7 @@ mod tests {
                 },
             )
             .unwrap();
+            std::thread::sleep(Duration::from_secs(1));
         });
         let failures = Arc::new(Mutex::new(Vec::new()));
         let observed = Arc::clone(&failures);
@@ -1107,6 +1316,7 @@ mod tests {
                 )
                 .unwrap();
             }
+            std::thread::sleep(Duration::from_secs(1));
         });
         let failures = Arc::new(Mutex::new(Vec::new()));
         let observed = Arc::clone(&failures);
@@ -1165,21 +1375,12 @@ mod tests {
             .unwrap();
         });
         let client = resolver_client(ours);
-        let abandoned = client
-            .acquire()
-            .await
-            .unwrap()
-            .start(tuple(40_200), RESOLVE_EXCHANGE_WATCHDOG)
-            .unwrap();
-        drop(abandoned);
+        let abandoned_client = client.clone();
+        let abandoned = tokio::spawn(async move { abandoned_client.request(tuple(40_200)).await });
+        tokio::time::sleep(Duration::from_millis(10)).await;
+        abandoned.abort();
 
-        let lease = tokio::time::timeout(Duration::from_secs(1), client.acquire())
-            .await
-            .unwrap()
-            .unwrap();
-        let result = lease
-            .start(tuple(40_201), RESOLVE_EXCHANGE_WATCHDOG)
-            .unwrap()
+        let result = tokio::time::timeout(Duration::from_secs(1), client.request(tuple(40_201)))
             .await
             .unwrap()
             .unwrap();
@@ -1189,6 +1390,130 @@ mod tests {
                 result: ResolveResult::NotFound
             }
         );
+    }
+
+    #[test]
+    fn cancellation_before_write_removes_the_request_without_a_frame() {
+        let (ours, _theirs) = UnixStream::pair().unwrap();
+        let client = resolver_client(ours);
+        let (response, receiver) = oneshot::channel();
+        drop(receiver);
+        client.state.inflight.lock().unwrap().insert(
+            900,
+            InflightResolve {
+                response,
+                written_at: None,
+            },
+        );
+        assert!(!client.state.prepare_write(900));
+        assert!(!client.state.inflight.lock().unwrap().contains_key(&900));
+    }
+
+    #[tokio::test]
+    async fn out_of_order_replies_are_correlated_to_their_request_ids() {
+        let (ours, mut theirs) = UnixStream::pair().unwrap();
+        std::thread::spawn(move || {
+            let first: ResolverRequest = read_frame(&mut theirs).unwrap();
+            let second: ResolverRequest = read_frame(&mut theirs).unwrap();
+            let ResolverRequest::Resolve {
+                request_id: first_id,
+                ..
+            } = first;
+            let ResolverRequest::Resolve {
+                request_id: second_id,
+                ..
+            } = second;
+            write_frame(
+                &mut theirs,
+                &ResolverReply {
+                    request_id: second_id,
+                    attempt: ResolveAttempt::Complete {
+                        result: ResolveResult::NotFound,
+                    },
+                },
+            )
+            .unwrap();
+            write_frame(
+                &mut theirs,
+                &ResolverReply {
+                    request_id: first_id,
+                    attempt: ResolveAttempt::Complete {
+                        result: ResolveResult::Timeout,
+                    },
+                },
+            )
+            .unwrap();
+            std::thread::sleep(Duration::from_secs(1));
+        });
+        let client = resolver_client(ours);
+        let first = {
+            let client = client.clone();
+            tokio::spawn(async move { client.request(tuple(40_500)).await.unwrap() })
+        };
+        tokio::time::sleep(Duration::from_millis(1)).await;
+        let second = {
+            let client = client.clone();
+            tokio::spawn(async move { client.request(tuple(40_501)).await.unwrap() })
+        };
+        assert_eq!(
+            second.await.unwrap(),
+            ResolveAttempt::Complete {
+                result: ResolveResult::NotFound
+            }
+        );
+        assert_eq!(
+            first.await.unwrap(),
+            ResolveAttempt::Complete {
+                result: ResolveResult::Timeout
+            }
+        );
+    }
+
+    #[tokio::test]
+    async fn a_full_logical_queue_refuses_only_the_extra_connection() {
+        let (ours, mut theirs) = UnixStream::pair().unwrap();
+        std::thread::spawn(move || {
+            let ResolverRequest::Resolve { request_id, .. } = read_frame(&mut theirs).unwrap();
+            std::thread::sleep(Duration::from_millis(80));
+            write_frame(
+                &mut theirs,
+                &ResolverReply {
+                    request_id,
+                    attempt: ResolveAttempt::Complete {
+                        result: ResolveResult::NotFound,
+                    },
+                },
+            )
+            .unwrap();
+            std::thread::sleep(Duration::from_secs(1));
+        });
+        let attributor = Arc::new(CandidateAAttributor::new(
+            resolver_client(ours),
+            Arc::new(AttributionTable::new()),
+            Duration::from_secs(1),
+            1,
+            Arc::new(|failure| panic!("unexpected health failure: {failure:?}")),
+        ));
+        let first = {
+            let attributor = Arc::clone(&attributor);
+            tokio::spawn(async move {
+                attributor
+                    .resolve(
+                        "127.0.0.1:40510".parse().unwrap(),
+                        "127.0.0.1:15001".parse().unwrap(),
+                    )
+                    .await
+            })
+        };
+        tokio::time::sleep(Duration::from_millis(10)).await;
+        let refused = attributor
+            .resolve(
+                "127.0.0.1:40511".parse().unwrap(),
+                "127.0.0.1:15001".parse().unwrap(),
+            )
+            .await;
+        assert!(matches!(refused, AttributionResult::QueueFull));
+        assert!(matches!(first.await.unwrap(), AttributionResult::NotFound));
     }
 
     #[tokio::test]
@@ -1225,6 +1550,60 @@ mod tests {
                 .await;
             assert!(matches!(outcome, AttributionResult::Unavailable));
         }
+        assert_eq!(
+            *failures.lock().unwrap(),
+            vec![ResolveHealthFailure::Unavailable]
+        );
+    }
+
+    #[tokio::test]
+    async fn a_duplicate_response_id_poisons_the_channel_after_the_first_reply() {
+        let (ours, mut theirs) = UnixStream::pair().unwrap();
+        std::thread::spawn(move || {
+            let ResolverRequest::Resolve { request_id, .. } = read_frame(&mut theirs).unwrap();
+            let reply = ResolverReply {
+                request_id,
+                attempt: ResolveAttempt::Complete {
+                    result: ResolveResult::NotFound,
+                },
+            };
+            write_frame(&mut theirs, &reply).unwrap();
+            write_frame(&mut theirs, &reply).unwrap();
+        });
+        let failures = Arc::new(Mutex::new(Vec::new()));
+        let observed = Arc::clone(&failures);
+        let attributor = CandidateAAttributor::new(
+            resolver_client(ours),
+            Arc::new(AttributionTable::new()),
+            Duration::from_secs(1),
+            1,
+            Arc::new(move |failure| observed.lock().unwrap().push(failure)),
+        );
+        assert!(matches!(
+            attributor
+                .resolve(
+                    "127.0.0.1:40310".parse().unwrap(),
+                    "127.0.0.1:15001".parse().unwrap(),
+                )
+                .await,
+            AttributionResult::NotFound
+        ));
+        tokio::time::timeout(Duration::from_secs(1), async {
+            while failures.lock().unwrap().is_empty() {
+                tokio::task::yield_now().await;
+            }
+        })
+        .await
+        .unwrap();
+        assert!(matches!(
+            attributor
+                .resolve(
+                    "127.0.0.1:40311".parse().unwrap(),
+                    "127.0.0.1:15001".parse().unwrap(),
+                )
+                .await,
+            AttributionResult::Unavailable
+        ));
         assert_eq!(
             *failures.lock().unwrap(),
             vec![ResolveHealthFailure::Unavailable]

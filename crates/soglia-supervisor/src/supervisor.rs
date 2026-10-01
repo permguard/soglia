@@ -35,7 +35,7 @@ use soglia_core::config::{AgentConfig, Config, NetworkBackend};
 use soglia_core::helper::{EnforcerRequest, ExitOutcome, HelperResponse, SandboxRequest};
 use soglia_core::net::ExecutionPool;
 use soglia_core::{BindingKey, ExecutionId, ExecutionNonce, ExecutionPhase, ResourceTag};
-use soglia_proxy::attribution::AttributionTable;
+use soglia_proxy::attribution::{AttributionTable, BindError};
 use soglia_proxy::ingress::{Execution, Executor, Invocation, Outcome};
 use tokio::sync::{Semaphore, watch};
 use tokio::time::Instant;
@@ -486,7 +486,7 @@ impl Inner {
             {
                 self.attribution
                     .bind_key(binding, run.id)
-                    .map_err(|error| Failure::Setup(error.to_string()))?;
+                    .map_err(|error| self.attribution_bind_error(error))?;
                 run.binding = Some(binding);
                 run.bound = true;
                 Some(binding)
@@ -494,7 +494,7 @@ impl Inner {
             (NetworkBackend::NetnsNft, Ok(HelperResponse::Done)) => {
                 self.attribution
                     .bind(run.address, run.id)
-                    .map_err(|error| Failure::Setup(error.to_string()))?;
+                    .map_err(|error| self.attribution_bind_error(error))?;
                 run.bound = true;
                 None
             }
@@ -713,6 +713,13 @@ impl Inner {
         if let HelperError::Channel(reason) = error {
             self.helper_lost(role, reason);
         }
+    }
+
+    fn attribution_bind_error(&self, error: BindError) -> Failure {
+        if matches!(error, BindError::Capacity { .. } | BindError::Poisoned) {
+            self.helper_lost("attribution-integrity", &error.to_string());
+        }
+        Failure::Setup(error.to_string())
     }
 
     fn helper_lost(&self, role: &'static str, reason: &str) {

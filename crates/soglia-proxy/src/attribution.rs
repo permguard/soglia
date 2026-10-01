@@ -79,6 +79,8 @@ pub enum BindError {
     InUse(IpAddr),
     /// A complete Candidate-A identity still attributes another Execution.
     BindingInUse(BindingKey),
+    /// The configured table capacity is already occupied.
+    Capacity { capacity: usize },
     /// The table's lock is poisoned; nothing is attributed any more.
     Poisoned,
 }
@@ -90,6 +92,12 @@ impl fmt::Display for BindError {
             Self::BindingInUse(binding) => {
                 write!(formatter, "Candidate-A binding {binding:?} is still in use")
             }
+            Self::Capacity { capacity } => {
+                write!(
+                    formatter,
+                    "the attribution table capacity {capacity} is exhausted"
+                )
+            }
             Self::Poisoned => formatter.write_str("the attribution table is poisoned"),
         }
     }
@@ -98,10 +106,16 @@ impl fmt::Display for BindError {
 impl std::error::Error for BindError {}
 
 /// The Execution address of every live Execution.
-#[derive(Default)]
 pub struct AttributionTable {
     entries: Mutex<HashMap<IpAddr, Entry>>,
     bindings: Mutex<HashMap<BindingKey, Entry>>,
+    capacity: usize,
+}
+
+impl Default for AttributionTable {
+    fn default() -> Self {
+        Self::with_capacity(4096)
+    }
 }
 
 /// Resolves an accepted socket before the proxy reads application bytes.
@@ -120,11 +134,25 @@ impl AttributionTable {
         Self::default()
     }
 
+    /// An empty table with one shared bound for either backend's identity space.
+    pub fn with_capacity(capacity: usize) -> Self {
+        Self {
+            entries: Mutex::new(HashMap::new()),
+            bindings: Mutex::new(HashMap::new()),
+            capacity,
+        }
+    }
+
     /// Attributes `address` to `id`. The address must not be bound, revoked or not.
     pub fn bind(&self, address: IpAddr, id: ExecutionId) -> Result<(), BindError> {
         let mut entries = self.entries.lock().map_err(|_| BindError::Poisoned)?;
         if entries.contains_key(&address) {
             return Err(BindError::InUse(address));
+        }
+        if entries.len() >= self.capacity {
+            return Err(BindError::Capacity {
+                capacity: self.capacity,
+            });
         }
         let (revoked, _) = watch::channel(false);
         entries.insert(address, Entry { id, revoked });
@@ -166,6 +194,11 @@ impl AttributionTable {
         let mut entries = self.bindings.lock().map_err(|_| BindError::Poisoned)?;
         if entries.contains_key(&binding) {
             return Err(BindError::BindingInUse(binding));
+        }
+        if entries.len() >= self.capacity {
+            return Err(BindError::Capacity {
+                capacity: self.capacity,
+            });
         }
         let (revoked, _) = watch::channel(false);
         entries.insert(binding, Entry { id, revoked });
@@ -365,5 +398,37 @@ mod tests {
             table.lookup_key_result(key),
             AttributionResult::Revoked
         ));
+    }
+
+    #[test]
+    fn either_attribution_index_refuses_entries_beyond_its_bound() {
+        let ip_table = AttributionTable::with_capacity(1);
+        ip_table
+            .bind(address("10.201.0.1"), ExecutionId::generate().unwrap())
+            .unwrap();
+        assert_eq!(
+            ip_table.bind(address("10.201.0.2"), ExecutionId::generate().unwrap()),
+            Err(BindError::Capacity { capacity: 1 })
+        );
+
+        let key_table = AttributionTable::with_capacity(1);
+        let first = BindingKey {
+            cgroup_id: 1,
+            execution_nonce: soglia_core::ExecutionNonce::generate().unwrap(),
+            backend_generation: 1,
+        };
+        key_table
+            .bind_key(first, ExecutionId::generate().unwrap())
+            .unwrap();
+        assert_eq!(
+            key_table.bind_key(
+                BindingKey {
+                    cgroup_id: 2,
+                    ..first
+                },
+                ExecutionId::generate().unwrap(),
+            ),
+            Err(BindError::Capacity { capacity: 1 })
+        );
     }
 }

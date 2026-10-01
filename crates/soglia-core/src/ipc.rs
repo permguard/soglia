@@ -21,6 +21,9 @@ use serde::de::DeserializeOwned;
 /// The largest frame either side accepts.
 pub const MAX_FRAME_BYTES: u32 = 1 << 20;
 
+/// The strict limit for every frame on the high-rate Resolve channel.
+pub const MAX_RESOLVER_FRAME_BYTES: u32 = 4 << 10;
+
 /// Why a frame could not be exchanged.
 #[derive(Debug)]
 pub enum FrameError {
@@ -29,7 +32,12 @@ pub enum FrameError {
     /// The channel failed or ended inside a frame.
     Io(io::Error),
     /// The announced length exceeds [`MAX_FRAME_BYTES`].
-    TooLarge(u32),
+    TooLarge {
+        /// Announced or encoded frame length.
+        length: u32,
+        /// Limit of the channel on which it appeared.
+        limit: u32,
+    },
     /// The body is not the expected message.
     Decode(String),
     /// The message could not be encoded.
@@ -41,9 +49,9 @@ impl fmt::Display for FrameError {
         match self {
             Self::Closed => formatter.write_str("the peer closed the channel"),
             Self::Io(error) => write!(formatter, "the channel failed: {error}"),
-            Self::TooLarge(length) => write!(
+            Self::TooLarge { length, limit } => write!(
                 formatter,
-                "a frame of {length} bytes exceeds the {MAX_FRAME_BYTES}-byte limit"
+                "a frame of {length} bytes exceeds the {limit}-byte limit"
             ),
             Self::Decode(reason) => write!(formatter, "an unexpected message arrived: {reason}"),
             Self::Encode(reason) => write!(formatter, "a message could not be encoded: {reason}"),
@@ -55,11 +63,23 @@ impl std::error::Error for FrameError {}
 
 /// Writes one message as a frame.
 pub fn write_frame<T: Serialize>(writer: &mut impl Write, message: &T) -> Result<(), FrameError> {
+    write_frame_limited(writer, message, MAX_FRAME_BYTES)
+}
+
+/// Writes one message as a frame under an explicit channel-specific limit.
+pub fn write_frame_limited<T: Serialize>(
+    writer: &mut impl Write,
+    message: &T,
+    limit: u32,
+) -> Result<(), FrameError> {
     let body =
         serde_json::to_vec(message).map_err(|error| FrameError::Encode(error.to_string()))?;
-    let length = u32::try_from(body.len()).map_err(|_| FrameError::TooLarge(u32::MAX))?;
-    if length > MAX_FRAME_BYTES {
-        return Err(FrameError::TooLarge(length));
+    let length = u32::try_from(body.len()).map_err(|_| FrameError::TooLarge {
+        length: u32::MAX,
+        limit,
+    })?;
+    if length > limit {
+        return Err(FrameError::TooLarge { length, limit });
     }
     writer
         .write_all(&length.to_be_bytes())
@@ -70,6 +90,14 @@ pub fn write_frame<T: Serialize>(writer: &mut impl Write, message: &T) -> Result
 
 /// Reads one frame and decodes it as `T`.
 pub fn read_frame<T: DeserializeOwned>(reader: &mut impl Read) -> Result<T, FrameError> {
+    read_frame_limited(reader, MAX_FRAME_BYTES)
+}
+
+/// Reads one frame under an explicit channel-specific limit and decodes it as `T`.
+pub fn read_frame_limited<T: DeserializeOwned>(
+    reader: &mut impl Read,
+    limit: u32,
+) -> Result<T, FrameError> {
     let mut header = [0_u8; 4];
     let mut filled = 0;
     while filled < header.len() {
@@ -83,8 +111,8 @@ pub fn read_frame<T: DeserializeOwned>(reader: &mut impl Read) -> Result<T, Fram
     }
 
     let length = u32::from_be_bytes(header);
-    if length > MAX_FRAME_BYTES {
-        return Err(FrameError::TooLarge(length));
+    if length > limit {
+        return Err(FrameError::TooLarge { length, limit });
     }
     let mut body = vec![0_u8; length as usize];
     reader.read_exact(&mut body).map_err(FrameError::Io)?;
@@ -136,7 +164,20 @@ mod tests {
         let mut channel = (MAX_FRAME_BYTES + 1).to_be_bytes().to_vec();
         channel.extend_from_slice(b"{}");
         let refused = read_frame::<Request>(&mut Cursor::new(channel)).unwrap_err();
-        assert!(matches!(refused, FrameError::TooLarge(_)), "{refused}");
+        assert!(matches!(refused, FrameError::TooLarge { .. }), "{refused}");
+    }
+
+    #[test]
+    fn the_resolver_channel_enforces_its_stricter_limit() {
+        let mut channel = (MAX_RESOLVER_FRAME_BYTES + 1).to_be_bytes().to_vec();
+        channel.extend_from_slice(b"{}");
+        assert!(matches!(
+            read_frame_limited::<Request>(&mut Cursor::new(channel), MAX_RESOLVER_FRAME_BYTES),
+            Err(FrameError::TooLarge {
+                limit: MAX_RESOLVER_FRAME_BYTES,
+                ..
+            })
+        ));
     }
 
     #[test]

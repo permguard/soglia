@@ -12,20 +12,36 @@
 //! strictly more restrictive than what was there — and exits. Everything else is left to the next
 //! start's sweep: network policy lives in the kernel, so nothing opens up in the meantime.
 
+use std::collections::VecDeque;
 use std::os::unix::net::UnixStream;
-use std::sync::{Arc, Mutex, TryLockError};
+use std::panic::{AssertUnwindSafe, catch_unwind};
+use std::sync::atomic::{AtomicUsize, Ordering};
+use std::sync::mpsc::{SyncSender, sync_channel};
+use std::sync::{Arc, Condvar, Mutex};
 use std::thread;
 
 use soglia_core::config::{Config, NetworkBackend};
 use soglia_core::helper::{
-    EnforcerRequest, Hello, HelperFailure, HelperResponse, RefusalClass, ResolveAttempt,
-    ResolvePending, ResolveResult, ResolverReply, ResolverRequest,
+    EnforcerRequest, Hello, HelperFailure, HelperResponse, RESOLVER_PROTOCOL_VERSION, RefusalClass,
+    ResolveAttempt, ResolveResult, ResolverHello, ResolverReady, ResolverReply, ResolverRequest,
 };
-use soglia_core::ipc::{FrameError, read_frame, write_frame};
+use soglia_core::ipc::{
+    FrameError, MAX_RESOLVER_FRAME_BYTES, read_frame, read_frame_limited, write_frame,
+    write_frame_limited,
+};
 
 #[cfg(feature = "cgroup-bpf")]
 use crate::backend::CgroupBpfBackend;
-use crate::backend::{BackendError, EnforcementBackend, NetnsNftBackend, NetworkSettings};
+use crate::backend::{
+    BackendError, EnforcementBackend, NetnsNftBackend, NetworkSettings, ResolveBackend,
+};
+
+struct StartedBackend {
+    backend: Box<dyn EnforcementBackend + Send>,
+    resolve: Arc<dyn ResolveBackend>,
+    swept: Vec<String>,
+    resolver_contract: ResolverReady,
+}
 
 /// Serves the enforcer role on `channel` until it closes.
 pub fn run(channel: UnixStream, resolver_channel: UnixStream) -> Result<(), String> {
@@ -35,7 +51,7 @@ pub fn run(channel: UnixStream, resolver_channel: UnixStream) -> Result<(), Stri
     let mut writer = channel;
 
     let hello: Hello = read_frame(&mut reader).map_err(|error| error.to_string())?;
-    let (backend, swept) = match start(&hello) {
+    let started = match start(&hello) {
         Ok(started) => started,
         Err(failure) => {
             let _ = write_frame(
@@ -47,24 +63,20 @@ pub fn run(channel: UnixStream, resolver_channel: UnixStream) -> Result<(), Stri
             return Err(failure.detail().to_owned());
         }
     };
-    let backend = Arc::new(Mutex::new(backend));
+    let backend = Arc::new(Mutex::new(started.backend));
 
     let resolver_shutdown = resolver_channel
         .try_clone()
         .map_err(|error| format!("cannot clone the Resolve channel: {error}"))?;
-    let resolver_backend = Arc::clone(&backend);
-    let (resolver_ready, resolver_started) = std::sync::mpsc::sync_channel(0);
-    thread::spawn(move || {
-        if resolver_ready.send(()).is_ok() {
-            resolve_loop(resolver_backend, resolver_channel);
-        }
-    });
-    resolver_started
-        .recv()
-        .map_err(|_| "the Resolve worker did not start".to_owned())?;
+    start_resolver_service(resolver_channel, started.resolve, started.resolver_contract)?;
     // READY is last: the production generation, recovery and independent Resolve worker are live.
-    write_frame(&mut writer, &HelperResponse::Ready { swept })
-        .map_err(|error| error.to_string())?;
+    write_frame(
+        &mut writer,
+        &HelperResponse::Ready {
+            swept: started.swept,
+        },
+    )
+    .map_err(|error| error.to_string())?;
 
     loop {
         let request: EnforcerRequest = match read_frame(&mut reader) {
@@ -104,9 +116,7 @@ pub fn run(channel: UnixStream, resolver_channel: UnixStream) -> Result<(), Stri
     }
 }
 
-fn start(
-    hello: &Hello,
-) -> Result<(Box<dyn EnforcementBackend + Send>, Vec<String>), HelperFailure> {
+fn start(hello: &Hello) -> Result<StartedBackend, HelperFailure> {
     let config = Config::from_yaml(&hello.config_yaml).map_err(|error| HelperFailure::Refused {
         class: RefusalClass::Incompatible,
         detail: format!("the Enforcer configuration is incompatible: {error}"),
@@ -135,8 +145,19 @@ fn start(
             selected_backend,
         )
     })?;
-
-    Ok((backend, swept))
+    let resolve = backend.resolve_view().map_err(|error| {
+        startup_failure(error, "the Resolve view could not start", selected_backend)
+    })?;
+    Ok(StartedBackend {
+        backend,
+        resolve,
+        swept,
+        resolver_contract: ResolverReady {
+            version: RESOLVER_PROTOCOL_VERSION,
+            max_pending_resolves: config.cgroup_bpf.max_pending_resolves,
+            resolve_workers: config.cgroup_bpf.resolve_workers,
+        },
+    })
 }
 
 fn serve(
@@ -171,47 +192,238 @@ fn serve(
     }
 }
 
-fn resolve_loop(backend: Arc<Mutex<Box<dyn EnforcementBackend + Send>>>, channel: UnixStream) {
-    let Ok(mut reader) = channel.try_clone() else {
-        std::process::exit(1);
-    };
-    let mut writer = channel;
+#[derive(Clone, Copy)]
+struct ResolveJob {
+    request_id: u64,
+    tuple: soglia_core::helper::SocketTupleV4,
+}
+
+struct ResolveQueue {
+    capacity: usize,
+    jobs: Mutex<VecDeque<ResolveJob>>,
+    available: Condvar,
+}
+
+impl ResolveQueue {
+    fn try_push(&self, job: ResolveJob) -> Result<(), ResolveJob> {
+        let Ok(mut jobs) = self.jobs.lock() else {
+            return Err(job);
+        };
+        if jobs.len() >= self.capacity {
+            return Err(job);
+        }
+        jobs.push_back(job);
+        self.available.notify_one();
+        Ok(())
+    }
+
+    fn pop(&self) -> ResolveJob {
+        let mut jobs = self.jobs.lock().unwrap_or_else(|error| error.into_inner());
+        loop {
+            if let Some(job) = jobs.pop_front() {
+                return job;
+            }
+            jobs = self
+                .available
+                .wait(jobs)
+                .unwrap_or_else(|error| error.into_inner());
+        }
+    }
+}
+
+fn start_resolver_service(
+    mut channel: UnixStream,
+    backend: Arc<dyn ResolveBackend>,
+    contract: ResolverReady,
+) -> Result<(), String> {
+    let offered: ResolverHello = read_frame_limited(&mut channel, MAX_RESOLVER_FRAME_BYTES)
+        .map_err(|error| format!("Resolve v2 handshake failed: {error}"))?;
+    validate_resolver_contract(offered, contract)?;
+    let capacity = usize::try_from(contract.max_pending_resolves).unwrap_or(usize::MAX);
+    let mut jobs = VecDeque::new();
+    jobs.try_reserve(capacity).map_err(|error| {
+        format!("the bounded Resolve worker queue could not reserve {capacity} entries: {error}")
+    })?;
+    let queue = Arc::new(ResolveQueue {
+        capacity,
+        jobs: Mutex::new(jobs),
+        available: Condvar::new(),
+    });
+    let (completed, replies) = sync_channel(capacity.max(1));
+    let outstanding = Arc::new(AtomicUsize::new(0));
+    let high_water = Arc::new(AtomicUsize::new(0));
+    let refused = Arc::new(AtomicUsize::new(0));
+    let mut reader = channel
+        .try_clone()
+        .map_err(|error| format!("cannot clone the Resolve channel: {error}"))?;
+    let mut writer = channel
+        .try_clone()
+        .map_err(|error| format!("cannot clone the Resolve response channel: {error}"))?;
+
+    for worker in 0..contract.resolve_workers {
+        let queue = Arc::clone(&queue);
+        let backend = Arc::clone(&backend);
+        let completed = completed.clone();
+        let outstanding = Arc::clone(&outstanding);
+        thread::Builder::new()
+            .name(format!("soglia-resolve-worker-{worker}"))
+            .spawn(move || resolve_worker(queue, backend, completed, outstanding))
+            .map_err(|error| format!("Resolve worker {worker} could not start: {error}"))?;
+    }
+    thread::Builder::new()
+        .name("soglia-resolve-replies".to_owned())
+        .spawn(move || {
+            while let Ok(reply) = replies.recv() {
+                if write_frame_limited(&mut writer, &reply, MAX_RESOLVER_FRAME_BYTES).is_err() {
+                    std::process::exit(1);
+                }
+            }
+        })
+        .map_err(|error| format!("Resolve response writer could not start: {error}"))?;
+    thread::Builder::new()
+        .name("soglia-resolve-requests".to_owned())
+        .spawn(move || {
+            let mut last_request_id = 0_u64;
+            loop {
+                let request: ResolverRequest =
+                    match read_frame_limited(&mut reader, MAX_RESOLVER_FRAME_BYTES) {
+                        Ok(request) => request,
+                        Err(FrameError::Closed) => return,
+                        Err(error) => {
+                            eprintln!("soglia __enforcer: Resolve channel failed: {error}");
+                            std::process::exit(1);
+                        }
+                    };
+                let ResolverRequest::Resolve { request_id, tuple } = request;
+                if !accept_request_id(&mut last_request_id, request_id) {
+                    eprintln!(
+                        "soglia __enforcer: duplicate or late Resolve request id {request_id}"
+                    );
+                    std::process::exit(1);
+                }
+                let job = ResolveJob { request_id, tuple };
+                let admitted = outstanding
+                    .fetch_update(Ordering::AcqRel, Ordering::Acquire, |current| {
+                        (current < capacity).then_some(current + 1)
+                    })
+                    .is_ok();
+                if admitted {
+                    let active = outstanding.load(Ordering::Acquire);
+                    let previous = high_water.fetch_max(active, Ordering::Relaxed);
+                    if active > previous {
+                        eprintln!(
+                            "event.name=cgroup_bpf.resolve_worker_occupancy active={active} high_water={active} capacity={capacity} refused_total={}",
+                            refused.load(Ordering::Relaxed)
+                        );
+                    }
+                }
+                if !admitted {
+                    let refused_total = refused.fetch_add(1, Ordering::Relaxed).saturating_add(1);
+                    eprintln!(
+                        "event.name=cgroup_bpf.resolve_worker_queue_full capacity={capacity}"
+                    );
+                    eprintln!(
+                        "event.name=cgroup_bpf.resolve_worker_occupancy active={} high_water={} capacity={capacity} refused_total={refused_total}",
+                        outstanding.load(Ordering::Acquire),
+                        high_water.load(Ordering::Relaxed)
+                    );
+                }
+                if (!admitted || queue.try_push(job).is_err()) && {
+                    if admitted {
+                        outstanding.fetch_sub(1, Ordering::AcqRel);
+                    }
+                    completed
+                        .send(ResolverReply {
+                            request_id,
+                            attempt: ResolveAttempt::QueueFull,
+                        })
+                        .is_err()
+                } {
+                    return;
+                }
+            }
+        })
+        .map_err(|error| format!("Resolve request reader could not start: {error}"))?;
+    write_frame_limited(&mut channel, &contract, MAX_RESOLVER_FRAME_BYTES)
+        .map_err(|error| format!("Resolve v2 acknowledgement failed: {error}"))?;
+    eprintln!(
+        "event.name=cgroup_bpf.resolve_protocol_ready version={} max_pending={} workers={}",
+        contract.version, contract.max_pending_resolves, contract.resolve_workers
+    );
+    Ok(())
+}
+
+fn validate_resolver_contract(
+    offered: ResolverHello,
+    required: ResolverReady,
+) -> Result<(), String> {
+    if offered.version == required.version
+        && offered.max_pending_resolves == required.max_pending_resolves
+        && offered.resolve_workers == required.resolve_workers
+    {
+        Ok(())
+    } else {
+        Err(format!(
+            "Resolve v2 contract mismatch: offered={offered:?} required={required:?}"
+        ))
+    }
+}
+
+fn resolve_worker(
+    queue: Arc<ResolveQueue>,
+    backend: Arc<dyn ResolveBackend>,
+    completed: SyncSender<ResolverReply>,
+    outstanding: Arc<AtomicUsize>,
+) {
     loop {
-        let request: ResolverRequest = match read_frame(&mut reader) {
-            Ok(request) => request,
-            Err(FrameError::Closed) => return,
-            Err(error) => {
-                eprintln!("soglia __enforcer: Resolve channel failed: {error}");
+        let job = queue.pop();
+        let attempt = match execute_resolve(&*backend, job.tuple) {
+            ResolveJobOutcome::Attempt(attempt) => attempt,
+            ResolveJobOutcome::Panicked => {
+                eprintln!("soglia __enforcer: Resolve worker panicked");
                 std::process::exit(1);
             }
         };
-        let ResolverRequest::Resolve { request_id, tuple } = request;
-        let attempt = match backend.try_lock() {
-            Ok(mut backend) => backend.resolve_once(tuple).unwrap_or_else(|error| {
-                eprintln!("soglia __enforcer: Resolve integrity failure: {error}");
-                ResolveAttempt::Complete {
-                    result: ResolveResult::IntegrityFailure,
-                }
-            }),
-            Err(TryLockError::WouldBlock) => ResolveAttempt::Pending {
-                reason: ResolvePending::BackendBusy,
-            },
-            Err(TryLockError::Poisoned(_)) => {
-                eprintln!("soglia __enforcer: Resolve backend lock is poisoned");
-                ResolveAttempt::Complete {
-                    result: ResolveResult::IntegrityFailure,
-                }
-            }
-        };
-        let response = ResolverReply {
-            request_id,
-            attempt,
-        };
-        if let Err(error) = write_frame(&mut writer, &response) {
-            eprintln!("soglia __enforcer: Resolve response failed: {error}");
-            std::process::exit(1);
+        let sent = completed
+            .send(ResolverReply {
+                request_id: job.request_id,
+                attempt,
+            })
+            .is_ok();
+        outstanding.fetch_sub(1, Ordering::AcqRel);
+        if !sent {
+            return;
         }
     }
+}
+
+enum ResolveJobOutcome {
+    Attempt(ResolveAttempt),
+    Panicked,
+}
+
+fn execute_resolve(
+    backend: &dyn ResolveBackend,
+    tuple: soglia_core::helper::SocketTupleV4,
+) -> ResolveJobOutcome {
+    match catch_unwind(AssertUnwindSafe(|| backend.resolve_once(tuple))) {
+        Ok(Ok(attempt)) => ResolveJobOutcome::Attempt(attempt),
+        Ok(Err(error)) => {
+            eprintln!("soglia __enforcer: Resolve integrity failure: {error}");
+            ResolveJobOutcome::Attempt(ResolveAttempt::Complete {
+                result: ResolveResult::IntegrityFailure,
+            })
+        }
+        Err(_) => ResolveJobOutcome::Panicked,
+    }
+}
+
+fn accept_request_id(last: &mut u64, request_id: u64) -> bool {
+    if request_id == 0 || request_id <= *last {
+        return false;
+    }
+    *last = request_id;
+    true
 }
 
 fn freeze_all(backend: &Arc<Mutex<Box<dyn EnforcementBackend + Send>>>) {
@@ -276,11 +488,37 @@ fn production_cgroup_backend(
 
 #[cfg(test)]
 mod tests {
-    use soglia_core::config::NetworkBackend;
-    use soglia_core::helper::{HelperFailure, RefusalClass};
+    use std::collections::VecDeque;
+    use std::sync::{Condvar, Mutex};
 
-    use super::startup_failure;
-    use crate::backend::BackendError;
+    use soglia_core::config::NetworkBackend;
+    use soglia_core::helper::{
+        HelperFailure, RESOLVER_PROTOCOL_VERSION, RefusalClass, ResolveAttempt, ResolveResult,
+        ResolverHello, ResolverReady, SocketTupleV4,
+    };
+
+    use super::{
+        ResolveJob, ResolveJobOutcome, ResolveQueue, accept_request_id, execute_resolve,
+        startup_failure, validate_resolver_contract,
+    };
+    use crate::backend::{BackendError, ResolveBackend};
+
+    struct Panics;
+
+    impl ResolveBackend for Panics {
+        fn resolve_once(&self, _: SocketTupleV4) -> Result<ResolveAttempt, BackendError> {
+            panic!("injected worker panic")
+        }
+    }
+
+    fn tuple() -> SocketTupleV4 {
+        SocketTupleV4 {
+            source_address: [10, 0, 0, 2],
+            destination_address: [10, 0, 0, 1],
+            source_port: 40_000,
+            destination_port: 15_001,
+        }
+    }
 
     #[test]
     fn only_cgroup_bpf_startup_unsupported_names_the_compatibility_backend() {
@@ -336,5 +574,96 @@ mod tests {
                     if class == expected && !detail.contains("network.backend: netns-nft")
             ));
         }
+    }
+
+    #[test]
+    fn duplicate_zero_and_late_request_ids_are_protocol_failures() {
+        let mut last = 0;
+        assert!(accept_request_id(&mut last, 1));
+        assert!(accept_request_id(&mut last, 9));
+        assert!(!accept_request_id(&mut last, 9));
+        assert!(!accept_request_id(&mut last, 8));
+        let mut fresh = 0;
+        assert!(!accept_request_id(&mut fresh, 0));
+    }
+
+    #[test]
+    fn resolver_v2_has_no_implicit_v1_or_capacity_fallback() {
+        let required = ResolverReady {
+            version: RESOLVER_PROTOCOL_VERSION,
+            max_pending_resolves: 64,
+            resolve_workers: 4,
+        };
+        assert!(
+            validate_resolver_contract(
+                ResolverHello {
+                    version: 1,
+                    max_pending_resolves: 64,
+                    resolve_workers: 4,
+                },
+                required,
+            )
+            .is_err()
+        );
+        assert!(
+            validate_resolver_contract(
+                ResolverHello {
+                    version: RESOLVER_PROTOCOL_VERSION,
+                    max_pending_resolves: 65,
+                    resolve_workers: 4,
+                },
+                required,
+            )
+            .is_err()
+        );
+    }
+
+    #[test]
+    fn the_worker_queue_has_an_exact_bound() {
+        let queue = ResolveQueue {
+            capacity: 1,
+            jobs: Mutex::new(VecDeque::new()),
+            available: Condvar::new(),
+        };
+        assert!(
+            queue
+                .try_push(ResolveJob {
+                    request_id: 1,
+                    tuple: tuple(),
+                })
+                .is_ok()
+        );
+        assert!(
+            queue
+                .try_push(ResolveJob {
+                    request_id: 2,
+                    tuple: tuple(),
+                })
+                .is_err()
+        );
+    }
+
+    #[test]
+    fn a_worker_panic_is_not_converted_to_a_consumable_answer() {
+        assert!(matches!(
+            execute_resolve(&Panics, tuple()),
+            ResolveJobOutcome::Panicked
+        ));
+    }
+
+    #[test]
+    fn a_backend_error_is_an_integrity_failure_not_a_panic() {
+        struct Fails;
+        impl ResolveBackend for Fails {
+            fn resolve_once(&self, _: SocketTupleV4) -> Result<ResolveAttempt, BackendError> {
+                Err(BackendError::Failed("injected".to_owned()))
+            }
+        }
+        assert!(matches!(
+            execute_resolve(&Fails, tuple()),
+            ResolveJobOutcome::Attempt(ResolveAttempt::Complete {
+                result: ResolveResult::IntegrityFailure
+            })
+        ));
     }
 }

@@ -15,6 +15,7 @@ use std::collections::{BTreeMap, HashMap};
 use std::fmt;
 use std::net::Ipv4Addr;
 use std::path::PathBuf;
+use std::sync::Arc;
 
 use serde::{Deserialize, Serialize};
 use soglia_core::config::Config;
@@ -152,14 +153,30 @@ pub trait EnforcementBackend {
         binding: Option<BindingKey>,
     ) -> Result<(), BackendError>;
 
-    /// Makes one non-blocking attempt to consume and validate a canonical proxy tuple.
-    fn resolve_once(&mut self, tuple: SocketTupleV4) -> Result<ResolveAttempt, BackendError>;
+    /// Creates the immutable, thread-safe view used only by stateless Resolve workers.
+    fn resolve_view(&mut self) -> Result<Arc<dyn ResolveBackend>, BackendError>;
 
     /// Denies every packet of the Execution from now on.
     fn freeze(&mut self, tag: &ResourceTag) -> Result<(), BackendError>;
 
     /// Removes every network resource of the Execution and verifies that it is gone.
     fn destroy_execution(&mut self, tag: &ResourceTag) -> Result<(), BackendError>;
+}
+
+/// Immutable view used by the fixed Resolve worker pool.
+pub trait ResolveBackend: Send + Sync {
+    /// Makes one non-blocking attempt to consume and validate a canonical proxy tuple.
+    fn resolve_once(&self, tuple: SocketTupleV4) -> Result<ResolveAttempt, BackendError>;
+}
+
+struct UnavailableResolveBackend;
+
+impl ResolveBackend for UnavailableResolveBackend {
+    fn resolve_once(&self, _: SocketTupleV4) -> Result<ResolveAttempt, BackendError> {
+        Err(BackendError::Refused(
+            "Candidate-A Resolve is unavailable on this backend".to_owned(),
+        ))
+    }
 }
 
 /// The cgroup-BPF backend is a feature-gated production component.
@@ -229,7 +246,7 @@ impl EnforcementBackend for CgroupBpfBackend {
         self.refuse()
     }
 
-    fn resolve_once(&mut self, _: SocketTupleV4) -> Result<ResolveAttempt, BackendError> {
+    fn resolve_view(&mut self) -> Result<Arc<dyn ResolveBackend>, BackendError> {
         self.refuse()
     }
 
@@ -927,10 +944,8 @@ mod linux {
             Ok(())
         }
 
-        fn resolve_once(&mut self, _: SocketTupleV4) -> Result<ResolveAttempt, BackendError> {
-            Err(BackendError::Refused(
-                "Candidate-A Resolve is unavailable on netns-nft".to_owned(),
-            ))
+        fn resolve_view(&mut self) -> Result<Arc<dyn ResolveBackend>, BackendError> {
+            Ok(Arc::new(UnavailableResolveBackend))
         }
 
         fn freeze(&mut self, tag: &ResourceTag) -> Result<(), BackendError> {

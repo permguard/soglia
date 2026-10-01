@@ -123,6 +123,33 @@ pub struct Hello {
     pub config_yaml: String,
 }
 
+/// Strict version of the bounded pipelined Resolve protocol.
+pub const RESOLVER_PROTOCOL_VERSION: u16 = 2;
+
+/// Supervisor-to-Enforcer negotiation frame sent before either side can report READY.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct ResolverHello {
+    /// Exact protocol version. There is deliberately no v1 fallback.
+    pub version: u16,
+    /// Maximum requests admitted but not yet completed by the Supervisor.
+    pub max_pending_resolves: u32,
+    /// Fixed number of stateless Enforcer Resolve workers.
+    pub resolve_workers: u16,
+}
+
+/// Enforcer acknowledgement of the exact negotiated Resolve contract.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct ResolverReady {
+    /// Exact accepted protocol version.
+    pub version: u16,
+    /// Exact accepted pending-request bound.
+    pub max_pending_resolves: u32,
+    /// Exact accepted worker count.
+    pub resolve_workers: u16,
+}
+
 /// What the Supervisor asks the network enforcer to do.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -183,6 +210,8 @@ pub enum ResolverRequest {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum ResolveAttempt {
+    /// The Enforcer's bounded work queue refused this individual request.
+    QueueFull,
     /// No final answer exists yet; the Supervisor may retry within its deadline.
     Pending {
         /// Trusted internal reason used only for timeout telemetry.
@@ -435,6 +464,20 @@ mod tests {
         assert_eq!(
             serde_json::from_slice::<ResolverReply>(&encoded).unwrap(),
             reply
+        );
+        let hello = ResolverHello {
+            version: RESOLVER_PROTOCOL_VERSION,
+            max_pending_resolves: 64,
+            resolve_workers: 4,
+        };
+        let encoded = serde_json::to_vec(&hello).unwrap();
+        assert_eq!(
+            serde_json::from_slice::<ResolverHello>(&encoded).unwrap(),
+            hello
+        );
+        assert_eq!(
+            serde_json::from_slice::<ResolveAttempt>(b"\"QUEUE_FULL\"").unwrap(),
+            ResolveAttempt::QueueFull
         );
     }
 

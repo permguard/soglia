@@ -12,6 +12,7 @@ use std::fs::{self, File};
 use std::io;
 use std::os::unix::fs::{MetadataExt, PermissionsExt};
 use std::path::{Path, PathBuf};
+use std::sync::{Arc, Condvar, Mutex};
 use std::thread;
 use std::time::{Duration, Instant};
 
@@ -24,8 +25,8 @@ use aya::programs::{
 use aya::{Ebpf, EbpfLoader};
 use libbpf_rs::query::LinkTypeInfo;
 use libbpf_rs::{
-    ErrorKind as LibbpfErrorKind, Link, MapCore, MapHandle, ProgramAttachType, ProgramHandle,
-    ProgramType,
+    ErrorKind as LibbpfErrorKind, Link, MapCore, MapFlags, MapHandle, ProgramAttachType,
+    ProgramHandle, ProgramType,
 };
 use name_to_handle_at::{
     AT_EMPTY_PATH, FileHandle as LinuxFileHandle, name_to_handle_at, open_by_handle_at,
@@ -41,6 +42,7 @@ use soglia_core::records;
 
 use crate::backend::{
     BackendError, EnforcementBackend, NetnsNftBackend, NetworkSettings, PreparedNetworkUninstall,
+    ResolveBackend,
 };
 use crate::system;
 
@@ -126,6 +128,45 @@ pub struct CgroupBpfBackend {
     tuple_high_water: usize,
     ring_events_consumed: u64,
     health_sequence: u64,
+    resolve_coordinator: Arc<ResolveCoordinator>,
+}
+
+#[derive(Clone)]
+struct ResolveSnapshot {
+    generation: u64,
+    live: StdHashMap<ResourceTag, ExecutionState>,
+}
+
+#[derive(Default)]
+struct ResolveCoordinator {
+    state: Mutex<ResolveCoordinatorState>,
+    changed: Condvar,
+}
+
+#[derive(Default)]
+struct ResolveCoordinatorState {
+    readers: usize,
+    writer_active: bool,
+    writers_waiting: usize,
+    snapshot: Option<ResolveSnapshot>,
+}
+
+struct ResolveReadPermit {
+    coordinator: Arc<ResolveCoordinator>,
+    snapshot: ResolveSnapshot,
+}
+
+struct ResolveWritePermit {
+    coordinator: Arc<ResolveCoordinator>,
+}
+
+struct CgroupBpfResolveView {
+    proxy_ip: std::net::Ipv4Addr,
+    proxy_port: u16,
+    tuple: MapHandle,
+    cookie: MapHandle,
+    policy: MapHandle,
+    coordinator: Arc<ResolveCoordinator>,
 }
 
 #[derive(Clone)]
@@ -335,6 +376,91 @@ enum ExecutionPhase {
     Frozen,
 }
 
+impl ResolveCoordinator {
+    fn try_read(self: &Arc<Self>) -> Result<Option<ResolveReadPermit>, BackendError> {
+        let mut state = self
+            .state
+            .lock()
+            .map_err(|_| BackendError::Failed("the Resolve coordinator is poisoned".to_owned()))?;
+        if state.writer_active || state.writers_waiting != 0 {
+            return Ok(None);
+        }
+        let snapshot = state
+            .snapshot
+            .clone()
+            .ok_or_else(|| BackendError::Failed("the Resolve snapshot is not ready".to_owned()))?;
+        state.readers = state.readers.saturating_add(1);
+        Ok(Some(ResolveReadPermit {
+            coordinator: Arc::clone(self),
+            snapshot,
+        }))
+    }
+
+    fn write(self: &Arc<Self>) -> Result<ResolveWritePermit, BackendError> {
+        let mut state = self
+            .state
+            .lock()
+            .map_err(|_| BackendError::Failed("the Resolve coordinator is poisoned".to_owned()))?;
+        state.writers_waiting = state.writers_waiting.saturating_add(1);
+        while state.writer_active || state.readers != 0 {
+            state = self.changed.wait(state).map_err(|_| {
+                BackendError::Failed("the Resolve coordinator is poisoned".to_owned())
+            })?;
+        }
+        state.writers_waiting -= 1;
+        state.writer_active = true;
+        Ok(ResolveWritePermit {
+            coordinator: Arc::clone(self),
+        })
+    }
+}
+
+impl ResolveWritePermit {
+    fn publish(&self, snapshot: ResolveSnapshot) -> Result<(), BackendError> {
+        let mut state =
+            self.coordinator.state.lock().map_err(|_| {
+                BackendError::Failed("the Resolve coordinator is poisoned".to_owned())
+            })?;
+        state.snapshot = Some(snapshot);
+        Ok(())
+    }
+}
+
+impl Drop for ResolveReadPermit {
+    fn drop(&mut self) {
+        if let Ok(mut state) = self.coordinator.state.lock() {
+            state.readers = state.readers.saturating_sub(1);
+            self.coordinator.changed.notify_all();
+        }
+    }
+}
+
+impl Drop for ResolveWritePermit {
+    fn drop(&mut self) {
+        if let Ok(mut state) = self.coordinator.state.lock() {
+            state.writer_active = false;
+            self.coordinator.changed.notify_all();
+        }
+    }
+}
+
+impl CgroupBpfBackend {
+    fn resolve_snapshot(&self) -> Result<ResolveSnapshot, BackendError> {
+        let generation = self
+            .state
+            .as_ref()
+            .map(|state| state.generation)
+            .filter(|generation| *generation != 0)
+            .ok_or_else(|| {
+                BackendError::Failed("the live backend generation is unavailable".to_owned())
+            })?;
+        Ok(ResolveSnapshot {
+            generation,
+            live: self.live.clone(),
+        })
+    }
+}
+
 impl CgroupBpfBackend {
     /// Derives every root, capacity and endpoint from a validated configuration.
     pub fn from_config(config: &Config) -> Result<Self, BackendError> {
@@ -376,6 +502,7 @@ impl CgroupBpfBackend {
             tuple_high_water: 0,
             ring_events_consumed: 0,
             health_sequence: 0,
+            resolve_coordinator: Arc::new(ResolveCoordinator::default()),
         })
     }
 
@@ -1789,22 +1916,6 @@ impl CgroupBpfBackend {
         }
     }
 
-    fn lookup_cookie(&mut self, cookie: u64) -> Result<Option<BindingKey>, BackendError> {
-        let map = self
-            .bpf_mut()?
-            .map("soglia_cookie_a")
-            .ok_or_else(|| BackendError::Failed("soglia_cookie_a is absent".to_owned()))?;
-        let entries = HashMap::<_, u64, [u8; 32]>::try_from(map)
-            .map_err(|error| BackendError::Failed(format!("open cookie map: {error:#}")))?;
-        match entries.get(&cookie, 0) {
-            Ok(value) => decode_binding(&value)
-                .map(Some)
-                .ok_or_else(|| BackendError::Failed("cookie value has an invalid ABI".to_owned())),
-            Err(aya::maps::MapError::KeyNotFound) => Ok(None),
-            Err(error) => Err(BackendError::Failed(format!("lookup cookie: {error:#}"))),
-        }
-    }
-
     fn update_occupancy(&mut self) -> Result<(usize, usize), BackendError> {
         let cookie_count = {
             let map = self
@@ -1957,38 +2068,6 @@ impl CgroupBpfBackend {
             counters[25]
         );
         Ok(())
-    }
-
-    fn consume_tuple(
-        &mut self,
-        tuple: SocketTupleV4,
-    ) -> Result<Option<(u64, BindingKey)>, BackendError> {
-        let key = encode_tuple(tuple);
-        let value = self
-            .tuple_consumer
-            .as_ref()
-            .ok_or_else(|| BackendError::Failed("the tuple consumer is unavailable".to_owned()))?
-            .lookup_and_delete(&key)
-            .map_err(|error| {
-                BackendError::Failed(format!("consume tuple atomically: {error:#}"))
-            })?;
-        let Some(value) = value else {
-            return Ok(None);
-        };
-        if value.len() != 48 {
-            return Err(BackendError::Failed(format!(
-                "tuple value has width {}, expected 48",
-                value.len()
-            )));
-        }
-        let cookie =
-            u64::from_ne_bytes(value[0..8].try_into().map_err(|_| {
-                BackendError::Failed("tuple cookie has the wrong width".to_owned())
-            })?);
-        let binding = decode_binding(&value[8..40]).ok_or_else(|| {
-            BackendError::Failed("tuple contains an invalid BindingKey".to_owned())
-        })?;
-        Ok(Some((cookie, binding)))
     }
 }
 
@@ -2330,6 +2409,7 @@ impl EnforcementBackend for CgroupBpfBackend {
     }
 
     fn initialize(&mut self) -> Result<Vec<String>, BackendError> {
+        let _writer = Arc::clone(&self.resolve_coordinator).write()?;
         let started = Instant::now();
         let state_dir_existed = self.settings.state_dir.exists();
         let pin_root_existed = self.settings.configured_pin_root.exists();
@@ -2372,6 +2452,7 @@ impl EnforcementBackend for CgroupBpfBackend {
     }
 
     fn health_check(&mut self) -> Result<(), BackendError> {
+        let _writer = Arc::clone(&self.resolve_coordinator).write()?;
         self.network.health_check()?;
         let mut state = self
             .state
@@ -2426,9 +2507,16 @@ impl EnforcementBackend for CgroupBpfBackend {
         agent: &str,
         nonce: ExecutionNonce,
     ) -> Result<(), BackendError> {
+        let writer = Arc::clone(&self.resolve_coordinator).write()?;
         let tag = id.tag();
         if self.live.contains_key(&tag) {
             return Err(BackendError::Refused(format!("tag {tag} is already live")));
+        }
+        if self.live.len() >= usize::try_from(self.settings.policy_capacity).unwrap_or(usize::MAX) {
+            return Err(BackendError::Failed(format!(
+                "the live cgroup-BPF registry exhausted its {}-Execution capacity",
+                self.settings.policy_capacity
+            )));
         }
         let cgroup = self.settings.executions.join(tag.to_string());
         let metadata = fs::metadata(&cgroup).map_err(|error| {
@@ -2481,6 +2569,7 @@ impl EnforcementBackend for CgroupBpfBackend {
                 "{error}; network rollback was not verified (freeze={freeze:?}, destroy={destroy:?})"
             )));
         }
+        writer.publish(self.resolve_snapshot()?)?;
         Ok(())
     }
 
@@ -2489,6 +2578,7 @@ impl EnforcementBackend for CgroupBpfBackend {
         id: ExecutionId,
         pid: i32,
     ) -> Result<Option<BindingKey>, BackendError> {
+        let _writer = Arc::clone(&self.resolve_coordinator).write()?;
         let mut state = self
             .state
             .clone()
@@ -2550,6 +2640,7 @@ impl EnforcementBackend for CgroupBpfBackend {
         id: ExecutionId,
         binding: Option<BindingKey>,
     ) -> Result<(), BackendError> {
+        let writer = Arc::clone(&self.resolve_coordinator).write()?;
         let tag = id.tag();
         let execution = self
             .live
@@ -2571,69 +2662,36 @@ impl EnforcementBackend for CgroupBpfBackend {
         let mut active = execution;
         active.phase = ExecutionPhase::Active;
         self.live.insert(tag, active.clone());
-        self.update_execution(active)
+        self.update_execution(active)?;
+        writer.publish(self.resolve_snapshot()?)
     }
 
-    fn resolve_once(&mut self, tuple: SocketTupleV4) -> Result<ResolveAttempt, BackendError> {
-        if tuple.destination_address != self.settings.proxy_ip.octets()
-            || tuple.destination_port != self.settings.proxy_port
-        {
-            return Ok(ResolveAttempt::Complete {
-                result: ResolveResult::NotFound,
-            });
-        }
-        let Some((cookie, binding)) = self.consume_tuple(tuple)? else {
-            return Ok(ResolveAttempt::Pending {
-                reason: ResolvePending::TupleAbsent,
-            });
+    fn resolve_view(&mut self) -> Result<Arc<dyn ResolveBackend>, BackendError> {
+        let state = self.state.as_ref().ok_or_else(|| {
+            BackendError::Failed("the BPF generation has no durable state".to_owned())
+        })?;
+        let maps = state.pin_root.join("maps");
+        let view = CgroupBpfResolveView {
+            proxy_ip: self.settings.proxy_ip,
+            proxy_port: self.settings.proxy_port,
+            tuple: MapHandle::from_pinned_path(maps.join("soglia_tuples")).map_err(|error| {
+                BackendError::Failed(format!("open Resolve tuple map: {error:#}"))
+            })?,
+            cookie: MapHandle::from_pinned_path(maps.join("soglia_cookie_a")).map_err(|error| {
+                BackendError::Failed(format!("open Resolve cookie map: {error:#}"))
+            })?,
+            policy: MapHandle::from_pinned_path(maps.join("soglia_policy")).map_err(|error| {
+                BackendError::Failed(format!("open Resolve policy map: {error:#}"))
+            })?,
+            coordinator: Arc::clone(&self.resolve_coordinator),
         };
-
-        // Structural integrity is checked before any semantic mismatch or revocation outcome.
-        if cookie == 0 {
-            return Err(BackendError::Failed(
-                "tuple contains an invalid zero socket cookie".to_owned(),
-            ));
-        }
-        let generation = self
-            .state
-            .as_ref()
-            .map(|state| state.generation)
-            .unwrap_or(0);
-        if generation == 0 {
-            return Err(BackendError::Failed(
-                "the live backend generation is unavailable".to_owned(),
-            ));
-        }
-        let execution = {
-            let mut correlated = self.live.values().filter(|execution| {
-                execution.binding.cgroup_id == binding.cgroup_id
-                    || execution.binding.execution_nonce == binding.execution_nonce
-            });
-            let first = correlated.next().cloned();
-            if correlated.next().is_some() {
-                return Err(BackendError::Failed(
-                    "multiple live ownership records correlate with one tuple".to_owned(),
-                ));
-            }
-            first
-        };
-        let cookie_binding = self.lookup_cookie(cookie)?;
-        let policy = self.policy(binding)?;
-        if let Some((state, _)) = policy
-            && state != POLICY_ACTIVE
-            && state != POLICY_FROZEN
-        {
-            return Err(BackendError::Failed(format!(
-                "policy contains invalid state {state}"
-            )));
-        }
-
-        let result =
-            classify_resolve_snapshot(binding, generation, execution, cookie_binding, policy);
-        Ok(ResolveAttempt::Complete { result })
+        let writer = self.resolve_coordinator.write()?;
+        writer.publish(self.resolve_snapshot()?)?;
+        Ok(Arc::new(view))
     }
 
     fn freeze(&mut self, tag: &ResourceTag) -> Result<(), BackendError> {
+        let writer = Arc::clone(&self.resolve_coordinator).write()?;
         let started = Instant::now();
         let execution = self
             .live
@@ -2657,10 +2715,12 @@ impl EnforcementBackend for CgroupBpfBackend {
             "event.name=cgroup_bpf.freeze result=PASS correlation={tag} duration_ms={}",
             started.elapsed().as_millis()
         );
+        writer.publish(self.resolve_snapshot()?)?;
         Ok(())
     }
 
     fn destroy_execution(&mut self, tag: &ResourceTag) -> Result<(), BackendError> {
+        let writer = Arc::clone(&self.resolve_coordinator).write()?;
         let started = Instant::now();
         let execution = self
             .live
@@ -2693,6 +2753,7 @@ impl EnforcementBackend for CgroupBpfBackend {
             "event.name=cgroup_bpf.destroy result=PASS correlation={tag} duration_ms={}",
             started.elapsed().as_millis()
         );
+        writer.publish(self.resolve_snapshot()?)?;
         Ok(())
     }
 }
@@ -2706,6 +2767,103 @@ impl Drop for CgroupBpfBackend {
             }
         }
         // Pins intentionally keep this exact early-deny generation alive for S13 recovery.
+    }
+}
+
+impl ResolveBackend for CgroupBpfResolveView {
+    fn resolve_once(&self, tuple: SocketTupleV4) -> Result<ResolveAttempt, BackendError> {
+        if tuple.destination_address != self.proxy_ip.octets()
+            || tuple.destination_port != self.proxy_port
+        {
+            return Ok(ResolveAttempt::Complete {
+                result: ResolveResult::NotFound,
+            });
+        }
+        let Some(permit) = self.coordinator.try_read()? else {
+            return Ok(ResolveAttempt::Pending {
+                reason: ResolvePending::BackendBusy,
+            });
+        };
+        let key = encode_tuple(tuple);
+        let Some(value) = self.tuple.lookup_and_delete(&key).map_err(|error| {
+            BackendError::Failed(format!("consume tuple atomically: {error:#}"))
+        })?
+        else {
+            return Ok(ResolveAttempt::Pending {
+                reason: ResolvePending::TupleAbsent,
+            });
+        };
+        if value.len() != 48 {
+            return Err(BackendError::Failed(format!(
+                "tuple value has width {}, expected 48",
+                value.len()
+            )));
+        }
+        let cookie =
+            u64::from_ne_bytes(value[0..8].try_into().map_err(|_| {
+                BackendError::Failed("tuple cookie has the wrong width".to_owned())
+            })?);
+        let binding = decode_binding(&value[8..40]).ok_or_else(|| {
+            BackendError::Failed("tuple contains an invalid BindingKey".to_owned())
+        })?;
+        if cookie == 0 {
+            return Err(BackendError::Failed(
+                "tuple contains an invalid zero socket cookie".to_owned(),
+            ));
+        }
+        let execution = {
+            let mut correlated = permit.snapshot.live.values().filter(|execution| {
+                execution.binding.cgroup_id == binding.cgroup_id
+                    || execution.binding.execution_nonce == binding.execution_nonce
+            });
+            let first = correlated.next().cloned();
+            if correlated.next().is_some() {
+                return Err(BackendError::Failed(
+                    "multiple live ownership records correlate with one tuple".to_owned(),
+                ));
+            }
+            first
+        };
+        let cookie_binding = self
+            .cookie
+            .lookup(&cookie.to_ne_bytes(), MapFlags::ANY)
+            .map_err(|error| BackendError::Failed(format!("lookup cookie: {error:#}")))?
+            .map(|value| {
+                decode_binding(&value).ok_or_else(|| {
+                    BackendError::Failed("cookie value has an invalid ABI".to_owned())
+                })
+            })
+            .transpose()?;
+        let policy = self
+            .policy
+            .lookup(&binding.cgroup_id.to_ne_bytes(), MapFlags::ANY)
+            .map_err(|error| BackendError::Failed(format!("lookup policy: {error:#}")))?
+            .map(|value| {
+                <[u8; 40]>::try_from(value.as_slice())
+                    .ok()
+                    .and_then(|value| decode_policy(&value))
+                    .ok_or_else(|| {
+                        BackendError::Failed("policy value has an invalid ABI".to_owned())
+                    })
+            })
+            .transpose()?;
+        if let Some((state, _)) = policy
+            && state != POLICY_ACTIVE
+            && state != POLICY_FROZEN
+        {
+            return Err(BackendError::Failed(format!(
+                "policy contains invalid state {state}"
+            )));
+        }
+        Ok(ResolveAttempt::Complete {
+            result: classify_resolve_snapshot(
+                binding,
+                permit.snapshot.generation,
+                execution,
+                cookie_binding,
+                policy,
+            ),
+        })
     }
 }
 
@@ -4860,6 +5018,43 @@ mod tests {
                 "soglia_sockops",
             ]
         );
+    }
+
+    #[test]
+    fn lifecycle_writer_has_priority_over_new_resolve_readers() {
+        let coordinator = Arc::new(ResolveCoordinator::default());
+        {
+            let writer = coordinator.write().unwrap();
+            writer
+                .publish(ResolveSnapshot {
+                    generation: 1,
+                    live: StdHashMap::new(),
+                })
+                .unwrap();
+        }
+        let first_reader = coordinator.try_read().unwrap().unwrap();
+        let (order_tx, order_rx) = std::sync::mpsc::channel();
+        let writer_coordinator = Arc::clone(&coordinator);
+        let writer_order = order_tx.clone();
+        let writer = std::thread::spawn(move || {
+            let _permit = writer_coordinator.write().unwrap();
+            writer_order.send("writer").unwrap();
+            std::thread::sleep(Duration::from_millis(10));
+        });
+        loop {
+            if coordinator.state.lock().unwrap().writers_waiting == 1 {
+                break;
+            }
+            std::thread::yield_now();
+        }
+        assert!(coordinator.try_read().unwrap().is_none());
+        drop(first_reader);
+        assert_eq!(
+            order_rx.recv_timeout(Duration::from_secs(1)).unwrap(),
+            "writer"
+        );
+        writer.join().unwrap();
+        assert!(coordinator.try_read().unwrap().is_some());
     }
 
     #[test]

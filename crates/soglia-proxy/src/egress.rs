@@ -23,6 +23,7 @@ use std::convert::Infallible;
 use std::error::Error as StdError;
 use std::net::{IpAddr, SocketAddr};
 use std::sync::Arc;
+use std::sync::atomic::{AtomicU64, AtomicUsize, Ordering};
 use std::time::Duration;
 
 use bytes::Bytes;
@@ -36,7 +37,7 @@ use hyper::service::service_fn;
 use hyper_util::rt::TokioIo;
 use soglia_core::config::EgressConfig;
 use tokio::net::{TcpListener, TcpStream};
-use tokio::sync::watch;
+use tokio::sync::{Semaphore, watch};
 use tracing::{info, warn};
 
 use crate::attribution::{AttributionResult, Binding, ConnectionAttributor};
@@ -93,6 +94,10 @@ pub struct EgressProxy {
     attribution: Arc<dyn ConnectionAttributor>,
     resolver: Arc<dyn Resolver>,
     limits: EgressLimits,
+    connections: Arc<Semaphore>,
+    max_connections: usize,
+    connection_high_water: AtomicUsize,
+    connection_refused: AtomicU64,
 }
 
 /// Why a request was not proxied.
@@ -134,11 +139,26 @@ impl EgressProxy {
         resolver: Arc<dyn Resolver>,
         limits: EgressLimits,
     ) -> Self {
+        Self::new_bounded(policy, attribution, resolver, limits, 512)
+    }
+
+    /// A proxy with an explicit bound on accepted connections with live tasks.
+    pub fn new_bounded(
+        policy: Arc<DestinationPolicy>,
+        attribution: Arc<dyn ConnectionAttributor>,
+        resolver: Arc<dyn Resolver>,
+        limits: EgressLimits,
+        max_connections: usize,
+    ) -> Self {
         Self {
             policy,
             attribution,
             resolver,
             limits,
+            connections: Arc::new(Semaphore::new(max_connections)),
+            max_connections,
+            connection_high_water: AtomicUsize::new(0),
+            connection_refused: AtomicU64::new(0),
         }
     }
 
@@ -156,7 +176,40 @@ impl EgressProxy {
             };
             match accepted {
                 Ok((stream, peer)) => {
-                    tokio::spawn(Arc::clone(&self).connection(stream, peer, shutdown.clone()));
+                    let Ok(connection_permit) = Arc::clone(&self.connections).try_acquire_owned()
+                    else {
+                        let refused_total = self
+                            .connection_refused
+                            .fetch_add(1, Ordering::Relaxed)
+                            .saturating_add(1);
+                        warn!(
+                            event.name = "egress.connection_limit",
+                            limit = self.max_connections,
+                            refused_total,
+                            "egress connection refused before attribution or application reads"
+                        );
+                        drop(stream);
+                        continue;
+                    };
+                    let active = self
+                        .max_connections
+                        .saturating_sub(self.connections.available_permits());
+                    self.connection_high_water
+                        .fetch_max(active, Ordering::Relaxed);
+                    tracing::debug!(
+                        event.name = "egress.connection_occupancy",
+                        active,
+                        high_water = self.connection_high_water.load(Ordering::Relaxed),
+                        limit = self.max_connections,
+                        refused_total = self.connection_refused.load(Ordering::Relaxed),
+                        "bounded egress connection occupancy"
+                    );
+                    let proxy = Arc::clone(&self);
+                    let connection_shutdown = shutdown.clone();
+                    tokio::spawn(async move {
+                        let _connection_permit = connection_permit;
+                        proxy.connection(stream, peer, connection_shutdown).await;
+                    });
                 }
                 Err(error) => warn!(event.name = "egress.accept_failed", %error, "accept failed"),
             }

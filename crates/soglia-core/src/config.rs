@@ -72,6 +72,8 @@ pub struct RuntimeConfig {
     pub max_concurrency: u32,
     /// How many invocations may wait for a slot before new ones are refused.
     pub max_queue: u32,
+    /// Maximum accepted ingress connections with a live task.
+    pub max_ingress_connections: u32,
     /// Cleanup failures after which no new Execution is admitted.
     pub cleanup_failure_threshold: u32,
     /// How long one teardown may take before it counts as failed, in milliseconds.
@@ -94,6 +96,7 @@ impl Default for RuntimeConfig {
             gid: 0,
             max_concurrency: 4,
             max_queue: 16,
+            max_ingress_connections: 32,
             cleanup_failure_threshold: 1,
             teardown_timeout_ms: 10_000,
             runc: PathBuf::from("/usr/sbin/runc"),
@@ -138,6 +141,8 @@ pub struct NetworkConfig {
     pub proxy_address: Ipv4Addr,
     /// The egress proxy port.
     pub proxy_port: u16,
+    /// Maximum accepted proxy connections with a live task.
+    pub max_proxy_connections: u32,
     /// Private or internal ranges the egress proxy may reach, which it otherwise refuses.
     pub internal_allow: Vec<Cidr>,
 }
@@ -150,6 +155,7 @@ impl Default for NetworkConfig {
                 .unwrap_or_else(|_| unreachable!("the default pool is a valid range")),
             proxy_address: Ipv4Addr::new(10, 200, 255, 1),
             proxy_port: 15001,
+            max_proxy_connections: 512,
             internal_allow: Vec::new(),
         }
     }
@@ -176,6 +182,10 @@ pub struct CgroupBpfConfig {
     pub resolve_timeout_ms: u64,
     /// Bounded diagnostic ring-buffer size.
     pub ring_buffer_bytes: u32,
+    /// Maximum logical Resolve operations admitted at once.
+    pub max_pending_resolves: u32,
+    /// Fixed number of stateless Enforcer Resolve workers.
+    pub resolve_workers: u16,
     /// Root below bpffs owned by this Soglia instance.
     pub pin_root: PathBuf,
 }
@@ -186,6 +196,8 @@ impl Default for CgroupBpfConfig {
             max_tracked_sockets: 4096,
             resolve_timeout_ms: 2_000,
             ring_buffer_bytes: 64 * 1024,
+            max_pending_resolves: 64,
+            resolve_workers: 4,
             pin_root: PathBuf::from("/sys/fs/bpf/soglia"),
         }
     }
@@ -478,6 +490,22 @@ impl Config {
         if runtime.max_concurrency == 0 {
             return invalid("runtime.max_concurrency must be at least 1");
         }
+        let required_ingress = runtime
+            .max_concurrency
+            .checked_add(runtime.max_queue)
+            .ok_or_else(|| {
+                ConfigError::Invalid(
+                    "runtime.max_concurrency plus runtime.max_queue overflows".to_owned(),
+                )
+            })?;
+        if runtime.max_ingress_connections == 0
+            || runtime.max_ingress_connections > 1024
+            || runtime.max_ingress_connections < required_ingress
+        {
+            return invalid(
+                "runtime.max_ingress_connections must be between max_concurrency + max_queue and 1024",
+            );
+        }
         if runtime.cleanup_failure_threshold == 0 {
             return invalid("runtime.cleanup_failure_threshold must be at least 1");
         }
@@ -512,6 +540,9 @@ impl Config {
         }
         if network.proxy_port == 0 {
             return invalid("network.proxy_port must be set");
+        }
+        if network.max_proxy_connections == 0 || network.max_proxy_connections > 4096 {
+            return invalid("network.max_proxy_connections must be between 1 and 4096");
         }
         // Execution slots are never reused while quarantined, so the pool must outlast the
         // concurrency limit plus the failures that stop admission.
@@ -576,6 +607,42 @@ impl Config {
         if bpf.resolve_timeout_ms == 0 || bpf.resolve_timeout_ms > 2_000 {
             return invalid("cgroup_bpf.resolve_timeout_ms must be between 1 and 2000");
         }
+        if bpf.max_pending_resolves == 0 || bpf.max_pending_resolves > 4096 {
+            return invalid("cgroup_bpf.max_pending_resolves must be between 1 and 4096");
+        }
+        if bpf.resolve_workers == 0 || bpf.resolve_workers > 64 {
+            return invalid("cgroup_bpf.resolve_workers must be between 1 and 64");
+        }
+        if u32::from(bpf.resolve_workers) > bpf.max_pending_resolves {
+            return invalid(
+                "cgroup_bpf.resolve_workers must not exceed cgroup_bpf.max_pending_resolves",
+            );
+        }
+        if bpf.max_pending_resolves > self.network.max_proxy_connections {
+            return invalid(
+                "cgroup_bpf.max_pending_resolves must not exceed network.max_proxy_connections",
+            );
+        }
+        if self.network.max_proxy_connections > bpf.max_tracked_sockets {
+            return invalid(
+                "network.max_proxy_connections must not exceed cgroup_bpf.max_tracked_sockets",
+            );
+        }
+        let attribution_capacity = self
+            .runtime
+            .max_concurrency
+            .checked_add(self.runtime.cleanup_failure_threshold)
+            .ok_or_else(|| {
+                ConfigError::Invalid(
+                    "the attribution-table capacity overflows max_concurrency plus the cleanup-failure threshold"
+                        .to_owned(),
+                )
+            })?;
+        usize::try_from(attribution_capacity).map_err(|_| {
+            ConfigError::Invalid(
+                "the attribution-table capacity cannot be represented on this host".to_owned(),
+            )
+        })?;
         if bpf.ring_buffer_bytes < 4096
             || bpf.ring_buffer_bytes > 16 * 1024 * 1024
             || !bpf.ring_buffer_bytes.is_power_of_two()
@@ -709,9 +776,13 @@ agents:
     fn a_minimal_configuration_takes_the_defaults() {
         let config = Config::from_yaml(MINIMAL).unwrap();
         assert_eq!(config.runtime.max_concurrency, 4);
+        assert_eq!(config.runtime.max_ingress_connections, 32);
         assert_eq!(config.runtime.cleanup_failure_threshold, 1);
         assert_eq!(config.runtime.bpftool, PathBuf::from("/usr/sbin/bpftool"));
         assert_eq!(config.network.proxy_port, 15001);
+        assert_eq!(config.network.max_proxy_connections, 512);
+        assert_eq!(config.cgroup_bpf.max_pending_resolves, 64);
+        assert_eq!(config.cgroup_bpf.resolve_workers, 4);
         assert_eq!(config.network.backend, NetworkBackend::CgroupBpf);
         let echo = &config.agents["echo"];
         assert_eq!(echo.port, 8080);
@@ -853,6 +924,20 @@ agents:
         let mut too_many_policies = Config::from_yaml(MINIMAL).unwrap();
         too_many_policies.runtime.max_concurrency = 65_536;
         assert!(too_many_policies.validate().is_err());
+
+        let mut ingress_below_admission = Config::from_yaml(MINIMAL).unwrap();
+        ingress_below_admission.runtime.max_ingress_connections = 19;
+        assert!(ingress_below_admission.validate().is_err());
+
+        let mut workers_above_queue = Config::from_yaml(MINIMAL).unwrap();
+        workers_above_queue.cgroup_bpf.max_pending_resolves = 2;
+        workers_above_queue.cgroup_bpf.resolve_workers = 3;
+        assert!(workers_above_queue.validate().is_err());
+
+        let mut proxy_above_sockets = Config::from_yaml(MINIMAL).unwrap();
+        proxy_above_sockets.network.max_proxy_connections = 4096;
+        proxy_above_sockets.cgroup_bpf.max_tracked_sockets = 1024;
+        assert!(proxy_above_sockets.validate().is_err());
     }
 
     #[test]
