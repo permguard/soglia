@@ -137,7 +137,8 @@ start_generation() {
   printf '%s\n' "$runtime_pid" > "$case_dir/runtime.pid"
   for _ in $(seq 1 1000); do
     if [[ -f $state ]] && jq -e '.phase == "READY" and (.programs|length)==6 and
-      (.links|length)==6 and (.maps|length)==7' "$state" >/dev/null 2>&1; then
+      (.links|length)==6 and (.maps|length)==7' "$state" >/dev/null 2>&1 \
+      && grep -q 'event.name.*startup.ready' "$case_dir/run.stderr"; then
       cp "$state" "$case_dir/state-ready.json"
       return 0
     fi
