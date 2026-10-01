@@ -17,12 +17,17 @@ RUN apt-get update \
         bpftool \
         iproute2 \
         libbpf-dev \
+        libelf-dev \
         nftables \
         procps \
         runc \
         curl \
         jq \
         musl-tools \
+        zlib1g-dev \
+    && if [ "$(dpkg --print-architecture)" = amd64 ]; then \
+        apt-get install --yes --no-install-recommends libc6-dev-i386; \
+    fi \
     && rm -rf /var/lib/apt/lists/*
 
 # Task, so `task <name>` works here as it does on a developer's machine. The version and the

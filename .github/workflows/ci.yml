@@ -28,6 +28,8 @@ jobs:
           toolchain: stable
           components: clippy, rustfmt
       - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2
+      - name: cgroup-BPF build dependencies
+        run: sudo apt-get update && sudo apt-get install --yes clang libc6-dev-i386 libelf-dev zlib1g-dev
       - name: formatting
         run: cargo fmt --all -- --check
       - name: clippy
