@@ -4,9 +4,10 @@
 //! The `soglia __enforcer` role: lifecycle and bounded Resolve channels.
 //!
 //! The channel is the socketpair end the original trusted process handed over as this process's
-//! standard input. The first frame is the configuration; the enforcer probes the host, sweeps what a
-//! previous run left behind, installs the host policy and only then reports ready. After that it
-//! answers requests until the channel closes.
+//! standard input. The first frame is the configuration. The independent Resolve contract is read
+//! and validated before the enforcer probes or mutates the host; only then does it sweep what a
+//! previous run left behind, install the host policy and report ready. After that it answers
+//! requests until the channel closes.
 //!
 //! When the channel closes the Supervisor is gone. The enforcer freezes every live Execution —
 //! strictly more restrictive than what was there — and exits. Everything else is left to the next
@@ -19,6 +20,7 @@ use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::mpsc::{SyncSender, sync_channel};
 use std::sync::{Arc, Condvar, Mutex};
 use std::thread;
+use std::time::Duration;
 
 use soglia_core::config::{Config, NetworkBackend};
 use soglia_core::helper::{
@@ -43,15 +45,66 @@ struct StartedBackend {
     resolver_contract: ResolverReady,
 }
 
+const RESOLVER_HELLO_TIMEOUT: Duration = Duration::from_secs(1);
+
 /// Serves the enforcer role on `channel` until it closes.
 pub fn run(channel: UnixStream, resolver_channel: UnixStream) -> Result<(), String> {
+    run_with_start(channel, resolver_channel, RESOLVER_HELLO_TIMEOUT, start)
+}
+
+fn run_with_start<F>(
+    channel: UnixStream,
+    mut resolver_channel: UnixStream,
+    resolver_hello_timeout: Duration,
+    start_backend: F,
+) -> Result<(), String>
+where
+    F: FnOnce(&Config, ResolverReady) -> Result<StartedBackend, HelperFailure>,
+{
     let mut reader = channel
         .try_clone()
         .map_err(|error| format!("cannot use the helper channel: {error}"))?;
     let mut writer = channel;
 
     let hello: Hello = read_frame(&mut reader).map_err(|error| error.to_string())?;
-    let started = match start(&hello) {
+    let config = match Config::from_yaml(&hello.config_yaml) {
+        Ok(config) => config,
+        Err(error) => {
+            let failure = HelperFailure::Refused {
+                class: RefusalClass::Incompatible,
+                detail: format!("the Enforcer configuration is incompatible: {error}"),
+            };
+            let _ = write_frame(
+                &mut writer,
+                &HelperResponse::Failed {
+                    failure: failure.clone(),
+                },
+            );
+            return Err(failure.detail().to_owned());
+        }
+    };
+    let resolver_contract = ResolverReady {
+        version: RESOLVER_PROTOCOL_VERSION,
+        max_pending_resolves: config.cgroup_bpf.max_pending_resolves,
+        resolve_workers: config.cgroup_bpf.resolve_workers,
+    };
+    if let Err(failure) = validate_resolver_before_start(
+        &mut resolver_channel,
+        resolver_contract,
+        resolver_hello_timeout,
+    ) {
+        write_frame(
+            &mut writer,
+            &HelperResponse::Failed {
+                failure: failure.clone(),
+            },
+        )
+        .map_err(|error| error.to_string())?;
+        // The lifecycle peer now has the typed refusal that selects process status 20. Returning
+        // success from this helper role avoids replacing it with an unrelated textual crash.
+        return Ok(());
+    }
+    let started = match start_backend(&config, resolver_contract) {
         Ok(started) => started,
         Err(failure) => {
             let _ = write_frame(
@@ -116,20 +169,19 @@ pub fn run(channel: UnixStream, resolver_channel: UnixStream) -> Result<(), Stri
     }
 }
 
-fn start(hello: &Hello) -> Result<StartedBackend, HelperFailure> {
-    let config = Config::from_yaml(&hello.config_yaml).map_err(|error| HelperFailure::Refused {
-        class: RefusalClass::Incompatible,
-        detail: format!("the Enforcer configuration is incompatible: {error}"),
-    })?;
+fn start(
+    config: &Config,
+    resolver_contract: ResolverReady,
+) -> Result<StartedBackend, HelperFailure> {
     let selected_backend = config.network.backend;
     let mut backend: Box<dyn EnforcementBackend + Send> = match selected_backend {
         NetworkBackend::NetnsNft => {
-            let settings = NetworkSettings::from_config(&config).map_err(|error| {
+            let settings = NetworkSettings::from_config(config).map_err(|error| {
                 error.into_helper_failure("the netns-nft configuration is incompatible")
             })?;
             Box::new(NetnsNftBackend::new(settings))
         }
-        NetworkBackend::CgroupBpf => production_cgroup_backend(&config)?,
+        NetworkBackend::CgroupBpf => production_cgroup_backend(config)?,
     };
     backend.probe_capabilities().map_err(|error| {
         startup_failure(
@@ -152,11 +204,36 @@ fn start(hello: &Hello) -> Result<StartedBackend, HelperFailure> {
         backend,
         resolve,
         swept,
-        resolver_contract: ResolverReady {
-            version: RESOLVER_PROTOCOL_VERSION,
-            max_pending_resolves: config.cgroup_bpf.max_pending_resolves,
-            resolve_workers: config.cgroup_bpf.resolve_workers,
-        },
+        resolver_contract,
+    })
+}
+
+fn validate_resolver_before_start(
+    channel: &mut UnixStream,
+    required: ResolverReady,
+    timeout: Duration,
+) -> Result<(), HelperFailure> {
+    channel
+        .set_read_timeout(Some(timeout))
+        .map_err(|error| HelperFailure::Refused {
+            class: RefusalClass::Infrastructure,
+            detail: format!("the Resolve v2 handshake timeout could not be installed: {error}"),
+        })?;
+    let offered = read_frame_limited(channel, MAX_RESOLVER_FRAME_BYTES).map_err(|error| {
+        HelperFailure::Refused {
+            class: RefusalClass::Incompatible,
+            detail: format!("the Resolve v2 handshake is incompatible: {error}"),
+        }
+    })?;
+    channel
+        .set_read_timeout(None)
+        .map_err(|error| HelperFailure::Refused {
+            class: RefusalClass::Infrastructure,
+            detail: format!("the Resolve v2 handshake timeout could not be cleared: {error}"),
+        })?;
+    validate_resolver_contract(offered, required).map_err(|detail| HelperFailure::Refused {
+        class: RefusalClass::Incompatible,
+        detail,
     })
 }
 
@@ -236,9 +313,6 @@ fn start_resolver_service(
     backend: Arc<dyn ResolveBackend>,
     contract: ResolverReady,
 ) -> Result<(), String> {
-    let offered: ResolverHello = read_frame_limited(&mut channel, MAX_RESOLVER_FRAME_BYTES)
-        .map_err(|error| format!("Resolve v2 handshake failed: {error}"))?;
-    validate_resolver_contract(offered, contract)?;
     let capacity = usize::try_from(contract.max_pending_resolves).unwrap_or(usize::MAX);
     let mut jobs = VecDeque::new();
     jobs.try_reserve(capacity).map_err(|error| {
@@ -489,17 +563,24 @@ fn production_cgroup_backend(
 #[cfg(test)]
 mod tests {
     use std::collections::VecDeque;
-    use std::sync::{Condvar, Mutex};
+    use std::io::Write;
+    use std::os::unix::net::UnixStream;
+    use std::sync::atomic::{AtomicBool, Ordering};
+    use std::sync::{Arc, Condvar, Mutex};
+    use std::time::Duration;
 
     use soglia_core::config::NetworkBackend;
     use soglia_core::helper::{
-        HelperFailure, RESOLVER_PROTOCOL_VERSION, RefusalClass, ResolveAttempt, ResolveResult,
-        ResolverHello, ResolverReady, SocketTupleV4,
+        Hello, HelperFailure, HelperResponse, RESOLVER_PROTOCOL_VERSION, RefusalClass,
+        ResolveAttempt, ResolveResult, ResolverHello, ResolverReady, SocketTupleV4,
+    };
+    use soglia_core::ipc::{
+        MAX_RESOLVER_FRAME_BYTES, read_frame, write_frame, write_frame_limited,
     };
 
     use super::{
         ResolveJob, ResolveJobOutcome, ResolveQueue, accept_request_id, execute_resolve,
-        startup_failure, validate_resolver_contract,
+        run_with_start, startup_failure, validate_resolver_contract,
     };
     use crate::backend::{BackendError, ResolveBackend};
 
@@ -518,6 +599,59 @@ mod tests {
             source_port: 40_000,
             destination_port: 15_001,
         }
+    }
+
+    fn config_yaml() -> String {
+        r#"
+runtime:
+  uid: 990
+  gid: 990
+agents:
+  probe:
+    rootfs: /var/lib/soglia/rootfs/probe
+    command: ["/agent"]
+"#
+        .to_owned()
+    }
+
+    fn assert_pre_start_incompatible(
+        send_resolver_hello: impl FnOnce(&mut UnixStream),
+        timeout: Duration,
+    ) {
+        let (mut lifecycle_client, lifecycle_server) = UnixStream::pair().unwrap();
+        let (mut resolver_client, resolver_server) = UnixStream::pair().unwrap();
+        let mutation_called = Arc::new(AtomicBool::new(false));
+        let called = Arc::clone(&mutation_called);
+        let helper = std::thread::spawn(move || {
+            run_with_start(lifecycle_server, resolver_server, timeout, move |_, _| {
+                called.store(true, Ordering::Release);
+                panic!("the backend must not start after an incompatible Resolve contract")
+            })
+        });
+
+        write_frame(
+            &mut lifecycle_client,
+            &Hello {
+                config_yaml: config_yaml(),
+            },
+        )
+        .unwrap();
+        send_resolver_hello(&mut resolver_client);
+
+        let response: HelperResponse = read_frame(&mut lifecycle_client).unwrap();
+        let HelperResponse::Failed { failure } = response else {
+            panic!("the pre-start refusal was not carried on the lifecycle channel")
+        };
+        assert!(matches!(
+            failure,
+            HelperFailure::Refused {
+                class: RefusalClass::Incompatible,
+                ..
+            }
+        ));
+        assert_eq!(failure.exit_code(), 20);
+        assert!(!mutation_called.load(Ordering::Acquire));
+        assert!(helper.join().unwrap().is_ok());
     }
 
     #[test]
@@ -616,6 +750,83 @@ mod tests {
             )
             .is_err()
         );
+    }
+
+    #[test]
+    fn a_wrong_resolver_version_is_typed_before_backend_start() {
+        assert_pre_start_incompatible(
+            |channel| {
+                write_frame_limited(
+                    channel,
+                    &ResolverHello {
+                        version: RESOLVER_PROTOCOL_VERSION - 1,
+                        max_pending_resolves: 64,
+                        resolve_workers: 4,
+                    },
+                    MAX_RESOLVER_FRAME_BYTES,
+                )
+                .unwrap();
+            },
+            Duration::from_secs(1),
+        );
+    }
+
+    #[test]
+    fn a_wrong_pending_limit_is_typed_before_backend_start() {
+        assert_pre_start_incompatible(
+            |channel| {
+                write_frame_limited(
+                    channel,
+                    &ResolverHello {
+                        version: RESOLVER_PROTOCOL_VERSION,
+                        max_pending_resolves: 65,
+                        resolve_workers: 4,
+                    },
+                    MAX_RESOLVER_FRAME_BYTES,
+                )
+                .unwrap();
+            },
+            Duration::from_secs(1),
+        );
+    }
+
+    #[test]
+    fn a_wrong_worker_limit_is_typed_before_backend_start() {
+        assert_pre_start_incompatible(
+            |channel| {
+                write_frame_limited(
+                    channel,
+                    &ResolverHello {
+                        version: RESOLVER_PROTOCOL_VERSION,
+                        max_pending_resolves: 64,
+                        resolve_workers: 3,
+                    },
+                    MAX_RESOLVER_FRAME_BYTES,
+                )
+                .unwrap();
+            },
+            Duration::from_secs(1),
+        );
+    }
+
+    #[test]
+    fn a_malformed_resolver_hello_is_typed_before_backend_start() {
+        assert_pre_start_incompatible(
+            |channel| {
+                let body = b"{}";
+                channel
+                    .write_all(&(body.len() as u32).to_be_bytes())
+                    .unwrap();
+                channel.write_all(body).unwrap();
+                channel.flush().unwrap();
+            },
+            Duration::from_secs(1),
+        );
+    }
+
+    #[test]
+    fn an_absent_resolver_hello_times_out_before_backend_start() {
+        assert_pre_start_incompatible(|_| {}, Duration::from_millis(20));
     }
 
     #[test]
