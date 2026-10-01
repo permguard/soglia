@@ -4279,6 +4279,7 @@ mod tests {
             NoRecordPinRoot::Absent
         );
         fs::create_dir(&root).unwrap();
+        fs::set_permissions(&root, fs::Permissions::from_mode(0o700)).unwrap();
         assert_eq!(
             validate_no_record_pin_state(&root).unwrap(),
             NoRecordPinRoot::Empty
