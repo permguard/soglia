@@ -19,7 +19,7 @@ binary=$1
 tracer=$2
 agent=$3
 foreign_object=$4
-production_baseline=a2a63904345f0ef9361960f5e284eebc2809b17c
+production_baseline=a36aa94751280e28a3d4229a4690a2517fdbac4e
 run_id="uninstall-diagnostic-$(date -u +%Y%m%dT%H%M%SZ)-$$"
 evidence="/soglia/spikes/cgroup-bpf/evidence/replay/$run_id"
 registry="$evidence/harness-owned.tsv"
@@ -304,6 +304,7 @@ cleanup() {
     --arg maps "$maps_classification" --arg baseline "$production_baseline" \
     --arg stopped_case "$stopped_case" --arg failure_detail "$failure_detail" \
     --arg fresh "$(case_scope fresh_host)" \
+    --arg interrupted_startup "$(case_scope interrupted_startup_pin_root)" \
     --arg stopped "$(case_scope normal_service_stop)" \
     --arg known "$(case_scope known_compatible)" \
     --arg live "$(case_scope live_runtime_refusal)" \
@@ -318,12 +319,15 @@ cleanup() {
       stopped_at_case:$stopped_case,failure_detail:$failure_detail,
       cleanup:{verdict:$cleanup,programs:$programs,links:$links,maps:$maps},
       production_source_baseline:{commit:$baseline,matches:$production_source_matches},
-      cases:{fresh_host:$fresh,normal_service_stop:$stopped,
+      cases:{fresh_host:$fresh,interrupted_startup_pin_root:$interrupted_startup,
+        normal_service_stop:$stopped,
         known_compatible:$known,live_runtime_refusal:$live,
         incompatible_refusal:$incompatible,unknown_refusal:$unknown,
         unsupported_refusal:$unsupported,nonempty_refusal:$nonempty,
         interrupted_resume:$interrupted,target_released:$released},
       scope:{dry_run_equivalence:(if $known == "PASS" then "PERFORMED" else "NOT_EXECUTED" end),
+        interrupted_startup_pin_root:(if $interrupted_startup == "PASS" then
+          "PERFORMED: trusted empty root removed by one exact rmdir" else "NOT_EXECUTED" end),
         typed_refusals_before_mutation:(if $live == "PASS" and $incompatible == "PASS" and
           $unknown == "PASS" and $unsupported == "PASS" and $nonempty == "PASS"
           then "PERFORMED" else "NOT_EXECUTED" end),
@@ -387,6 +391,24 @@ jq -e '.verdict == "PASS" and (.dry_run|not) and .enforcer.classification == "FR
 assert_no_owned_residue "$case_dir/residue-before-harness-teardown.json"
 remove_case_root
 record_case fresh_host PASS
+
+current_case=interrupted_startup_pin_root; persist_state
+case_paths interrupted_startup_pin_root; write_config; create_cgroup_root
+mkdir -m 0700 "$pin_root"
+run_uninstall "$case_dir/dry-run.json" "$case_dir/dry-run.stderr" --dry-run
+[[ $command_status -eq 0 && -d $pin_root ]]
+jq -e '.verdict == "PASS" and .dry_run and .enforcer.classification == "FRESH" and
+  (.enforcer.operations | index("remove empty cgroup-BPF pin root left by interrupted startup")) != null' \
+  "$case_dir/dry-run.json" >/dev/null
+run_uninstall "$case_dir/uninstall.json" "$case_dir/uninstall.stderr"
+[[ $command_status -eq 0 && ! -e $pin_root ]]
+jq -e '.verdict == "PASS" and (.dry_run|not) and .enforcer.classification == "FRESH" and
+  .enforcer.absence_verified == true and
+  (.enforcer.operations | index("remove empty cgroup-BPF pin root left by interrupted startup")) != null' \
+  "$case_dir/uninstall.json" >/dev/null
+assert_no_owned_residue "$case_dir/residue-before-harness-teardown.json"
+remove_case_root
+record_case interrupted_startup_pin_root PASS
 
 current_case=normal_service_stop; persist_state
 active_unit="soglia-uninstall-normal-$run_id"
