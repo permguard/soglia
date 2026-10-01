@@ -165,7 +165,9 @@ snapshot_owned() {
     for parent in "$runtime" "$pin_root"; do
       if [[ -e $parent ]]; then
         find "$parent" -xdev -printf '%y %m %u %g %p\n' | sort
-        find "$parent" -xdev -type f -print0 | sort -z | xargs -0 -r sha256sum
+        if [[ $parent == "$runtime" ]]; then
+          find "$parent" -xdev -type f -print0 | sort -z | xargs -0 -r sha256sum
+        fi
       else
         printf 'ABSENT %s\n' "$parent"
       fi
