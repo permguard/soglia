@@ -498,7 +498,7 @@ impl CgroupBpfBackend {
     ) -> Result<GenerationClassification, BackendError> {
         let recorded = self.recorded_state(uninstall)?;
         let Some(mut state) = recorded else {
-            validate_no_unrecorded_pin_root(&self.settings.configured_pin_root)?;
+            validate_no_record_pin_state(&self.settings.configured_pin_root, uninstall)?;
             return Ok(GenerationClassification::Fresh);
         };
         require_bpffs_mount()?;
@@ -3484,10 +3484,15 @@ fn validate_fresh_uninstall_state(
     Ok(())
 }
 
-fn validate_no_unrecorded_pin_root(path: &Path) -> Result<(), BackendError> {
-    if path.exists() {
+fn validate_no_record_pin_state(path: &Path, uninstall: bool) -> Result<(), BackendError> {
+    if uninstall && path.exists() {
         Err(BackendError::Unknown(format!(
             "UNKNOWN cgroup-BPF state: {} exists without a trusted record",
+            path.display()
+        )))
+    } else if !uninstall && !directory_entries(path)?.is_empty() {
+        Err(BackendError::Unknown(format!(
+            "UNKNOWN cgroup-BPF state: {} contains pins without a trusted record",
             path.display()
         )))
     } else {
@@ -4167,14 +4172,32 @@ mod tests {
     }
 
     #[test]
-    fn uninstall_rejects_an_unrecorded_pin_root_without_mutating_it() {
+    fn startup_accepts_only_an_empty_unrecorded_pin_root() {
         let root = std::env::temp_dir().join(format!(
             "soglia-uninstall-unrecorded-pins-{}",
             ExecutionId::generate().unwrap()
         ));
-        assert!(validate_no_unrecorded_pin_root(&root).is_ok());
+        assert!(validate_no_record_pin_state(&root, false).is_ok());
         fs::create_dir(&root).unwrap();
-        let result = validate_no_unrecorded_pin_root(&root);
+        assert!(validate_no_record_pin_state(&root, false).is_ok());
+        fs::write(root.join("unexpected-pin"), "pin").unwrap();
+        assert!(matches!(
+            validate_no_record_pin_state(&root, false),
+            Err(BackendError::Unknown(_))
+        ));
+        fs::remove_file(root.join("unexpected-pin")).unwrap();
+        fs::remove_dir(&root).unwrap();
+    }
+
+    #[test]
+    fn uninstall_rejects_even_an_empty_unrecorded_pin_root_without_mutating_it() {
+        let root = std::env::temp_dir().join(format!(
+            "soglia-uninstall-unrecorded-pins-{}",
+            ExecutionId::generate().unwrap()
+        ));
+        assert!(validate_no_record_pin_state(&root, true).is_ok());
+        fs::create_dir(&root).unwrap();
+        let result = validate_no_record_pin_state(&root, true);
         assert!(matches!(result, Err(BackendError::Unknown(_))));
         assert!(
             root.is_dir(),
