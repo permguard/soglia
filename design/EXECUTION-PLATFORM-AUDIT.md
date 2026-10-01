@@ -16,16 +16,27 @@ Its authoritative summary is at `spikes/cgroup-bpf/REPORT.md:1073-1113`.
 
 ## Isolation invariants
 
-| ID  | Status  | Current evidence                                                                                                                                      | Current test or gate                           | Precise gap                                                                                                                                                                    | Closing phase             |
-| --- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------- |
-| I1  | PARTIAL | `crates/soglia-sandbox/src/bundle.rs:137-169`; `crates/soglia-sandbox/tests/runc.rs:167-185`                                                          | runc privileged test; T1-T10/H1-H4             | UID/GID, empty capabilities and `noNewPrivileges` are proved, but `bundle.rs:256` explicitly proves that no user namespace exists.                                             | Phase 3                   |
-| I2  | PRESENT | `crates/soglia-sandbox/src/bundle.rs:106-120,158`; `crates/soglia-sandbox/src/bundle.rs:276-293`                                                      | bundle unit test; runc privileged test         | None for the current runc rootfs and bounded tmpfs model.                                                                                                                      | Maintained in every phase |
-| I3  | ABSENT  | `crates/soglia-sandbox/src/bundle.rs:106-120`; `crates/soglia-sandbox/src/backend.rs:590-608`                                                         | None                                           | Only per-container tmpfs and bundle deletion exist; there is no fixed-size persistent volume, exclusive volume identity, lifecycle record or deletion proof.                   | Phase 3                   |
-| I4  | PRESENT | `crates/soglia-enforcer/src/rules.rs:68-116`; `crates/soglia-enforcer/src/rules.rs:129-168`; `crates/soglia-proxy/src/policy/mod.rs:171-225`          | T2-T5, H1-H3; B2, B5 and B7                    | None for the qualified runc profiles; every later backend must re-prove the same boundary.                                                                                     | Maintained in Phases 2-6  |
-| I5  | PARTIAL | `crates/soglia-sandbox/src/bundle.rs:16-69,162-180,185-205`; `crates/soglia-sandbox/src/bundle.rs:238-257`                                            | bundle unit tests; runc privileged test        | PID, network, IPC, UTS, mount and cgroup namespaces exist, but the user namespace is absent and seccomp is a default-allow deny-list rather than a least-privilege allow-list. | Phase 3                   |
-| I6  | PARTIAL | `crates/soglia-core/src/config.rs:318-343`; `crates/soglia-sandbox/src/backend.rs:779-808`; `crates/soglia-sandbox/tests/runc.rs:196-212`             | H4; runc privileged test; B7 envelope          | CPU, memory, process and FD limits exist, but no cgroup I/O limit or aggregate resource reservation exists.                                                                    | Phase 3                   |
-| I7  | PRESENT | `crates/soglia-supervisor/src/supervisor.rs:350-370`; `crates/soglia-sandbox/src/backend.rs:575-610`; `crates/soglia-enforcer/src/backend.rs:688-715` | T1, T6-T8; B3, B6, B7; uninstall qualification | None for the current one-call runc lifecycle; the warm pool must preserve single use and measured destruction.                                                                 | Requalified in Phase 4    |
-| I8  | ABSENT  | `crates/soglia-core/src/config.rs:281-315`; `crates/soglia-sandbox/src/backend.rs:832-933`                                                            | None                                           | A mutable rootfs path is configured and the agent is created directly; no inert template, digest, signature, no-agent-executed proof or call-input boundary exists.            | Phase 3, then Phase 4     |
+| ID | Status  | Finding                                  | Closure    |
+| -- | ------- | ---------------------------------------- | ---------- |
+| I1 | PARTIAL | Identity controls exist; no userns.      | Phase 3    |
+| I2 | PRESENT | Rootfs is read-only; tmpfs is bounded.   | Maintain   |
+| I3 | ABSENT  | No exclusive fixed-size volume.          | Phase 3    |
+| I4 | PRESENT | Qualified network boundary is complete.  | Maintain   |
+| I5 | PARTIAL | Namespaces exist; seccomp is deny-list.  | Phase 3    |
+| I6 | PARTIAL | CPU/memory/PID/FD, but no I/O reserve.   | Phase 3    |
+| I7 | PRESENT | Current lifecycle is verified one-shot.  | Phase 4    |
+| I8 | ABSENT  | No inert verified image template exists. | Phases 3-4 |
+
+### Isolation evidence and gaps
+
+- **I1:** `bundle.rs:137-169` and `runc.rs:167-185` prove UID/GID, empty capabilities and `noNewPrivileges`; `bundle.rs:256` proves that the user namespace is absent.
+- **I2:** `bundle.rs:106-120,158,276-293` and the privileged runc test cover the current read-only rootfs and bounded tmpfs model.
+- **I3:** `bundle.rs:106-120` and `backend.rs:590-608` provide tmpfs and bundle deletion, but no volume identity, capacity, durable lifecycle or deletion proof.
+- **I4:** `rules.rs:68-168`, `policy/mod.rs:171-225`, T2-T5, H1-H3 and B2/B5/B7 prove the current runc boundary; every later profile must repeat it.
+- **I5:** `bundle.rs:16-69,162-205,238-257` creates PID, network, IPC, UTS, mount and cgroup namespaces, but lacks userns and a least-privilege seccomp allow-list.
+- **I6:** `config.rs:318-343`, `backend.rs:779-808`, H4 and B7 prove several per-Execution limits, but not cgroup I/O limits or aggregate reservation.
+- **I7:** `supervisor.rs:350-370`, sandbox `backend.rs:575-610`, enforcer `backend.rs:688-715`, T1/T6-T8 and B3/B6/B7/uninstall prove the current one-call lifecycle.
+- **I8:** `config.rs:281-315` and `backend.rs:832-933` configure a mutable rootfs and directly create the agent; digest, signature, inert-template and input-boundary proofs are absent.
 
 ### Isolation conclusions
 
@@ -35,16 +46,27 @@ Those gaps prevent the current implementation from claiming the complete I1-I8 p
 
 ## Resource invariants
 
-| ID  | Status  | Current evidence                                                                                                                                              | Current test or gate           | Precise gap                                                                                                                                                                         | Closing phase                                         |
-| --- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
-| R1  | PARTIAL | `crates/soglia-supervisor/src/supervisor.rs:355-369`; `spikes/cgroup-bpf/REPORT.md:1073-1113`                                                                 | T6-T8; B6 and B7               | Per-call residue and B7 row cleanup are proved, but no sustained-load gate proves return of every required measurement to baseline within 60 seconds.                               | Phase 4                                               |
-| R2  | ABSENT  | `spikes/cgroup-bpf/REPORT.md:1204-1225`                                                                                                                       | None                           | The report explicitly requires a future churn soak; there is no 24-hour time series or slope test for kernel and process resources.                                                 | Phase 4                                               |
-| R3  | PARTIAL | `crates/soglia-core/src/config.rs:61-104,169-190`; `crates/soglia-supervisor/src/supervisor.rs:180-186`; `crates/soglia-enforcer/src/cgroup_bpf.rs:1294-1306` | B4 and B7                      | Invocation, Resolve and BPF bounds exist, but accepted proxy tasks, several in-memory registries, configuration collections and journal retention have no declared defensive bound. | Phase 2, completed in Phases 3-4                      |
-| R4  | PARTIAL | `crates/soglia-core/src/config.rs:318-343`; `crates/soglia-sandbox/src/backend.rs:779-797`                                                                    | H4; B7                         | Per-Execution cgroup limits are applied, but capacity is not reserved against host memory and disk before admission; disk has no quota or reservation model.                        | Phase 3                                               |
-| R5  | PARTIAL | `crates/soglia-supervisor/src/supervisor.rs:307-329`; `crates/soglia-supervisor/src/helpers.rs:423-471`; `crates/soglia-sandbox/tests/runc.rs:196-212`        | T9; B4 and B7                  | Full queues and Resolve saturation refuse predictably, but memory exhaustion is still detected after the cgroup OOM event and disk/pool budgets are not modeled.                    | Phase 2 for queues; Phase 3 for memory and disk       |
-| R6  | PARTIAL | `crates/soglia-sandbox/src/backend.rs:575-610`; `crates/soglia-enforcer/src/backend.rs:688-715`                                                               | T6-T8; B6, B7 and uninstall    | Bundle and network objects are removed and verified, but private volumes and ephemeral encryption keys do not exist yet and therefore have no immediate deletion proof.             | Phase 3, extended in Phase 6                          |
-| R7  | PARTIAL | `crates/soglia-sandbox/src/backend.rs:38-43,873-889,985-998`; `src/main.rs:214-219`                                                                           | Agent relay unit behavior only | Agent output emission is capped at 64 KiB, but tracing writes to stderr and the repository declares no journal size, rotation, rate or retention budget.                            | Phase 4                                               |
-| R8  | PARTIAL | `crates/soglia-supervisor/src/supervisor.rs:180-186`; `crates/soglia-sandbox/src/backend.rs:985-998`; `spikes/cgroup-bpf/REPORT.md:1101-1108`                 | B7                             | Execution concurrency bounds many live objects, but accepted connection tasks are unbounded and no long soak proves stable RSS, threads and FDs under admitted and refusal load.    | Phase 2 for connection bounds; Phase 4 for soak proof |
+| ID | Status  | Finding                                      | Closure    |
+| -- | ------- | -------------------------------------------- | ---------- |
+| R1 | PARTIAL | Per-call cleanup, but no sustained baseline. | Phase 4    |
+| R2 | ABSENT  | No 24-hour slope test.                       | Phase 4    |
+| R3 | PARTIAL | Core bounds exist; several queues do not.    | Phases 2-4 |
+| R4 | PARTIAL | Limits exist without host reservation.       | Phase 3    |
+| R5 | PARTIAL | Queue refusal exists; host budgets do not.   | Phases 2-3 |
+| R6 | PARTIAL | Bundles/networks delete; volumes do not.     | Phases 3-6 |
+| R7 | PARTIAL | Agent output capped; journal unbounded.      | Phase 4    |
+| R8 | PARTIAL | Admission bounded; connection tasks are not. | Phases 2-4 |
+
+### Resource evidence and gaps
+
+- **R1:** `supervisor.rs:355-369`, T6-T8 and B6/B7 prove per-call residue cleanup, but not return of every measurement within 60 seconds after sustained load.
+- **R2:** `REPORT.md:1204-1225` defers the required 24-hour kernel/process resource slope test.
+- **R3:** `config.rs:61-104,169-190`, `supervisor.rs:180-186`, `cgroup_bpf.rs:1294-1306` and B4/B7 prove invocation, Resolve and BPF bounds; proxy tasks, registries, collections and journals still need local bounds.
+- **R4:** `config.rs:318-343`, sandbox `backend.rs:779-797`, H4 and B7 apply per-Execution limits without reserving aggregate host memory or disk.
+- **R5:** `supervisor.rs:307-329`, `helpers.rs:423-471`, `runc.rs:196-212`, T9 and B4/B7 prove typed queue saturation, but not pre-admission memory, disk or pool budgets.
+- **R6:** sandbox `backend.rs:575-610`, enforcer `backend.rs:688-715`, T6-T8 and B6/B7/uninstall prove current object removal; private volumes and ephemeral keys do not exist yet.
+- **R7:** sandbox `backend.rs:38-43,873-889,985-998` caps agent relay output at 64 KiB, while `main.rs:214-219` has no declared journal rotation or retention budget.
+- **R8:** `supervisor.rs:180-186`, sandbox `backend.rs:985-998` and B7 bound many live objects, but accepted connection tasks remain unbounded and lack a long soak.
 
 ### Resource conclusions
 
@@ -66,18 +88,25 @@ The Phase 2 and Phase 3 changes must establish hard bounds before the Phase 4 so
 
 ### Queues, caches and maps without a declared hard bound
 
-| Structure                      | Reference                                                                                           | Growth path                                                                                      | Required closure                                                          |
-| ------------------------------ | --------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------- |
-| Ingress connection tasks       | `crates/soglia-proxy/src/ingress.rs:81-119`                                                         | Every accepted TCP connection gets a new Tokio task before invocation admission.                 | Add a connection semaphore and typed saturation in Phase 2.               |
-| Egress connection tasks        | `crates/soglia-proxy/src/egress.rs:145-163`                                                         | Every accepted proxy socket gets a new Tokio task before attribution completes.                  | Bound accepted and pending-attribution connections in Phase 2.            |
-| IP attribution map             | `crates/soglia-proxy/src/attribution.rs:100-105,123-132`                                            | `HashMap<IpAddr, Entry>` has no local ceiling and relies on correct lifecycle admission.         | Enforce and assert a ceiling derived from `max_concurrency` in Phase 2.   |
-| Candidate-A binding map        | `crates/soglia-proxy/src/attribution.rs:100-105,164-178`                                            | `HashMap<BindingKey, Entry>` has no local ceiling and relies on teardown.                        | Enforce the same declared ceiling and health-check it in Phase 2.         |
-| Sandbox live registry          | `crates/soglia-sandbox/src/backend.rs:186-200,439-450`                                              | The in-memory map has no defensive capacity check of its own.                                    | Tie it explicitly to admission plus cleanup quarantine in Phase 3.        |
-| nft backend live registry      | `crates/soglia-enforcer/src/backend.rs:328-368`                                                     | The in-memory map has no defensive capacity check of its own.                                    | Reject before insertion above the declared execution capacity in Phase 3. |
-| cgroup-BPF live registry       | `crates/soglia-enforcer/src/cgroup_bpf.rs:116-129,350-378`                                          | The in-memory map is indirectly bounded by policy capacity but does not enforce a local ceiling. | Make the bound explicit and observable in Phase 2 or 3.                   |
-| Agent configuration maps       | `crates/soglia-core/src/config.rs:55-58,281-315`                                                    | Agent count and each environment-map size have no item-count ceiling.                            | Add validated count and encoded-byte ceilings in Phase 3.                 |
-| Destination policy collections | `crates/soglia-core/src/config.rs:129-142,194-232`; `crates/soglia-proxy/src/policy/mod.rs:120-159` | Allow rules, ports, internal ranges and resolved address lists have no declared item ceiling.    | Add validated policy and DNS-answer ceilings in Phase 2 or 5.             |
-| Runtime stderr and journal     | `src/main.rs:214-219,292-298`                                                                       | Structured logs go to stderr with no repository-owned rotation or retention contract.            | Add rate, size and retention policy in Phase 4.                           |
+| Structure                  | Required closure                        | Phase      |
+| -------------------------- | --------------------------------------- | ---------- |
+| Ingress connection tasks   | Connection semaphore and typed refusal. | Phase 2    |
+| Egress connection tasks    | Bound accepted and pending attribution. | Phase 2    |
+| IP attribution map         | Local ceiling plus health assertion.    | Phase 2    |
+| Candidate-A binding map    | Local ceiling plus health assertion.    | Phase 2    |
+| Sandbox live registry      | Admission and quarantine ceiling.       | Phase 3    |
+| nft live registry          | Pre-insertion execution ceiling.        | Phase 3    |
+| cgroup-BPF live registry   | Explicit observable local ceiling.      | Phases 2-3 |
+| Agent configuration maps   | Item and encoded-byte ceilings.         | Phase 3    |
+| Destination policy lists   | Policy and DNS-answer ceilings.         | Phases 2-5 |
+| Runtime stderr and journal | Rate, size and retention budgets.       | Phase 4    |
+
+The ingress growth site is `ingress.rs:81-119`, where every accepted connection gets a Tokio task before invocation admission.
+The egress growth site is `egress.rs:145-163`, where every accepted proxy socket gets a task before attribution completes.
+The IP and Candidate-A tables at `attribution.rs:100-178` rely on correct upstream lifecycle rather than local capacity checks.
+The Sandbox registry at `backend.rs:186-200,439-450`, nft registry at enforcer `backend.rs:328-368` and cgroup-BPF registry at `cgroup_bpf.rs:116-129,350-378` likewise lack defensive local ceilings.
+Agent maps at `config.rs:55-58,281-315` and policy collections at `config.rs:129-142,194-232` plus `policy/mod.rs:120-159` have no item-count limits.
+Structured stderr at `main.rs:214-219,292-298` has no repository-owned rotation or retention contract.
 
 The in-memory lifecycle registries are indirectly constrained by Supervisor admission today.
 They remain listed because R3 requires each component to reject excess state locally rather than depend only on an upstream invariant.
@@ -91,15 +120,22 @@ The CI currently serializes every workspace unit test at `.github/workflows/ci.y
 The privileged acceptance runner separately serializes ignored tests for both backends at `dev/linux/acceptance.sh:17-23`.
 Those two uses have different causes and should not be treated as one permanent constraint.
 
-| Test or suite                                                                  | Shared state or contention                                                                                                                       | Current isolation                                                                                                           | Required isolation                                                                                                                                          |
-| ------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `concurrent_missing_tuples_timeout_without_a_health_failure`                   | No mutable application state is shared, but its 40 ms wall-clock publication deadline competes for the OS scheduler and Tokio blocking pool.     | Global `--test-threads=1`; the test itself uses a private socketpair at `crates/soglia-supervisor/src/helpers.rs:978-1028`. | Use an injectable or paused clock plus explicit mock-resolver barriers, then restore parallel unit tests.                                                   |
-| `pending_after_the_publication_deadline_times_out_without_poisoning`           | Private socketpair, real 20/60 ms sleeps and scheduler timing.                                                                                   | Global serialization; source at `crates/soglia-supervisor/src/helpers.rs:1030-1088`.                                        | Drive a deterministic clock and signal when the exchange starts.                                                                                            |
-| `complete_after_the_publication_deadline_is_still_consumed`                    | Private socketpair, real 20/60 ms sleeps and scheduler timing.                                                                                   | Global serialization; source at `crates/soglia-supervisor/src/helpers.rs:1090-1132`.                                        | Replace sleeps with clock advancement and explicit response barriers.                                                                                       |
-| `a_cancelled_caller_cannot_desynchronize_the_next_exchange` and watchdog tests | Private socketpair and real sleep/watchdog deadlines share only scheduler capacity.                                                              | Global serialization; source at `crates/soglia-supervisor/src/helpers.rs:1134-1192,1234-1264`.                              | Use deterministic coordination and keep each protocol test isolated in its own client/server pair.                                                          |
-| Phase-0 T1-T10/H1-H4                                                           | Fixed ports, `/run/soglia-phase0`, one process singleton, fixed cgroup root, `soglia0`, `upstream0`, nftables and test services are host-global. | The module documents one-at-a-time execution at `tests/phase0.rs:4-19`; constants are at `tests/phase0.rs:38-48`.           | Keep one suite per disposable privileged VM/container, or parameterize every host resource and give each test a private runtime process and cgroup subtree. |
-| `the_sandbox_isolates_classifies_and_cleans_up`                                | Delegated cgroup hierarchy, runc state, `/run/netns`, veth and nftables are kernel-global.                                                       | One ignored privileged test at `crates/soglia-sandbox/tests/runc.rs:107-120`.                                               | Run in its own disposable privileged container or VM with a unique delegated root.                                                                          |
-| `netns_nft` privileged test                                                    | It owns fixed `soglia0`, `inet soglia_host`, netns and veth objects.                                                                             | The test declares itself sequential at `crates/soglia-enforcer/tests/netns_nft.rs:4-12`.                                    | Run in its own network namespace plus unique object names, or retain suite-level VM isolation.                                                              |
+| Test group             | Cause                           | Required isolation                 |
+| ---------------------- | ------------------------------- | ---------------------------------- |
+| Candidate-A unit tests | Real-time scheduler contention. | Deterministic clock and barriers.  |
+| Phase-0 acceptance     | Fixed host-global resources.    | Disposable privileged environment. |
+| runc privileged test   | Kernel-global runtime objects.  | Private delegated environment.     |
+| netns-nft test         | Fixed network and nft objects.  | Private netns or disposable host.  |
+
+The Candidate-A timing cases are `helpers.rs:978-1264`.
+They use private socketpairs but real 20-60 ms sleeps, publication deadlines and watchdogs, so they need an injectable or paused clock plus explicit resolver barriers before ordinary parallel unit testing is restored.
+The affected cases include missing-tuple concurrency, pending/complete replies across the deadline, caller cancellation and watchdog expiry.
+
+Phase-0 T1-T10/H1-H4 uses fixed ports, `/run/soglia-phase0`, a process singleton, a fixed cgroup root, `soglia0`, `upstream0`, nftables and test services.
+Its one-at-a-time contract is in `tests/phase0.rs:4-48`; it should remain in one disposable privileged VM/container unless every resource is parameterized.
+
+The sandbox test at `crates/soglia-sandbox/tests/runc.rs:107-120` owns delegated cgroups, runc state, `/run/netns`, veth and nftables and therefore needs a private delegated container or VM.
+The enforcer test at `crates/soglia-enforcer/tests/netns_nft.rs:4-12` owns fixed `soglia0`, `inet soglia_host`, netns and veth objects and needs a private network boundary or suite-level disposable host.
 
 The immediate unit-test fix is not to serialize unrelated tests globally.
 It is to remove wall-clock scheduling from the Candidate-A timing tests and restore the ordinary parallel test runner.
@@ -140,14 +176,21 @@ The acceptance entry point now creates and proves that unnamed external program 
 
 ## Gate coverage and closure order
 
-| Phase         | Required new evidence                                                                                                                              |
-| ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Phase 2       | Independent bounds for ingress, egress and Resolve; exact saturation outcomes; stable connection-task and FD counts; no side effects for refusals. |
-| Phase 3       | I1-I8 negative and positive matrix; OCI digest/signature provenance; private-volume isolation and deletion; I/O and aggregate resource budgets.    |
-| Phase 4       | Pool claim and destroy latency distributions; crash matrix; 24-hour soak; resource-slope and 60-second-baseline verdicts.                          |
-| Phase 5       | CA, Credential Anchor, PIC and Connector trust boundaries; request-level authorization; destination-mode downgrade tests.                          |
-| Phase 6       | gVisor and Firecracker profile-specific isolation, TAP enforcement, VMM confinement, encrypted-disk key deletion and snapshot uniqueness.          |
-| Cross-profile | The aggregate `spike:qualify` verifier, dual-backend regressions and clean-environment CI on one release commit.                                   |
+| Phase         | Evidence focus                                     |
+| ------------- | -------------------------------------------------- |
+| Phase 2       | Queue bounds, saturation and refusal side effects. |
+| Phase 3       | I1-I8, OCI trust, volumes, I/O and reservation.    |
+| Phase 4       | Pool lifecycle, crashes, soak and resource slopes. |
+| Phase 5       | L7 trust, request policy and downgrade resistance. |
+| Phase 6       | Profile isolation, disks, snapshots and VMM/TAP.   |
+| Cross-profile | Aggregate qualification and clean-environment CI.  |
+
+Phase 2 must record independent ingress, egress and Resolve bounds, exact saturation outcomes, stable task/FD counts and zero side effects for refusals.
+Phase 3 needs a positive and negative I1-I8 matrix, OCI digest/signature provenance, volume isolation/deletion, I/O limits and aggregate reservations.
+Phase 4 needs pool claim/destroy latency distributions, every crash boundary, a 24-hour soak, resource slopes and the 60-second baseline verdict.
+Phase 5 needs CA, Credential Anchor, PIC and Connector boundaries, per-request authorization and destination-mode downgrade tests.
+Phase 6 needs profile-specific isolation, TAP enforcement, VMM confinement, encrypted-disk key deletion and snapshot uniqueness.
+Cross-profile release evidence is one `spike:qualify` result plus dual-backend regressions and clean-environment CI on the same release commit.
 
 ## Audit verdict
 

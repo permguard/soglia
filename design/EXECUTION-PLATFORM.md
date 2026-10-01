@@ -5,7 +5,7 @@
 
 ## Status and scope
 
-Status: `DESIGN_FOR_REVIEW`.
+Status: `APPROVED`.
 
 This document defines the target execution platform after the Phase 1 release qualification recorded in `spikes/cgroup-bpf/REPORT.md`.
 It is normative for later production design, implementation and qualification work, but it does not change the qualified Phase 1 behavior.
@@ -94,6 +94,8 @@ These numbers are initial qualification targets and become supported guarantees 
 
 The response path may release the caller before asynchronous physical teardown only after authority has been revoked atomically and the cleanup work has been durably owned by a bounded reaper.
 Until that later design is qualified, the current Phase 1 rule that verifies teardown before releasing the response remains authoritative.
+SOG-4.01 must decide whether I7 continues to require verified physical destruction before the response, or permits response release after atomic revocation and durable transfer to the bounded reaper.
+No implementation may combine the two interpretations implicitly.
 
 ## Profiles and no-fallback rule
 
@@ -107,13 +109,15 @@ Every profile must prove that the proxy is its only egress path and that no appl
 
 ## Template and artifact contract
 
-A template is an inert, versioned preparation artifact.
+A template is an inert, versioned preparation artifact derived from an OCI image referenced by immutable digest.
 It contains no call input, invocation nonce, credential, randomness state or agent process that has executed.
 Claiming a template binds a fresh identity and injects per-call state only after all template invariants have been revalidated.
+The configured signature and provenance policy is verified before any profile admits the image or derives a reusable artifact from it.
+The digest, verification result, converter version and profile-specific artifact identity are durable evidence.
 
-For the runc profile, an agent is an OCI image referenced by immutable digest.
-Soglia verifies the configured signature and provenance policy before admitting the image.
-The image archive is stored read-only and unpacked once per verified digest into an immutable rootfs shared only as read-only filesystem data.
+For `runc` and `gvisor`, the image archive is stored read-only and unpacked once per verified digest into an immutable rootfs shared only as read-only filesystem data.
+For `firecracker`, the same verified OCI image is converted once into a content-addressed, read-only guest disk whose identity also binds the converter version and guest ABI.
+The converted disk is never modified in place; writable guest state uses a distinct per-Execution overlay or encrypted ephemeral disk.
 Writable state lives solely in the Execution's private fixed-size volume and bounded tmpfs mounts.
 
 ## Phase plan and qualification gates
