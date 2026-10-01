@@ -29,7 +29,8 @@ use soglia_proxy::egress::{EgressLimits, EgressProxy};
 use soglia_proxy::policy::DestinationPolicy;
 use soglia_proxy::resolver::{Resolution, Resolver};
 use soglia_supervisor::helpers::{CandidateAAttributor, Helper, HelperError, ResolveHealthFailure};
-use tokio::net::TcpListener;
+use tokio::io::{AsyncReadExt, AsyncWriteExt};
+use tokio::net::{TcpListener, TcpStream};
 use tokio::sync::watch;
 
 const C_EVENTS_DROPPED: u32 = 0;
@@ -42,6 +43,10 @@ const C_COOKIE_MISS: u32 = 10;
 const EXPECTED_SOCKET_CAPACITY: usize = 4;
 const EXPECTED_POLICY_CAPACITY: usize = 3;
 const EXPECTED_RING_BYTES: u64 = 4096;
+const EXPECTED_PROXY_CONNECTIONS: usize = 4;
+const EXPECTED_PENDING_RESOLVES: usize = 4;
+const EXPECTED_RESOLVE_WORKERS: usize = 2;
+const EXPECTED_INGRESS_CONNECTIONS: usize = 4;
 const FIXED_TIMEOUT_MS: u64 = 2000;
 const TIMEOUT_EARLY_TOLERANCE_MS: u64 = 100;
 const TIMEOUT_LATE_TOLERANCE_MS: u64 = 250;
@@ -126,6 +131,27 @@ struct RecordingAttributor {
     dns: Arc<AtomicUsize>,
     outbound: Arc<AtomicUsize>,
     health: Arc<Mutex<Option<HealthFailure>>>,
+}
+
+#[derive(Clone)]
+struct BlockingAttributor {
+    entered: Arc<AtomicUsize>,
+    release: watch::Receiver<bool>,
+}
+
+impl ConnectionAttributor for BlockingAttributor {
+    fn resolve<'a>(
+        &'a self,
+        _peer: SocketAddr,
+        _local: SocketAddr,
+    ) -> Pin<Box<dyn Future<Output = AttributionResult> + Send + 'a>> {
+        Box::pin(async move {
+            self.entered.fetch_add(1, Ordering::SeqCst);
+            let mut release = self.release.clone();
+            let _ = release.wait_for(|released| *released).await;
+            AttributionResult::NotFound
+        })
+    }
 }
 
 impl ConnectionAttributor for RecordingAttributor {
@@ -376,6 +402,7 @@ async fn run() -> Result<(), String> {
         })
     };
 
+    run_ingress_connection_limit(&binary, &config, &config_path, &evidence).await?;
     run_admission_limit(&binary, &config, &config_path, &evidence).await?;
 
     let sandbox = Helper::spawn(&binary, "sandboxd").map_err(|error| error.to_string())?;
@@ -392,17 +419,30 @@ async fn run() -> Result<(), String> {
     enforcer
         .ensure_running()
         .map_err(|error| error.to_string())?;
+    enforcer
+        .start_resolver_pipeline()
+        .map_err(|error| format!("start negotiated B4 Resolve pipeline: {error}"))?;
     fs::write(
         evidence.join("startup.json"),
         serde_json::to_vec_pretty(&json!({
             "production_backend": "cgroup-bpf",
             "sandbox_swept": sandbox_swept,
-            "enforcer_swept": enforcer_swept
+            "enforcer_swept": enforcer_swept,
+            "resolve_pipeline_started_after_hello": true
         }))
         .map_err(|error| error.to_string())?,
     )
     .map_err(|error| error.to_string())?;
     verify_capacities(&config, &evidence)?;
+
+    run_proxy_connection_limit(
+        &evidence,
+        &config,
+        &sandbox,
+        &enforcer,
+        Arc::clone(&outbound),
+    )
+    .await?;
 
     run_policy_full(
         &evidence,
@@ -535,10 +575,122 @@ fn require_config(config: &Config) -> Result<(), String> {
         || config.cgroup_bpf.ring_buffer_bytes != EXPECTED_RING_BYTES as u32
         || config.cgroup_bpf.resolve_timeout_ms != FIXED_TIMEOUT_MS
         || config.runtime.max_queue != 0
+        || config.runtime.max_ingress_connections != EXPECTED_INGRESS_CONNECTIONS as u32
+        || config.network.max_proxy_connections != EXPECTED_PROXY_CONNECTIONS as u32
+        || config.cgroup_bpf.max_pending_resolves != EXPECTED_PENDING_RESOLVES as u32
+        || usize::from(config.cgroup_bpf.resolve_workers) != EXPECTED_RESOLVE_WORKERS
     {
-        return Err("B4 requires C=4, P=3, ring=4096, timeout=2000 and max_queue=0".to_owned());
+        return Err(
+            "B4 requires C=4, P=3, ring=4096, timeout=2000, max_queue=0, ingress=4, proxy=4, pending Resolve=4 and workers=2"
+                .to_owned(),
+        );
     }
     Ok(())
+}
+
+async fn run_ingress_connection_limit(
+    binary: &Path,
+    config: &Config,
+    config_path: &Path,
+    root: &Path,
+) -> Result<(), String> {
+    let evidence = case_dir(root, "ingress_connection_limit")?;
+    fs::write(root.join("current-case.txt"), "ingress_connection_limit\n")
+        .map_err(|error| error.to_string())?;
+    let log_path = evidence.join("production-stderr.txt");
+    let log = fs::File::create(&log_path).map_err(|error| error.to_string())?;
+    let child = Command::new(binary)
+        .args(["run", "-f"])
+        .arg(config_path)
+        .stdout(Stdio::null())
+        .stderr(log)
+        .spawn()
+        .map_err(|error| format!("start production Soglia for ingress capacity: {error}"))?;
+    let mut production = ProductionProcess { child: Some(child) };
+    let ingress = config.ingress.listen;
+    wait_ingress(ingress, Duration::from_secs(10), &mut production)?;
+    std::thread::sleep(Duration::from_millis(100));
+
+    let mut held = Vec::with_capacity(EXPECTED_INGRESS_CONNECTIONS);
+    for _ in 0..EXPECTED_INGRESS_CONNECTIONS {
+        let stream = StdTcpStream::connect_timeout(&ingress, Duration::from_secs(2))
+            .map_err(|error| format!("open held ingress connection: {error}"))?;
+        stream
+            .set_read_timeout(Some(Duration::from_secs(2)))
+            .map_err(|error| error.to_string())?;
+        held.push(stream);
+    }
+    std::thread::sleep(Duration::from_millis(250));
+    let policy_before = map_len(&dump_map(
+        &config.runtime.bpftool,
+        &current_map_pin(config, "soglia_policy")?,
+    )?)?;
+    let refused_started = Instant::now();
+    let mut refused = StdTcpStream::connect_timeout(&ingress, Duration::from_secs(2))
+        .map_err(|error| format!("connect ingress capacity probe: {error}"))?;
+    refused
+        .set_read_timeout(Some(Duration::from_secs(2)))
+        .map_err(|error| error.to_string())?;
+    refused
+        .write_all(b"G")
+        .map_err(|error| format!("write ingress capacity probe: {error}"))?;
+    let mut byte = [0_u8; 1];
+    let refusal = refused.read(&mut byte);
+    let refused_before_admission = matches!(refusal, Ok(0))
+        || matches!(
+            refusal,
+            Err(ref error)
+                if matches!(
+                    error.kind(),
+                    io::ErrorKind::ConnectionReset
+                        | io::ErrorKind::BrokenPipe
+                        | io::ErrorKind::ConnectionAborted
+                )
+        );
+    let refused_elapsed_ms = refused_started.elapsed().as_millis();
+    let policy_after = map_len(&dump_map(
+        &config.runtime.bpftool,
+        &current_map_pin(config, "soglia_policy")?,
+    )?)?;
+    if !refused_before_admission || policy_before != 0 || policy_after != 0 {
+        return Err("ingress connection limit did not refuse before admission".to_owned());
+    }
+    drop(refused);
+    drop(held);
+    std::thread::sleep(Duration::from_millis(100));
+    let control = tokio::task::spawn_blocking(move || {
+        invoke_ingress(ingress, "tunnel 11.0.0.1:443 1")
+    })
+    .await
+    .map_err(|error| error.to_string())??;
+    if control.status != 200 || !control.body.contains("HTTP/1.1 200 OK") {
+        return Err("ingress did not recover after releasing capacity".to_owned());
+    }
+    wait_map_count(config, "soglia_policy", 0, Duration::from_secs(5)).await?;
+    let exit = production.terminate()?;
+    if !exit.success() {
+        return Err(format!("production ingress-capacity process exited {exit}"));
+    }
+    let stderr = fs::read_to_string(&log_path).map_err(|error| error.to_string())?;
+    if !stderr.contains("ingress.connection_limit") {
+        return Err("production did not emit ingress.connection_limit".to_owned());
+    }
+    write_json(
+        evidence.join("result.json"),
+        &json!({
+            "limit": EXPECTED_INGRESS_CONNECTIONS,
+            "held_connections": EXPECTED_INGRESS_CONNECTIONS,
+            "refused_before_admission": true,
+            "refused_elapsed_ms": refused_elapsed_ms,
+            "policy_entries_before_refusal": policy_before,
+            "policy_entries_after_refusal": policy_after,
+            "post_release_control": control,
+            "post_release_outcome": "RESOLVED",
+            "production_event": "ingress.connection_limit",
+            "verdict": "PASS"
+        }),
+    )?;
+    pass(&evidence)
 }
 
 async fn run_admission_limit(
@@ -946,6 +1098,8 @@ async fn run_cookie_full(
         evidence.join("result.json"),
         &json!({
             "capacity": EXPECTED_SOCKET_CAPACITY,
+            "saturation_origin": "production agent inside the Execution cgroup",
+            "agent_created_socket_count": EXPECTED_SOCKET_CAPACITY + 1,
             "before": before,
             "at_capacity": at_capacity,
             "after_c_plus_one": after_plus,
@@ -953,6 +1107,8 @@ async fn run_cookie_full(
             "c_plus_one_cookie_absent_before_connect": true,
             "c_plus_one_client": plus,
             "proxy_accept_count": observations.lock().ok().as_deref().map(Vec::len),
+            "c_plus_one_denied_by_connect4_before_proxy": true,
+            "tuple_map_had_capacity": true,
             "health_failure": health.lock().ok().and_then(|value| *value),
             "verdict": "PASS"
         }),
@@ -1341,56 +1497,75 @@ async fn run_queue_full(
         .map_err(|error| error.to_string())?;
     assert_empty(config)?;
     let table = Arc::new(AttributionTable::new());
-    let mut execution =
-        prepare_execution(config, &evidence, sandbox, enforcer, &table, "queue", 0).await?;
-    let (proxy, observations, health, _) = case_proxy(
+    let health = Arc::new(Mutex::new(None));
+    let attributor = candidate_attributor(
         config,
         enforcer,
         Arc::clone(&table),
-        PublicationFault::Remove,
-        &evidence,
-        Arc::clone(&outbound),
-        config.runtime.max_concurrency as usize,
-    )
-    .await?;
+        Arc::clone(&health),
+        EXPECTED_PENDING_RESOLVES,
+    )?;
     outbound.store(0, Ordering::SeqCst);
-    sandbox
-        .call(SandboxRequest::Start {
-            id: execution.execution.id,
-        })
-        .await
-        .map_err(|error| error.to_string())?;
-    wait_observations(&observations, 3, Duration::from_secs(6)).await?;
-    let snapshot = observations.lock().map_err(|_| "observation lock")?.clone();
-    let timeouts = snapshot
-        .iter()
-        .filter(|item| item.outcome == OutcomeKind::Timeout && timeout_bounded(item.elapsed_ms))
-        .count();
-    let queue_full: Vec<_> = snapshot
-        .iter()
-        .filter(|item| item.outcome == OutcomeKind::QueueFull)
-        .collect();
-    if timeouts != 2
-        || queue_full.len() != 1
-        || queue_full[0].elapsed_ms >= 500
-        || snapshot.iter().any(|item| {
-            item.recv_q_bytes == 0
-                || item.dns_when_resolve_returned != 0
-                || item.outbound_when_resolve_returned != 0
-                || item.health_failure.is_some()
-        })
-        || health.lock().ok().and_then(|value| *value).is_some()
-    {
-        return Err("Resolve queue saturation did not yield 2 Timeout + 1 QueueFull".to_owned());
+    let before = counters(config)?;
+    let local = SocketAddr::from((config.network.proxy_address, config.network.proxy_port));
+    let mut pending = Vec::with_capacity(EXPECTED_PENDING_RESOLVES);
+    for index in 0..EXPECTED_PENDING_RESOLVES {
+        let attributor = Arc::clone(&attributor);
+        let peer = SocketAddr::from((Ipv4Addr::new(10, 201, 0, 2), 43_000 + index as u16));
+        pending.push(tokio::spawn(async move {
+            let started = Instant::now();
+            let result = attributor.resolve(peer, local).await;
+            (classify(&result).0, started.elapsed())
+        }));
     }
-    proxy.stop().await?;
-    cleanup_execution(&mut execution, &table).await?;
-    wait_empty(config, Duration::from_secs(3)).await?;
+    tokio::time::sleep(Duration::from_millis(100)).await;
+    let overflow_started = Instant::now();
+    let overflow_peer = SocketAddr::from((Ipv4Addr::new(10, 201, 0, 2), 43_004));
+    let overflow = attributor.resolve(overflow_peer, local).await;
+    let overflow_elapsed = overflow_started.elapsed();
+    let mut pending_results = Vec::with_capacity(EXPECTED_PENDING_RESOLVES);
+    for task in pending {
+        pending_results.push(task.await.map_err(|error| error.to_string())?);
+    }
+    let after = counters(config)?;
+    let timeouts = pending_results
+        .iter()
+        .filter(|(outcome, elapsed)| {
+            *outcome == OutcomeKind::Timeout
+                && timeout_bounded(u64::try_from(elapsed.as_millis()).unwrap_or(u64::MAX))
+        })
+        .count();
+    if timeouts != EXPECTED_PENDING_RESOLVES
+        || classify(&overflow).0 != OutcomeKind::QueueFull
+        || overflow_elapsed >= Duration::from_millis(500)
+        || health.lock().ok().and_then(|value| *value).is_some()
+        || outbound.load(Ordering::SeqCst) != 0
+        || before.policies != after.policies
+        || before.cookies != after.cookies
+        || before.tuples != after.tuples
+    {
+        return Err(
+            "Resolve saturation did not yield 4 bounded Timeout results and one exact QueueFull"
+                .to_owned(),
+        );
+    }
     write_json(
         evidence.join("result.json"),
         &json!({
-            "queue_depth":config.runtime.max_concurrency, "observations":snapshot,
-            "timeout_count":timeouts, "queue_full_count":queue_full.len(), "verdict":"PASS"
+            "max_pending_resolves":EXPECTED_PENDING_RESOLVES,
+            "resolve_workers":EXPECTED_RESOLVE_WORKERS,
+            "pending_results":pending_results.iter().map(|(outcome, elapsed)| json!({
+                "outcome":outcome,
+                "elapsed_ms":u64::try_from(elapsed.as_millis()).unwrap_or(u64::MAX)
+            })).collect::<Vec<_>>(),
+            "timeout_count":timeouts,
+            "overflow_outcome":classify(&overflow).0,
+            "overflow_elapsed_ms":u64::try_from(overflow_elapsed.as_millis()).unwrap_or(u64::MAX),
+            "health_failure":health.lock().ok().and_then(|value| *value),
+            "outbound_connections":outbound.load(Ordering::SeqCst),
+            "maps_before":before,
+            "maps_after":after,
+            "verdict":"PASS"
         }),
     )?;
     run_control(&evidence, config, sandbox, enforcer, outbound).await?;
@@ -1508,6 +1683,129 @@ async fn run_control(
         &json!({"observation":observation,"verdict":"PASS"}),
     )?;
     pass(&evidence)
+}
+
+async fn run_proxy_connection_limit(
+    root: &Path,
+    config: &Config,
+    sandbox: &Helper,
+    enforcer: &Helper,
+    outbound: Arc<AtomicUsize>,
+) -> Result<(), String> {
+    let evidence = case_dir(root, "proxy_connection_limit")?;
+    fs::write(root.join("current-case.txt"), "proxy_connection_limit\n")
+        .map_err(|error| error.to_string())?;
+    assert_empty(config)?;
+    let listener = TcpListener::bind((Ipv4Addr::LOCALHOST, 0))
+        .await
+        .map_err(|error| format!("bind isolated proxy-capacity listener: {error}"))?;
+    let address = listener.local_addr().map_err(|error| error.to_string())?;
+    let entered = Arc::new(AtomicUsize::new(0));
+    let (release, released) = watch::channel(false);
+    let dns = Arc::new(AtomicUsize::new(0));
+    outbound.store(0, Ordering::SeqCst);
+    let policy = DestinationPolicy::new(&config.egress, &config.network, Vec::new())
+        .map_err(|error| error.to_string())?;
+    let proxy = Arc::new(EgressProxy::new_bounded(
+        Arc::new(policy),
+        Arc::new(BlockingAttributor {
+            entered: Arc::clone(&entered),
+            release: released,
+        }),
+        Arc::new(CountingResolver {
+            calls: Arc::clone(&dns),
+        }),
+        EgressLimits::from_config(&config.egress),
+        EXPECTED_PROXY_CONNECTIONS,
+    ));
+    let (stop, stopped) = watch::channel(false);
+    let task = tokio::spawn(proxy.serve(listener, stopped));
+    let proxy_task = ProxyTask { stop, task };
+    let mut held = Vec::with_capacity(EXPECTED_PROXY_CONNECTIONS);
+    for index in 0..EXPECTED_PROXY_CONNECTIONS {
+        let mut stream = TcpStream::connect(address)
+            .await
+            .map_err(|error| format!("open held proxy connection {index}: {error}"))?;
+        stream
+            .write_all(b"application bytes must remain unread\n")
+            .await
+            .map_err(|error| format!("write held proxy connection {index}: {error}"))?;
+        held.push(stream);
+    }
+    wait_atomic(
+        &entered,
+        EXPECTED_PROXY_CONNECTIONS,
+        Duration::from_secs(2),
+        "proxy attributions",
+    )
+    .await?;
+    let refused_started = Instant::now();
+    let mut refused = TcpStream::connect(address)
+        .await
+        .map_err(|error| format!("connect proxy capacity probe: {error}"))?;
+    let write_result = refused.write_all(b"untrusted bytes must not be read\n").await;
+    let mut byte = [0_u8; 1];
+    let read_result = tokio::time::timeout(Duration::from_secs(2), refused.read(&mut byte))
+        .await
+        .map_err(|_| "proxy capacity probe was not closed within two seconds".to_owned())?;
+    let refused_closed = matches!(read_result, Ok(0))
+        || matches!(
+            read_result,
+            Err(ref error)
+                if matches!(
+                    error.kind(),
+                    io::ErrorKind::ConnectionReset
+                        | io::ErrorKind::BrokenPipe
+                        | io::ErrorKind::ConnectionAborted
+                )
+        );
+    let refused_elapsed_ms = refused_started.elapsed().as_millis();
+    if !refused_closed
+        || entered.load(Ordering::SeqCst) != EXPECTED_PROXY_CONNECTIONS
+        || dns.load(Ordering::SeqCst) != 0
+        || outbound.load(Ordering::SeqCst) != 0
+    {
+        return Err("proxy connection limit did not close before attribution and reads".to_owned());
+    }
+    release.send_replace(true);
+    drop(refused);
+    drop(held);
+    proxy_task.stop().await?;
+    write_json(
+        evidence.join("result.json"),
+        &json!({
+            "limit":EXPECTED_PROXY_CONNECTIONS,
+            "held_connections":EXPECTED_PROXY_CONNECTIONS,
+            "attribution_calls":entered.load(Ordering::SeqCst),
+            "overflow_attributed":false,
+            "overflow_write_result":format!("{write_result:?}"),
+            "overflow_closed_before_application_read":refused_closed,
+            "overflow_elapsed_ms":refused_elapsed_ms,
+            "dns_calls":dns.load(Ordering::SeqCst),
+            "outbound_connections":outbound.load(Ordering::SeqCst),
+            "verdict":"PASS"
+        }),
+    )?;
+    run_control(&evidence, config, sandbox, enforcer, outbound).await?;
+    pass(&evidence)
+}
+
+async fn wait_atomic(
+    value: &AtomicUsize,
+    expected: usize,
+    timeout: Duration,
+    label: &str,
+) -> Result<(), String> {
+    let started = Instant::now();
+    loop {
+        if value.load(Ordering::SeqCst) >= expected {
+            return Ok(());
+        }
+        if started.elapsed() >= timeout {
+            return Err(format!("{label} did not reach {expected}"));
+        }
+        tokio::time::sleep(Duration::from_millis(5)).await;
+    }
 }
 
 async fn prepare_execution<'a>(
@@ -1704,11 +2002,12 @@ async fn start_proxy(
 ) -> Result<ProxyTask, String> {
     let policy = DestinationPolicy::new(&config.egress, &config.network, Vec::new())
         .map_err(|error| error.to_string())?;
-    let proxy = Arc::new(EgressProxy::new(
+    let proxy = Arc::new(EgressProxy::new_bounded(
         Arc::new(policy),
         attributor,
         Arc::new(CountingResolver { calls: dns }),
         EgressLimits::from_config(&config.egress),
+        usize::try_from(config.network.max_proxy_connections).unwrap_or(usize::MAX),
     ));
     let listener = TcpListener::bind(SocketAddr::from((
         config.network.proxy_address,
@@ -2299,6 +2598,10 @@ mod tests {
         assert_eq!(EXPECTED_SOCKET_CAPACITY, 4);
         assert_eq!(EXPECTED_POLICY_CAPACITY, 3);
         assert_eq!(EXPECTED_RING_BYTES, 4096);
+        assert_eq!(EXPECTED_PROXY_CONNECTIONS, 4);
+        assert_eq!(EXPECTED_PENDING_RESOLVES, 4);
+        assert_eq!(EXPECTED_RESOLVE_WORKERS, 2);
+        assert_eq!(EXPECTED_INGRESS_CONNECTIONS, 4);
     }
 
     #[test]

@@ -93,6 +93,7 @@ network:
   execution_pool: 10.216.0.0/24
   proxy_address: 10.200.255.1
   proxy_port: 15001
+  max_proxy_connections: 64
 egress:
   connect_timeout_ms: 1000
   idle_timeout_ms: 30000

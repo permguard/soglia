@@ -80,7 +80,8 @@ write_summary() {
       cleanup:{verdict:$cleanup,programs:$programs,links:$links,maps:$maps},
       production_source_baseline:{commit:$baseline,matches:$production_source_matches},
       capacity_contract:{max_tracked_sockets:4,policy_capacity:3,ring_buffer_bytes:4096,
-        max_concurrency:2,max_queue:0,resolve_timeout_ms:2000},
+        max_concurrency:2,max_queue:0,max_ingress_connections:4,max_proxy_connections:4,
+        max_pending_resolves:4,resolve_workers:2,resolve_timeout_ms:2000},
       scope:{
         production_bpf_object:"PERFORMED: unchanged embedded production object",
         capacity_and_publication_fail_closed:"PERFORMED",
@@ -242,6 +243,7 @@ runtime:
   state_dir: $runtime
   max_concurrency: 2
   max_queue: 0
+  max_ingress_connections: 4
   cleanup_failure_threshold: 1
   teardown_timeout_ms: 5000
   runc: /usr/sbin/runc
@@ -255,6 +257,7 @@ network:
   execution_pool: 10.201.0.0/24
   proxy_address: 10.200.255.1
   proxy_port: 15001
+  max_proxy_connections: 4
 egress:
   connect_timeout_ms: 1000
   idle_timeout_ms: 2000
@@ -265,6 +268,8 @@ cgroup:
   root: $cgroup
 cgroup_bpf:
   max_tracked_sockets: 4
+  max_pending_resolves: 4
+  resolve_workers: 2
   resolve_timeout_ms: 2000
   ring_buffer_bytes: 4096
   pin_root: $pin_parent
