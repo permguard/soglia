@@ -9,7 +9,7 @@ set -euo pipefail
 binary="${1:?usage: b1-qualification.sh <soglia> [--authoritative]}"
 authoritative=false
 if [[ "${2:-}" == --authoritative ]]; then authoritative=true; fi
-production_baseline=a74037d617b64afe3b7e0d902ef50ffb57c026c3
+production_baseline=36ca2ee52d9ba6e88e729754567f59db3d744bc3
 production_source_matches=false
 vm_name=${SOGLIA_B1_VM_NAME:-}
 if [[ "$authoritative" == true && "$vm_name" != soglia-spike-b1-* ]]; then

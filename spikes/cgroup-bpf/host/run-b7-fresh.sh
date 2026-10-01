@@ -10,7 +10,7 @@ repo_dir=$(CDPATH='' cd -- "$host_dir/../.." && pwd)
 source "$host_dir/common.sh"
 
 require_host
-production_baseline=db6e1ac21a957b5fd8de96f5e3a719db1d897723
+production_baseline=36ca2ee52d9ba6e88e729754567f59db3d744bc3
 pycache="$repo_dir/spikes/cgroup-bpf/runner/scripts/__pycache__"
 rm -rf -- "$pycache"
 [[ ! -e $pycache ]]
