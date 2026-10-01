@@ -98,6 +98,7 @@ impl Helper {
             (
                 Some(Arc::new(ResolverState {
                     channel: Mutex::new(Some(ours)),
+                    negotiated: Mutex::new(None),
                     sender: Mutex::new(None),
                     inflight: Mutex::new(HashMap::new()),
                     submission: Mutex::new(()),
@@ -253,11 +254,22 @@ impl Helper {
             })
             .ok_or_else(|| HelperError::Unexpected("this helper has no Resolve channel".to_owned()))
     }
+
+    /// Activates the already-negotiated Resolve pipeline after the Supervisor dropped privilege.
+    pub fn start_resolver_pipeline(&self) -> Result<(), HelperError> {
+        self.resolver
+            .as_ref()
+            .ok_or_else(|| {
+                HelperError::Unexpected("this helper has no Resolve channel".to_owned())
+            })?
+            .start_negotiated_pipeline()
+    }
 }
 
 /// The unprivileged endpoint of the Enforcer's authenticated Resolve socketpair.
 struct ResolverState {
     channel: Mutex<Option<UnixStream>>,
+    negotiated: Mutex<Option<ResolverReady>>,
     sender: Mutex<Option<SyncSender<ResolverCommand>>>,
     inflight: Mutex<HashMap<u64, InflightResolve>>,
     submission: Mutex<()>,
@@ -731,17 +743,18 @@ impl ResolverState {
     }
 
     fn finish_negotiation(
-        self: &Arc<Self>,
+        &self,
         max_pending_resolves: u32,
         resolve_workers: u16,
     ) -> Result<(), HelperError> {
-        let mut channel = self
+        let mut channel_guard = self
             .channel
             .lock()
-            .map_err(|_| HelperError::Channel("the Resolve channel lock is poisoned".to_owned()))?
-            .take()
+            .map_err(|_| HelperError::Channel("the Resolve channel lock is poisoned".to_owned()))?;
+        let channel = channel_guard
+            .as_mut()
             .ok_or_else(|| HelperError::Unexpected("Resolve was negotiated twice".to_owned()))?;
-        let ready: ResolverReady = read_frame_limited(&mut channel, MAX_RESOLVER_FRAME_BYTES)
+        let ready: ResolverReady = read_frame_limited(&mut *channel, MAX_RESOLVER_FRAME_BYTES)
             .map_err(|error| HelperError::Channel(error.to_string()))?;
         if ready
             != (ResolverReady {
@@ -754,9 +767,32 @@ impl ResolverState {
                 "the Enforcer accepted a different Resolve contract: {ready:?}"
             )));
         }
+        *self.negotiated.lock().map_err(|_| {
+            HelperError::Channel("the Resolve contract lock is poisoned".to_owned())
+        })? = Some(ready);
+        Ok(())
+    }
+
+    fn start_negotiated_pipeline(self: &Arc<Self>) -> Result<(), HelperError> {
+        let contract = self
+            .negotiated
+            .lock()
+            .map_err(|_| HelperError::Channel("the Resolve contract lock is poisoned".to_owned()))?
+            .take()
+            .ok_or_else(|| {
+                HelperError::Unexpected(
+                    "the Resolve protocol was not negotiated before activation".to_owned(),
+                )
+            })?;
+        let channel = self
+            .channel
+            .lock()
+            .map_err(|_| HelperError::Channel("the Resolve channel lock is poisoned".to_owned()))?
+            .take()
+            .ok_or_else(|| HelperError::Unexpected("Resolve was activated twice".to_owned()))?;
         self.start_pipeline(
             channel,
-            usize::try_from(max_pending_resolves).unwrap_or(usize::MAX),
+            usize::try_from(contract.max_pending_resolves).unwrap_or(usize::MAX),
         )
     }
 
@@ -972,6 +1008,7 @@ mod tests {
         let shutdown = stream.try_clone().unwrap();
         let state = Arc::new(ResolverState {
             channel: Mutex::new(None),
+            negotiated: Mutex::new(None),
             sender: Mutex::new(None),
             inflight: Mutex::new(HashMap::new()),
             submission: Mutex::new(()),
@@ -982,6 +1019,44 @@ mod tests {
         });
         state.start_pipeline(stream, 1024).unwrap();
         ResolverClient { state }
+    }
+
+    #[test]
+    fn negotiation_does_not_activate_parent_threads_before_privilege_drop() {
+        let (ours, mut theirs) = UnixStream::pair().unwrap();
+        let shutdown = ours.try_clone().unwrap();
+        let state = Arc::new(ResolverState {
+            channel: Mutex::new(Some(ours)),
+            negotiated: Mutex::new(None),
+            sender: Mutex::new(None),
+            inflight: Mutex::new(HashMap::new()),
+            submission: Mutex::new(()),
+            shutdown,
+            poisoned: AtomicBool::new(false),
+            next_request_id: AtomicU64::new(1),
+            on_unavailable: Mutex::new(None),
+        });
+        let peer = std::thread::spawn(move || {
+            let hello: ResolverHello =
+                read_frame_limited(&mut theirs, MAX_RESOLVER_FRAME_BYTES).unwrap();
+            write_frame_limited(
+                &mut theirs,
+                &ResolverReady {
+                    version: hello.version,
+                    max_pending_resolves: hello.max_pending_resolves,
+                    resolve_workers: hello.resolve_workers,
+                },
+                MAX_RESOLVER_FRAME_BYTES,
+            )
+            .unwrap();
+            std::thread::sleep(Duration::from_millis(100));
+        });
+        state.begin_negotiation(4, 2).unwrap();
+        state.finish_negotiation(4, 2).unwrap();
+        assert!(state.sender.lock().unwrap().is_none());
+        state.start_negotiated_pipeline().unwrap();
+        assert!(state.sender.lock().unwrap().is_some());
+        peer.join().unwrap();
     }
 
     #[test]

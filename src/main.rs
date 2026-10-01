@@ -272,6 +272,12 @@ mod runtime {
 
         privilege::drop_to(config.runtime.uid, config.runtime.gid)
             .map_err(|error| format!("cannot drop privileges: {error}"))?;
+        enforcer.start_resolver_pipeline().map_err(|error| {
+            ProcessError::from_helper(
+                "the Enforcer Resolve pipeline did not start after privilege drop".to_owned(),
+                error,
+            )
+        })?;
         info!(
             event.name = "startup.privileges_dropped",
             uid = config.runtime.uid,
