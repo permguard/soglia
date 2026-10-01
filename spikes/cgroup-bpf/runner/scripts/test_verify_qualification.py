@@ -44,6 +44,11 @@ class QualificationVerifierTests(unittest.TestCase):
             "cleanup": {"verdict": "PASS"},
             "production_source_baseline": {"commit": "b" * 40, "matches": True},
         }
+        if number == 1:
+            summary["qualified"] = {
+                "unnamed_external_ancestor_preserved": True,
+                "unnamed_external_changed_tag_refused": True,
+            }
         if number == 7:
             summary["qualified"] = {"within_envelope_resolve_outcomes_clean": True}
         self.write_json(run / "summary.json", summary)
@@ -52,6 +57,37 @@ class QualificationVerifierTests(unittest.TestCase):
             f"{'a' * 40}\n{VERIFY.EMPTY_DIFF_SHA256}  -\n", encoding="utf-8"
         )
         (run / "stop-classification.txt").write_text("NATIVE\n", encoding="utf-8")
+        if number == 1:
+            self.write_json(
+                run / "cases/unnamed_external/result.json",
+                {
+                    "verdict": "PASS",
+                    "positive": {
+                        "startup_ready": True,
+                        "effective_on_execution_subtree": True,
+                        "bpftool_name": "ABSENT_OR_EMPTY",
+                        "program_id": 101,
+                        "tag": "1111111111111111",
+                        "program_preserved_by_uninstall": True,
+                        "link_preserved_by_uninstall": True,
+                    },
+                    "negative": {
+                        "replacement_name": "ABSENT_OR_EMPTY",
+                        "program_id": 102,
+                        "tag": "2222222222222222",
+                        "tag_differs_from_original": True,
+                        "refusal_class": "UNKNOWN",
+                        "exit_code": 21,
+                        "replacement_preserved_during_refusal": True,
+                    },
+                    "control": {
+                        "original_identity_restored": True,
+                        "startup_ready": True,
+                        "uninstall_preserved_external_program": True,
+                    },
+                    "cleanup": {"soglia_owned_resources_absent": True},
+                },
+            )
         if number == 5:
             self.write_json(
                 run / "driver/proxy-steering-boundary.json",
@@ -222,6 +258,15 @@ class QualificationVerifierTests(unittest.TestCase):
         self.write_json(path, value)
         self.write_sums(self.runs[4])
         self.assert_reason("runtime destinations differ")
+
+    def test_b1_unnamed_external_tag_tamper_with_recomputed_checksum_fails(self) -> None:
+        path = self.runs[0] / "cases/unnamed_external/result.json"
+        value = json.loads(path.read_text(encoding="utf-8"))
+        value["negative"]["tag"] = value["positive"]["tag"]
+        value["negative"]["tag_differs_from_original"] = False
+        self.write_json(path, value)
+        self.write_sums(self.runs[0])
+        self.assert_reason("replacement tag did not change")
 
     def test_b6_tamper_with_recomputed_checksum_fails(self) -> None:
         path = self.runs[5] / "cases/sandbox_sigkill/result.json"

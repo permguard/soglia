@@ -119,6 +119,25 @@ The pin-root test now exercises the pure classification rule without pretending 
 The clean Linux image then passed workspace tests and Clippy, the two T10 builds, and T1-T10/H1-H4 with both `netns-nft` and `cgroup-bpf`.
 This is the concrete application of the rule in `EXECUTION-PLATFORM.md`: VM qualification alone does not finish a work item; its CI-equivalent checks must also pass in a clean environment.
 
+The second SOG-1.03 iteration made those environment claims directly observable and added the missing regression case.
+The B1 diagnostic `b1-20261001T143637Z-1561543` is PASS and includes an unnamed external `cgroup_device` program on `system.slice`, inherited by the Execution subtree.
+`bpftool` reported program ID 24829, tag `57cd311f2e27366b` and an empty name.
+Startup and uninstall preserved that program and its link byte-for-byte in the selected identity fields.
+Replacing it with another unnamed program, ID 24910 and tag `711788109f1edac6`, produced typed `Unknown` exit 21 without modifying the replacement.
+Restoring the original program identity restored READY startup, and the case and B1 cleanup both passed.
+The aggregate qualification verifier now requires this evidence and has a negative test that recomputes checksums after falsifying the changed-tag assertion.
+
+The unprivileged workspace tests ran in a disposable `ubuntu:24.04` amd64 container with the repository mounted read-only.
+The output recorded Ubuntu 24.04.5 LTS, `uid=10001(ci)`, `id_u=10001`, and a successful `cargo test --workspace --locked -- --test-threads=1` covering 175 unit tests with zero failures; the two privileged integration tests were explicitly ignored.
+The complete 505-line diagnostic output had SHA-256 `4b02b125a6a812943831bec1b9573b99975883dc0004aea1dcf068a2a56f2b43`.
+The CI test step now prints the runner identity and fails unless its UID is nonzero before running the same command.
+
+The privileged acceptance ran inside image `sha256:5e036fc3424426949d24b7b24a8bbb55f4368bd08cbf88685c3f1119ddddb9c6` through `dev/linux/cgroup-init.sh`.
+Its output recorded `acceptance_environment=dev/linux privileged=true uid=0` and an effective external program `{id:18,type:cgroup_device,tag:b11459a0e11ca14c,name:""}` created with a zeroed kernel program name.
+T1-T10/H1-H4 then passed 15/15 first with `netns-nft` and again 15/15 with `cgroup-bpf`; each backend's privileged enforcer and sandbox integration tests also passed.
+The complete 218-line diagnostic output had SHA-256 `496b5ebb39d97a73e2aafc422a7091861769c62b69cb1cf1e23cd7700a9b0e79`.
+The acceptance entry point now creates and proves that unnamed external program before either backend pass and removes only its exact pinned link and program afterward.
+
 ## Gate coverage and closure order
 
 | Phase         | Required new evidence                                                                                                                              |

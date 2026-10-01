@@ -192,6 +192,7 @@ run_case exclusive_ancestor "$scripts/b1-production-exclusive.sh" "$binary"
 run_case synchronous_rollback "$scripts/b1-production-sync-rollback.sh" "$binary"
 run_case recovery "$scripts/b1-production-recovery.sh" "$binary"
 run_case typed_refusals "$scripts/b1-production-refusals.sh" "$binary"
+run_case unnamed_external "$scripts/b1-production-unnamed-external.sh" "$binary"
 
 last_case=final_inventory
 current_phase=CLEANUP_VERIFICATION
@@ -234,7 +235,9 @@ jq -n \
       actual_delegation:true,typed_exclusive_ancestor_refusal:true,
       synchronous_error_rollback:true,crash_recovery:true,
       missing_delegation_refusal:true,missing_dependency_refusal:true,
-      unexpected_direct_attachment_refusal:true,unknown_state_preserved:true},
+      unexpected_direct_attachment_refusal:true,unknown_state_preserved:true,
+      unnamed_external_ancestor_preserved:true,
+      unnamed_external_changed_tag_refused:true},
     cleanup:{verdict:"PASS",program_inventory:$inventory,links:"MATCH",maps:"MATCH",
       owned_resources_absent:true},
     scope:{supported_platform:"the exact recorded environment fingerprint",

@@ -42,8 +42,11 @@ jobs:
         run: ./scripts/check-build-systems.sh
       - name: the binary links no later-phase crate (T10)
         run: ./scripts/check-phase0-dependencies.sh
-      - name: tests
-        run: cargo test --workspace --locked -- --test-threads=1
+      - name: tests as the unprivileged runner user
+        run: |
+          id
+          test "$(id -u)" -ne 0
+          cargo test --workspace --locked -- --test-threads=1
 
   acceptance:
     name: Phase-0 acceptance (T1-T10, H1-H4)

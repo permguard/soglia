@@ -132,6 +132,79 @@ def verify_stop_classifications(run: Path) -> int:
     return prune_races
 
 
+def verify_b1(run: Path) -> None:
+    summary = load_json(run / "summary.json")
+    qualified = summary.get("qualified", {})
+    require(
+        qualified.get("unnamed_external_ancestor_preserved") is True,
+        f"{run.name}: B1 does not qualify preservation of an unnamed external ancestor program",
+    )
+    require(
+        qualified.get("unnamed_external_changed_tag_refused") is True,
+        f"{run.name}: B1 does not qualify changed-tag refusal for an unnamed external program",
+    )
+
+    result = load_json(run / "cases/unnamed_external/result.json")
+    require(result.get("verdict") == "PASS", f"{run.name}: B1 unnamed external case is not PASS")
+    positive = result.get("positive", {})
+    require(positive.get("startup_ready") is True, f"{run.name}: B1 unnamed external startup was not READY")
+    require(
+        positive.get("effective_on_execution_subtree") is True,
+        f"{run.name}: B1 unnamed program was not effective on the Execution subtree",
+    )
+    require(
+        positive.get("bpftool_name") == "ABSENT_OR_EMPTY",
+        f"{run.name}: B1 did not prove that bpftool reports an absent or empty program name",
+    )
+    require(
+        positive.get("program_preserved_by_uninstall") is True
+        and positive.get("link_preserved_by_uninstall") is True,
+        f"{run.name}: B1 uninstall did not preserve the unnamed external object",
+    )
+
+    negative = result.get("negative", {})
+    original_id = positive.get("program_id")
+    replacement_id = negative.get("program_id")
+    original_tag = positive.get("tag")
+    replacement_tag = negative.get("tag")
+    require(
+        isinstance(original_id, int)
+        and isinstance(replacement_id, int)
+        and original_id != replacement_id,
+        f"{run.name}: B1 unnamed replacement program IDs are invalid or equal",
+    )
+    require(
+        isinstance(original_tag, str)
+        and bool(original_tag)
+        and isinstance(replacement_tag, str)
+        and bool(replacement_tag)
+        and replacement_tag != original_tag
+        and negative.get("tag_differs_from_original") is True,
+        f"{run.name}: B1 unnamed replacement tag did not change",
+    )
+    require(
+        negative.get("replacement_name") == "ABSENT_OR_EMPTY"
+        and negative.get("refusal_class") == "UNKNOWN"
+        and negative.get("exit_code") == 21,
+        f"{run.name}: B1 unnamed changed-tag replacement was not refused as Unknown",
+    )
+    require(
+        negative.get("replacement_preserved_during_refusal") is True,
+        f"{run.name}: B1 changed-tag refusal modified the external replacement",
+    )
+    control = result.get("control", {})
+    require(
+        control.get("original_identity_restored") is True
+        and control.get("startup_ready") is True
+        and control.get("uninstall_preserved_external_program") is True,
+        f"{run.name}: B1 unnamed external recovery control is incomplete",
+    )
+    require(
+        result.get("cleanup", {}).get("soglia_owned_resources_absent") is True,
+        f"{run.name}: B1 unnamed external case left Soglia-owned resources",
+    )
+
+
 def verify_b5(run: Path) -> None:
     steering = load_json(run / "driver/proxy-steering-boundary.json")
     require(steering.get("verdict") == "PASS", f"{run.name}: B5 steering verdict is not PASS")
@@ -277,7 +350,9 @@ def verify_run(run: Path) -> dict[str, Any]:
     commit = source_fingerprint(run)
     verdict_files_pass(run)
     systemd_prune_races = verify_stop_classifications(run)
-    if gate == "B5":
+    if gate == "B1":
+        verify_b1(run)
+    elif gate == "B5":
         verify_b5(run)
     elif gate == "B6":
         verify_b6(run)
