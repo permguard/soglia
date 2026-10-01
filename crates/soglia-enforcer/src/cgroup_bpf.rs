@@ -187,11 +187,19 @@ struct UninstallIntent {
 }
 
 enum GenerationClassification {
-    Fresh,
+    Fresh {
+        pin_root: NoRecordPinRoot,
+    },
     Recorded {
         state: Box<HostState>,
         target_released: bool,
     },
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum NoRecordPinRoot {
+    Absent,
+    Empty,
 }
 
 /// A complete uninstall plan whose ownership predicates were checked before mutation.
@@ -498,8 +506,8 @@ impl CgroupBpfBackend {
     ) -> Result<GenerationClassification, BackendError> {
         let recorded = self.recorded_state(uninstall)?;
         let Some(mut state) = recorded else {
-            validate_no_record_pin_state(&self.settings.configured_pin_root, uninstall)?;
-            return Ok(GenerationClassification::Fresh);
+            let pin_root = validate_no_record_pin_state(&self.settings.configured_pin_root)?;
+            return Ok(GenerationClassification::Fresh { pin_root });
         };
         require_bpffs_mount()?;
         let pin_entries = directory_entries(&self.settings.configured_pin_root)?;
@@ -1982,7 +1990,9 @@ impl PreparedCgroupBpfUninstall {
     /// Returns the exact plan without changing host state.
     pub fn dry_run_report(&self) -> CgroupBpfUninstallReport {
         let (classification, mut operations) = match &self.generation {
-            GenerationClassification::Fresh => ("FRESH", Vec::new()),
+            GenerationClassification::Fresh { pin_root } => {
+                ("FRESH", fresh_pin_root_operations(*pin_root))
+            }
             GenerationClassification::Recorded {
                 state,
                 target_released,
@@ -2015,7 +2025,10 @@ impl PreparedCgroupBpfUninstall {
             network,
         } = self;
         let (classification, mut operations) = match generation {
-            GenerationClassification::Fresh => ("FRESH", Vec::new()),
+            GenerationClassification::Fresh { pin_root } => {
+                remove_prepared_empty_pin_root(&backend.settings.configured_pin_root, pin_root)?;
+                ("FRESH", fresh_pin_root_operations(pin_root))
+            }
             GenerationClassification::Recorded {
                 mut state,
                 target_released,
@@ -3495,7 +3508,9 @@ fn validate_fresh_uninstall_state(
     sandbox_fresh: bool,
     network_fresh: bool,
 ) -> Result<(), BackendError> {
-    if matches!(generation, GenerationClassification::Fresh) && (!sandbox_fresh || !network_fresh) {
+    if matches!(generation, GenerationClassification::Fresh { .. })
+        && (!sandbox_fresh || !network_fresh)
+    {
         return Err(BackendError::Unknown(
             "UNKNOWN Soglia resources exist without a complete cgroup-BPF ownership record"
                 .to_owned(),
@@ -3504,19 +3519,73 @@ fn validate_fresh_uninstall_state(
     Ok(())
 }
 
-fn validate_no_record_pin_state(path: &Path, uninstall: bool) -> Result<(), BackendError> {
-    if uninstall && path.exists() {
-        Err(BackendError::Unknown(format!(
-            "UNKNOWN cgroup-BPF state: {} exists without a trusted record",
-            path.display()
-        )))
-    } else if !uninstall && !directory_entries(path)?.is_empty() {
+fn validate_no_record_pin_state(path: &Path) -> Result<NoRecordPinRoot, BackendError> {
+    let exists = match fs::symlink_metadata(path) {
+        Ok(_) => true,
+        Err(error) if error.kind() == io::ErrorKind::NotFound => false,
+        Err(error) => return Err(error.into()),
+    };
+    if !directory_entries(path)?.is_empty() {
         Err(BackendError::Unknown(format!(
             "UNKNOWN cgroup-BPF state: {} contains pins without a trusted record",
             path.display()
         )))
+    } else if exists {
+        Ok(NoRecordPinRoot::Empty)
     } else {
-        Ok(())
+        Ok(NoRecordPinRoot::Absent)
+    }
+}
+
+fn fresh_pin_root_operations(pin_root: NoRecordPinRoot) -> Vec<String> {
+    match pin_root {
+        NoRecordPinRoot::Absent => Vec::new(),
+        NoRecordPinRoot::Empty => {
+            vec!["remove empty cgroup-BPF pin root left by interrupted startup".to_owned()]
+        }
+    }
+}
+
+fn remove_prepared_empty_pin_root(
+    path: &Path,
+    prepared: NoRecordPinRoot,
+) -> Result<(), BackendError> {
+    match prepared {
+        NoRecordPinRoot::Absent => match fs::symlink_metadata(path) {
+            Err(error) if error.kind() == io::ErrorKind::NotFound => Ok(()),
+            Ok(_) => Err(BackendError::Unknown(format!(
+                "UNKNOWN cgroup-BPF state: {} appeared after uninstall validation",
+                path.display()
+            ))),
+            Err(error) => Err(BackendError::Unknown(format!(
+                "UNKNOWN cgroup-BPF state: could not revalidate absent {}: {error}",
+                path.display()
+            ))),
+        },
+        NoRecordPinRoot::Empty => {
+            validate_private_directory_if_present(path)?;
+            remove_exact_empty_pin_root(path)
+        }
+    }
+}
+
+fn remove_exact_empty_pin_root(path: &Path) -> Result<(), BackendError> {
+    fs::remove_dir(path).map_err(|error| {
+        BackendError::Unknown(format!(
+            "UNKNOWN cgroup-BPF state: exact removal of empty {} failed: {error}",
+            path.display()
+        ))
+    })?;
+    match fs::symlink_metadata(path) {
+        Err(error) if error.kind() == io::ErrorKind::NotFound => Ok(()),
+        Ok(_) => Err(BackendError::Unknown(format!(
+            "UNKNOWN cgroup-BPF state: {} reappeared after exact removal",
+            path.display()
+        ))),
+        Err(error) => Err(BackendError::Unknown(format!(
+            "UNKNOWN cgroup-BPF state: could not verify absence of {}: {error}",
+            path.display()
+        ))),
     }
 }
 
@@ -4179,7 +4248,9 @@ mod tests {
 
     #[test]
     fn uninstall_fresh_requires_every_owned_subsystem_to_be_absent() {
-        let fresh = GenerationClassification::Fresh;
+        let fresh = GenerationClassification::Fresh {
+            pin_root: NoRecordPinRoot::Absent,
+        };
         assert!(validate_fresh_uninstall_state(&fresh, true, true).is_ok());
         assert!(matches!(
             validate_fresh_uninstall_state(&fresh, false, true),
@@ -4192,17 +4263,23 @@ mod tests {
     }
 
     #[test]
-    fn startup_accepts_only_an_empty_unrecorded_pin_root() {
+    fn startup_and_uninstall_share_the_empty_unrecorded_pin_root_rule() {
         let root = std::env::temp_dir().join(format!(
             "soglia-uninstall-unrecorded-pins-{}",
             ExecutionId::generate().unwrap()
         ));
-        assert!(validate_no_record_pin_state(&root, false).is_ok());
+        assert_eq!(
+            validate_no_record_pin_state(&root).unwrap(),
+            NoRecordPinRoot::Absent
+        );
         fs::create_dir(&root).unwrap();
-        assert!(validate_no_record_pin_state(&root, false).is_ok());
+        assert_eq!(
+            validate_no_record_pin_state(&root).unwrap(),
+            NoRecordPinRoot::Empty
+        );
         fs::write(root.join("unexpected-pin"), "pin").unwrap();
         assert!(matches!(
-            validate_no_record_pin_state(&root, false),
+            validate_no_record_pin_state(&root),
             Err(BackendError::Unknown(_))
         ));
         fs::remove_file(root.join("unexpected-pin")).unwrap();
@@ -4210,19 +4287,38 @@ mod tests {
     }
 
     #[test]
-    fn uninstall_rejects_even_an_empty_unrecorded_pin_root_without_mutating_it() {
+    fn uninstall_removes_only_the_prevalidated_empty_pin_root() {
         let root = std::env::temp_dir().join(format!(
             "soglia-uninstall-unrecorded-pins-{}",
             ExecutionId::generate().unwrap()
         ));
-        assert!(validate_no_record_pin_state(&root, true).is_ok());
         fs::create_dir(&root).unwrap();
-        let result = validate_no_record_pin_state(&root, true);
-        assert!(matches!(result, Err(BackendError::Unknown(_))));
-        assert!(
-            root.is_dir(),
-            "classification must preserve the unknown root"
-        );
+        remove_exact_empty_pin_root(&root).unwrap();
+        assert!(!root.exists());
+
+        fs::create_dir(&root).unwrap();
+        fs::write(root.join("racing-pin"), "pin").unwrap();
+        assert!(matches!(
+            remove_exact_empty_pin_root(&root),
+            Err(BackendError::Unknown(_))
+        ));
+        assert!(root.join("racing-pin").is_file());
+        fs::remove_file(root.join("racing-pin")).unwrap();
+        fs::remove_dir(&root).unwrap();
+    }
+
+    #[test]
+    fn uninstall_rejects_a_pin_root_that_appears_after_absent_validation() {
+        let root = std::env::temp_dir().join(format!(
+            "soglia-uninstall-unrecorded-pins-{}",
+            ExecutionId::generate().unwrap()
+        ));
+        fs::create_dir(&root).unwrap();
+        assert!(matches!(
+            remove_prepared_empty_pin_root(&root, NoRecordPinRoot::Absent),
+            Err(BackendError::Unknown(_))
+        ));
+        assert!(root.is_dir());
         fs::remove_dir(&root).unwrap();
     }
 
