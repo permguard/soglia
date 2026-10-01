@@ -2,7 +2,8 @@
 # Copyright (c) 2022 Nitro Agility S.r.l.
 # SPDX-License-Identifier: Apache-2.0
 #
-# Delegates a cgroup subtree to Soglia inside the development container, then runs the command.
+# Mounts bpffs, delegates a cgroup subtree to Soglia inside the development container, then runs
+# the command.
 #
 # The container has its own cgroup namespace, whose root is the subtree the container runtime
 # delegated. cgroup v2 lets only an empty cgroup enable controllers for its children, so every
@@ -10,6 +11,12 @@
 # configured with, the way a systemd unit with `Delegate=yes` would provide it.
 
 set -eu
+
+bpffs=/sys/fs/bpf
+mkdir -p "$bpffs"
+if ! mountpoint --quiet "$bpffs"; then
+    mount --types bpf bpffs "$bpffs"
+fi
 
 root=/sys/fs/cgroup
 mkdir -p "$root/init"

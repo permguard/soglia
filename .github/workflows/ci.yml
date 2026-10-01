@@ -25,11 +25,11 @@ jobs:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
       - uses: dtolnay/rust-toolchain@6c977a6ca4077a0ceb28ffbe03f59d46e9ac8772 # master 2026-08; the toolchain is chosen by `toolchain:`, not by the ref
         with:
-          toolchain: stable
+          toolchain: "1.97"
           components: clippy, rustfmt
       - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2
       - name: cgroup-BPF build dependencies
-        run: sudo apt-get update && sudo apt-get install --yes clang libc6-dev-i386 libelf-dev zlib1g-dev
+        run: sudo apt-get update && sudo apt-get install --yes clang libc6-dev-i386 libbpf-dev libelf-dev zlib1g-dev
       - name: formatting
         run: cargo fmt --all -- --check
       - name: clippy
@@ -43,7 +43,7 @@ jobs:
       - name: the binary links no later-phase crate (T10)
         run: ./scripts/check-phase0-dependencies.sh
       - name: tests
-        run: cargo test --workspace --locked
+        run: cargo test --workspace --locked -- --test-threads=1
 
   acceptance:
     name: Phase-0 acceptance (T1-T10, H1-H4)
@@ -62,7 +62,7 @@ jobs:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
       - uses: dtolnay/rust-toolchain@6c977a6ca4077a0ceb28ffbe03f59d46e9ac8772 # master 2026-08; the toolchain is chosen by `toolchain:`, not by the ref
         with:
-          toolchain: stable
+          toolchain: "1.97"
           components: clippy
       - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2
       - name: clippy

@@ -9,7 +9,7 @@
 # the container runs with its own cgroup namespace: its cgroup root is the subtree the container
 # runtime delegated to it, which is where Soglia creates Execution cgroups.
 
-FROM rust:1-trixie
+FROM rust:1.97-trixie
 
 RUN apt-get update \
     && apt-get install --yes --no-install-recommends \
