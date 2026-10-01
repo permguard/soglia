@@ -470,10 +470,11 @@ record_case incompatible_refusal PASS
 
 current_case=unknown_refusal; persist_state; case_paths unknown_refusal; write_config
 start_generation; stop_generation
-bpftool map create "$pin_root/maps/unrecorded" type array key 4 value 4 entries 1 \
+generation_pin_root=$(jq -r '.pin_root' "$state")
+bpftool map create "$generation_pin_root/maps/unrecorded" type array key 4 value 4 entries 1 \
   name uninstall_unknown
 expect_refusal 21 unknown
-rm "$pin_root/maps/unrecorded"
+rm "$generation_pin_root/maps/unrecorded"
 complete_real_uninstall cleanup-after-refusal
 record_case unknown_refusal PASS
 
