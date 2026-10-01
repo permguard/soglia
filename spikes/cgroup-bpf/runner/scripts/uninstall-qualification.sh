@@ -503,7 +503,11 @@ interrupted_pid=$!
 printf '%s\n' "$interrupted_pid" > "$case_dir/interrupted.pid"
 "$tracer" "$interrupted_pid" "$uninstall_intent" /usr/sbin/bpftool uninstall_intent \
   "$case_dir/tracer-ready.json" "$case_dir/uninstall-intent-boundary.json"
-set +e; wait "$interrupted_pid"; interrupted_status=$?; set -e
+if wait "$interrupted_pid"; then
+  interrupted_status=0
+else
+  interrupted_status=$?
+fi
 [[ $interrupted_status -eq 137 && -f $uninstall_intent ]]
 run_uninstall "$case_dir/startup-after-interruption.stdout" \
   "$case_dir/startup-after-interruption.stderr"
@@ -520,10 +524,10 @@ current_case=target_released; persist_state; case_paths target_released; write_c
 start_generation; stop_generation
 cp "$state" "$case_dir/state-before-release.json"
 rmdir "$cgroup_root/executions" "$cgroup_root/runtime" "$cgroup_root"
-create_cgroup_root
-printf '+cpu +memory +pids\n' > "$cgroup_root/cgroup.subtree_control"
-mkdir "$cgroup_root/runtime" "$cgroup_root/executions"
-printf '+cpu +memory +pids\n' > "$cgroup_root/executions/cgroup.subtree_control"
+jq -n --arg root "$cgroup_root" --arg target "$cgroup_root/executions" \
+  '{cgroup_root:$root,attachment_target:$target,cgroup_root_absent:true,
+    attachment_target_absent:true}' > "$case_dir/released-target-before-uninstall.json"
+[[ ! -e $cgroup_root && ! -e $cgroup_root/executions ]]
 run_uninstall "$case_dir/uninstall.stdout" "$case_dir/uninstall.stderr"
 if [[ $command_status -ne 0 ]]; then
   record_case target_released FAIL "production uninstall refused released target with exit $command_status"
