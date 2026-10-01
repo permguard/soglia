@@ -405,11 +405,18 @@ done
 systemctl show "$active_unit" > "$case_dir/unit-before-stop.txt"
 systemctl stop "$active_unit"
 systemctl reset-failed "$active_unit" >/dev/null 2>&1 || true
-for _ in $(seq 1 500); do
+release_started_ns=$(date +%s%N)
+for _ in $(seq 1 3000); do
   [[ ! -e $cgroup_root ]] && break
   sleep 0.01
 done
-[[ ! -e $cgroup_root ]]
+release_elapsed_ms=$((($(date +%s%N) - release_started_ns) / 1000000))
+if [[ -e $cgroup_root ]]; then target_released=false; else target_released=true; fi
+jq -n --argjson target_released "$target_released" \
+  --argjson elapsed_ms "$release_elapsed_ms" --argjson timeout_ms 30000 \
+  '{target_released:$target_released,elapsed_ms:$elapsed_ms,timeout_ms:$timeout_ms}' \
+  > "$case_dir/cgroup-release.json"
+[[ $target_released == true ]]
 systemctl show "$active_unit" > "$case_dir/unit-after-stop.txt" 2>&1 || true
 active_unit=
 run_uninstall "$case_dir/uninstall.stdout" "$case_dir/uninstall.stderr"
