@@ -1,0 +1,8 @@
+{
+  "schema": 1,
+  "run_id": "uninstall-20261001T154743Z-9416",
+  "gate": "UNINSTALL",
+  "authoritative": true,
+  "vm_name": "soglia-spike-uninstall-20261001T154550Z-52660",
+  "started_at": "2026-10-01T15:47:43Z"
+}

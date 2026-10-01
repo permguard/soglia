@@ -1,0 +1,57 @@
+{
+  "actor": "B3 qualification harness",
+  "binding_after": {
+    "backend_generation": 2,
+    "cgroup_id": 8420,
+    "execution_nonce": [
+      71,
+      206,
+      147,
+      85,
+      94,
+      99,
+      136,
+      63,
+      149,
+      5,
+      193,
+      149,
+      152,
+      8,
+      230,
+      94
+    ]
+  },
+  "binding_before": {
+    "backend_generation": 1,
+    "cgroup_id": 8420,
+    "execution_nonce": [
+      71,
+      206,
+      147,
+      85,
+      94,
+      99,
+      136,
+      63,
+      149,
+      5,
+      193,
+      149,
+      152,
+      8,
+      230,
+      94
+    ]
+  },
+  "boundary": "TUPLE",
+  "covered_by_b2": true,
+  "field": "BACKEND_GENERATION",
+  "key_hex": "0ac900010ac8ff01f8a7993a00000000",
+  "pin": "/sys/fs/bpf/soglia-b3/901da63079c9e82768f653ac2cdbe52c-g1/maps/soglia_tuples",
+  "production_code_modified": false,
+  "single_boundary_mutation": true,
+  "socket_cookie": 8220,
+  "value_after_hex": "1c20000000000000e42000000000000047ce93555e63883f9505c1959808e65e0200000000000000534c00551b000000",
+  "value_before_hex": "1c20000000000000e42000000000000047ce93555e63883f9505c1959808e65e0100000000000000534c00551b000000"
+}

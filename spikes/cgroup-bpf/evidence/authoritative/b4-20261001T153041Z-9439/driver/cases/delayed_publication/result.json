@@ -1,0 +1,19 @@
+{
+  "case": "delayed_publication",
+  "fault": "Delay(250)",
+  "health_failure": null,
+  "observation": {
+    "dns_when_resolve_returned": 0,
+    "elapsed_ms": 254,
+    "health_failure": null,
+    "local": "10.200.255.1:15001",
+    "mismatch": null,
+    "outbound_when_resolve_returned": 0,
+    "outcome": "RESOLVED",
+    "peer": "10.201.0.1:42002",
+    "recv_q_bytes": 61,
+    "resolved_execution": "f9a19ca80528b664ff479334fb372cf3",
+    "tuple_cookie": 4133
+  },
+  "verdict": "PASS"
+}

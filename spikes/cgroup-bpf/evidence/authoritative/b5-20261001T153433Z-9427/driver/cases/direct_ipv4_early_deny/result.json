@@ -1,0 +1,25 @@
+{
+  "agent": {
+    "cmd": "direct_ipv4",
+    "elapsed_ms": 0,
+    "errno": 1,
+    "error": "Operation not permitted (os error 1)",
+    "ok": false
+  },
+  "case": "DIRECT_IPV4_EARLY_DENY",
+  "connect4_deny_delta": 1,
+  "events": [
+    {
+      "cgroup_id": 8089,
+      "cookie": 10,
+      "raw_hex": "0300000000000000991f000000000000ebb8ab6bfd1fbdea4545061960aec9a601000000000000000a000000000000003cac82d81a000000",
+      "reason": 3
+    }
+  ],
+  "execution_nft_drop_path_packets": 0,
+  "nft_semantics": "intact; temporary counter-only observation rule had no verdict",
+  "restored": true,
+  "ruleset_hash_after": "bb4be3b0f29f13ab7fad05a0603de0031a9a473add2bdc71c88b35a25ac5c9a0",
+  "ruleset_hash_before": "bb4be3b0f29f13ab7fad05a0603de0031a9a473add2bdc71c88b35a25ac5c9a0",
+  "veth_syn_packets": 0
+}

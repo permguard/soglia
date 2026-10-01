@@ -1,0 +1,23 @@
+{
+  "actor": "B4 qualification harness",
+  "actual_capacity": 3,
+  "entries": [
+    {
+      "key_hex": "00000000000000f0",
+      "value_hex": "000000000000000000000000000000f0010101010101010101010101010101010200000000000000"
+    },
+    {
+      "key_hex": "01000000000000f0",
+      "value_hex": "000000000000000001000000000000f0020202020202020202020202020202020200000000000000"
+    },
+    {
+      "key_hex": "02000000000000f0",
+      "value_hex": "000000000000000002000000000000f0030303030303030303030303030303030200000000000000"
+    }
+  ],
+  "injections_removed_before_health_or_restart": true,
+  "prepare_failed_closed": true,
+  "production_code_modified": false,
+  "state": "FROZEN",
+  "target_cgroup_id": 7989
+}

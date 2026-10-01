@@ -1,0 +1,120 @@
+runtime:
+  uid: 65534
+  gid: 65534
+  state_dir: /run/soglia-b3
+  max_concurrency: 2
+  max_queue: 4
+  cleanup_failure_threshold: 1
+  teardown_timeout_ms: 5000
+  runc: /usr/sbin/runc
+  nft: /usr/sbin/nft
+  ip: /usr/sbin/ip
+  bpftool: /usr/sbin/bpftool
+ingress:
+  listen: 127.0.0.1:18093
+network:
+  backend: cgroup-bpf
+  execution_pool: 10.201.0.0/24
+  proxy_address: 10.200.255.1
+  proxy_port: 15001
+egress:
+  connect_timeout_ms: 1000
+  idle_timeout_ms: 2000
+  allow:
+    - { host: allowed.test, ports: [443] }
+cgroup:
+  root: /sys/fs/cgroup/system.slice/soglia-b3.service
+cgroup_bpf:
+  max_tracked_sockets: 128
+  resolve_timeout_ms: 2000
+  ring_buffer_bytes: 65536
+  pin_root: /sys/fs/bpf/soglia-b3
+agents:
+  probe:
+    rootfs: /var/tmp/soglia-b3-rootfs
+    command: ["/agent", "netns-cookie"]
+    env: {}
+    timeout_ms: 10000
+  concurrent-0:
+    rootfs: /var/tmp/soglia-b3-rootfs
+    command: ["/agent", "proxy-connect-many-report allowed.test:443 40000 4 /tmp/b3-report.jsonl 10"]
+    env: {}
+    timeout_ms: 15000
+    tmpfs: [{ path: /tmp, size_bytes: 1048576 }]
+  concurrent-1:
+    rootfs: /var/tmp/soglia-b3-rootfs
+    command: ["/agent", "proxy-connect-many-report allowed.test:443 40000 4 /tmp/b3-report.jsonl 10"]
+    env: {}
+    timeout_ms: 15000
+    tmpfs: [{ path: /tmp, size_bytes: 1048576 }]
+  successful-close:
+    rootfs: /var/tmp/soglia-b3-rootfs
+    command: ["/agent", "proxy-connect-report allowed.test:443 41000 close /tmp/b3-report.jsonl 2 1"]
+    env: {}
+    timeout_ms: 15000
+    tmpfs: [{ path: /tmp, size_bytes: 1048576 }]
+  fin:
+    rootfs: /var/tmp/soglia-b3-rootfs
+    command: ["/agent", "proxy-connect-report allowed.test:443 41001 fin /tmp/b3-report.jsonl 2 1"]
+    env: {}
+    timeout_ms: 15000
+    tmpfs: [{ path: /tmp, size_bytes: 1048576 }]
+  rst:
+    rootfs: /var/tmp/soglia-b3-rootfs
+    command: ["/agent", "proxy-connect-report allowed.test:443 41002 rst /tmp/b3-report.jsonl 2 1"]
+    env: {}
+    timeout_ms: 15000
+    tmpfs: [{ path: /tmp, size_bytes: 1048576 }]
+  connect-failure:
+    rootfs: /var/tmp/soglia-b3-rootfs
+    command: ["/agent", "proxy-connect-report allowed.test:443 41003 close /tmp/b3-report.jsonl 2 1"]
+    env: {}
+    timeout_ms: 15000
+    tmpfs: [{ path: /tmp, size_bytes: 1048576 }]
+  agent-kill:
+    rootfs: /var/tmp/soglia-b3-rootfs
+    command: ["/agent", "proxy-connect-report allowed.test:443 41004 hold /tmp/b3-report.jsonl 30 1"]
+    env: {}
+    timeout_ms: 35000
+    tmpfs: [{ path: /tmp, size_bytes: 1048576 }]
+  frozen-teardown:
+    rootfs: /var/tmp/soglia-b3-rootfs
+    command: ["/agent", "sleep 30000"]
+    env: {}
+    timeout_ms: 35000
+  source-reuse:
+    rootfs: /var/tmp/soglia-b3-rootfs
+    command: ["/agent", "proxy-reuse-report allowed.test:443 40000 /tmp/b3-reuse.jsonl 30 5"]
+    env: {}
+    timeout_ms: 35000
+    tmpfs: [{ path: /tmp, size_bytes: 1048576 }]
+  execution-generation:
+    rootfs: /var/tmp/soglia-b3-rootfs
+    command: ["/agent", "proxy-connect-report allowed.test:443 42000 close /tmp/b3-report.jsonl 2 1"]
+    env: {}
+    timeout_ms: 15000
+    tmpfs: [{ path: /tmp, size_bytes: 1048576 }]
+  binding-matrix:
+    rootfs: /var/tmp/soglia-b3-rootfs
+    command: ["/agent", "proxy-connect-report allowed.test:443 43000 close /tmp/b3-report.jsonl 2 1"]
+    env: {}
+    timeout_ms: 15000
+    tmpfs: [{ path: /tmp, size_bytes: 1048576 }]
+  race:
+    rootfs: /var/tmp/soglia-b3-rootfs
+    command: ["/agent", "proxy-connect-report allowed.test:443 44000 hold /tmp/b3-report.jsonl 10 1"]
+    env: {}
+    timeout_ms: 15000
+    tmpfs: [{ path: /tmp, size_bytes: 1048576 }]
+  tunnel-revocation:
+    rootfs: /var/tmp/soglia-b3-rootfs
+    command: ["/agent", "proxy-connect-report allowed.test:443 45000 hold /tmp/b3-report.jsonl 10 1"]
+    env: {}
+    timeout_ms: 15000
+    tmpfs: [{ path: /tmp, size_bytes: 1048576 }]
+  backend-generation:
+    rootfs: /var/tmp/soglia-b3-rootfs
+    command: ["/agent", "proxy-connect-report allowed.test:443 46000 close /tmp/b3-report.jsonl 2 1"]
+    env: {}
+    timeout_ms: 15000
+    tmpfs: [{ path: /tmp, size_bytes: 1048576 }]

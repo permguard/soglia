@@ -1,0 +1,64 @@
+{
+  "agent_report": "{\"cmd\":\"proxy-connect-report\",\"ok\":false,\"errno\":104,\"error\":\"Connection reset by peer (os error 104)\",\"i\":0,\"source_port\":46000,\"local\":\"10.201.0.1:46000\",\"proxy_destination\":\"10.200.255.1:15001\",\"mode\":\"close\",\"phase\":\"established\",\"elapsed_ms\":14}\n",
+  "binding": {
+    "backend_generation": 2,
+    "cgroup_id": 28880,
+    "execution_nonce": [
+      158,
+      99,
+      38,
+      181,
+      132,
+      50,
+      193,
+      122,
+      66,
+      131,
+      38,
+      168,
+      12,
+      51,
+      82,
+      150
+    ]
+  },
+  "execution_id": "c3f30b0bbeae3eef675531893fb32b38",
+  "observation": {
+    "cookie": 8382,
+    "dns_when_resolve_returned": 0,
+    "elapsed_ms": 9,
+    "health_failure": null,
+    "index": 0,
+    "local": "10.200.255.1:15001",
+    "mismatch": "BACKEND_GENERATION",
+    "outbound_when_resolve_returned": 0,
+    "outcome": "IDENTITY_MISMATCH",
+    "peer": "10.201.0.1:46000",
+    "recv_q_bytes": 61,
+    "resolved_execution": null,
+    "tuple_binding": {
+      "backend_generation": 2,
+      "cgroup_id": 28880,
+      "execution_nonce": [
+        158,
+        99,
+        38,
+        181,
+        132,
+        50,
+        193,
+        122,
+        66,
+        131,
+        38,
+        168,
+        12,
+        51,
+        82,
+        150
+      ]
+    }
+  },
+  "stale_old_generation": true,
+  "verdict": "PASS"
+}

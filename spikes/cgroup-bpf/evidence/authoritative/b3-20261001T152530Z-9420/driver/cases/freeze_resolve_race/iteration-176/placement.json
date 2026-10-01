@@ -1,0 +1,24 @@
+{
+  "execution_id": "cad12909c60e49c592a0804a20c914d0",
+  "host_pid": 45879,
+  "netns": {
+    "agent_inode": 4026541916,
+    "cookie": {
+      "errno": null,
+      "probe": "SO_NETNS_COOKIE",
+      "socket_opened_by": "soglia-spike-agent executed in the owned netns",
+      "supported": true,
+      "value": 12347
+    },
+    "inode_used_as_identity": false,
+    "matches": true,
+    "owned_inode": 4026541916,
+    "owned_path": "/run/netns/soglia-cad12909c6"
+  },
+  "pid_listed": true,
+  "proc_cgroup": "0::/system.slice/soglia-b3.service/executions/cad12909c6\n",
+  "tag": "cad12909c6",
+  "target": "/sys/fs/cgroup/system.slice/soglia-b3.service/executions/cad12909c6",
+  "target_cgroup_procs": "45879\n",
+  "target_inode": 26090
+}

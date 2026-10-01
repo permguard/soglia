@@ -1,0 +1,50 @@
+Running as unit: soglia-b5-driver.service
+event.name=cgroup_bpf.attach_probe result=PASS mode=single hooks=6 effective=true
+event.name=cgroup_bpf.ready generation=1 programs=6 links=6 maps=7 policy_capacity=5 socket_capacity=128 ring_bytes=65536
+event.name=cgroup_bpf.startup result=PASS generation=1 duration_ms=93 swept=0 readiness=READY
+2026-10-01T15:34:39.027190Z  INFO egress request allowed event.name="egress.allowed" execution_id=882d851d845e01b3feba0e1ea358bdb5 method=CONNECT target=allowed.test:443 status=200
+soglia-agent 2026-10-01T15:34:39.027584Z  INFO tunnel ended event.name="egress.tunnel_ended" execution_id=882d851d845e01b3feba0e1ea358bdb5 end="closed"
+882d851d845e01b3feba0e1ea358bdb5: {"cmd":"proxy-connect-report","ok":true,"detail":"HTTP/1.1 200 OK","i":0,"source_port":40000,"local":"10.201.0.1:40000","proxy_destination":"10.200.255.1:15001","mode":"close","phase":"established","elapsed_ms":4}
+event.name=cgroup_bpf.freeze result=PASS correlation=882d851d84 duration_ms=7
+event.name=cgroup_bpf.destroy result=PASS correlation=882d851d84 duration_ms=15
+soglia-agent 08807a0a24504527140690cdf4f106eb: {"cmd":"fd_table","ok":true,"detail":"descriptors=[0=/dev/null,1=pipe:[23970],2=pipe:[23970]] sockets=[]","elapsed_ms":0}
+event.name=cgroup_bpf.freeze result=PASS correlation=08807a0a24 duration_ms=10
+event.name=cgroup_bpf.destroy result=PASS correlation=08807a0a24 duration_ms=10
+soglia-agent a6966161622e0f374bb924896e1ffcd0: {"cmd":"ipv6_stream","ok":false,"errno":1,"error":"Operation not permitted (os error 1)","elapsed_ms":0}
+event.name=cgroup_bpf.freeze result=PASS correlation=a696616162 duration_ms=14
+event.name=cgroup_bpf.destroy result=PASS correlation=a696616162 duration_ms=12
+soglia-agent 926b2ad3ee02b8b898eb7cff5d891a0a: {"cmd":"ipv4_datagram","ok":false,"errno":1,"error":"Operation not permitted (os error 1)","elapsed_ms":0}
+event.name=cgroup_bpf.freeze result=PASS correlation=926b2ad3ee duration_ms=10
+event.name=cgroup_bpf.destroy result=PASS correlation=926b2ad3ee duration_ms=11
+soglia-agent db307932d8b78ea704bb6134f79aa91a: {"cmd":"ipv6_datagram","ok":false,"errno":1,"error":"Operation not permitted (os error 1)","elapsed_ms":0}
+event.name=cgroup_bpf.freeze result=PASS correlation=db307932d8 duration_ms=17
+event.name=cgroup_bpf.destroy result=PASS correlation=db307932d8 duration_ms=18
+soglia-agent 01e40c6da9a375a26b669b05a06e7370: {"cmd":"direct_ipv4","ok":false,"errno":1,"error":"Operation not permitted (os error 1)","elapsed_ms":0}
+event.name=cgroup_bpf.freeze result=PASS correlation=01e40c6da9 duration_ms=5
+event.name=cgroup_bpf.destroy result=PASS correlation=01e40c6da9 duration_ms=19
+soglia-agent 0e6fe42a388473d25ec96d39afa1d7ac: {"cmd":"direct_ipv4","ok":false,"errno":1,"error":"Operation not permitted (os error 1)","elapsed_ms":0}
+event.name=cgroup_bpf.freeze result=PASS correlation=0e6fe42a38 duration_ms=8
+event.name=cgroup_bpf.destroy result=PASS correlation=0e6fe42a38 duration_ms=16
+event.name=cgroup_bpf.health sequence=1 generation=1 programs=6 links=6 maps=7 policy_active=0 policy_prepared=0 policy_frozen=0 policy_capacity=5 cookie=0 cookie_high_water=0 tuple=0 tuple_high_water=0 socket_capacity=128 ring_drained=0 ring_consumed_total=0 ring_dropped=0 cookie_insert_failed=0 tuple_insert_failed=0 published=1 unpublished=0 sock_create_deny=3 connect4_deny=2 connect6_deny=0 sendmsg4_deny=0 sendmsg6_deny=0 cookie_miss=0 sock_create_entry=6 connect4_entry=3 connect6_entry=0 sendmsg4_entry=0 sendmsg6_entry=0 sockops_entry=9 deny_not_active=0 deny_not_tcp=0 deny_not_proxy=2 deny_ipv6=0 deny_family=3 deny_udp=0 deny_cookie_full=0 deny_tuple_full=0 deny_cookie_missing=0 ancestor_fingerprint=4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+event.name=cgroup_bpf.attach_probe result=PASS mode=single hooks=6 effective=true
+event.name=cgroup_bpf.ready generation=1 programs=6 links=6 maps=7 policy_capacity=5 socket_capacity=128 ring_bytes=65536
+event.name=cgroup_bpf.startup result=PASS generation=1 duration_ms=130 swept=0 readiness=READY
+2026-10-01T15:34:41.106199Z  INFO egress request allowed event.name="egress.allowed" execution_id=ddf74cc0630fdae19b814bf1401a3de1 method=CONNECT target=allowed.test:443 status=200
+soglia-agent 2026-10-01T15:34:41.108829Z  INFO tunnel ended event.name="egress.tunnel_ended" execution_id=ddf74cc0630fdae19b814bf1401a3de1 end="closed"
+ddf74cc0630fdae19b814bf1401a3de1: {"cmd":"proxy-connect-report","ok":true,"detail":"HTTP/1.1 200 OK","i":0,"source_port":40001,"local":"10.201.0.1:40001","proxy_destination":"10.200.255.1:15001","mode":"fin","phase":"established","elapsed_ms":8}
+event.name=cgroup_bpf.freeze result=PASS correlation=ddf74cc063 duration_ms=18
+event.name=cgroup_bpf.destroy result=PASS correlation=ddf74cc063 duration_ms=19
+event.name=cgroup_bpf.health sequence=1 generation=1 programs=6 links=6 maps=7 policy_active=0 policy_prepared=0 policy_frozen=0 policy_capacity=5 cookie=0 cookie_high_water=0 tuple=0 tuple_high_water=0 socket_capacity=128 ring_drained=0 ring_consumed_total=0 ring_dropped=0 cookie_insert_failed=0 tuple_insert_failed=0 published=1 unpublished=0 sock_create_deny=0 connect4_deny=0 connect6_deny=0 sendmsg4_deny=0 sendmsg6_deny=0 cookie_miss=0 sock_create_entry=1 connect4_entry=1 connect6_entry=0 sendmsg4_entry=0 sendmsg6_entry=0 sockops_entry=9 deny_not_active=0 deny_not_tcp=0 deny_not_proxy=0 deny_ipv6=0 deny_family=0 deny_udp=0 deny_cookie_full=0 deny_tuple_full=0 deny_cookie_missing=0 ancestor_fingerprint=47c68c7835b45302c1b71128609f26ebb7714ba549f4d82014e53e9136e22434
+event.name=cgroup_bpf.attach_probe result=PASS mode=single hooks=6 effective=true
+event.name=cgroup_bpf.ready generation=1 programs=6 links=6 maps=7 policy_capacity=5 socket_capacity=128 ring_bytes=65536
+event.name=cgroup_bpf.startup result=PASS generation=1 duration_ms=127 swept=0 readiness=READY
+soglia-agent ae6ac48269783ed88c9521779fd86914: {"cmd":"foreign_rewrite","ok":false,"errno":-1,"error":"connection timed out","elapsed_ms":1501}
+event.name=cgroup_bpf.freeze result=PASS correlation=ae6ac48269 duration_ms=11
+event.name=cgroup_bpf.destroy result=PASS correlation=ae6ac48269 duration_ms=11
+event.name=cgroup_bpf.health sequence=1 generation=1 programs=6 links=6 maps=7 policy_active=0 policy_prepared=0 policy_frozen=0 policy_capacity=5 cookie=0 cookie_high_water=0 tuple=0 tuple_high_water=0 socket_capacity=128 ring_drained=0 ring_consumed_total=0 ring_dropped=0 cookie_insert_failed=0 tuple_insert_failed=0 published=0 unpublished=0 sock_create_deny=0 connect4_deny=0 connect6_deny=0 sendmsg4_deny=0 sendmsg6_deny=0 cookie_miss=0 sock_create_entry=1 connect4_entry=1 connect6_entry=0 sendmsg4_entry=0 sendmsg6_entry=0 sockops_entry=6 deny_not_active=0 deny_not_tcp=0 deny_not_proxy=0 deny_ipv6=0 deny_family=0 deny_udp=0 deny_cookie_full=0 deny_tuple_full=0 deny_cookie_missing=0 ancestor_fingerprint=4b0b3a3903439e455422f9c094a5dc9d64e9f68c20da0db90fe6c82b1bf8a927
+Finished with result: success
+Main processes terminated with: code=exited/status=0
+Service runtime: 4.513s
+CPU time consumed: 1.072s
+Memory peak: 3.8M
+Memory swap peak: 0B

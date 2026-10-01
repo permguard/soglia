@@ -1,0 +1,43 @@
+{
+  "after": {
+    "connect4_deny": 2,
+    "cookie_insert_failed": 2,
+    "cookie_miss": 0,
+    "cookies": 1,
+    "events_dropped": 0,
+    "policies": 1,
+    "published": 6,
+    "tuple_insert_failed": 0,
+    "tuples": 0,
+    "unpublished": 0
+  },
+  "before": {
+    "connect4_deny": 1,
+    "cookie_insert_failed": 1,
+    "cookie_miss": 0,
+    "cookies": 0,
+    "events_dropped": 0,
+    "policies": 1,
+    "published": 6,
+    "tuple_insert_failed": 0,
+    "tuples": 0,
+    "unpublished": 0
+  },
+  "client": {
+    "cmd": "proxy-preconnect-report",
+    "cookie": 8206,
+    "detail": "Operation not permitted (os error 1)",
+    "elapsed_ms": 0,
+    "errno": 1,
+    "ok": false,
+    "phase": "connect_result",
+    "source_port": 41000
+  },
+  "cookie": 8206,
+  "cookie_nonzero": true,
+  "entry_not_overwritten": true,
+  "injection_removed_before_health_or_restart": true,
+  "map_capacity": 4,
+  "map_occupancy": 1,
+  "verdict": "PASS"
+}

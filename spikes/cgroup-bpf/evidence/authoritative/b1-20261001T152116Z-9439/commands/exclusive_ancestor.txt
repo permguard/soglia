@@ -1,0 +1,7 @@
+Running as unit: soglia-b1-exclusive-root.service; invocation ID: 314125ea0b564388b30cf59a384dee6a
+Running as unit: soglia-b1-exclusive-app.service; invocation ID: b6db13b3c4464d4380a4897f420b72c5
+Failed to reset failed state of unit soglia-b1-exclusive-root.service: Unit soglia-b1-exclusive-root.service not loaded.
+RUN_ID=b1-diagnostic-exclusive-20261001T152124Z-9997
+EVIDENCE=/soglia/spikes/cgroup-bpf/evidence/replay/b1-diagnostic-exclusive-20261001T152124Z-9997
+Oct 01 17:21:25 lima-soglia-spike-b1-20261001T151902Z-13440 soglia[10322]: soglia: the cgroup-bpf backend could not start: refused: INCOMPATIBLE_BPF_TOPOLOGY hook=soglia_connect4 errno=Some(1)
+Oct 01 17:21:25 lima-soglia-spike-b1-20261001T151902Z-13440 soglia[10318]: soglia: the enforcer did not start: the cgroup-bpf backend could not start: refused: INCOMPATIBLE_BPF_TOPOLOGY hook=soglia_connect4 errno=Some(1)

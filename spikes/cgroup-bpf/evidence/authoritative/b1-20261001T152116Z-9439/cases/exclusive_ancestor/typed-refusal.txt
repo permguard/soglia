@@ -1,0 +1,2 @@
+Oct 01 17:21:25 lima-soglia-spike-b1-20261001T151902Z-13440 soglia[10322]: soglia: the cgroup-bpf backend could not start: refused: INCOMPATIBLE_BPF_TOPOLOGY hook=soglia_connect4 errno=Some(1)
+Oct 01 17:21:25 lima-soglia-spike-b1-20261001T151902Z-13440 soglia[10318]: soglia: the enforcer did not start: the cgroup-bpf backend could not start: refused: INCOMPATIBLE_BPF_TOPOLOGY hook=soglia_connect4 errno=Some(1)

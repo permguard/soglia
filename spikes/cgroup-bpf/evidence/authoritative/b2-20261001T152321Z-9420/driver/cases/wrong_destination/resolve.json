@@ -1,0 +1,17 @@
+{
+  "case": "WRONG_DESTINATION",
+  "peer": "10.201.0.1:40000",
+  "local": "10.200.255.1:15001",
+  "queried_peer": "10.201.0.1:40000",
+  "queried_local": "10.200.255.1:15002",
+  "recv_q_bytes": 61,
+  "dns_before": 0,
+  "outbound_before": 0,
+  "dns_when_resolve_returned": 0,
+  "outbound_when_resolve_returned": 0,
+  "outcome": "NOT_FOUND",
+  "mismatch": null,
+  "resolve_elapsed_ms": 0,
+  "resolved_execution": null,
+  "health_failure": null
+}

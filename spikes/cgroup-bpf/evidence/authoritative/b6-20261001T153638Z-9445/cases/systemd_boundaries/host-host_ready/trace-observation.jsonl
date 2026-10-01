@@ -1,0 +1,16 @@
+{"durable_state_seen":false,"executions":{},"existing_recorded_pin_count":0,"phase":"INTENT","policy_entries":0,"policy_state":null}
+{"durable_state_seen":true,"executions":{},"existing_recorded_pin_count":0,"phase":"INTENT","policy_entries":0,"policy_state":null}
+{"durable_state_seen":true,"executions":{},"existing_recorded_pin_count":1,"phase":"INTENT","policy_entries":0,"policy_state":null}
+{"durable_state_seen":true,"executions":{},"existing_recorded_pin_count":2,"phase":"INTENT","policy_entries":0,"policy_state":null}
+{"durable_state_seen":true,"executions":{},"existing_recorded_pin_count":3,"phase":"INTENT","policy_entries":0,"policy_state":null}
+{"durable_state_seen":true,"executions":{},"existing_recorded_pin_count":4,"phase":"INTENT","policy_entries":0,"policy_state":null}
+{"durable_state_seen":true,"executions":{},"existing_recorded_pin_count":5,"phase":"INTENT","policy_entries":0,"policy_state":null}
+{"durable_state_seen":true,"executions":{},"existing_recorded_pin_count":6,"phase":"INTENT","policy_entries":0,"policy_state":null}
+{"durable_state_seen":true,"executions":{},"existing_recorded_pin_count":7,"phase":"INTENT","policy_entries":0,"policy_state":null}
+{"durable_state_seen":true,"executions":{},"existing_recorded_pin_count":8,"phase":"INTENT","policy_entries":0,"policy_state":null}
+{"durable_state_seen":true,"executions":{},"existing_recorded_pin_count":9,"phase":"INTENT","policy_entries":0,"policy_state":null}
+{"durable_state_seen":true,"executions":{},"existing_recorded_pin_count":10,"phase":"INTENT","policy_entries":0,"policy_state":null}
+{"durable_state_seen":true,"executions":{},"existing_recorded_pin_count":11,"phase":"INTENT","policy_entries":0,"policy_state":null}
+{"durable_state_seen":true,"executions":{},"existing_recorded_pin_count":12,"phase":"INTENT","policy_entries":0,"policy_state":null}
+{"durable_state_seen":true,"executions":{},"existing_recorded_pin_count":13,"phase":"INTENT","policy_entries":0,"policy_state":null}
+{"durable_state_seen":true,"executions":{},"existing_recorded_pin_count":13,"phase":"READY","policy_entries":0,"policy_state":null}

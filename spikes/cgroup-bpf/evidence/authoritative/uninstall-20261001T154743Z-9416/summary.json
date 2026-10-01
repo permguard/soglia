@@ -1,0 +1,46 @@
+{
+  "schema": 1,
+  "run_id": "uninstall-20261001T154743Z-9416",
+  "gate": "UNINSTALL",
+  "authoritative": true,
+  "verdict": "PASS",
+  "stopped_at_case": "complete",
+  "failure_detail": "",
+  "cleanup": {
+    "verdict": "PASS",
+    "programs": "EXTERNAL_CHURN",
+    "links": "MATCH",
+    "maps": "MATCH"
+  },
+  "production_source_baseline": {
+    "commit": "7dd0840e4d51078c01ab26343c9eebfd315e5e5e",
+    "matches": true
+  },
+  "cases": {
+    "fresh_host": "PASS",
+    "interrupted_startup_pin_root": "PASS",
+    "normal_service_stop": "PASS",
+    "known_compatible": "PASS",
+    "live_runtime_refusal": "PASS",
+    "incompatible_refusal": "PASS",
+    "unknown_refusal": "PASS",
+    "unsupported_refusal": "PASS",
+    "nonempty_refusal": "PASS",
+    "interrupted_resume": "PASS",
+    "target_released": "PASS"
+  },
+  "scope": {
+    "dry_run_equivalence": "PERFORMED",
+    "interrupted_startup_pin_root": "PERFORMED: trusted empty root removed by one exact rmdir",
+    "typed_refusals_before_mutation": "PERFORMED",
+    "interrupted_resume": "PERFORMED: durable uninstall INTENT boundary",
+    "non_owned_state_preservation": "PERFORMED",
+    "uninstall_after_normal_service_stop": "PERFORMED: stopped systemd unit removed executions/ before verified uninstall",
+    "target_released": "PERFORMED",
+    "every_detach_unlink_boundary": "NOT_PERFORMED in first diagnostic; blocked if an earlier production defect is found",
+    "previous_release_compatibility": "NOT_PERFORMED: no released predecessor exists"
+  },
+  "authoritative_vm": {
+    "name": "soglia-spike-uninstall-20261001T154550Z-52660"
+  }
+}

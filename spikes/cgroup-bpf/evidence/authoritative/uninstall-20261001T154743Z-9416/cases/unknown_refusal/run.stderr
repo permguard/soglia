@@ -1,0 +1,6 @@
+event.name=cgroup_bpf.attach_probe result=PASS mode=single hooks=6 effective=true
+event.name=cgroup_bpf.ready generation=1 programs=6 links=6 maps=7 policy_capacity=3 socket_capacity=64 ring_bytes=65536
+event.name=cgroup_bpf.startup result=PASS generation=1 duration_ms=82 swept=0 readiness=READY
+[2m2026-10-01T15:47:52.479019Z[0m [32m INFO[0m privileges dropped [3mevent.name[0m[2m=[0m"startup.privileges_dropped" [3muid[0m[2m=[0m65534 [3mgid[0m[2m=[0m65534
+[2m2026-10-01T15:47:52.479299Z[0m [32m INFO[0m soglia is ready [3mevent.name[0m[2m=[0m"startup.ready" [3mingress[0m[2m=[0m127.0.0.1:0 [3megress[0m[2m=[0m10.200.255.1:15001
+[2m2026-10-01T15:47:52.489542Z[0m [32m INFO[0m soglia stopped [3mevent.name[0m[2m=[0m"shutdown.done"

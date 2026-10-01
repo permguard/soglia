@@ -1,0 +1,41 @@
+{
+  "maps": [
+    {
+      "configured": 3,
+      "kernel_max_entries": 3,
+      "matches": true,
+      "name": "soglia_policy",
+      "pin": "/sys/fs/bpf/soglia-b4/c4f0cd98ef23eba05eed7fc94b04e94a-g2/maps/soglia_policy"
+    },
+    {
+      "configured": 3,
+      "kernel_max_entries": 3,
+      "matches": true,
+      "name": "soglia_denies",
+      "pin": "/sys/fs/bpf/soglia-b4/c4f0cd98ef23eba05eed7fc94b04e94a-g2/maps/soglia_denies"
+    },
+    {
+      "configured": 4,
+      "kernel_max_entries": 4,
+      "matches": true,
+      "name": "soglia_cookie_a",
+      "pin": "/sys/fs/bpf/soglia-b4/c4f0cd98ef23eba05eed7fc94b04e94a-g2/maps/soglia_cookie_a"
+    },
+    {
+      "configured": 4,
+      "kernel_max_entries": 4,
+      "matches": true,
+      "name": "soglia_tuples",
+      "pin": "/sys/fs/bpf/soglia-b4/c4f0cd98ef23eba05eed7fc94b04e94a-g2/maps/soglia_tuples"
+    },
+    {
+      "configured": 4096,
+      "kernel_max_entries": 4096,
+      "matches": true,
+      "name": "soglia_events",
+      "pin": "/sys/fs/bpf/soglia-b4/c4f0cd98ef23eba05eed7fc94b04e94a-g2/maps/soglia_events"
+    }
+  ],
+  "source": "bpftool map show pinned",
+  "verdict": "PASS"
+}

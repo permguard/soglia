@@ -1,0 +1,1 @@
+Oct 01 17:21:29 lima-soglia-spike-b1-20261001T151902Z-13440 soglia[13005]: 2026-10-01T15:21:29.461378Z ERROR Soglia refused startup event.name="startup.refused" refusal.class="UNKNOWN"

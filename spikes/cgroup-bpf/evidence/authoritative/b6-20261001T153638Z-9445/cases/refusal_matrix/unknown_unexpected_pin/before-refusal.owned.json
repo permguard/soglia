@@ -1,0 +1,325 @@
+{
+  "programs": [
+    2451,
+    2452,
+    2453,
+    2454,
+    2455,
+    2456
+  ],
+  "links": [
+    729,
+    730,
+    731,
+    732,
+    733,
+    734
+  ],
+  "maps": [
+    1183,
+    1184,
+    1185,
+    1186,
+    1187,
+    1188,
+    1190
+  ],
+  "owned_program_objects": [
+    {
+      "id": 2451,
+      "type": "cgroup_sock",
+      "name": "soglia_sock_create",
+      "tag": "af3beafe73d93e9c",
+      "gpl_compatible": false,
+      "loaded_at": 1790869084,
+      "uid": 0,
+      "orphaned": false,
+      "bytes_xlated": 768,
+      "jited": true,
+      "bytes_jited": 592,
+      "bytes_memlock": 4096,
+      "map_ids": [
+        1185,
+        1190
+      ],
+      "btf_id": 705
+    },
+    {
+      "id": 2452,
+      "type": "cgroup_sock_addr",
+      "name": "soglia_connect4",
+      "tag": "b243ec8fc95d6e8d",
+      "gpl_compatible": false,
+      "loaded_at": 1790869084,
+      "uid": 0,
+      "orphaned": false,
+      "bytes_xlated": 2752,
+      "jited": true,
+      "bytes_jited": 1944,
+      "bytes_memlock": 4096,
+      "map_ids": [
+        1185,
+        1183,
+        1189,
+        1186,
+        1190,
+        1188
+      ],
+      "btf_id": 705
+    },
+    {
+      "id": 2453,
+      "type": "cgroup_sock_addr",
+      "name": "soglia_connect6",
+      "tag": "dc2aed2e29a3b7d4",
+      "gpl_compatible": false,
+      "loaded_at": 1790869084,
+      "uid": 0,
+      "orphaned": false,
+      "bytes_xlated": 704,
+      "jited": true,
+      "bytes_jited": 544,
+      "bytes_memlock": 4096,
+      "map_ids": [
+        1185,
+        1190
+      ],
+      "btf_id": 705
+    },
+    {
+      "id": 2454,
+      "type": "cgroup_sock_addr",
+      "name": "soglia_sendmsg4",
+      "tag": "ce65da13e7299c0a",
+      "gpl_compatible": false,
+      "loaded_at": 1790869084,
+      "uid": 0,
+      "orphaned": false,
+      "bytes_xlated": 704,
+      "jited": true,
+      "bytes_jited": 544,
+      "bytes_memlock": 4096,
+      "map_ids": [
+        1185,
+        1190
+      ],
+      "btf_id": 705
+    },
+    {
+      "id": 2455,
+      "type": "cgroup_sock_addr",
+      "name": "soglia_sendmsg6",
+      "tag": "930e5173f6d0ff4c",
+      "gpl_compatible": false,
+      "loaded_at": 1790869084,
+      "uid": 0,
+      "orphaned": false,
+      "bytes_xlated": 704,
+      "jited": true,
+      "bytes_jited": 544,
+      "bytes_memlock": 4096,
+      "map_ids": [
+        1185,
+        1190
+      ],
+      "btf_id": 705
+    },
+    {
+      "id": 2456,
+      "type": "sock_ops",
+      "name": "soglia_sockops",
+      "tag": "a22a3c26162343b4",
+      "gpl_compatible": false,
+      "loaded_at": 1790869084,
+      "uid": 0,
+      "orphaned": false,
+      "bytes_xlated": 2504,
+      "jited": true,
+      "bytes_jited": 1832,
+      "bytes_memlock": 4096,
+      "map_ids": [
+        1185,
+        1188,
+        1190,
+        1184,
+        1186
+      ],
+      "btf_id": 705
+    }
+  ],
+  "owned_link_objects": [
+    {
+      "id": 729,
+      "type": "cgroup",
+      "prog_id": 2451,
+      "cgroup_id": 0,
+      "attach_type": "cgroup_inet_sock_create"
+    },
+    {
+      "id": 730,
+      "type": "cgroup",
+      "prog_id": 2452,
+      "cgroup_id": 0,
+      "attach_type": "cgroup_inet4_connect"
+    },
+    {
+      "id": 731,
+      "type": "cgroup",
+      "prog_id": 2453,
+      "cgroup_id": 0,
+      "attach_type": "cgroup_inet6_connect"
+    },
+    {
+      "id": 732,
+      "type": "cgroup",
+      "prog_id": 2454,
+      "cgroup_id": 0,
+      "attach_type": "cgroup_udp4_sendmsg"
+    },
+    {
+      "id": 733,
+      "type": "cgroup",
+      "prog_id": 2455,
+      "cgroup_id": 0,
+      "attach_type": "cgroup_udp6_sendmsg"
+    },
+    {
+      "id": 734,
+      "type": "cgroup",
+      "prog_id": 2456,
+      "cgroup_id": 0,
+      "attach_type": "cgroup_sock_ops"
+    }
+  ],
+  "owned_map_objects": [
+    {
+      "id": 1183,
+      "type": "hash",
+      "name": "soglia_policy",
+      "flags": 0,
+      "bytes_key": 8,
+      "bytes_value": 40,
+      "max_entries": 3,
+      "bytes_memlock": 1856,
+      "frozen": 0,
+      "btf_id": 705
+    },
+    {
+      "id": 1184,
+      "type": "hash",
+      "name": "soglia_tuples",
+      "flags": 0,
+      "bytes_key": 16,
+      "bytes_value": 48,
+      "max_entries": 64,
+      "bytes_memlock": 9760,
+      "frozen": 0,
+      "btf_id": 705
+    },
+    {
+      "id": 1185,
+      "type": "array",
+      "name": "soglia_counters",
+      "flags": 0,
+      "bytes_key": 4,
+      "bytes_value": 8,
+      "max_entries": 26,
+      "bytes_memlock": 592,
+      "frozen": 0,
+      "btf_id": 705
+    },
+    {
+      "id": 1186,
+      "type": "hash",
+      "name": "soglia_denies",
+      "flags": 0,
+      "bytes_key": 32,
+      "bytes_value": 8,
+      "max_entries": 3,
+      "bytes_memlock": 1800,
+      "frozen": 0,
+      "btf_id": 705
+    },
+    {
+      "id": 1187,
+      "type": "array",
+      "name": "soglia_meta",
+      "flags": 0,
+      "bytes_key": 4,
+      "bytes_value": 40,
+      "max_entries": 1,
+      "bytes_memlock": 424,
+      "frozen": 0,
+      "btf_id": 705
+    },
+    {
+      "id": 1188,
+      "type": "hash",
+      "name": "soglia_cookie_a",
+      "flags": 0,
+      "bytes_key": 8,
+      "bytes_value": 32,
+      "max_entries": 64,
+      "bytes_memlock": 8128,
+      "frozen": 0,
+      "btf_id": 705
+    },
+    {
+      "id": 1190,
+      "type": "ringbuf",
+      "name": "soglia_events",
+      "flags": 0,
+      "bytes_key": 0,
+      "bytes_value": 0,
+      "max_entries": 65536,
+      "bytes_memlock": 78488,
+      "frozen": 0
+    }
+  ],
+  "observed_programs": [
+    2,
+    97,
+    1087,
+    2429,
+    2430,
+    2431,
+    2432,
+    2433,
+    2434,
+    2435,
+    2436,
+    2437,
+    2438,
+    2439,
+    2440,
+    2451,
+    2452,
+    2453,
+    2454,
+    2455,
+    2456
+  ],
+  "observed_links": [
+    1,
+    2,
+    729,
+    730,
+    731,
+    732,
+    733,
+    734
+  ],
+  "observed_maps": [
+    2,
+    5,
+    1183,
+    1184,
+    1185,
+    1186,
+    1187,
+    1188,
+    1189,
+    1190,
+    1191
+  ]
+}

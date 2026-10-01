@@ -1,0 +1,9 @@
+[2m2026-10-01T15:47:51.483187Z[0m [32m INFO[0m soglia stopped [3mevent.name[0m[2m=[0m"shutdown.done"
+Stopping soglia-uninstall-normal-uninstall-20261001T154743Z-9416.service - /var/tmp/uninstall-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/uninstall-20261001T154743Z-9416/cases/normal_service_stop/config.yaml...
+soglia-uninstall-normal-uninstall-20261001T154743Z-9416.service: Killing process 9629 (exe) with signal SIGKILL.
+soglia-uninstall-normal-uninstall-20261001T154743Z-9416.service: Killing process 9630 (exe) with signal SIGKILL.
+soglia-uninstall-normal-uninstall-20261001T154743Z-9416.service: Failed to kill control group /system.slice/soglia-uninstall-normal-uninstall-20261001T154743Z-9416.service, ignoring: Invalid argument
+soglia-uninstall-normal-uninstall-20261001T154743Z-9416.service: Deactivated successfully.
+soglia-uninstall-normal-uninstall-20261001T154743Z-9416.service: Unit process 9629 (exe) remains running after unit stopped.
+soglia-uninstall-normal-uninstall-20261001T154743Z-9416.service: Unit process 9630 (exe) remains running after unit stopped.
+Stopped soglia-uninstall-normal-uninstall-20261001T154743Z-9416.service - /var/tmp/uninstall-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/uninstall-20261001T154743Z-9416/cases/normal_service_stop/config.yaml.

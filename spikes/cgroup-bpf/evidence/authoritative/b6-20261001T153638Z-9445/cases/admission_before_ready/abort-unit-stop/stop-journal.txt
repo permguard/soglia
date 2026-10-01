@@ -1,0 +1,5 @@
+[2m2026-10-01T15:36:48.754738Z[0m [32m INFO[0m soglia stopped [3mevent.name[0m[2m=[0m"shutdown.done"
+Stopping soglia-b6-admission-before-ready.service - /bin/bash -c "kill -STOP 0; exec \"\$@\"" bash /var/tmp/b6-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b6-20261001T153638Z-9445/cases/admission_before_ready/config.yaml...
+soglia-b6-admission-before-ready.service: Killing process 9774 (exe) with signal SIGKILL.
+soglia-b6-admission-before-ready.service: Deactivated successfully.
+Stopped soglia-b6-admission-before-ready.service - /bin/bash -c "kill -STOP 0; exec \"\$@\"" bash /var/tmp/b6-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b6-20261001T153638Z-9445/cases/admission_before_ready/config.yaml.

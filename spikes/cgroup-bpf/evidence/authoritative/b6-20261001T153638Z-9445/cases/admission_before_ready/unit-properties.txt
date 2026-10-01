@@ -1,0 +1,4 @@
+Restart=no
+ControlGroup=/system.slice/soglia-b6-admission-before-ready.service
+Delegate=yes
+KillMode=mixed

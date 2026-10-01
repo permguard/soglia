@@ -1,0 +1,36 @@
+Running as unit: soglia-b1-unnamed.service; invocation ID: b55f28b8f8c74a5d92c5e88ef54d0993
+Running as unit: soglia-b1-unnamed.service; invocation ID: 7cf2920f71d846b3bce6601d3bd9c091
+Running as unit: soglia-b1-unnamed.service; invocation ID: 1d4366e8732346dcac0583afd22b08ac
+/run/soglia-b1-unnamed/cgroup-bpf/state.json: OK
+Running as unit: soglia-b1-unnamed.service; invocation ID: df2ca841a9104ec4a6a4f169402b2da3
+RUN_ID=b1-unnamed-external-20261001T152128Z-12440
+EVIDENCE=/soglia/spikes/cgroup-bpf/evidence/replay/b1-unnamed-external-20261001T152128Z-12440
+{
+  "verdict": "PASS",
+  "positive": {
+    "startup_ready": true,
+    "effective_on_execution_subtree": true,
+    "bpftool_name": "ABSENT_OR_EMPTY",
+    "program_id": 370,
+    "tag": "57cd311f2e27366b",
+    "program_preserved_by_uninstall": true,
+    "link_preserved_by_uninstall": true
+  },
+  "negative": {
+    "replacement_name": "ABSENT_OR_EMPTY",
+    "program_id": 451,
+    "tag": "711788109f1edac6",
+    "tag_differs_from_original": true,
+    "refusal_class": "UNKNOWN",
+    "exit_code": 21,
+    "replacement_preserved_during_refusal": true
+  },
+  "control": {
+    "original_identity_restored": true,
+    "startup_ready": true,
+    "uninstall_preserved_external_program": true
+  },
+  "cleanup": {
+    "soglia_owned_resources_absent": true
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "case": "missing_publication_timeout",
+  "fault": "Remove",
+  "health_failure": null,
+  "observation": {
+    "dns_when_resolve_returned": 0,
+    "elapsed_ms": 2000,
+    "health_failure": null,
+    "local": "10.200.255.1:15001",
+    "mismatch": null,
+    "outbound_when_resolve_returned": 0,
+    "outcome": "TIMEOUT",
+    "peer": "10.201.0.1:42003",
+    "recv_q_bytes": 61,
+    "resolved_execution": null,
+    "tuple_cookie": 4135
+  },
+  "verdict": "PASS"
+}

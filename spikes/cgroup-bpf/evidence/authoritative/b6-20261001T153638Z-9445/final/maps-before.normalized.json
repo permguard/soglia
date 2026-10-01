@@ -1,0 +1,26 @@
+[
+  {
+    "bytes_key": 4,
+    "bytes_memlock": 8576,
+    "bytes_value": 4,
+    "flags": 0,
+    "frozen": 0,
+    "id": 2,
+    "max_entries": 1024,
+    "name": "hid_jmp_table",
+    "owner_jited": true,
+    "owner_prog_type": "tracing",
+    "type": "prog_array"
+  },
+  {
+    "bytes_key": 0,
+    "bytes_memlock": 1065368,
+    "bytes_value": 0,
+    "flags": 0,
+    "frozen": 0,
+    "id": 5,
+    "max_entries": 1048576,
+    "name": "lima_ticker_eve",
+    "type": "ringbuf"
+  }
+]

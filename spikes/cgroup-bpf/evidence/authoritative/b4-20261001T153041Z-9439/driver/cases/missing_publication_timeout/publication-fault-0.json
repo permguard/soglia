@@ -1,0 +1,11 @@
+{
+  "actor": "B4 qualification harness",
+  "cookie": 4135,
+  "fault": "REMOVE_UNTIL_TIMEOUT",
+  "local": "10.200.255.1:15001",
+  "peer": "10.201.0.1:42003",
+  "production_code_modified": false,
+  "single_mutation": true,
+  "tuple_key_hex": "0ac900010ac8ff0113a4993a00000000",
+  "tuple_value_hex": "271000000000000034230000000000002744737971a271826f7f9e81b96affbb0200000000000000256f54c021000000"
+}

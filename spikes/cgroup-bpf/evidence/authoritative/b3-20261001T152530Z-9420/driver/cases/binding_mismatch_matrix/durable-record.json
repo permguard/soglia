@@ -1,0 +1,164 @@
+[
+  {
+    "binding_after": {
+      "backend_generation": 1,
+      "cgroup_id": 28602,
+      "execution_nonce": [
+        6,
+        29,
+        91,
+        198,
+        192,
+        242,
+        88,
+        227,
+        17,
+        192,
+        227,
+        88,
+        131,
+        231,
+        56,
+        131
+      ]
+    },
+    "binding_before": {
+      "backend_generation": 1,
+      "cgroup_id": 28601,
+      "execution_nonce": [
+        6,
+        29,
+        91,
+        198,
+        192,
+        242,
+        88,
+        227,
+        17,
+        192,
+        227,
+        88,
+        131,
+        231,
+        56,
+        131
+      ]
+    },
+    "boundary": "DURABLE_RECORD",
+    "field": "CGROUP_ID",
+    "mismatched_record_preserved_byte_for_byte": true,
+    "original_record_restored_byte_for_byte": true,
+    "production_code_modified": false,
+    "refusal": "the cgroup-bpf backend could not start: refused: UNKNOWN per-Execution ownership record; no kernel object was changed",
+    "startup_refused": true,
+    "verdict": "PASS"
+  },
+  {
+    "binding_after": {
+      "backend_generation": 1,
+      "cgroup_id": 28601,
+      "execution_nonce": [
+        134,
+        29,
+        91,
+        198,
+        192,
+        242,
+        88,
+        227,
+        17,
+        192,
+        227,
+        88,
+        131,
+        231,
+        56,
+        131
+      ]
+    },
+    "binding_before": {
+      "backend_generation": 1,
+      "cgroup_id": 28601,
+      "execution_nonce": [
+        6,
+        29,
+        91,
+        198,
+        192,
+        242,
+        88,
+        227,
+        17,
+        192,
+        227,
+        88,
+        131,
+        231,
+        56,
+        131
+      ]
+    },
+    "boundary": "DURABLE_RECORD",
+    "field": "EXECUTION_NONCE",
+    "mismatched_record_preserved_byte_for_byte": true,
+    "original_record_restored_byte_for_byte": true,
+    "production_code_modified": false,
+    "refusal": "the cgroup-bpf backend could not start: refused: UNKNOWN per-Execution ownership record; no kernel object was changed",
+    "startup_refused": true,
+    "verdict": "PASS"
+  },
+  {
+    "binding_after": {
+      "backend_generation": 2,
+      "cgroup_id": 28601,
+      "execution_nonce": [
+        6,
+        29,
+        91,
+        198,
+        192,
+        242,
+        88,
+        227,
+        17,
+        192,
+        227,
+        88,
+        131,
+        231,
+        56,
+        131
+      ]
+    },
+    "binding_before": {
+      "backend_generation": 1,
+      "cgroup_id": 28601,
+      "execution_nonce": [
+        6,
+        29,
+        91,
+        198,
+        192,
+        242,
+        88,
+        227,
+        17,
+        192,
+        227,
+        88,
+        131,
+        231,
+        56,
+        131
+      ]
+    },
+    "boundary": "DURABLE_RECORD",
+    "field": "BACKEND_GENERATION",
+    "mismatched_record_preserved_byte_for_byte": true,
+    "original_record_restored_byte_for_byte": true,
+    "production_code_modified": false,
+    "refusal": "the cgroup-bpf backend could not start: refused: UNKNOWN per-Execution ownership record; no kernel object was changed",
+    "startup_refused": true,
+    "verdict": "PASS"
+  }
+]

@@ -1,0 +1,99 @@
+Running as unit: soglia-b4.service
+event.name=cgroup_bpf.recovery_cleanup_observation elapsed_ms=0 surviving=program:122,program:123,program:124,program:125,program:126,program:127,map:21,map:24,map:17,map:23,map:20,map:19
+event.name=cgroup_bpf.attach_probe result=PASS mode=single hooks=6 effective=true
+event.name=cgroup_bpf.ready generation=2 programs=6 links=6 maps=7 policy_capacity=3 socket_capacity=4 ring_bytes=4096
+event.name=cgroup_bpf.startup result=PASS generation=2 duration_ms=140 swept=1 readiness=READY
+event.name=cgroup_bpf.health sequence=1 generation=2 programs=6 links=6 maps=7 policy_active=0 policy_prepared=0 policy_frozen=0 policy_capacity=3 cookie=0 cookie_high_water=0 tuple=0 tuple_high_water=0 socket_capacity=4 ring_drained=0 ring_consumed_total=0 ring_dropped=0 cookie_insert_failed=0 tuple_insert_failed=0 published=0 unpublished=0 sock_create_deny=0 connect4_deny=0 connect6_deny=0 sendmsg4_deny=0 sendmsg6_deny=0 cookie_miss=0 sock_create_entry=0 connect4_entry=0 connect6_entry=0 sendmsg4_entry=0 sendmsg6_entry=0 sockops_entry=0 deny_not_active=0 deny_not_tcp=0 deny_not_proxy=0 deny_ipv6=0 deny_family=0 deny_udp=0 deny_cookie_full=0 deny_tuple_full=0 deny_cookie_missing=0 ancestor_fingerprint=4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+2026-10-01T15:30:53.376859Z  INFO egress request allowed event.name="egress.allowed" execution_id=95615ac083a427608f225ec1f8d1d59f method=CONNECT target=allowed.test:443 status=200
+soglia-agent 2026-10-01T15:30:53.377640Z  INFO tunnel ended event.name="egress.tunnel_ended" execution_id=95615ac083a427608f225ec1f8d1d59f end="closed"
+95615ac083a427608f225ec1f8d1d59f: {"cmd":"proxy-connect-report","ok":true,"detail":"HTTP/1.1 200 OK","i":0,"source_port":47000,"local":"10.201.0.1:47000","proxy_destination":"10.200.255.1:15001","mode":"close","phase":"established","elapsed_ms":4}
+event.name=cgroup_bpf.freeze result=PASS correlation=95615ac083 duration_ms=14
+event.name=cgroup_bpf.destroy result=PASS correlation=95615ac083 duration_ms=20
+2026-10-01T15:30:53.618417Z  INFO egress request allowed event.name="egress.allowed" execution_id=03b5ba42d15989a584c40fe2f43551e7 method=CONNECT target=allowed.test:443 status=200
+2026-10-01T15:30:53.625579Z  INFO egress request allowed event.name="egress.allowed" execution_id=03b5ba42d15989a584c40fe2f43551e7 method=CONNECT target=allowed.test:443 status=200
+2026-10-01T15:30:53.628445Z  INFO egress request allowed event.name="egress.allowed" execution_id=03b5ba42d15989a584c40fe2f43551e7 method=CONNECT target=allowed.test:443 status=200
+2026-10-01T15:30:53.631876Z  INFO egress request allowed event.name="egress.allowed" execution_id=03b5ba42d15989a584c40fe2f43551e7 method=CONNECT target=allowed.test:443 status=200
+2026-10-01T15:30:53.661344Z  INFO tunnel ended event.name="egress.tunnel_ended" execution_id=03b5ba42d15989a584c40fe2f43551e7 end="runtime-shutdown"
+2026-10-01T15:30:53.661345Z  INFO tunnel ended event.name="egress.tunnel_ended" execution_id=03b5ba42d15989a584c40fe2f43551e7 end="runtime-shutdown"
+2026-10-01T15:30:53.661355Z  INFO tunnel ended event.name="egress.tunnel_ended" execution_id=03b5ba42d15989a584c40fe2f43551e7 end="runtime-shutdown"
+2026-10-01T15:30:53.661370Z  INFO tunnel ended event.name="egress.tunnel_ended" execution_id=03b5ba42d15989a584c40fe2f43551e7 end="runtime-shutdown"
+soglia-agent 03b5ba42d15989a584c40fe2f43551e7: {"cmd":"proxy-capacity-report","ok":true,"detail":"completed 4 base sockets and one capacity probe"}
+event.name=cgroup_bpf.freeze result=PASS correlation=03b5ba42d1 duration_ms=17
+event.name=cgroup_bpf.destroy result=PASS correlation=03b5ba42d1 duration_ms=13
+2026-10-01T15:30:53.866742Z  INFO egress request allowed event.name="egress.allowed" execution_id=dc58a8d696024325cc12e228c722e270 method=CONNECT target=allowed.test:443 status=200
+soglia-agent 2026-10-01T15:30:53.867543Z  INFO tunnel ended event.name="egress.tunnel_ended" execution_id=dc58a8d696024325cc12e228c722e270 end="closed"
+dc58a8d696024325cc12e228c722e270: {"cmd":"proxy-connect-report","ok":true,"detail":"HTTP/1.1 200 OK","i":0,"source_port":47000,"local":"10.201.0.1:47000","proxy_destination":"10.200.255.1:15001","mode":"close","phase":"established","elapsed_ms":4}
+event.name=cgroup_bpf.freeze result=PASS correlation=dc58a8d696 duration_ms=15
+event.name=cgroup_bpf.destroy result=PASS correlation=dc58a8d696 duration_ms=14
+soglia-agent 4bc0fd1181693dd39e6f3bc2c5cc0aevent.name=cgroup_bpf.freeze result=PASS correlation=4b25: c0fd{"cmd":"proxy-preconnect-report","ok":true,"detail":"duplicate-cookie probe completed"}
+1181 duration_ms=5
+event.name=cgroup_bpf.destroy result=PASS correlation=4bc0fd1181 duration_ms=15
+2026-10-01T15:30:54.313688Z  INFO egress request allowed event.name="egress.allowed" execution_id=2621ee0a44ce2eae71c73d365888d07f method=CONNECT target=allowed.test:443 status=200
+soglia-agent 2026-10-01T15:30:54.313981Z  INFO tunnel ended event.name="egress.tunnel_ended" execution_id=2621ee0a44ce2eae71c73d365888d07f end="closed"
+2621ee0a44ce2eae71c73d365888d07f: {"cmd":"proxy-connect-report","ok":true,"detail":"HTTP/1.1 200 OK","i":0,"source_port":47000,"local":"10.201.0.1:47000","proxy_destination":"10.200.255.1:15001","mode":"close","phase":"established","elapsed_ms":5}
+event.name=cgroup_bpf.freeze result=PASS correlation=2621ee0a44 duration_ms=15
+event.name=cgroup_bpf.destroy result=PASS correlation=2621ee0a44 duration_ms=14
+2026-10-01T15:30:56.617697Z  WARN Candidate-A Resolve denied at its publication deadline event.name="cgroup_bpf.resolve_timeout" reason="tuple_absent"
+2026-10-01T15:30:56.617769Z  INFO bounded Candidate-A Resolve health snapshot event.name="cgroup_bpf.resolve_health" interval_ms=2062 resolved=0 delayed_hit=0 not_found=0 identity_mismatch=0 stale_generation=0 revoked=0 timeout=1 queue_refusal=0 unavailable=0 integrity_failure=0 latency_le_100us=0 latency_le_250us=0 latency_le_500us=0 latency_le_1ms=0 latency_le_2ms=0 latency_le_5ms=0 latency_le_10ms=0 latency_over_10ms=1 latency_max_us=2000089
+2026-10-01T15:30:56.617814Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:42000 result=Timeout
+soglia-agent e7faf0b31eec7ef218dad2ef84152242: {"cmd":"proxy-connect-report","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)","i":0,"source_port":42000,"local":"10.201.0.1:42000","proxy_destination":"10.200.255.1:15001","mode":"close","phase":"established","elapsed_ms":2055}
+event.name=cgroup_bpf.freeze result=PASS correlation=e7faf0b31e duration_ms=11
+event.name=cgroup_bpf.destroy result=PASS correlation=e7faf0b31e duration_ms=17
+2026-10-01T15:30:56.869062Z  INFO egress request allowed event.name="egress.allowed" execution_id=2c45e961d0cb7cb2389637ddb36c87e8 method=CONNECT target=allowed.test:443 status=200
+soglia-agent 2026-10-01T15:30:56.870557Z  INFO tunnel ended event.name="egress.tunnel_ended" execution_id=2c45e961d0cb7cb2389637ddb36c87e8 end="closed"
+2c45e961d0cb7cb2389637ddb36c87e8: {"cmd":"proxy-connect-report","ok":true,"detail":"HTTP/1.1 200 OK","i":0,"source_port":47000,"local":"10.201.0.1:47000","proxy_destination":"10.200.255.1:15001","mode":"close","phase":"established","elapsed_ms":5}
+event.name=cgroup_bpf.freeze result=PASS correlation=2c45e961d0 duration_ms=14
+event.name=cgroup_bpf.destroy result=PASS correlation=2c45e961d0 duration_ms=24
+2026-10-01T15:30:57.118386Z  WARN Candidate-A Resolve denied event.name="cgroup_bpf.resolve_identity_mismatch" reason=Cookie
+2026-10-01T15:30:57.119381Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:42001 result=IdentityMismatch(Cookie)
+soglia-agent ba093b492d7269e7267cef4c6a229fbd: {"cmd":"proxy-connect-report","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)","i":0,"source_port":42001,"local":"10.201.0.1:42001","proxy_destination":"10.200.255.1:15001","mode":"close","phase":"established","elapsed_ms":5}
+event.name=cgroup_bpf.freeze result=PASS correlation=ba093b492d duration_ms=13
+event.name=cgroup_bpf.destroy result=PASS correlation=ba093b492d duration_ms=13
+2026-10-01T15:30:57.355723Z  INFO egress request allowed event.name="egress.allowed" execution_id=091d5c2f709ffd29b1c30980508beb68 method=CONNECT target=allowed.test:443 status=200
+soglia-agent 2026-10-01T15:30:57.358515Z  INFO tunnel ended event.name="egress.tunnel_ended" execution_id=091d5c2f709ffd29b1c30980508beb68 end="closed"
+091d5c2f709ffd29b1c30980508beb68: {"cmd":"proxy-connect-report","ok":true,"detail":"HTTP/1.1 200 OK","i":0,"source_port":47000,"local":"10.201.0.1:47000","proxy_destination":"10.200.255.1:15001","mode":"close","phase":"established","elapsed_ms":8}
+event.name=cgroup_bpf.freeze result=PASS correlation=091d5c2f70 duration_ms=8
+event.name=cgroup_bpf.destroy result=PASS correlation=091d5c2f70 duration_ms=16
+2026-10-01T15:30:57.847483Z  INFO egress request allowed event.name="egress.allowed" execution_id=f9a19ca80528b664ff479334fb372cf3 method=CONNECT target=allowed.test:443 status=200
+soglia-agent 2026-10-01T15:30:57.847686Z  INFO tunnel ended event.name="egress.tunnel_ended" execution_id=f9a19ca80528b664ff479334fb372cf3 end="closed"
+f9a19ca80528b664ff479334fb372cf3: {"cmd":"proxy-connect-report","ok":true,"detail":"HTTP/1.1 200 OK","i":0,"source_port":42002,"local":"10.201.0.1:42002","proxy_destination":"10.200.255.1:15001","mode":"close","phase":"established","elapsed_ms":269}
+event.name=cgroup_bpf.freeze result=PASS correlation=f9a19ca805 duration_ms=6
+event.name=cgroup_bpf.destroy result=PASS correlation=f9a19ca805 duration_ms=18
+2026-10-01T15:31:00.080006Z  WARN Candidate-A Resolve denied at its publication deadline event.name="cgroup_bpf.resolve_timeout" reason="tuple_absent"
+2026-10-01T15:31:00.080098Z  INFO bounded Candidate-A Resolve health snapshot event.name="cgroup_bpf.resolve_health" interval_ms=2007 resolved=0 delayed_hit=0 not_found=0 identity_mismatch=0 stale_generation=0 revoked=0 timeout=1 queue_refusal=0 unavailable=0 integrity_failure=0 latency_le_100us=0 latency_le_250us=0 latency_le_500us=0 latency_le_1ms=0 latency_le_2ms=0 latency_le_5ms=0 latency_le_10ms=0 latency_over_10ms=1 latency_max_us=2000135
+2026-10-01T15:31:00.080177Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:42003 result=Timeout
+soglia-agent 5052dae711455dc0a1f48c020a9e14b1: {"cmd":"proxy-connect-report","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)","i":0,"source_port":42003,"local":"10.201.0.1:42003","proxy_destination":"10.200.255.1:15001","mode":"close","phase":"established","elapsed_ms":2005}
+event.name=cgroup_bpf.freeze result=PASS correlation=5052dae711 duration_ms=6
+event.name=cgroup_bpf.destroy result=PASS correlation=5052dae711 duration_ms=16
+2026-10-01T15:31:00.322094Z  WARN Candidate-A Resolve denied event.name="cgroup_bpf.resolve_queue_full"
+2026-10-01T15:31:00.322197Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:43000 result=QueueFull
+soglia-agent bfcf05662e24a0f33b7a5e0d0a5cd152: {"cmd":"proxy-connect-many-report","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)","i":0,"source_port":43000,"elapsed_ms":19}
+2026-10-01T15:31:02.316848Z  WARN Candidate-A Resolve denied at its publication deadline event.name="cgroup_bpf.resolve_timeout" reason="tuple_absent"
+2026-10-01T15:31:02.316976Z  INFO bounded Candidate-A Resolve health snapshot event.name="cgroup_bpf.resolve_health" interval_ms=2016 resolved=0 delayed_hit=0 not_found=0 identity_mismatch=0 stale_generation=0 revoked=0 timeout=1 queue_refusal=1 unavailable=0 integrity_failure=0 latency_le_100us=0 latency_le_250us=1 latency_le_500us=1 latency_le_1ms=1 latency_le_2ms=1 latency_le_5ms=1 latency_le_10ms=1 latency_over_10ms=1 latency_max_us=2001462
+2026-10-01T15:31:02.317072Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:43002 result=Timeout
+2026-10-01T15:31:02.316865Z  WARN Candidate-A Resolve denied at its publication deadline event.name="cgroup_bpf.resolve_timeout" reason="tuple_absent"
+2026-10-01T15:31:02.317266Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:43001 result=Timeout
+soglia-agent bfcf05662e24a0f33b7a5e0d0a5cd152: {"cmd":"proxy-connect-many-report","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)","i":1,"source_port":43001,"elapsed_ms":2014}
+soglia-agent bfcf05662e24a0f33b7a5e0d0a5cd152: {"cmd":"proxy-connect-many-report","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)","i":2,"source_port":43002,"elapsed_ms":2014}
+event.name=cgroup_bpf.freeze result=PASS correlation=bfcf05662e duration_ms=11
+event.name=cgroup_bpf.destroy result=PASS correlation=bfcf05662e duration_ms=16
+2026-10-01T15:31:02.525058Z  INFO egress request allowed event.name="egress.allowed" execution_id=5757033951b8e29639ab5ca12229adf2 method=CONNECT target=allowed.test:443 status=200
+soglia-agent 2026-10-01T15:31:02.526004Z  INFO tunnel ended event.name="egress.tunnel_ended" execution_id=5757033951b8e29639ab5ca12229adf2 end="closed"
+5757033951b8e29639ab5ca12229adf2: {"cmd":"proxy-connect-report","ok":true,"detail":"HTTP/1.1 200 OK","i":0,"source_port":47000,"local":"10.201.0.1:47000","proxy_destination":"10.200.255.1:15001","mode":"close","phase":"established","elapsed_ms":10}
+event.name=cgroup_bpf.freeze result=PASS correlation=5757033951 duration_ms=7
+event.name=cgroup_bpf.destroy result=PASS correlation=5757033951 duration_ms=17
+soglia-agent cd697048b71a73048ff928ee7245743b: {"cmd":"direct-flood","attempts":256,"by_errno":{"1":256},"ms":0}
+event.name=cgroup_bpf.health sequence=2 generation=2 programs=6 links=6 maps=7 policy_active=1 policy_prepared=0 policy_frozen=0 policy_capacity=3 cookie=0 cookie_high_water=0 tuple=0 tuple_high_water=0 socket_capacity=4 ring_drained=63 ring_consumed_total=63 ring_dropped=197 cookie_insert_failed=2 tuple_insert_failed=2 published=15 unpublished=0 sock_create_deny=0 connect4_deny=258 connect6_deny=0 sendmsg4_deny=0 sendmsg6_deny=0 cookie_miss=0 sock_create_entry=275 connect4_entry=275 connect6_entry=0 sendmsg4_entry=0 sendmsg6_entry=0 sockops_entry=137 deny_not_active=0 deny_not_tcp=0 deny_not_proxy=256 deny_ipv6=0 deny_family=0 deny_udp=0 deny_cookie_full=2 deny_tuple_full=2 deny_cookie_missing=0 ancestor_fingerprint=4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+event.name=cgroup_bpf.freeze result=PASS correlation=cd697048b7 duration_ms=8
+event.name=cgroup_bpf.destroy result=PASS correlation=cd697048b7 duration_ms=18
+2026-10-01T15:31:03.019002Z  INFO egress request allowed event.name="egress.allowed" execution_id=a5a6bd591436a04e4f0b654cf5e78a4b method=CONNECT target=allowed.test:443 status=200
+soglia-agent 2026-10-01T15:31:03.021415Z  INFO tunnel ended event.name="egress.tunnel_ended" execution_id=a5a6bd591436a04e4f0b654cf5e78a4b end="closed"
+a5a6bd591436a04e4f0b654cf5e78a4b: {"cmd":"proxy-connect-report","ok":true,"detail":"HTTP/1.1 200 OK","i":0,"source_port":47000,"local":"10.201.0.1:47000","proxy_destination":"10.200.255.1:15001","mode":"close","phase":"established","elapsed_ms":11}
+event.name=cgroup_bpf.freeze result=PASS correlation=a5a6bd5914 duration_ms=11
+event.name=cgroup_bpf.destroy result=PASS correlation=a5a6bd5914 duration_ms=13
+Finished with result: success
+Main processes terminated with: code=exited/status=0
+Service runtime: 13.945s
+CPU time consumed: 1.753s
+Memory peak: 1.7M
+Memory swap peak: 0B

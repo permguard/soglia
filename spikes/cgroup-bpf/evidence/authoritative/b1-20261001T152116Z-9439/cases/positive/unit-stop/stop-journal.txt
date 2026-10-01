@@ -1,0 +1,4 @@
+Stopping soglia-b1.service - /var/tmp/soglia-b1-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b1-20261001T152116Z-9439/positive-config.yaml...
+soglia-b1.service: Deactivated successfully.
+[2m2026-10-01T15:21:24.026682Z[0m [32m INFO[0m soglia stopped [3mevent.name[0m[2m=[0m"shutdown.done"
+Stopped soglia-b1.service - /var/tmp/soglia-b1-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b1-20261001T152116Z-9439/positive-config.yaml.

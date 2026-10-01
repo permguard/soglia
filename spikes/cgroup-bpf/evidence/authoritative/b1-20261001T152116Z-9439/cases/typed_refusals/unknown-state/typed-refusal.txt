@@ -1,0 +1,2 @@
+Oct 01 17:21:28 lima-soglia-spike-b1-20261001T151902Z-13440 soglia[12247]: soglia: the cgroup-bpf backend could not start: refused: UNKNOWN cgroup-BPF state: /sys/fs/bpf/soglia-b1-unknown contains pins without a trusted record
+Oct 01 17:21:28 lima-soglia-spike-b1-20261001T151902Z-13440 soglia[12244]: soglia: the enforcer did not start: the cgroup-bpf backend could not start: refused: UNKNOWN cgroup-BPF state: /sys/fs/bpf/soglia-b1-unknown contains pins without a trusted record

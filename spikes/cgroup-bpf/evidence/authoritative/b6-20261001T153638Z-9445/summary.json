@@ -1,0 +1,38 @@
+{
+  "schema": 1,
+  "run_id": "b6-20261001T153638Z-9445",
+  "gate": "B6",
+  "authoritative": true,
+  "verdict": "PASS",
+  "cases_with_pass_verdict": 38,
+  "cleanup": {
+    "verdict": "PASS",
+    "programs": "EXTERNAL_CHURN",
+    "links": "MATCH",
+    "maps": "MATCH"
+  },
+  "production_source_baseline": {
+    "commit": "7dd0840e4d51078c01ab26343c9eebfd315e5e5e",
+    "matches": true
+  },
+  "scope": {
+    "admission_before_ready": "PERFORMED with deterministic ptrace listen boundary",
+    "host_s13_boundaries": "PERFORMED: 4 of 4",
+    "execution_s13_boundaries": "PERFORMED: 9 of 9",
+    "recovery_interrupted": "PERFORMED",
+    "process_loss": "PERFORMED: Enforcer, Supervisor, Sandbox and Resolve watchdog",
+    "sandbox_staged_lifecycle": "PERFORMED: one frozen Execution and one runc-created-not-started Execution",
+    "typed_refusal_matrix": "PERFORMED: 4 Incompatible and 9 Unknown single-fault cases",
+    "target_released_negative": "PERFORMED: live link, mixed links, non-empty target, target outside unit",
+    "repeated_systemd_refusal": "PERFORMED with Restart=on-failure",
+    "cgroup_id_reuse": "NOT_PERFORMED: B3 records that the environment cannot force 64-bit cgroup-ID reuse",
+    "authoritative_fresh_vm": "PERFORMED",
+    "production_code_change": "NOT_PERFORMED by qualification harness"
+  },
+  "authoritative_vm": {
+    "name": "soglia-spike-b6-20261001T153446Z-38292"
+  },
+  "remaining_gates": {
+    "B7": "NOT_EXECUTED"
+  }
+}

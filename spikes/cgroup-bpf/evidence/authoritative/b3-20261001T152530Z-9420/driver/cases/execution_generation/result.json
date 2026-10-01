@@ -1,0 +1,135 @@
+{
+  "actual_cgroup_id_reuse": false,
+  "actual_reuse_scope": "NOT_PERFORMED",
+  "case": "EXECUTION_GENERATION",
+  "fresh_nonce": true,
+  "identities": [
+    {
+      "binding": {
+        "backend_generation": 1,
+        "cgroup_id": 8048,
+        "execution_nonce": [
+          171,
+          155,
+          232,
+          102,
+          162,
+          151,
+          51,
+          10,
+          238,
+          200,
+          54,
+          148,
+          164,
+          182,
+          92,
+          207
+        ]
+      },
+      "cgroup_inode": 8048,
+      "execution_id": "c94d73e3b12885d92048d854bfeea330",
+      "incarnation": 0,
+      "observation": {
+        "cookie": 8219,
+        "dns_when_resolve_returned": 0,
+        "elapsed_ms": 0,
+        "health_failure": null,
+        "index": 0,
+        "local": "10.200.255.1:15001",
+        "mismatch": null,
+        "outbound_when_resolve_returned": 0,
+        "outcome": "RESOLVED",
+        "peer": "10.201.0.1:42000",
+        "recv_q_bytes": 61,
+        "resolved_execution": "c94d73e3b12885d92048d854bfeea330",
+        "tuple_binding": {
+          "backend_generation": 1,
+          "cgroup_id": 8048,
+          "execution_nonce": [
+            171,
+            155,
+            232,
+            102,
+            162,
+            151,
+            51,
+            10,
+            238,
+            200,
+            54,
+            148,
+            164,
+            182,
+            92,
+            207
+          ]
+        }
+      }
+    },
+    {
+      "binding": {
+        "backend_generation": 1,
+        "cgroup_id": 8141,
+        "execution_nonce": [
+          163,
+          118,
+          182,
+          231,
+          13,
+          57,
+          114,
+          145,
+          210,
+          78,
+          205,
+          62,
+          45,
+          149,
+          26,
+          111
+        ]
+      },
+      "cgroup_inode": 8141,
+      "execution_id": "5fa3913658dd97598f919f5bd95581ba",
+      "incarnation": 1,
+      "observation": {
+        "cookie": 16,
+        "dns_when_resolve_returned": 0,
+        "elapsed_ms": 0,
+        "health_failure": null,
+        "index": 0,
+        "local": "10.200.255.1:15001",
+        "mismatch": null,
+        "outbound_when_resolve_returned": 0,
+        "outcome": "RESOLVED",
+        "peer": "10.201.0.1:42000",
+        "recv_q_bytes": 61,
+        "resolved_execution": "5fa3913658dd97598f919f5bd95581ba",
+        "tuple_binding": {
+          "backend_generation": 1,
+          "cgroup_id": 8141,
+          "execution_nonce": [
+            163,
+            118,
+            182,
+            231,
+            13,
+            57,
+            114,
+            145,
+            210,
+            78,
+            205,
+            62,
+            45,
+            149,
+            26,
+            111
+          ]
+        }
+      }
+    }
+  ],
+  "same_backend_generation": true
+}

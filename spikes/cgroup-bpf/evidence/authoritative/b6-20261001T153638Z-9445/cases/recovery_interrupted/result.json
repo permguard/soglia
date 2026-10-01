@@ -1,0 +1,5 @@
+{
+  "restart_deviation": "Restart=no: required to interrupt and inspect recovery twice",
+  "exact_boundary": "durable INTENT with a strict nonempty subset of recorded pins",
+  "verdict": "PASS"
+}

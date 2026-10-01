@@ -1,0 +1,6 @@
+Started soglia-b6-refusal-2.service - /var/tmp/b6-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b6-20261001T153638Z-9445/cases/refusal_matrix/incompatible_abi/config.yaml.
+soglia: the cgroup-bpf backend could not start: refused: INCOMPATIBLE cgroup-BPF ownership state; kernel objects were left untouched
+[2m2026-10-01T15:37:55.324554Z[0m [31mERROR[0m Soglia refused startup [3mevent.name[0m[2m=[0m"startup.refused" [3mrefusal.class[0m[2m=[0m"INCOMPATIBLE"
+soglia: the enforcer did not start: the cgroup-bpf backend could not start: refused: INCOMPATIBLE cgroup-BPF ownership state; kernel objects were left untouched
+soglia-b6-refusal-2.service: Main process exited, code=exited, status=20/n/a
+soglia-b6-refusal-2.service: Failed with result 'exit-code'.

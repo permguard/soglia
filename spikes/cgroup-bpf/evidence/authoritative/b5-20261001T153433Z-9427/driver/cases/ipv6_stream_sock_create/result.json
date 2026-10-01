@@ -1,0 +1,22 @@
+{
+  "agent": {
+    "cmd": "ipv6_stream",
+    "elapsed_ms": 0,
+    "errno": 1,
+    "error": "Operation not permitted (os error 1)",
+    "ok": false
+  },
+  "case": "ipv6_stream_sock_create",
+  "counter_after": 1,
+  "counter_before": 0,
+  "counter_delta": 1,
+  "events": [
+    {
+      "cgroup_id": 0,
+      "cookie": 0,
+      "raw_hex": "0500000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000007a333ba71a000000",
+      "reason": 5
+    }
+  ],
+  "health": "UNCHANGED"
+}

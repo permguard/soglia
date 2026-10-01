@@ -1,0 +1,9 @@
+{
+  "main_pid": 9617,
+  "listener_bound_before_ready": true,
+  "before_ready_status": 503,
+  "execution_created_before_ready": false,
+  "after_ready_status": 200,
+  "restart_deviation": "Restart=no: required to hold and inspect the pre-READY process",
+  "verdict": "PASS"
+}

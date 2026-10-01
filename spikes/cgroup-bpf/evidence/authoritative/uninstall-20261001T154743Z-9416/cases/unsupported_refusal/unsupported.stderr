@@ -1,0 +1,2 @@
+[2m2026-10-01T15:47:52.650776Z[0m [31mERROR[0m Soglia refused uninstall [3mevent.name[0m[2m=[0m"uninstall.refused" [3mrefusal.class[0m[2m=[0m"UNSUPPORTED"
+soglia: uninstall refused: verified uninstall currently requires network.backend: cgroup-bpf

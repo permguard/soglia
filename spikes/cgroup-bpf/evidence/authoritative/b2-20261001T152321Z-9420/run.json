@@ -1,0 +1,8 @@
+{
+  "schema": 1,
+  "run_id": "b2-20261001T152321Z-9420",
+  "gate": "B2",
+  "authoritative": true,
+  "started_at": "2026-10-01T15:23:21Z",
+  "authoritative_vm": "soglia-spike-b2-20261001T152132Z-17321"
+}

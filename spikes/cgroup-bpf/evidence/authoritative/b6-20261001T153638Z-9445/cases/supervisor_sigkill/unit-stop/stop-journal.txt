@@ -1,0 +1,4 @@
+Stopping soglia-b6-supervisor-sigkill.service - /var/tmp/b6-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b6-20261001T153638Z-9445/cases/supervisor_sigkill/config.yaml...
+[2m2026-10-01T15:37:42.306635Z[0m [32m INFO[0m soglia stopped [3mevent.name[0m[2m=[0m"shutdown.done"
+soglia-b6-supervisor-sigkill.service: Deactivated successfully.
+Stopped soglia-b6-supervisor-sigkill.service - /var/tmp/b6-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b6-20261001T153638Z-9445/cases/supervisor_sigkill/config.yaml.

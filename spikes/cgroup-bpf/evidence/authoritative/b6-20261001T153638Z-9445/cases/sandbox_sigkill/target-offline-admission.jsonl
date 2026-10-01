@@ -1,0 +1,2 @@
+{"stage":"before","directory_fd_open":true,"cgroup_procs_fd_open":true}
+{"stage":"after","write_result":-1,"write_errno":19,"write_error":"No such device","clone3_result":-1,"clone3_errno":2,"clone3_error":"No such file or directory"}

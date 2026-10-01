@@ -1,0 +1,8 @@
+Oct 01 17:21:26 lima-soglia-spike-b1-20261001T151902Z-13440 systemd[1]: Started soglia-b1-sync-rollback.service - /var/tmp/soglia-b1-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b1-diagnostic-sync-rollback-20261001T152125Z-10567/config.yaml.
+Oct 01 17:21:26 lima-soglia-spike-b1-20261001T151902Z-13440 soglia[10882]: event.name=cgroup_bpf.attach_probe result=PASS mode=single hooks=6 effective=true
+Oct 01 17:21:26 lima-soglia-spike-b1-20261001T151902Z-13440 soglia[10882]: event.name=cgroup_bpf.generation_rollback result=PASS generation=1
+Oct 01 17:21:26 lima-soglia-spike-b1-20261001T151902Z-13440 soglia[10882]: soglia: the cgroup-bpf backend could not start: refused: INCOMPATIBLE_BPF_TOPOLOGY hook=soglia_connect4 errno=Some(1)
+Oct 01 17:21:26 lima-soglia-spike-b1-20261001T151902Z-13440 soglia[10879]: 2026-10-01T15:21:26.439148Z ERROR Soglia refused startup event.name="startup.refused" refusal.class="INCOMPATIBLE_BPF_TOPOLOGY" refusal.hook="soglia_connect4" refusal.errno=1
+Oct 01 17:21:26 lima-soglia-spike-b1-20261001T151902Z-13440 soglia[10879]: soglia: the enforcer did not start: the cgroup-bpf backend could not start: refused: INCOMPATIBLE_BPF_TOPOLOGY hook=soglia_connect4 errno=Some(1)
+Oct 01 17:21:26 lima-soglia-spike-b1-20261001T151902Z-13440 systemd[1]: soglia-b1-sync-rollback.service: Main process exited, code=exited, status=24/n/a
+Oct 01 17:21:26 lima-soglia-spike-b1-20261001T151902Z-13440 systemd[1]: soglia-b1-sync-rollback.service: Failed with result 'exit-code'.

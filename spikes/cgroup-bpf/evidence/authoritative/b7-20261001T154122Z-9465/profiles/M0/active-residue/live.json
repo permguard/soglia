@@ -1,0 +1,162 @@
+{
+  "directory_state": {
+    "bundles": [],
+    "network_execution_records": [],
+    "runc_states": [],
+    "sandbox_records": [],
+    "target_children": []
+  },
+  "durable_execution_records": {},
+  "execution_ids": [
+    "9a1421952571776688a6398c77242f37",
+    "84592362e0c1c6b583c96ff8aadbac95",
+    "132895d9373ca665746627c851b6caa0"
+  ],
+  "harness_deletion_before_measurement": false,
+  "label": "live",
+  "map_entries": {
+    "soglia_cookie_a": [],
+    "soglia_denies": [],
+    "soglia_policy": [],
+    "soglia_tuples": []
+  },
+  "measured_while_runtime_active": true,
+  "resource_registry": {
+    "closed": true,
+    "entries": [
+      {
+        "kind": "cgroup",
+        "path": "/sys/fs/cgroup/system.slice/soglia-b7-m0.service/executions/132895d937",
+        "present": false,
+        "tag": "132895d937"
+      },
+      {
+        "kind": "netns",
+        "path": "/run/netns/soglia-132895d937",
+        "present": false,
+        "tag": "132895d937"
+      },
+      {
+        "kind": "host_veth",
+        "path": "/sys/class/net/sgh-132895d937",
+        "present": false,
+        "tag": "132895d937"
+      },
+      {
+        "kind": "network_record",
+        "path": "/run/soglia-b7/M0/net/132895d937.json",
+        "present": false,
+        "tag": "132895d937"
+      },
+      {
+        "kind": "sandbox_record",
+        "path": "/run/soglia-b7/M0/sandbox/132895d937.json",
+        "present": false,
+        "tag": "132895d937"
+      },
+      {
+        "kind": "bundle",
+        "path": "/run/soglia-b7/M0/bundles/132895d937",
+        "present": false,
+        "tag": "132895d937"
+      },
+      {
+        "kind": "runc_state",
+        "path": "/run/soglia-b7/M0/runc/soglia-132895d937",
+        "present": false,
+        "tag": "132895d937"
+      },
+      {
+        "kind": "cgroup",
+        "path": "/sys/fs/cgroup/system.slice/soglia-b7-m0.service/executions/84592362e0",
+        "present": false,
+        "tag": "84592362e0"
+      },
+      {
+        "kind": "netns",
+        "path": "/run/netns/soglia-84592362e0",
+        "present": false,
+        "tag": "84592362e0"
+      },
+      {
+        "kind": "host_veth",
+        "path": "/sys/class/net/sgh-84592362e0",
+        "present": false,
+        "tag": "84592362e0"
+      },
+      {
+        "kind": "network_record",
+        "path": "/run/soglia-b7/M0/net/84592362e0.json",
+        "present": false,
+        "tag": "84592362e0"
+      },
+      {
+        "kind": "sandbox_record",
+        "path": "/run/soglia-b7/M0/sandbox/84592362e0.json",
+        "present": false,
+        "tag": "84592362e0"
+      },
+      {
+        "kind": "bundle",
+        "path": "/run/soglia-b7/M0/bundles/84592362e0",
+        "present": false,
+        "tag": "84592362e0"
+      },
+      {
+        "kind": "runc_state",
+        "path": "/run/soglia-b7/M0/runc/soglia-84592362e0",
+        "present": false,
+        "tag": "84592362e0"
+      },
+      {
+        "kind": "cgroup",
+        "path": "/sys/fs/cgroup/system.slice/soglia-b7-m0.service/executions/9a14219525",
+        "present": false,
+        "tag": "9a14219525"
+      },
+      {
+        "kind": "netns",
+        "path": "/run/netns/soglia-9a14219525",
+        "present": false,
+        "tag": "9a14219525"
+      },
+      {
+        "kind": "host_veth",
+        "path": "/sys/class/net/sgh-9a14219525",
+        "present": false,
+        "tag": "9a14219525"
+      },
+      {
+        "kind": "network_record",
+        "path": "/run/soglia-b7/M0/net/9a14219525.json",
+        "present": false,
+        "tag": "9a14219525"
+      },
+      {
+        "kind": "sandbox_record",
+        "path": "/run/soglia-b7/M0/sandbox/9a14219525.json",
+        "present": false,
+        "tag": "9a14219525"
+      },
+      {
+        "kind": "bundle",
+        "path": "/run/soglia-b7/M0/bundles/9a14219525",
+        "present": false,
+        "tag": "9a14219525"
+      },
+      {
+        "kind": "runc_state",
+        "path": "/run/soglia-b7/M0/runc/soglia-9a14219525",
+        "present": false,
+        "tag": "9a14219525"
+      }
+    ],
+    "live_entries": 0
+  },
+  "tags": [
+    "132895d937",
+    "84592362e0",
+    "9a14219525"
+  ],
+  "verdict": "PASS"
+}

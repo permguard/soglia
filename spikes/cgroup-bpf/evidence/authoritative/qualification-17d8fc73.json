@@ -1,6 +1,9 @@
 {
   "harness_commit_policy": "single_commit",
+  "historical_status": "SUPERSEDED",
   "production_baseline": "17d8fc732bfdbdc99d7924193965c427e52a0b68",
+  "superseded_by": "qualification-7dd0840e.json",
+  "verifiable_with_commit": "c594b77968b95114d8436fd989708d315c86774a",
   "runs": [
     {
       "checksums": 338,

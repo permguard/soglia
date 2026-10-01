@@ -1,0 +1,6 @@
+{
+  "expected_exit": 22,
+  "observed_exit": 22,
+  "mutation": false,
+  "before_after_snapshot_sha256": "7eec143ca8036c874c78ec2d2f89a684df32e88d45017bc59945de7c49413dca"
+}

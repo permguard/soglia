@@ -1,0 +1,2 @@
+cgroup=/sys/fs/cgroup/system.slice/soglia-b6-supervisor-sigkill.service/executions/53dc29109f state=ABSENT_AFTER_VERIFIED_KILL
+cgroup=/sys/fs/cgroup/system.slice/soglia-b6-supervisor-sigkill.service/executions/ce29c13ce1 state=ABSENT_AFTER_VERIFIED_KILL

@@ -1,0 +1,9 @@
+Started soglia-b6-target-target-outside-unit-consumer.service - /var/tmp/soglia-spike-2/bin/b6-driver /var/tmp/b6-production-target/release/soglia /soglia/spikes/cgroup-bpf/evidence/replay/b6-20261001T153638Z-9445/cases/target_released_target_outside_unit/config.yaml /soglia/spikes/cgroup-bpf/evidence/replay/b6-20261001T153638Z-9445/cases/target_released_target_outside_unit /dev/null target-released-outside.
+event.name=cgroup_bpf.target_released_link_observation elapsed_ms=0 link=sock_create link_id=796 program_id=2750 attach_type=2 cgroup_id=0
+event.name=cgroup_bpf.target_released_link_observation elapsed_ms=0 link=connect4 link_id=797 program_id=2751 attach_type=10 cgroup_id=0
+event.name=cgroup_bpf.target_released_link_observation elapsed_ms=0 link=connect6 link_id=798 program_id=2752 attach_type=11 cgroup_id=0
+event.name=cgroup_bpf.target_released_link_observation elapsed_ms=0 link=sendmsg4 link_id=799 program_id=2753 attach_type=14 cgroup_id=0
+event.name=cgroup_bpf.target_released_link_observation elapsed_ms=0 link=sendmsg6 link_id=800 program_id=2754 attach_type=15 cgroup_id=0
+event.name=cgroup_bpf.target_released_link_observation elapsed_ms=0 link=sock_ops link_id=801 program_id=2755 attach_type=3 cgroup_id=0
+soglia: the cgroup-bpf backend could not start: refused: UNKNOWN replacement attachment target failed the released-target contract; no object was changed
+soglia-b6-target-target-outside-unit-consumer.service: Deactivated successfully.

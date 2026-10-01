@@ -1,0 +1,4 @@
+Stopping soglia-b6-refusal-1.service - /var/tmp/b6-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b6-20261001T153638Z-9445/cases/refusal_matrix/incompatible_schema/config.yaml...
+soglia-b6-refusal-1.service: Killing process 50194 (exe) with signal SIGKILL.
+soglia-b6-refusal-1.service: Deactivated successfully.
+Stopped soglia-b6-refusal-1.service - /var/tmp/b6-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b6-20261001T153638Z-9445/cases/refusal_matrix/incompatible_schema/config.yaml.

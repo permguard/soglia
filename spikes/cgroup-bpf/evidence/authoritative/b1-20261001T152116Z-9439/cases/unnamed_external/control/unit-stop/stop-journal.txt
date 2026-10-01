@@ -1,0 +1,6 @@
+[2m2026-10-01T15:21:29.754083Z[0m [32m INFO[0m soglia stopped [3mevent.name[0m[2m=[0m"shutdown.done"
+Stopping soglia-b1-unnamed.service - /var/tmp/soglia-b1-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b1-unnamed-external-20261001T152128Z-12440/config.yaml...
+soglia-b1-unnamed.service: Killing process 13157 (exe) with signal SIGKILL.
+soglia-b1-unnamed.service: Killing process 13158 (exe) with signal SIGKILL.
+soglia-b1-unnamed.service: Deactivated successfully.
+Stopped soglia-b1-unnamed.service - /var/tmp/soglia-b1-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b1-unnamed-external-20261001T152128Z-12440/config.yaml.

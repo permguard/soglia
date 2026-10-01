@@ -1,0 +1,1 @@
+event.name=cgroup_bpf.ready generation=2 programs=6 links=6 maps=7 policy_capacity=5 socket_capacity=4096 ring_bytes=65536

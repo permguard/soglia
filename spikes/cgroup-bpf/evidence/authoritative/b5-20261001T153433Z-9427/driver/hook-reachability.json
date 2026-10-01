@@ -1,0 +1,8 @@
+{
+  "connect4": "PERFORMED",
+  "connect6": "NOT_PERFORMED: unreachable by construction because sock_create admits only IPv4/TCP and the socket cgroup is fixed at creation",
+  "sendmsg4": "NOT_PERFORMED: unreachable by construction because sock_create admits only IPv4/TCP and the socket cgroup is fixed at creation",
+  "sendmsg6": "NOT_PERFORMED: unreachable by construction because sock_create admits only IPv4/TCP and the socket cgroup is fixed at creation",
+  "sock_create": "PERFORMED",
+  "sockops": "PERFORMED by proxy positive control"
+}

@@ -1,0 +1,6 @@
+{
+  "cgroup_root": "/sys/fs/cgroup/soglia-uninstall-uninstall-20261001T154743Z-9416-target-released",
+  "attachment_target": "/sys/fs/cgroup/soglia-uninstall-uninstall-20261001T154743Z-9416-target-released/executions",
+  "cgroup_root_absent": true,
+  "attachment_target_absent": true
+}

@@ -1,0 +1,14 @@
+event.name=cgroup_bpf.target_released_link_observation elapsed_ms=0 link=sock_create link_id=82 program_id=498 attach_type=2 cgroup_id=0
+event.name=cgroup_bpf.target_released_link_observation elapsed_ms=0 link=connect4 link_id=83 program_id=499 attach_type=10 cgroup_id=0
+event.name=cgroup_bpf.target_released_link_observation elapsed_ms=0 link=connect6 link_id=84 program_id=500 attach_type=11 cgroup_id=0
+event.name=cgroup_bpf.target_released_link_observation elapsed_ms=0 link=sendmsg4 link_id=85 program_id=501 attach_type=14 cgroup_id=0
+event.name=cgroup_bpf.target_released_link_observation elapsed_ms=0 link=sendmsg6 link_id=86 program_id=502 attach_type=15 cgroup_id=0
+event.name=cgroup_bpf.target_released_link_observation elapsed_ms=0 link=sock_ops link_id=87 program_id=503 attach_type=3 cgroup_id=0
+event.name=cgroup_bpf.target_released result=PASS recorded_cgroup_id=13975 current_cgroup_id=0 target_absent=true detach_timeout_ms=5000 poll_interval_ms=10
+event.name=cgroup_bpf.target_released_link_detach link=sock_create link_id=82 program_id=498 attach_type=2 before_cgroup_id=0 after_cgroup_id=0
+event.name=cgroup_bpf.target_released_link_detach link=connect4 link_id=83 program_id=499 attach_type=10 before_cgroup_id=0 after_cgroup_id=0
+event.name=cgroup_bpf.target_released_link_detach link=connect6 link_id=84 program_id=500 attach_type=11 before_cgroup_id=0 after_cgroup_id=0
+event.name=cgroup_bpf.target_released_link_detach link=sendmsg4 link_id=85 program_id=501 attach_type=14 before_cgroup_id=0 after_cgroup_id=0
+event.name=cgroup_bpf.target_released_link_detach link=sendmsg6 link_id=86 program_id=502 attach_type=15 before_cgroup_id=0 after_cgroup_id=0
+event.name=cgroup_bpf.target_released_link_detach link=sock_ops link_id=87 program_id=503 attach_type=3 before_cgroup_id=0 after_cgroup_id=0
+event.name=cgroup_bpf.recovery_cleanup_observation elapsed_ms=0 surviving=program:498,program:499,program:500,program:501,program:502,program:503,map:165,map:164,map:162,map:168,map:166,map:167

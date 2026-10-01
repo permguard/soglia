@@ -1,0 +1,37 @@
+{
+  "case": "sandbox_sigkill",
+  "old_main_pid": 42627,
+  "new_main_pid": 43242,
+  "nrestarts_before": 0,
+  "nrestarts_after": 1,
+  "loss_boottime_seconds": 174.61,
+  "old_agent_pids": [
+    42841,
+    43056
+  ],
+  "old_agents_absent_before_new_main": true,
+  "barrier_attribution": "SYSTEMD_KILL_BARRIER",
+  "unit": {
+    "Delegate": true,
+    "KillMode": "mixed",
+    "Restart": "on-failure"
+  },
+  "lifecycle_preconditions": {
+    "frozen_execution": true,
+    "frozen_cgroup": "/sys/fs/cgroup/system.slice/soglia-b6-sandbox-sigkill.service/executions/81f25ea27b",
+    "created_not_started": true,
+    "created_not_started_pid": 43056
+  },
+  "target_released": {
+    "old_generation": 1,
+    "new_generation": 2,
+    "old_attachment_inode": 27531,
+    "new_attachment_inode": 28094,
+    "exact_link_detaches_verified": 6,
+    "detach_timeout_ms": 5000,
+    "poll_interval_ms": 10,
+    "old_ids_absent": true,
+    "new_authorization_maps_empty": true
+  },
+  "verdict": "PASS"
+}

@@ -1,0 +1,4 @@
+[2m2026-10-01T15:37:59.805034Z[0m [32m INFO[0m soglia stopped [3mevent.name[0m[2m=[0m"shutdown.done"
+Stopping soglia-b6-refusal-7.service - /var/tmp/b6-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b6-20261001T153638Z-9445/cases/refusal_matrix/unknown_cgroup/config.yaml...
+soglia-b6-refusal-7.service: Deactivated successfully.
+Stopped soglia-b6-refusal-7.service - /var/tmp/b6-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b6-20261001T153638Z-9445/cases/refusal_matrix/unknown_cgroup/config.yaml.

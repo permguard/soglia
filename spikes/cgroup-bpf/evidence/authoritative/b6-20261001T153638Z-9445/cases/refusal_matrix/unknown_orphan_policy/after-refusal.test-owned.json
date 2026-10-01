@@ -1,0 +1,279 @@
+{
+  "programs": [
+    2243,
+    2244,
+    2245,
+    2246,
+    2247,
+    2248
+  ],
+  "links": [
+    681,
+    682,
+    683,
+    684,
+    685,
+    686
+  ],
+  "maps": [
+    1107,
+    1109,
+    1110,
+    1111,
+    1112,
+    1113,
+    1114
+  ],
+  "owned_program_objects": [
+    {
+      "id": 2243,
+      "type": "cgroup_sock",
+      "name": "soglia_sock_create",
+      "tag": "af3beafe73d93e9c",
+      "gpl_compatible": false,
+      "loaded_at": 1790869082,
+      "uid": 0,
+      "orphaned": false,
+      "bytes_xlated": 768,
+      "jited": true,
+      "bytes_jited": 592,
+      "bytes_memlock": 4096,
+      "map_ids": [
+        1114,
+        1110
+      ],
+      "btf_id": 665
+    },
+    {
+      "id": 2244,
+      "type": "cgroup_sock_addr",
+      "name": "soglia_connect4",
+      "tag": "b243ec8fc95d6e8d",
+      "gpl_compatible": false,
+      "loaded_at": 1790869082,
+      "uid": 0,
+      "orphaned": false,
+      "bytes_xlated": 2752,
+      "jited": true,
+      "bytes_jited": 1944,
+      "bytes_memlock": 4096,
+      "map_ids": [
+        1114,
+        1107,
+        1108,
+        1109,
+        1110,
+        1111
+      ],
+      "btf_id": 665
+    },
+    {
+      "id": 2245,
+      "type": "cgroup_sock_addr",
+      "name": "soglia_connect6",
+      "tag": "dc2aed2e29a3b7d4",
+      "gpl_compatible": false,
+      "loaded_at": 1790869082,
+      "uid": 0,
+      "orphaned": false,
+      "bytes_xlated": 704,
+      "jited": true,
+      "bytes_jited": 544,
+      "bytes_memlock": 4096,
+      "map_ids": [
+        1114,
+        1110
+      ],
+      "btf_id": 665
+    },
+    {
+      "id": 2246,
+      "type": "cgroup_sock_addr",
+      "name": "soglia_sendmsg4",
+      "tag": "ce65da13e7299c0a",
+      "gpl_compatible": false,
+      "loaded_at": 1790869082,
+      "uid": 0,
+      "orphaned": false,
+      "bytes_xlated": 704,
+      "jited": true,
+      "bytes_jited": 544,
+      "bytes_memlock": 4096,
+      "map_ids": [
+        1114,
+        1110
+      ],
+      "btf_id": 665
+    },
+    {
+      "id": 2247,
+      "type": "cgroup_sock_addr",
+      "name": "soglia_sendmsg6",
+      "tag": "930e5173f6d0ff4c",
+      "gpl_compatible": false,
+      "loaded_at": 1790869082,
+      "uid": 0,
+      "orphaned": false,
+      "bytes_xlated": 704,
+      "jited": true,
+      "bytes_jited": 544,
+      "bytes_memlock": 4096,
+      "map_ids": [
+        1114,
+        1110
+      ],
+      "btf_id": 665
+    },
+    {
+      "id": 2248,
+      "type": "sock_ops",
+      "name": "soglia_sockops",
+      "tag": "a22a3c26162343b4",
+      "gpl_compatible": false,
+      "loaded_at": 1790869082,
+      "uid": 0,
+      "orphaned": false,
+      "bytes_xlated": 2504,
+      "jited": true,
+      "bytes_jited": 1832,
+      "bytes_memlock": 4096,
+      "map_ids": [
+        1114,
+        1111,
+        1110,
+        1112,
+        1109
+      ],
+      "btf_id": 665
+    }
+  ],
+  "owned_link_objects": [
+    {
+      "id": 681,
+      "type": "cgroup",
+      "prog_id": 2243,
+      "cgroup_id": 0,
+      "attach_type": "cgroup_inet_sock_create"
+    },
+    {
+      "id": 682,
+      "type": "cgroup",
+      "prog_id": 2244,
+      "cgroup_id": 0,
+      "attach_type": "cgroup_inet4_connect"
+    },
+    {
+      "id": 683,
+      "type": "cgroup",
+      "prog_id": 2245,
+      "cgroup_id": 0,
+      "attach_type": "cgroup_inet6_connect"
+    },
+    {
+      "id": 684,
+      "type": "cgroup",
+      "prog_id": 2246,
+      "cgroup_id": 0,
+      "attach_type": "cgroup_udp4_sendmsg"
+    },
+    {
+      "id": 685,
+      "type": "cgroup",
+      "prog_id": 2247,
+      "cgroup_id": 0,
+      "attach_type": "cgroup_udp6_sendmsg"
+    },
+    {
+      "id": 686,
+      "type": "cgroup",
+      "prog_id": 2248,
+      "cgroup_id": 0,
+      "attach_type": "cgroup_sock_ops"
+    }
+  ],
+  "owned_map_objects": [
+    {
+      "id": 1107,
+      "type": "hash",
+      "name": "soglia_policy",
+      "flags": 0,
+      "bytes_key": 8,
+      "bytes_value": 40,
+      "max_entries": 3,
+      "bytes_memlock": 1856,
+      "frozen": 0,
+      "btf_id": 665
+    },
+    {
+      "id": 1109,
+      "type": "hash",
+      "name": "soglia_denies",
+      "flags": 0,
+      "bytes_key": 32,
+      "bytes_value": 8,
+      "max_entries": 3,
+      "bytes_memlock": 1800,
+      "frozen": 0,
+      "btf_id": 665
+    },
+    {
+      "id": 1110,
+      "type": "ringbuf",
+      "name": "soglia_events",
+      "flags": 0,
+      "bytes_key": 0,
+      "bytes_value": 0,
+      "max_entries": 65536,
+      "bytes_memlock": 78488,
+      "frozen": 0
+    },
+    {
+      "id": 1111,
+      "type": "hash",
+      "name": "soglia_cookie_a",
+      "flags": 0,
+      "bytes_key": 8,
+      "bytes_value": 32,
+      "max_entries": 64,
+      "bytes_memlock": 8128,
+      "frozen": 0,
+      "btf_id": 665
+    },
+    {
+      "id": 1112,
+      "type": "hash",
+      "name": "soglia_tuples",
+      "flags": 0,
+      "bytes_key": 16,
+      "bytes_value": 48,
+      "max_entries": 64,
+      "bytes_memlock": 9760,
+      "frozen": 0,
+      "btf_id": 665
+    },
+    {
+      "id": 1113,
+      "type": "array",
+      "name": "soglia_meta",
+      "flags": 0,
+      "bytes_key": 4,
+      "bytes_value": 40,
+      "max_entries": 1,
+      "bytes_memlock": 424,
+      "frozen": 0,
+      "btf_id": 665
+    },
+    {
+      "id": 1114,
+      "type": "array",
+      "name": "soglia_counters",
+      "flags": 0,
+      "bytes_key": 4,
+      "bytes_value": 8,
+      "max_entries": 26,
+      "bytes_memlock": 592,
+      "frozen": 0,
+      "btf_id": 665
+    }
+  ]
+}

@@ -1,0 +1,2 @@
+{"durable_state_seen":false,"executions":{},"existing_recorded_pin_count":0,"phase":"INTENT","policy_entries":0,"policy_state":null}
+{"durable_state_seen":true,"executions":{},"existing_recorded_pin_count":0,"phase":"INTENT","policy_entries":0,"policy_state":null}

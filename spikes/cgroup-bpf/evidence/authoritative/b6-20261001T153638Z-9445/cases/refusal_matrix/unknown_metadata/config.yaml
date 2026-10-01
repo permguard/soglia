@@ -1,0 +1,35 @@
+runtime:
+  uid: 65534
+  gid: 65534
+  state_dir: /run/soglia-b6-refusal-9
+  max_concurrency: 2
+  max_queue: 2
+  cleanup_failure_threshold: 1
+  teardown_timeout_ms: 5000
+  runc: /usr/sbin/runc
+  nft: /usr/sbin/nft
+  ip: /usr/sbin/ip
+  bpftool: /usr/sbin/bpftool
+ingress: { listen: "127.0.0.1:18409" }
+network:
+  backend: cgroup-bpf
+  execution_pool: 10.109.0.0/24
+  proxy_address: 10.200.255.1
+  proxy_port: 15001
+egress:
+  connect_timeout_ms: 1000
+  idle_timeout_ms: 30000
+  allow: [{ host: allowed.test, ports: [443] }]
+cgroup: { root: "/sys/fs/cgroup/system.slice/soglia-b6-refusal-9.service" }
+cgroup_bpf:
+  max_tracked_sockets: 64
+  resolve_timeout_ms: 2000
+  ring_buffer_bytes: 65536
+  pin_root: /sys/fs/bpf/soglia-b6-refusal-9
+agents:
+  probe:
+    rootfs: /var/tmp/soglia-b6-refusal-9-rootfs
+    command: ["/agent", "serve"]
+    env: {}
+    timeout_ms: 40000
+    tmpfs: [{ path: /tmp, size_bytes: 1048576 }]

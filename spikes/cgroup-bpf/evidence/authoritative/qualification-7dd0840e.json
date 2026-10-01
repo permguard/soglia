@@ -1,0 +1,81 @@
+{
+  "harness_commit_policy": "single_commit",
+  "production_baseline": "7dd0840e4d51078c01ab26343c9eebfd315e5e5e",
+  "runs": [
+    {
+      "checksums": 431,
+      "gate": "B1",
+      "production_baseline": "7dd0840e4d51078c01ab26343c9eebfd315e5e5e",
+      "run_id": "b1-20261001T152116Z-9439",
+      "source_commit": "22cfba0c93e78621c6abe6849fa0d046fbd285f6",
+      "systemd_prune_races": 0,
+      "verdict": "PASS"
+    },
+    {
+      "checksums": 370,
+      "gate": "B2",
+      "production_baseline": "7dd0840e4d51078c01ab26343c9eebfd315e5e5e",
+      "run_id": "b2-20261001T152321Z-9420",
+      "source_commit": "22cfba0c93e78621c6abe6849fa0d046fbd285f6",
+      "systemd_prune_races": 0,
+      "verdict": "PASS"
+    },
+    {
+      "checksums": 1928,
+      "gate": "B3",
+      "production_baseline": "7dd0840e4d51078c01ab26343c9eebfd315e5e5e",
+      "run_id": "b3-20261001T152530Z-9420",
+      "source_commit": "22cfba0c93e78621c6abe6849fa0d046fbd285f6",
+      "systemd_prune_races": 0,
+      "verdict": "PASS"
+    },
+    {
+      "checksums": 97,
+      "gate": "B4",
+      "production_baseline": "7dd0840e4d51078c01ab26343c9eebfd315e5e5e",
+      "run_id": "b4-20261001T153041Z-9439",
+      "source_commit": "22cfba0c93e78621c6abe6849fa0d046fbd285f6",
+      "systemd_prune_races": 0,
+      "verdict": "PASS"
+    },
+    {
+      "checksums": 177,
+      "gate": "B5",
+      "production_baseline": "7dd0840e4d51078c01ab26343c9eebfd315e5e5e",
+      "run_id": "b5-20261001T153433Z-9427",
+      "source_commit": "22cfba0c93e78621c6abe6849fa0d046fbd285f6",
+      "systemd_prune_races": 0,
+      "verdict": "PASS"
+    },
+    {
+      "checksums": 1434,
+      "gate": "B6",
+      "production_baseline": "7dd0840e4d51078c01ab26343c9eebfd315e5e5e",
+      "run_id": "b6-20261001T153638Z-9445",
+      "source_commit": "22cfba0c93e78621c6abe6849fa0d046fbd285f6",
+      "systemd_prune_races": 0,
+      "verdict": "PASS"
+    },
+    {
+      "checksums": 352,
+      "gate": "B7",
+      "production_baseline": "7dd0840e4d51078c01ab26343c9eebfd315e5e5e",
+      "run_id": "b7-20261001T154122Z-9465",
+      "source_commit": "22cfba0c93e78621c6abe6849fa0d046fbd285f6",
+      "systemd_prune_races": 0,
+      "verdict": "PASS"
+    },
+    {
+      "checksums": 214,
+      "gate": "UNINSTALL",
+      "production_baseline": "7dd0840e4d51078c01ab26343c9eebfd315e5e5e",
+      "run_id": "uninstall-20261001T154743Z-9416",
+      "source_commit": "22cfba0c93e78621c6abe6849fa0d046fbd285f6",
+      "systemd_prune_races": 0,
+      "verdict": "PASS"
+    }
+  ],
+  "schema": 1,
+  "total_checksums": 5003,
+  "verdict": "PASS"
+}

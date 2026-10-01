@@ -1,0 +1,4 @@
+Stopping soglia-b6-enforcer-sigkill.service - /var/tmp/b6-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b6-20261001T153638Z-9445/cases/enforcer_sigkill/config.yaml...
+soglia-b6-enforcer-sigkill.service: Killing process 41187 (exe) with signal SIGKILL.
+soglia-b6-enforcer-sigkill.service: Deactivated successfully.
+Stopped soglia-b6-enforcer-sigkill.service - /var/tmp/b6-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b6-20261001T153638Z-9445/cases/enforcer_sigkill/config.yaml.
