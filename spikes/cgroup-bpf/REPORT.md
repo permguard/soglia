@@ -1119,8 +1119,8 @@ The correction makes an external program name optional while retaining program I
 B1 now includes a positive case in which an effective unnamed ancestor program is preserved across startup and uninstall, and a negative case in which an unnamed replacement with a different tag is refused as `Unknown` and preserved.
 The clean-environment rule is now explicit: unit tests run as a non-root user in a clean Ubuntu 24.04 environment, while both `netns-nft` and `cgroup-bpf` acceptance passes run inside the privileged `dev/linux` container with an unnamed external BPF program kept active throughout.
 
-| Gate      | Authoritative run                                                                                                       | Checksums |
-| --------- | ----------------------------------------------------------------------------------------------------------------------- | --------- |
+| Gate      | Authoritative run                                                                                                        | Checksums |
+| --------- | ------------------------------------------------------------------------------------------------------------------------ | --------- |
 | B1        | [`b1-20261001T152116Z-9439`](evidence/authoritative/b1-20261001T152116Z-9439/)                                           | 431/431   |
 | B2        | [`b2-20261001T152321Z-9420`](evidence/authoritative/b2-20261001T152321Z-9420/)                                           | 370/370   |
 | B3        | [`b3-20261001T152530Z-9420`](evidence/authoritative/b3-20261001T152530Z-9420/)                                           | 1928/1928 |
