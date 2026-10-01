@@ -1,0 +1,40 @@
+{
+  "swept": [
+    "TargetReleased cgroup-BPF generation 1"
+  ],
+  "old_generation": 1,
+  "new_generation": 2,
+  "old_kernel_ids": {
+    "maps": [
+      143,
+      144,
+      145,
+      146,
+      147,
+      148,
+      150
+    ],
+    "programs": [
+      321,
+      322,
+      323,
+      324,
+      325,
+      326
+    ],
+    "links": [
+      81,
+      82,
+      83,
+      84,
+      85,
+      86
+    ]
+  },
+  "old_kernel_ids_absent": true,
+  "policy_entries": 0,
+  "cookie_entries": 0,
+  "tuple_entries": 0,
+  "ready_manifest": true,
+  "verdict": "PASS"
+}

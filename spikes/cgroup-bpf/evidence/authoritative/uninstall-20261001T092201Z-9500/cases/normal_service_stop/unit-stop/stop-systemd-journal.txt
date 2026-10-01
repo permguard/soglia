@@ -1,0 +1,4 @@
+Stopping soglia-uninstall-normal-uninstall-20261001T092201Z-9500.service - /var/tmp/uninstall-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/uninstall-20261001T092201Z-9500/cases/normal_service_stop/config.yaml...
+soglia-uninstall-normal-uninstall-20261001T092201Z-9500.service: Killing process 9722 (exe) with signal SIGKILL.
+soglia-uninstall-normal-uninstall-20261001T092201Z-9500.service: Deactivated successfully.
+Stopped soglia-uninstall-normal-uninstall-20261001T092201Z-9500.service - /var/tmp/uninstall-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/uninstall-20261001T092201Z-9500/cases/normal_service_stop/config.yaml.

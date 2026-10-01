@@ -1,7 +1,10 @@
 {
   "schema": 1,
+  "status": "HISTORICAL_SUPERSEDED",
   "production_baseline": "db6e1ac21a957b5fd8de96f5e3a719db1d897723",
   "reason": "Reviewed final B1-B7 set predates spike:qualify; B1-B6 share one clean harness commit and B7 uses the reviewed B7-only harness commit.",
+  "superseded_by": "qualification-17d8fc73.json",
+  "verifiable_with_commit": "443b06c4a0170ad948870a63e3abd8981e9bc534",
   "runs": {
     "B1": {"run_id": "b1-20260930T150949Z-8734", "source_commit": "4824d1bbb1c567a11ca2c338212cb76cefea805c"},
     "B2": {"run_id": "b2-20260930T163724Z-8764", "source_commit": "4824d1bbb1c567a11ca2c338212cb76cefea805c"},

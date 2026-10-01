@@ -1,0 +1,5 @@
+[2m2026-10-01T09:17:26.814313Z[0m [32m INFO[0m soglia stopped [3mevent.name[0m[2m=[0m"shutdown.done"
+Stopping soglia-b7-m1.service - /var/tmp/b7-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b7-20261001T091538Z-9461/profiles/M1/config.yaml...
+soglia-b7-m1.service: Deactivated successfully.
+Stopped soglia-b7-m1.service - /var/tmp/b7-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b7-20261001T091538Z-9461/profiles/M1/config.yaml.
+soglia-b7-m1.service: Consumed 2.935s CPU time, 29.6M memory peak, 0B memory swap peak.

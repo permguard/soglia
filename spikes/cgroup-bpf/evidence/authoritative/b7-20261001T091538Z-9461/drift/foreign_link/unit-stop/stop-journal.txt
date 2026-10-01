@@ -1,0 +1,4 @@
+[2m2026-10-01T09:19:59.045796Z[0m [32m INFO[0m soglia stopped [3mevent.name[0m[2m=[0m"shutdown.done"
+Stopping soglia-b7-foreign-link.service - /var/tmp/b7-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b7-20261001T091538Z-9461/profiles/drift-foreign-link/config.yaml...
+soglia-b7-foreign-link.service: Deactivated successfully.
+Stopped soglia-b7-foreign-link.service - /var/tmp/b7-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b7-20261001T091538Z-9461/profiles/drift-foreign-link/config.yaml.

@@ -1,0 +1,1 @@
+event.name=cgroup_bpf.recovery_cleanup_observation elapsed_ms=0 surviving=program:151,program:152,program:153,program:154,program:155,map:40,map:38,map:37,map:41,map:39,map:42

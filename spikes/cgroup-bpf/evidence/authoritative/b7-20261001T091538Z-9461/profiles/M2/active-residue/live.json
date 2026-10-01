@@ -1,0 +1,294 @@
+{
+  "directory_state": {
+    "bundles": [],
+    "network_execution_records": [],
+    "runc_states": [],
+    "sandbox_records": [],
+    "target_children": []
+  },
+  "durable_execution_records": {},
+  "execution_ids": [
+    "d0271712e576697058d82ddffa5b95c9",
+    "ce208b447298fee1c343269123981270",
+    "dba0c31683e52208d7b503ffde467818",
+    "821f0dc218cf526352507479c95d50d8",
+    "3878d849ef422c2ecbb1cd87ee5fb94e",
+    "5aaae88e0716bf604db2435986fd6f35"
+  ],
+  "harness_deletion_before_measurement": false,
+  "label": "live",
+  "map_entries": {
+    "soglia_cookie_a": [],
+    "soglia_denies": [],
+    "soglia_policy": [],
+    "soglia_tuples": []
+  },
+  "measured_while_runtime_active": true,
+  "resource_registry": {
+    "closed": true,
+    "entries": [
+      {
+        "kind": "cgroup",
+        "path": "/sys/fs/cgroup/system.slice/soglia-b7-m2.service/executions/3878d849ef",
+        "present": false,
+        "tag": "3878d849ef"
+      },
+      {
+        "kind": "netns",
+        "path": "/run/netns/soglia-3878d849ef",
+        "present": false,
+        "tag": "3878d849ef"
+      },
+      {
+        "kind": "host_veth",
+        "path": "/sys/class/net/sgh-3878d849ef",
+        "present": false,
+        "tag": "3878d849ef"
+      },
+      {
+        "kind": "network_record",
+        "path": "/run/soglia-b7/M2/net/3878d849ef.json",
+        "present": false,
+        "tag": "3878d849ef"
+      },
+      {
+        "kind": "sandbox_record",
+        "path": "/run/soglia-b7/M2/sandbox/3878d849ef.json",
+        "present": false,
+        "tag": "3878d849ef"
+      },
+      {
+        "kind": "bundle",
+        "path": "/run/soglia-b7/M2/bundles/3878d849ef",
+        "present": false,
+        "tag": "3878d849ef"
+      },
+      {
+        "kind": "runc_state",
+        "path": "/run/soglia-b7/M2/runc/soglia-3878d849ef",
+        "present": false,
+        "tag": "3878d849ef"
+      },
+      {
+        "kind": "cgroup",
+        "path": "/sys/fs/cgroup/system.slice/soglia-b7-m2.service/executions/5aaae88e07",
+        "present": false,
+        "tag": "5aaae88e07"
+      },
+      {
+        "kind": "netns",
+        "path": "/run/netns/soglia-5aaae88e07",
+        "present": false,
+        "tag": "5aaae88e07"
+      },
+      {
+        "kind": "host_veth",
+        "path": "/sys/class/net/sgh-5aaae88e07",
+        "present": false,
+        "tag": "5aaae88e07"
+      },
+      {
+        "kind": "network_record",
+        "path": "/run/soglia-b7/M2/net/5aaae88e07.json",
+        "present": false,
+        "tag": "5aaae88e07"
+      },
+      {
+        "kind": "sandbox_record",
+        "path": "/run/soglia-b7/M2/sandbox/5aaae88e07.json",
+        "present": false,
+        "tag": "5aaae88e07"
+      },
+      {
+        "kind": "bundle",
+        "path": "/run/soglia-b7/M2/bundles/5aaae88e07",
+        "present": false,
+        "tag": "5aaae88e07"
+      },
+      {
+        "kind": "runc_state",
+        "path": "/run/soglia-b7/M2/runc/soglia-5aaae88e07",
+        "present": false,
+        "tag": "5aaae88e07"
+      },
+      {
+        "kind": "cgroup",
+        "path": "/sys/fs/cgroup/system.slice/soglia-b7-m2.service/executions/821f0dc218",
+        "present": false,
+        "tag": "821f0dc218"
+      },
+      {
+        "kind": "netns",
+        "path": "/run/netns/soglia-821f0dc218",
+        "present": false,
+        "tag": "821f0dc218"
+      },
+      {
+        "kind": "host_veth",
+        "path": "/sys/class/net/sgh-821f0dc218",
+        "present": false,
+        "tag": "821f0dc218"
+      },
+      {
+        "kind": "network_record",
+        "path": "/run/soglia-b7/M2/net/821f0dc218.json",
+        "present": false,
+        "tag": "821f0dc218"
+      },
+      {
+        "kind": "sandbox_record",
+        "path": "/run/soglia-b7/M2/sandbox/821f0dc218.json",
+        "present": false,
+        "tag": "821f0dc218"
+      },
+      {
+        "kind": "bundle",
+        "path": "/run/soglia-b7/M2/bundles/821f0dc218",
+        "present": false,
+        "tag": "821f0dc218"
+      },
+      {
+        "kind": "runc_state",
+        "path": "/run/soglia-b7/M2/runc/soglia-821f0dc218",
+        "present": false,
+        "tag": "821f0dc218"
+      },
+      {
+        "kind": "cgroup",
+        "path": "/sys/fs/cgroup/system.slice/soglia-b7-m2.service/executions/ce208b4472",
+        "present": false,
+        "tag": "ce208b4472"
+      },
+      {
+        "kind": "netns",
+        "path": "/run/netns/soglia-ce208b4472",
+        "present": false,
+        "tag": "ce208b4472"
+      },
+      {
+        "kind": "host_veth",
+        "path": "/sys/class/net/sgh-ce208b4472",
+        "present": false,
+        "tag": "ce208b4472"
+      },
+      {
+        "kind": "network_record",
+        "path": "/run/soglia-b7/M2/net/ce208b4472.json",
+        "present": false,
+        "tag": "ce208b4472"
+      },
+      {
+        "kind": "sandbox_record",
+        "path": "/run/soglia-b7/M2/sandbox/ce208b4472.json",
+        "present": false,
+        "tag": "ce208b4472"
+      },
+      {
+        "kind": "bundle",
+        "path": "/run/soglia-b7/M2/bundles/ce208b4472",
+        "present": false,
+        "tag": "ce208b4472"
+      },
+      {
+        "kind": "runc_state",
+        "path": "/run/soglia-b7/M2/runc/soglia-ce208b4472",
+        "present": false,
+        "tag": "ce208b4472"
+      },
+      {
+        "kind": "cgroup",
+        "path": "/sys/fs/cgroup/system.slice/soglia-b7-m2.service/executions/d0271712e5",
+        "present": false,
+        "tag": "d0271712e5"
+      },
+      {
+        "kind": "netns",
+        "path": "/run/netns/soglia-d0271712e5",
+        "present": false,
+        "tag": "d0271712e5"
+      },
+      {
+        "kind": "host_veth",
+        "path": "/sys/class/net/sgh-d0271712e5",
+        "present": false,
+        "tag": "d0271712e5"
+      },
+      {
+        "kind": "network_record",
+        "path": "/run/soglia-b7/M2/net/d0271712e5.json",
+        "present": false,
+        "tag": "d0271712e5"
+      },
+      {
+        "kind": "sandbox_record",
+        "path": "/run/soglia-b7/M2/sandbox/d0271712e5.json",
+        "present": false,
+        "tag": "d0271712e5"
+      },
+      {
+        "kind": "bundle",
+        "path": "/run/soglia-b7/M2/bundles/d0271712e5",
+        "present": false,
+        "tag": "d0271712e5"
+      },
+      {
+        "kind": "runc_state",
+        "path": "/run/soglia-b7/M2/runc/soglia-d0271712e5",
+        "present": false,
+        "tag": "d0271712e5"
+      },
+      {
+        "kind": "cgroup",
+        "path": "/sys/fs/cgroup/system.slice/soglia-b7-m2.service/executions/dba0c31683",
+        "present": false,
+        "tag": "dba0c31683"
+      },
+      {
+        "kind": "netns",
+        "path": "/run/netns/soglia-dba0c31683",
+        "present": false,
+        "tag": "dba0c31683"
+      },
+      {
+        "kind": "host_veth",
+        "path": "/sys/class/net/sgh-dba0c31683",
+        "present": false,
+        "tag": "dba0c31683"
+      },
+      {
+        "kind": "network_record",
+        "path": "/run/soglia-b7/M2/net/dba0c31683.json",
+        "present": false,
+        "tag": "dba0c31683"
+      },
+      {
+        "kind": "sandbox_record",
+        "path": "/run/soglia-b7/M2/sandbox/dba0c31683.json",
+        "present": false,
+        "tag": "dba0c31683"
+      },
+      {
+        "kind": "bundle",
+        "path": "/run/soglia-b7/M2/bundles/dba0c31683",
+        "present": false,
+        "tag": "dba0c31683"
+      },
+      {
+        "kind": "runc_state",
+        "path": "/run/soglia-b7/M2/runc/soglia-dba0c31683",
+        "present": false,
+        "tag": "dba0c31683"
+      }
+    ],
+    "live_entries": 0
+  },
+  "tags": [
+    "3878d849ef",
+    "5aaae88e07",
+    "821f0dc218",
+    "ce208b4472",
+    "d0271712e5",
+    "dba0c31683"
+  ],
+  "verdict": "PASS"
+}

@@ -1,0 +1,10 @@
+{
+  "profile": "drift-owned-link-detach",
+  "cleanup": "PASS",
+  "measurements": {
+    "execution_residue": "/soglia/spikes/cgroup-bpf/evidence/replay/b7-20261001T091538Z-9461/drift/owned_link_detach/active-residue",
+    "persistent_generation": "/soglia/spikes/cgroup-bpf/evidence/replay/b7-20261001T091538Z-9461/drift/owned_link_detach/persistent-generation.json",
+    "harness_teardown": "/soglia/spikes/cgroup-bpf/evidence/replay/b7-20261001T091538Z-9461/drift/owned_link_detach/harness-teardown.json"
+  },
+  "wildcard_deletion": false
+}

@@ -1,0 +1,10 @@
+Started soglia-b6-target-nonempty-target.service - /var/tmp/soglia-spike-2/bin/b6-driver /var/tmp/b6-production-target/release/soglia /soglia/spikes/cgroup-bpf/evidence/replay/b6-20261001T091053Z-9423/cases/target_released_nonempty_target/config.yaml /soglia/spikes/cgroup-bpf/evidence/replay/b6-20261001T091053Z-9423/cases/target_released_nonempty_target /dev/null target-released-nonempty.
+event.name=cgroup_bpf.target_released_link_observation elapsed_ms=0 link=sock_create link_id=784 program_id=2686 attach_type=2 cgroup_id=0
+event.name=cgroup_bpf.target_released_link_observation elapsed_ms=0 link=connect4 link_id=785 program_id=2687 attach_type=10 cgroup_id=0
+event.name=cgroup_bpf.target_released_link_observation elapsed_ms=0 link=connect6 link_id=786 program_id=2688 attach_type=11 cgroup_id=0
+event.name=cgroup_bpf.target_released_link_observation elapsed_ms=0 link=sendmsg4 link_id=787 program_id=2689 attach_type=14 cgroup_id=0
+event.name=cgroup_bpf.target_released_link_observation elapsed_ms=0 link=sendmsg6 link_id=788 program_id=2690 attach_type=15 cgroup_id=0
+event.name=cgroup_bpf.target_released_link_observation elapsed_ms=0 link=sock_ops link_id=789 program_id=2691 attach_type=3 cgroup_id=0
+soglia: the cgroup-bpf backend could not start: refused: UNKNOWN replacement attachment target failed the released-target contract; no object was changed
+soglia-b6-target-nonempty-target.service: Killing process 73847 (sleep) with signal SIGKILL.
+soglia-b6-target-nonempty-target.service: Deactivated successfully.

@@ -1,0 +1,303 @@
+{
+  "case": "BACKEND_GENERATION",
+  "durable_record_matrix": [
+    {
+      "binding_after": {
+        "backend_generation": 1,
+        "cgroup_id": 28822,
+        "execution_nonce": [
+          105,
+          10,
+          73,
+          31,
+          15,
+          99,
+          74,
+          184,
+          153,
+          27,
+          202,
+          0,
+          137,
+          91,
+          176,
+          38
+        ]
+      },
+      "binding_before": {
+        "backend_generation": 1,
+        "cgroup_id": 28821,
+        "execution_nonce": [
+          105,
+          10,
+          73,
+          31,
+          15,
+          99,
+          74,
+          184,
+          153,
+          27,
+          202,
+          0,
+          137,
+          91,
+          176,
+          38
+        ]
+      },
+      "boundary": "DURABLE_RECORD",
+      "field": "CGROUP_ID",
+      "mismatched_record_preserved_byte_for_byte": true,
+      "original_record_restored_byte_for_byte": true,
+      "production_code_modified": false,
+      "refusal": "the cgroup-bpf backend could not start: refused: UNKNOWN per-Execution ownership record; no kernel object was changed",
+      "startup_refused": true,
+      "verdict": "PASS"
+    },
+    {
+      "binding_after": {
+        "backend_generation": 1,
+        "cgroup_id": 28821,
+        "execution_nonce": [
+          233,
+          10,
+          73,
+          31,
+          15,
+          99,
+          74,
+          184,
+          153,
+          27,
+          202,
+          0,
+          137,
+          91,
+          176,
+          38
+        ]
+      },
+      "binding_before": {
+        "backend_generation": 1,
+        "cgroup_id": 28821,
+        "execution_nonce": [
+          105,
+          10,
+          73,
+          31,
+          15,
+          99,
+          74,
+          184,
+          153,
+          27,
+          202,
+          0,
+          137,
+          91,
+          176,
+          38
+        ]
+      },
+      "boundary": "DURABLE_RECORD",
+      "field": "EXECUTION_NONCE",
+      "mismatched_record_preserved_byte_for_byte": true,
+      "original_record_restored_byte_for_byte": true,
+      "production_code_modified": false,
+      "refusal": "the cgroup-bpf backend could not start: refused: UNKNOWN per-Execution ownership record; no kernel object was changed",
+      "startup_refused": true,
+      "verdict": "PASS"
+    },
+    {
+      "binding_after": {
+        "backend_generation": 2,
+        "cgroup_id": 28821,
+        "execution_nonce": [
+          105,
+          10,
+          73,
+          31,
+          15,
+          99,
+          74,
+          184,
+          153,
+          27,
+          202,
+          0,
+          137,
+          91,
+          176,
+          38
+        ]
+      },
+      "binding_before": {
+        "backend_generation": 1,
+        "cgroup_id": 28821,
+        "execution_nonce": [
+          105,
+          10,
+          73,
+          31,
+          15,
+          99,
+          74,
+          184,
+          153,
+          27,
+          202,
+          0,
+          137,
+          91,
+          176,
+          38
+        ]
+      },
+      "boundary": "DURABLE_RECORD",
+      "field": "BACKEND_GENERATION",
+      "mismatched_record_preserved_byte_for_byte": true,
+      "original_record_restored_byte_for_byte": true,
+      "production_code_modified": false,
+      "refusal": "the cgroup-bpf backend could not start: refused: UNKNOWN per-Execution ownership record; no kernel object was changed",
+      "startup_refused": true,
+      "verdict": "PASS"
+    }
+  ],
+  "fresh_and_stale_generation_results": [
+    {
+      "agent_report": "{\"cmd\":\"proxy-connect-report\",\"ok\":true,\"detail\":\"HTTP/1.1 200 OK\",\"i\":0,\"source_port\":46000,\"local\":\"10.201.0.1:46000\",\"proxy_destination\":\"10.200.255.1:15001\",\"mode\":\"close\",\"phase\":\"established\",\"elapsed_ms\":7}\n",
+      "binding": {
+        "backend_generation": 2,
+        "cgroup_id": 29007,
+        "execution_nonce": [
+          129,
+          155,
+          169,
+          96,
+          176,
+          235,
+          64,
+          191,
+          130,
+          127,
+          60,
+          118,
+          246,
+          103,
+          95,
+          248
+        ]
+      },
+      "execution_id": "42c22c8f4b94c8203b3548d0ff6e8c0f",
+      "observation": {
+        "cookie": 4309,
+        "dns_when_resolve_returned": 0,
+        "elapsed_ms": 0,
+        "health_failure": null,
+        "index": 0,
+        "local": "10.200.255.1:15001",
+        "mismatch": null,
+        "outbound_when_resolve_returned": 0,
+        "outcome": "RESOLVED",
+        "peer": "10.201.0.1:46000",
+        "recv_q_bytes": 61,
+        "resolved_execution": "42c22c8f4b94c8203b3548d0ff6e8c0f",
+        "tuple_binding": {
+          "backend_generation": 2,
+          "cgroup_id": 29007,
+          "execution_nonce": [
+            129,
+            155,
+            169,
+            96,
+            176,
+            235,
+            64,
+            191,
+            130,
+            127,
+            60,
+            118,
+            246,
+            103,
+            95,
+            248
+          ]
+        }
+      },
+      "stale_old_generation": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": "{\"cmd\":\"proxy-connect-report\",\"ok\":false,\"errno\":104,\"error\":\"Connection reset by peer (os error 104)\",\"i\":0,\"source_port\":46000,\"local\":\"10.201.0.1:46000\",\"proxy_destination\":\"10.200.255.1:15001\",\"mode\":\"close\",\"phase\":\"established\",\"elapsed_ms\":12}\n",
+      "binding": {
+        "backend_generation": 2,
+        "cgroup_id": 29100,
+        "execution_nonce": [
+          134,
+          26,
+          101,
+          68,
+          251,
+          249,
+          254,
+          42,
+          240,
+          246,
+          187,
+          27,
+          47,
+          182,
+          176,
+          22
+        ]
+      },
+      "execution_id": "2bd2e6ee132f184367c2d745782e5e14",
+      "observation": {
+        "cookie": 4310,
+        "dns_when_resolve_returned": 0,
+        "elapsed_ms": 6,
+        "health_failure": null,
+        "index": 0,
+        "local": "10.200.255.1:15001",
+        "mismatch": "BACKEND_GENERATION",
+        "outbound_when_resolve_returned": 0,
+        "outcome": "IDENTITY_MISMATCH",
+        "peer": "10.201.0.1:46000",
+        "recv_q_bytes": 61,
+        "resolved_execution": null,
+        "tuple_binding": {
+          "backend_generation": 2,
+          "cgroup_id": 29100,
+          "execution_nonce": [
+            134,
+            26,
+            101,
+            68,
+            251,
+            249,
+            254,
+            42,
+            240,
+            246,
+            187,
+            27,
+            47,
+            182,
+            176,
+            22
+          ]
+        }
+      },
+      "stale_old_generation": true,
+      "verdict": "PASS"
+    }
+  ],
+  "generation_advanced": true,
+  "new_generation": 2,
+  "old_generation": 1,
+  "startup_swept": [
+    "cgroup-BPF generation 1"
+  ]
+}

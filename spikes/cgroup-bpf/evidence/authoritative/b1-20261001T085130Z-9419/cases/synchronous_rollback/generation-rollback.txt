@@ -1,0 +1,1 @@
+Oct 01 10:51:39 lima-soglia-spike-b1-20261001T084920Z-77925 soglia[10798]: event.name=cgroup_bpf.generation_rollback result=PASS generation=1

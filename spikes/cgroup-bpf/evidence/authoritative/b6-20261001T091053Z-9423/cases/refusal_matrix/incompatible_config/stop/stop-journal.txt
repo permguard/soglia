@@ -1,0 +1,7 @@
+Stopping soglia-b6-refusal-4.service - /var/tmp/b6-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b6-20261001T091053Z-9423/cases/refusal_matrix/incompatible_config/config.yaml...
+[2m2026-10-01T09:12:22.038112Z[0m [32m INFO[0m soglia stopped [3mevent.name[0m[2m=[0m"shutdown.done"
+soglia-b6-refusal-4.service: Killing process 55985 (exe) with signal SIGKILL.
+soglia-b6-refusal-4.service: Failed to kill control group /system.slice/soglia-b6-refusal-4.service, ignoring: Invalid argument
+soglia-b6-refusal-4.service: Deactivated successfully.
+soglia-b6-refusal-4.service: Unit process 55985 (exe) remains running after unit stopped.
+Stopped soglia-b6-refusal-4.service - /var/tmp/b6-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b6-20261001T091053Z-9423/cases/refusal_matrix/incompatible_config/config.yaml.

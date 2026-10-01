@@ -1,0 +1,8 @@
+Stopping soglia-b6-refusal-8.service - /var/tmp/b6-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b6-20261001T091053Z-9423/cases/refusal_matrix/unknown_kernel_identity/config.yaml...
+soglia-b6-refusal-8.service: Killing process 58912 (exe) with signal SIGKILL.
+soglia-b6-refusal-8.service: Killing process 58913 (exe) with signal SIGKILL.
+soglia-b6-refusal-8.service: Failed to kill control group /system.slice/soglia-b6-refusal-8.service, ignoring: Invalid argument
+soglia-b6-refusal-8.service: Deactivated successfully.
+soglia-b6-refusal-8.service: Unit process 58912 (exe) remains running after unit stopped.
+soglia-b6-refusal-8.service: Unit process 58913 (exe) remains running after unit stopped.
+Stopped soglia-b6-refusal-8.service - /var/tmp/b6-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b6-20261001T091053Z-9423/cases/refusal_matrix/unknown_kernel_identity/config.yaml.

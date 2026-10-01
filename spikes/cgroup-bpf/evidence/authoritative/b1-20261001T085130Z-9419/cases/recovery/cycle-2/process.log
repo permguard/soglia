@@ -1,0 +1,7 @@
+event.name=cgroup_bpf.recovery_cleanup_observation elapsed_ms=0 surviving=program:246,program:247,program:248,program:249,program:250,program:251,map:77,map:79,map:81,map:82,map:80,map:83
+event.name=cgroup_bpf.attach_probe result=PASS mode=single hooks=6 effective=true
+event.name=cgroup_bpf.ready generation=2 programs=6 links=6 maps=7 policy_capacity=5 socket_capacity=4096 ring_bytes=65536
+event.name=cgroup_bpf.startup result=PASS generation=2 duration_ms=134 swept=1 readiness=READY
+[2m2026-10-01T08:51:39.863185Z[0m [32m INFO[0m a resource left by a previous run was removed [3mevent.name[0m[2m=[0m"startup.swept" [3mhelper[0m[2m=[0m"enforcer" [3mresource[0m[2m=[0mcgroup-BPF generation 1
+[2m2026-10-01T08:51:39.863229Z[0m [32m INFO[0m privileges dropped [3mevent.name[0m[2m=[0m"startup.privileges_dropped" [3muid[0m[2m=[0m65534 [3mgid[0m[2m=[0m65534
+[2m2026-10-01T08:51:39.863433Z[0m [32m INFO[0m soglia is ready [3mevent.name[0m[2m=[0m"startup.ready" [3mingress[0m[2m=[0m127.0.0.1:18094 [3megress[0m[2m=[0m10.200.255.4:15004

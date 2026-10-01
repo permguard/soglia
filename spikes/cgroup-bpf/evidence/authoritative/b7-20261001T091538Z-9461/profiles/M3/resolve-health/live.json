@@ -1,0 +1,77 @@
+{
+  "control_resolves_excluded": 1,
+  "event_count": 3,
+  "events": [
+    {
+      "delayed_hit": 0,
+      "identity_mismatch": 0,
+      "integrity_failure": 0,
+      "interval_ms": 10207,
+      "latency_max_us": 135,
+      "not_found": 0,
+      "queue_refusal": 0,
+      "resolved": 1,
+      "revoked": 0,
+      "stale_generation": 0,
+      "timeout": 0,
+      "unavailable": 0
+    },
+    {
+      "delayed_hit": 0,
+      "identity_mismatch": 0,
+      "integrity_failure": 0,
+      "interval_ms": 1039,
+      "latency_max_us": 138,
+      "not_found": 0,
+      "queue_refusal": 0,
+      "resolved": 10,
+      "revoked": 0,
+      "stale_generation": 0,
+      "timeout": 0,
+      "unavailable": 0
+    },
+    {
+      "delayed_hit": 0,
+      "identity_mismatch": 0,
+      "integrity_failure": 0,
+      "interval_ms": 7546,
+      "latency_max_us": 124,
+      "not_found": 0,
+      "queue_refusal": 0,
+      "resolved": 22,
+      "revoked": 0,
+      "stale_generation": 0,
+      "timeout": 0,
+      "unavailable": 0
+    }
+  ],
+  "label": "live",
+  "raw_totals": {
+    "delayed_hit": 0,
+    "identity_mismatch": 0,
+    "integrity_failure": 0,
+    "not_found": 0,
+    "queue_refusal": 0,
+    "resolved": 33,
+    "revoked": 0,
+    "stale_generation": 0,
+    "timeout": 0,
+    "unavailable": 0
+  },
+  "source": "production cgroup_bpf.resolve_health structured events",
+  "supported_envelope": true,
+  "verdict": "PASS",
+  "workload_attempts": 32,
+  "workload_totals": {
+    "delayed_hit": 0,
+    "identity_mismatch": 0,
+    "integrity_failure": 0,
+    "not_found": 0,
+    "queue_refusal": 0,
+    "resolved": 32,
+    "revoked": 0,
+    "stale_generation": 0,
+    "timeout": 0,
+    "unavailable": 0
+  }
+}

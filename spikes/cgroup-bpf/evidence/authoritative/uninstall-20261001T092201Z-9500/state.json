@@ -1,0 +1,7 @@
+{
+  "schema": 1,
+  "run_id": "uninstall-20261001T092201Z-9500",
+  "gate": "UNINSTALL",
+  "authoritative": true,
+  "current_case": "cleanup"
+}

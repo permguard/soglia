@@ -1,0 +1,5 @@
+Running as unit: soglia-b1-recovery.service; invocation ID: 6091b32c0e3143c289d187257007ad64
+Failed to reset failed state of unit soglia-b1-recovery.service: Unit soglia-b1-recovery.service not loaded.
+RUN_ID=b1-diagnostic-recovery-20261001T085139Z-11007
+EVIDENCE=/soglia/spikes/cgroup-bpf/evidence/replay/b1-diagnostic-recovery-20261001T085139Z-11007
+event.name=cgroup_bpf.ready generation=2 programs=6 links=6 maps=7 policy_capacity=5 socket_capacity=4096 ring_bytes=65536

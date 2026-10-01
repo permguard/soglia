@@ -1,0 +1,12 @@
+{
+  "actual_reuse": "NOT_PERFORMED",
+  "attempt_limit": 2,
+  "claim_scope": "no claim of empirical kernel cgroup-id reuse when NOT_PERFORMED",
+  "inode_used_as_identity": false,
+  "observed_ids": [
+    8268,
+    8361
+  ],
+  "reason_if_not_performed": "the recorded Linux kernel exposes a 64-bit kernfs cgroup identity carrying generation information; destroyed identities were not reused within the bounded qualification lifecycle",
+  "synthetic_same_cgroup_with_stale_nonce": "performed by binding_mismatch_matrix"
+}

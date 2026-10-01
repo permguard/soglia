@@ -1,0 +1,135 @@
+{
+  "actual_cgroup_id_reuse": false,
+  "actual_reuse_scope": "NOT_PERFORMED",
+  "case": "EXECUTION_GENERATION",
+  "fresh_nonce": true,
+  "identities": [
+    {
+      "binding": {
+        "backend_generation": 1,
+        "cgroup_id": 8268,
+        "execution_nonce": [
+          52,
+          61,
+          26,
+          72,
+          161,
+          72,
+          115,
+          145,
+          59,
+          86,
+          240,
+          83,
+          156,
+          87,
+          5,
+          71
+        ]
+      },
+      "cgroup_inode": 8268,
+      "execution_id": "b3dca609e5ee2f06db5b09489210a953",
+      "incarnation": 0,
+      "observation": {
+        "cookie": 44,
+        "dns_when_resolve_returned": 0,
+        "elapsed_ms": 0,
+        "health_failure": null,
+        "index": 0,
+        "local": "10.200.255.1:15001",
+        "mismatch": null,
+        "outbound_when_resolve_returned": 0,
+        "outcome": "RESOLVED",
+        "peer": "10.201.0.1:42000",
+        "recv_q_bytes": 61,
+        "resolved_execution": "b3dca609e5ee2f06db5b09489210a953",
+        "tuple_binding": {
+          "backend_generation": 1,
+          "cgroup_id": 8268,
+          "execution_nonce": [
+            52,
+            61,
+            26,
+            72,
+            161,
+            72,
+            115,
+            145,
+            59,
+            86,
+            240,
+            83,
+            156,
+            87,
+            5,
+            71
+          ]
+        }
+      }
+    },
+    {
+      "binding": {
+        "backend_generation": 1,
+        "cgroup_id": 8361,
+        "execution_nonce": [
+          36,
+          177,
+          88,
+          249,
+          236,
+          201,
+          111,
+          23,
+          12,
+          212,
+          204,
+          134,
+          83,
+          131,
+          16,
+          121
+        ]
+      },
+      "cgroup_inode": 8361,
+      "execution_id": "91db63a5ef770ec9aae660a7832cd4b4",
+      "incarnation": 1,
+      "observation": {
+        "cookie": 8209,
+        "dns_when_resolve_returned": 0,
+        "elapsed_ms": 0,
+        "health_failure": null,
+        "index": 0,
+        "local": "10.200.255.1:15001",
+        "mismatch": null,
+        "outbound_when_resolve_returned": 0,
+        "outcome": "RESOLVED",
+        "peer": "10.201.0.1:42000",
+        "recv_q_bytes": 61,
+        "resolved_execution": "91db63a5ef770ec9aae660a7832cd4b4",
+        "tuple_binding": {
+          "backend_generation": 1,
+          "cgroup_id": 8361,
+          "execution_nonce": [
+            36,
+            177,
+            88,
+            249,
+            236,
+            201,
+            111,
+            23,
+            12,
+            212,
+            204,
+            134,
+            83,
+            131,
+            16,
+            121
+          ]
+        }
+      }
+    }
+  ],
+  "same_backend_generation": true
+}

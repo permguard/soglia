@@ -1,0 +1,30 @@
+{
+  "actor": "B3 qualification harness",
+  "old_socket_cookie": 4106,
+  "production_code_modified": false,
+  "purpose": "prove an old close callback cannot delete a tuple carrying another cookie",
+  "replacement_binding": {
+    "backend_generation": 1,
+    "cgroup_id": 8175,
+    "execution_nonce": [
+      87,
+      136,
+      151,
+      125,
+      95,
+      159,
+      26,
+      236,
+      123,
+      236,
+      105,
+      10,
+      166,
+      204,
+      125,
+      172
+    ]
+  },
+  "replacement_cookie": 4107,
+  "tuple_key_hex": "0ac900010ac8ff01409c993a00000000"
+}

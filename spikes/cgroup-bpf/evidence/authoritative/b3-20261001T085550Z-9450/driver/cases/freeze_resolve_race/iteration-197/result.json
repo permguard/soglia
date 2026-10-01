@@ -1,0 +1,20 @@
+{
+  "agent_report": null,
+  "agent_report_required": false,
+  "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+  "effects_after_freeze": {
+    "dns": 0,
+    "outbound": 0
+  },
+  "effects_at_freeze": {
+    "dns": 0,
+    "outbound": 0
+  },
+  "health_failure": null,
+  "iteration": 197,
+  "mismatch": null,
+  "ordering": "CONCURRENT",
+  "outcome": "REVOKED",
+  "resolved_then_revoked": false,
+  "verdict": "PASS"
+}

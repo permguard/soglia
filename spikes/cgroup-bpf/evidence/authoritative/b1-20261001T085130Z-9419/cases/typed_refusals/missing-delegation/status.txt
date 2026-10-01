@@ -1,0 +1,16 @@
+× soglia-b1-no-delegation.service - /var/tmp/soglia-b1-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b1-diagnostic-refusals-20261001T085140Z-11516/missing-delegation/config.yaml
+     Loaded: loaded (/run/systemd/transient/soglia-b1-no-delegation.service; transient)
+  Transient: yes
+     Active: failed (Result: exit-code) since Thu 2026-10-01 10:51:40 CEST; 13ms ago
+   Duration: 24ms
+    Process: 11541 ExecStart=/var/tmp/soglia-b1-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b1-diagnostic-refusals-20261001T085140Z-11516/missing-delegation/config.yaml (code=exited, status=20)
+   Main PID: 11541 (code=exited, status=20)
+        CPU: 3ms
+
+Oct 01 10:51:40 lima-soglia-spike-b1-20261001T084920Z-77925 systemd[1]: Started soglia-b1-no-delegation.service - /var/tmp/soglia-b1-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b1-diagnostic-refusals-20261001T085140Z-11516/missing-delegation/config.yaml.
+Oct 01 10:51:40 lima-soglia-spike-b1-20261001T084920Z-77925 soglia[11543]: soglia: the runc backend could not start: refused: /sys/fs/cgroup/system.slice/soglia-b1-absent-root.service is not a usable cgroup v2 directory: No such file or directory (os error 2)
+Oct 01 10:51:40 lima-soglia-spike-b1-20261001T084920Z-77925 soglia[11544]: soglia: the peer closed the channel
+Oct 01 10:51:40 lima-soglia-spike-b1-20261001T084920Z-77925 soglia[11541]: 2026-10-01T08:51:40.127776Z ERROR Soglia refused startup event.name="startup.refused" refusal.class="INCOMPATIBLE"
+Oct 01 10:51:40 lima-soglia-spike-b1-20261001T084920Z-77925 soglia[11541]: soglia: the sandboxd did not start: the runc backend could not start: refused: /sys/fs/cgroup/system.slice/soglia-b1-absent-root.service is not a usable cgroup v2 directory: No such file or directory (os error 2)
+Oct 01 10:51:40 lima-soglia-spike-b1-20261001T084920Z-77925 systemd[1]: soglia-b1-no-delegation.service: Main process exited, code=exited, status=20/n/a
+Oct 01 10:51:40 lima-soglia-spike-b1-20261001T084920Z-77925 systemd[1]: soglia-b1-no-delegation.service: Failed with result 'exit-code'.

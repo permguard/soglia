@@ -1,0 +1,552 @@
+{
+  "cgroup_subtree": "/sys/fs/cgroup/soglia-uninstall-none",
+  "classification": "EXTERNAL_CHURN",
+  "exact_inventory_match": false,
+  "external_churn_match": true,
+  "production_programs": [
+    {
+      "id": 117,
+      "name": "soglia_connect4",
+      "tag": "b243ec8fc95d6e8d",
+      "type": "cgroup_sock_addr"
+    },
+    {
+      "id": 123,
+      "name": "soglia_connect4",
+      "tag": "b243ec8fc95d6e8d",
+      "type": "cgroup_sock_addr"
+    },
+    {
+      "id": 145,
+      "name": "soglia_connect4",
+      "tag": "b243ec8fc95d6e8d",
+      "type": "cgroup_sock_addr"
+    },
+    {
+      "id": 151,
+      "name": "soglia_connect4",
+      "tag": "b243ec8fc95d6e8d",
+      "type": "cgroup_sock_addr"
+    },
+    {
+      "id": 170,
+      "name": "soglia_connect4",
+      "tag": "b243ec8fc95d6e8d",
+      "type": "cgroup_sock_addr"
+    },
+    {
+      "id": 176,
+      "name": "soglia_connect4",
+      "tag": "b243ec8fc95d6e8d",
+      "type": "cgroup_sock_addr"
+    },
+    {
+      "id": 186,
+      "name": "soglia_connect4",
+      "tag": "b243ec8fc95d6e8d",
+      "type": "cgroup_sock_addr"
+    },
+    {
+      "id": 192,
+      "name": "soglia_connect4",
+      "tag": "b243ec8fc95d6e8d",
+      "type": "cgroup_sock_addr"
+    },
+    {
+      "id": 208,
+      "name": "soglia_connect4",
+      "tag": "b243ec8fc95d6e8d",
+      "type": "cgroup_sock_addr"
+    },
+    {
+      "id": 221,
+      "name": "soglia_connect4",
+      "tag": "b243ec8fc95d6e8d",
+      "type": "cgroup_sock_addr"
+    },
+    {
+      "id": 227,
+      "name": "soglia_connect4",
+      "tag": "b243ec8fc95d6e8d",
+      "type": "cgroup_sock_addr"
+    },
+    {
+      "id": 237,
+      "name": "soglia_connect4",
+      "tag": "b243ec8fc95d6e8d",
+      "type": "cgroup_sock_addr"
+    },
+    {
+      "id": 243,
+      "name": "soglia_connect4",
+      "tag": "b243ec8fc95d6e8d",
+      "type": "cgroup_sock_addr"
+    },
+    {
+      "id": 253,
+      "name": "soglia_connect4",
+      "tag": "b243ec8fc95d6e8d",
+      "type": "cgroup_sock_addr"
+    },
+    {
+      "id": 259,
+      "name": "soglia_connect4",
+      "tag": "b243ec8fc95d6e8d",
+      "type": "cgroup_sock_addr"
+    },
+    {
+      "id": 118,
+      "name": "soglia_connect6",
+      "tag": "dc2aed2e29a3b7d4",
+      "type": "cgroup_sock_addr"
+    },
+    {
+      "id": 124,
+      "name": "soglia_connect6",
+      "tag": "dc2aed2e29a3b7d4",
+      "type": "cgroup_sock_addr"
+    },
+    {
+      "id": 146,
+      "name": "soglia_connect6",
+      "tag": "dc2aed2e29a3b7d4",
+      "type": "cgroup_sock_addr"
+    },
+    {
+      "id": 152,
+      "name": "soglia_connect6",
+      "tag": "dc2aed2e29a3b7d4",
+      "type": "cgroup_sock_addr"
+    },
+    {
+      "id": 171,
+      "name": "soglia_connect6",
+      "tag": "dc2aed2e29a3b7d4",
+      "type": "cgroup_sock_addr"
+    },
+    {
+      "id": 177,
+      "name": "soglia_connect6",
+      "tag": "dc2aed2e29a3b7d4",
+      "type": "cgroup_sock_addr"
+    },
+    {
+      "id": 187,
+      "name": "soglia_connect6",
+      "tag": "dc2aed2e29a3b7d4",
+      "type": "cgroup_sock_addr"
+    },
+    {
+      "id": 193,
+      "name": "soglia_connect6",
+      "tag": "dc2aed2e29a3b7d4",
+      "type": "cgroup_sock_addr"
+    },
+    {
+      "id": 209,
+      "name": "soglia_connect6",
+      "tag": "dc2aed2e29a3b7d4",
+      "type": "cgroup_sock_addr"
+    },
+    {
+      "id": 222,
+      "name": "soglia_connect6",
+      "tag": "dc2aed2e29a3b7d4",
+      "type": "cgroup_sock_addr"
+    },
+    {
+      "id": 228,
+      "name": "soglia_connect6",
+      "tag": "dc2aed2e29a3b7d4",
+      "type": "cgroup_sock_addr"
+    },
+    {
+      "id": 238,
+      "name": "soglia_connect6",
+      "tag": "dc2aed2e29a3b7d4",
+      "type": "cgroup_sock_addr"
+    },
+    {
+      "id": 244,
+      "name": "soglia_connect6",
+      "tag": "dc2aed2e29a3b7d4",
+      "type": "cgroup_sock_addr"
+    },
+    {
+      "id": 254,
+      "name": "soglia_connect6",
+      "tag": "dc2aed2e29a3b7d4",
+      "type": "cgroup_sock_addr"
+    },
+    {
+      "id": 260,
+      "name": "soglia_connect6",
+      "tag": "dc2aed2e29a3b7d4",
+      "type": "cgroup_sock_addr"
+    },
+    {
+      "id": 119,
+      "name": "soglia_sendmsg4",
+      "tag": "ce65da13e7299c0a",
+      "type": "cgroup_sock_addr"
+    },
+    {
+      "id": 125,
+      "name": "soglia_sendmsg4",
+      "tag": "ce65da13e7299c0a",
+      "type": "cgroup_sock_addr"
+    },
+    {
+      "id": 147,
+      "name": "soglia_sendmsg4",
+      "tag": "ce65da13e7299c0a",
+      "type": "cgroup_sock_addr"
+    },
+    {
+      "id": 153,
+      "name": "soglia_sendmsg4",
+      "tag": "ce65da13e7299c0a",
+      "type": "cgroup_sock_addr"
+    },
+    {
+      "id": 172,
+      "name": "soglia_sendmsg4",
+      "tag": "ce65da13e7299c0a",
+      "type": "cgroup_sock_addr"
+    },
+    {
+      "id": 178,
+      "name": "soglia_sendmsg4",
+      "tag": "ce65da13e7299c0a",
+      "type": "cgroup_sock_addr"
+    },
+    {
+      "id": 188,
+      "name": "soglia_sendmsg4",
+      "tag": "ce65da13e7299c0a",
+      "type": "cgroup_sock_addr"
+    },
+    {
+      "id": 194,
+      "name": "soglia_sendmsg4",
+      "tag": "ce65da13e7299c0a",
+      "type": "cgroup_sock_addr"
+    },
+    {
+      "id": 210,
+      "name": "soglia_sendmsg4",
+      "tag": "ce65da13e7299c0a",
+      "type": "cgroup_sock_addr"
+    },
+    {
+      "id": 223,
+      "name": "soglia_sendmsg4",
+      "tag": "ce65da13e7299c0a",
+      "type": "cgroup_sock_addr"
+    },
+    {
+      "id": 229,
+      "name": "soglia_sendmsg4",
+      "tag": "ce65da13e7299c0a",
+      "type": "cgroup_sock_addr"
+    },
+    {
+      "id": 239,
+      "name": "soglia_sendmsg4",
+      "tag": "ce65da13e7299c0a",
+      "type": "cgroup_sock_addr"
+    },
+    {
+      "id": 245,
+      "name": "soglia_sendmsg4",
+      "tag": "ce65da13e7299c0a",
+      "type": "cgroup_sock_addr"
+    },
+    {
+      "id": 255,
+      "name": "soglia_sendmsg4",
+      "tag": "ce65da13e7299c0a",
+      "type": "cgroup_sock_addr"
+    },
+    {
+      "id": 261,
+      "name": "soglia_sendmsg4",
+      "tag": "ce65da13e7299c0a",
+      "type": "cgroup_sock_addr"
+    },
+    {
+      "id": 120,
+      "name": "soglia_sendmsg6",
+      "tag": "930e5173f6d0ff4c",
+      "type": "cgroup_sock_addr"
+    },
+    {
+      "id": 126,
+      "name": "soglia_sendmsg6",
+      "tag": "930e5173f6d0ff4c",
+      "type": "cgroup_sock_addr"
+    },
+    {
+      "id": 148,
+      "name": "soglia_sendmsg6",
+      "tag": "930e5173f6d0ff4c",
+      "type": "cgroup_sock_addr"
+    },
+    {
+      "id": 154,
+      "name": "soglia_sendmsg6",
+      "tag": "930e5173f6d0ff4c",
+      "type": "cgroup_sock_addr"
+    },
+    {
+      "id": 173,
+      "name": "soglia_sendmsg6",
+      "tag": "930e5173f6d0ff4c",
+      "type": "cgroup_sock_addr"
+    },
+    {
+      "id": 179,
+      "name": "soglia_sendmsg6",
+      "tag": "930e5173f6d0ff4c",
+      "type": "cgroup_sock_addr"
+    },
+    {
+      "id": 189,
+      "name": "soglia_sendmsg6",
+      "tag": "930e5173f6d0ff4c",
+      "type": "cgroup_sock_addr"
+    },
+    {
+      "id": 195,
+      "name": "soglia_sendmsg6",
+      "tag": "930e5173f6d0ff4c",
+      "type": "cgroup_sock_addr"
+    },
+    {
+      "id": 211,
+      "name": "soglia_sendmsg6",
+      "tag": "930e5173f6d0ff4c",
+      "type": "cgroup_sock_addr"
+    },
+    {
+      "id": 224,
+      "name": "soglia_sendmsg6",
+      "tag": "930e5173f6d0ff4c",
+      "type": "cgroup_sock_addr"
+    },
+    {
+      "id": 230,
+      "name": "soglia_sendmsg6",
+      "tag": "930e5173f6d0ff4c",
+      "type": "cgroup_sock_addr"
+    },
+    {
+      "id": 240,
+      "name": "soglia_sendmsg6",
+      "tag": "930e5173f6d0ff4c",
+      "type": "cgroup_sock_addr"
+    },
+    {
+      "id": 246,
+      "name": "soglia_sendmsg6",
+      "tag": "930e5173f6d0ff4c",
+      "type": "cgroup_sock_addr"
+    },
+    {
+      "id": 256,
+      "name": "soglia_sendmsg6",
+      "tag": "930e5173f6d0ff4c",
+      "type": "cgroup_sock_addr"
+    },
+    {
+      "id": 262,
+      "name": "soglia_sendmsg6",
+      "tag": "930e5173f6d0ff4c",
+      "type": "cgroup_sock_addr"
+    },
+    {
+      "id": 116,
+      "name": "soglia_sock_create",
+      "tag": "af3beafe73d93e9c",
+      "type": "cgroup_sock"
+    },
+    {
+      "id": 122,
+      "name": "soglia_sock_create",
+      "tag": "af3beafe73d93e9c",
+      "type": "cgroup_sock"
+    },
+    {
+      "id": 144,
+      "name": "soglia_sock_create",
+      "tag": "af3beafe73d93e9c",
+      "type": "cgroup_sock"
+    },
+    {
+      "id": 150,
+      "name": "soglia_sock_create",
+      "tag": "af3beafe73d93e9c",
+      "type": "cgroup_sock"
+    },
+    {
+      "id": 169,
+      "name": "soglia_sock_create",
+      "tag": "af3beafe73d93e9c",
+      "type": "cgroup_sock"
+    },
+    {
+      "id": 175,
+      "name": "soglia_sock_create",
+      "tag": "af3beafe73d93e9c",
+      "type": "cgroup_sock"
+    },
+    {
+      "id": 185,
+      "name": "soglia_sock_create",
+      "tag": "af3beafe73d93e9c",
+      "type": "cgroup_sock"
+    },
+    {
+      "id": 191,
+      "name": "soglia_sock_create",
+      "tag": "af3beafe73d93e9c",
+      "type": "cgroup_sock"
+    },
+    {
+      "id": 207,
+      "name": "soglia_sock_create",
+      "tag": "af3beafe73d93e9c",
+      "type": "cgroup_sock"
+    },
+    {
+      "id": 220,
+      "name": "soglia_sock_create",
+      "tag": "af3beafe73d93e9c",
+      "type": "cgroup_sock"
+    },
+    {
+      "id": 226,
+      "name": "soglia_sock_create",
+      "tag": "af3beafe73d93e9c",
+      "type": "cgroup_sock"
+    },
+    {
+      "id": 236,
+      "name": "soglia_sock_create",
+      "tag": "af3beafe73d93e9c",
+      "type": "cgroup_sock"
+    },
+    {
+      "id": 242,
+      "name": "soglia_sock_create",
+      "tag": "af3beafe73d93e9c",
+      "type": "cgroup_sock"
+    },
+    {
+      "id": 252,
+      "name": "soglia_sock_create",
+      "tag": "af3beafe73d93e9c",
+      "type": "cgroup_sock"
+    },
+    {
+      "id": 258,
+      "name": "soglia_sock_create",
+      "tag": "af3beafe73d93e9c",
+      "type": "cgroup_sock"
+    },
+    {
+      "id": 121,
+      "name": "soglia_sockops",
+      "tag": "a22a3c26162343b4",
+      "type": "sock_ops"
+    },
+    {
+      "id": 127,
+      "name": "soglia_sockops",
+      "tag": "a22a3c26162343b4",
+      "type": "sock_ops"
+    },
+    {
+      "id": 149,
+      "name": "soglia_sockops",
+      "tag": "a22a3c26162343b4",
+      "type": "sock_ops"
+    },
+    {
+      "id": 155,
+      "name": "soglia_sockops",
+      "tag": "a22a3c26162343b4",
+      "type": "sock_ops"
+    },
+    {
+      "id": 174,
+      "name": "soglia_sockops",
+      "tag": "a22a3c26162343b4",
+      "type": "sock_ops"
+    },
+    {
+      "id": 180,
+      "name": "soglia_sockops",
+      "tag": "a22a3c26162343b4",
+      "type": "sock_ops"
+    },
+    {
+      "id": 190,
+      "name": "soglia_sockops",
+      "tag": "a22a3c26162343b4",
+      "type": "sock_ops"
+    },
+    {
+      "id": 196,
+      "name": "soglia_sockops",
+      "tag": "a22a3c26162343b4",
+      "type": "sock_ops"
+    },
+    {
+      "id": 212,
+      "name": "soglia_sockops",
+      "tag": "a22a3c26162343b4",
+      "type": "sock_ops"
+    },
+    {
+      "id": 225,
+      "name": "soglia_sockops",
+      "tag": "a22a3c26162343b4",
+      "type": "sock_ops"
+    },
+    {
+      "id": 231,
+      "name": "soglia_sockops",
+      "tag": "a22a3c26162343b4",
+      "type": "sock_ops"
+    },
+    {
+      "id": 241,
+      "name": "soglia_sockops",
+      "tag": "a22a3c26162343b4",
+      "type": "sock_ops"
+    },
+    {
+      "id": 247,
+      "name": "soglia_sockops",
+      "tag": "a22a3c26162343b4",
+      "type": "sock_ops"
+    },
+    {
+      "id": 257,
+      "name": "soglia_sockops",
+      "tag": "a22a3c26162343b4",
+      "type": "sock_ops"
+    },
+    {
+      "id": 263,
+      "name": "soglia_sockops",
+      "tag": "a22a3c26162343b4",
+      "type": "sock_ops"
+    }
+  ],
+  "production_tags_complete": true,
+  "programs_added": [],
+  "programs_removed": [],
+  "schema": 1
+}

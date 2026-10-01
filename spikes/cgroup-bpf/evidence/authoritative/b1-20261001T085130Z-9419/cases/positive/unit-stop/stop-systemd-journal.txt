@@ -1,0 +1,4 @@
+Stopping soglia-b1.service - /var/tmp/soglia-b1-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b1-20261001T085130Z-9419/positive-config.yaml...
+soglia-b1.service: Main process exited, code=exited, status=1/FAILURE
+soglia-b1.service: Failed with result 'exit-code'.
+Stopped soglia-b1.service - /var/tmp/soglia-b1-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b1-20261001T085130Z-9419/positive-config.yaml.

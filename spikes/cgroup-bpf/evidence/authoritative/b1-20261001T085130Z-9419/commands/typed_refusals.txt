@@ -1,0 +1,8 @@
+Running as unit: soglia-b1-no-delegation.service; invocation ID: dca6cf9cb2c2455d91d1dc90bf4dc749
+Running as unit: soglia-b1-no-bpftool.service; invocation ID: 5010dd3751014d8dbbc55beebf3cccb3
+Running as unit: soglia-b1-direct-root.service; invocation ID: 58d9bf0c99054e6081d540311591c708
+Running as unit: soglia-b1-direct-app.service; invocation ID: f64a54a5c1fe430cbdd997d76d727d55
+Running as unit: soglia-b1-unknown-root.service; invocation ID: 03fc219ed4e74f07a87f24d05f28ea57
+Running as unit: soglia-b1-unknown-app.service; invocation ID: a1647d5f285742bb9970221dffb127a9
+RUN_ID=b1-diagnostic-refusals-20261001T085140Z-11516
+EVIDENCE=/soglia/spikes/cgroup-bpf/evidence/replay/b1-diagnostic-refusals-20261001T085140Z-11516

@@ -1,0 +1,22 @@
+{
+  "agent_matches_owned_netns": true,
+  "case": "POSITIVE",
+  "cookie": {
+    "criterion": "PROVEN",
+    "supported": true,
+    "unique_across_b2_cases": true,
+    "value": 8193
+  },
+  "current_owned_path_absent_after_teardown": true,
+  "informational_inode": 4026532356,
+  "inode_used_as_identity": false,
+  "observed_netns_cookies": [
+    8193
+  ],
+  "observed_netns_paths": [
+    "/run/netns/soglia-312361b42a"
+  ],
+  "owned_path": "/run/netns/soglia-312361b42a",
+  "owned_path_unique": true,
+  "previous_owned_path_absent_before_case": true
+}

@@ -1,0 +1,21 @@
+Starting soglia-b7-foreign-link.service - /var/tmp/b7-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b7-20261001T091538Z-9461/profiles/drift-foreign-link/config.yaml...
+Started soglia-b7-foreign-link.service - /var/tmp/b7-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b7-20261001T091538Z-9461/profiles/drift-foreign-link/config.yaml.
+event.name=cgroup_bpf.attach_probe result=PASS mode=single hooks=6 effective=true
+event.name=cgroup_bpf.ready generation=1 programs=6 links=6 maps=7 policy_capacity=2 socket_capacity=64 ring_bytes=65536
+event.name=cgroup_bpf.startup result=PASS generation=1 duration_ms=103 swept=0 readiness=READY
+[2m2026-10-01T09:19:57.635504Z[0m [32m INFO[0m privileges dropped [3mevent.name[0m[2m=[0m"startup.privileges_dropped" [3muid[0m[2m=[0m65534 [3mgid[0m[2m=[0m65534
+[2m2026-10-01T09:19:57.635753Z[0m [32m INFO[0m soglia is ready [3mevent.name[0m[2m=[0m"startup.ready" [3mingress[0m[2m=[0m127.0.0.1:18104 [3megress[0m[2m=[0m10.200.255.1:15001
+[2m2026-10-01T09:19:57.699074Z[0m [32m INFO[0m execution admitted [3mevent.name[0m[2m=[0m"execution.admitted" [3mexecution_id[0m[2m=[0m150ae84bc0ff46ef72c5cbc427c9b135 [3magent[0m[2m=[0mworkload [3mslot[0m[2m=[0m0
+[2m2026-10-01T09:19:57.699088Z[0m [32m INFO[0m execution phase [3mevent.name[0m[2m=[0m"execution.phase" [3mexecution_id[0m[2m=[0m150ae84bc0ff46ef72c5cbc427c9b135 [3mphase[0m[2m=[0mCreating
+[2m2026-10-01T09:19:57.707114Z[0m [32m INFO[0m execution phase [3mevent.name[0m[2m=[0m"execution.phase" [3mexecution_id[0m[2m=[0m150ae84bc0ff46ef72c5cbc427c9b135 [3mphase[0m[2m=[0mStarting
+[2m2026-10-01T09:19:57.770504Z[0m [32m INFO[0m execution phase [3mevent.name[0m[2m=[0m"execution.phase" [3mexecution_id[0m[2m=[0m150ae84bc0ff46ef72c5cbc427c9b135 [3mphase[0m[2m=[0mReady
+[2m2026-10-01T09:19:57.770518Z[0m [32m INFO[0m execution phase [3mevent.name[0m[2m=[0m"execution.phase" [3mexecution_id[0m[2m=[0m150ae84bc0ff46ef72c5cbc427c9b135 [3mphase[0m[2m=[0mRunning
+[2m2026-10-01T09:19:58.645719Z[0m [31mERROR[0m a privileged helper is gone; the runtime stops fail-closed [3mevent.name[0m[2m=[0m"runtime.helper_lost" [3mhelper[0m[2m=[0m"enforcer-health" [3mreason[0m[2m=[0mthe Enforcer request failed: refused: direct production attachment count is 7, expected 6
+[2m2026-10-01T09:19:58.645953Z[0m [32m INFO[0m execution phase [3mevent.name[0m[2m=[0m"execution.phase" [3mexecution_id[0m[2m=[0m150ae84bc0ff46ef72c5cbc427c9b135 [3mphase[0m[2m=[0mTearingDown
+[2m2026-10-01T09:19:58.646092Z[0m [32m INFO[0m execution phase [3mevent.name[0m[2m=[0m"execution.phase" [3mexecution_id[0m[2m=[0m150ae84bc0ff46ef72c5cbc427c9b135 [3mphase[0m[2m=[0mCleanupFailed
+[2m2026-10-01T09:19:58.646101Z[0m [31mERROR[0m teardown could not be verified; the Execution is quarantined [3mevent.name[0m[2m=[0m"execution.cleanup_failed" [3mexecution_id[0m[2m=[0m150ae84bc0ff46ef72c5cbc427c9b135 [3mslot[0m[2m=[0m0 [3mreason[0m[2m=[0mfreeze: the helper channel failed: the channel failed: Broken pipe (os error 32); kill: the helper channel failed: the channel failed: Broken pipe (os error 32); sandbox destroy: the helper channel failed: the channel failed: Broken pipe (os error 32); network destroy skipped because Sandbox destruction was not verified [3mfailures[0m[2m=[0m1
+[2m2026-10-01T09:19:58.646107Z[0m [31mERROR[0m the cleanup-failure threshold is reached; no new Execution is admitted [3mevent.name[0m[2m=[0m"runtime.admission_stopped" [3mfailures[0m[2m=[0m1
+event.name=cgroup_bpf.freeze result=PASS correlation=150ae84bc0 duration_ms=8
+soglia: a privileged helper was lost
+soglia-b7-foreign-link.service: Main process exited, code=exited, status=1/FAILURE
+soglia-b7-foreign-link.service: Failed with result 'exit-code'.

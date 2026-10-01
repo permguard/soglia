@@ -1,0 +1,34 @@
+{
+  "after": {
+    "connect4_deny": 258,
+    "cookie_insert_failed": 2,
+    "cookie_miss": 0,
+    "cookies": 0,
+    "events_dropped": 197,
+    "policies": 1,
+    "published": 15,
+    "tuple_insert_failed": 2,
+    "tuples": 0,
+    "unpublished": 0
+  },
+  "attempts": 256,
+  "before": {
+    "connect4_deny": 2,
+    "cookie_insert_failed": 2,
+    "cookie_miss": 0,
+    "cookies": 0,
+    "events_dropped": 0,
+    "policies": 1,
+    "published": 15,
+    "tuple_insert_failed": 2,
+    "tuples": 0,
+    "unpublished": 0
+  },
+  "client_successes": 0,
+  "connect4_deny_delta": 256,
+  "events_dropped_delta": 197,
+  "health_unchanged": true,
+  "overflow_method": "production ring consumer intentionally absent; burst exceeds 4096-byte ring capacity",
+  "ring_bytes": 4096,
+  "verdict": "PASS"
+}

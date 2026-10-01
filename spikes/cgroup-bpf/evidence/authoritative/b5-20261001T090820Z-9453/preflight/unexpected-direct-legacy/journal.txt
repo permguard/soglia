@@ -1,0 +1,7 @@
+Oct 01 11:08:26 lima-soglia-spike-b5-20261001T090127Z-95379 systemd[1]: Starting soglia-b5-unexpected-legacy.service - /var/tmp/soglia-b5-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b5-20261001T090820Z-9453/config.yaml...
+Oct 01 11:08:26 lima-soglia-spike-b5-20261001T090127Z-95379 systemd[1]: Started soglia-b5-unexpected-legacy.service - /var/tmp/soglia-b5-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b5-20261001T090820Z-9453/config.yaml.
+Oct 01 11:08:26 lima-soglia-spike-b5-20261001T090127Z-95379 soglia[9640]: soglia: the cgroup-bpf backend could not start: refused: the executions cgroup has 1 unrecorded direct BPF attachment(s)
+Oct 01 11:08:26 lima-soglia-spike-b5-20261001T090127Z-95379 soglia[9638]: 2026-10-01T09:08:26.713803Z ERROR Soglia refused startup event.name="startup.refused" refusal.class="INCOMPATIBLE"
+Oct 01 11:08:26 lima-soglia-spike-b5-20261001T090127Z-95379 soglia[9638]: soglia: the enforcer did not start: the cgroup-bpf backend could not start: refused: the executions cgroup has 1 unrecorded direct BPF attachment(s)
+Oct 01 11:08:26 lima-soglia-spike-b5-20261001T090127Z-95379 systemd[1]: soglia-b5-unexpected-legacy.service: Main process exited, code=exited, status=20/n/a
+Oct 01 11:08:26 lima-soglia-spike-b5-20261001T090127Z-95379 systemd[1]: soglia-b5-unexpected-legacy.service: Failed with result 'exit-code'.

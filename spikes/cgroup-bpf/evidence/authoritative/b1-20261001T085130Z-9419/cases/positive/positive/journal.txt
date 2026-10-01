@@ -1,0 +1,6 @@
+Oct 01 10:51:36 lima-soglia-spike-b1-20261001T084920Z-77925 systemd[1]: Started soglia-b1.service - /var/tmp/soglia-b1-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b1-20261001T085130Z-9419/positive-config.yaml.
+Oct 01 10:51:36 lima-soglia-spike-b1-20261001T084920Z-77925 soglia[9640]: event.name=cgroup_bpf.attach_probe result=PASS mode=single hooks=6 effective=true
+Oct 01 10:51:36 lima-soglia-spike-b1-20261001T084920Z-77925 soglia[9640]: event.name=cgroup_bpf.ready generation=1 programs=6 links=6 maps=7 policy_capacity=5 socket_capacity=4096 ring_bytes=65536
+Oct 01 10:51:36 lima-soglia-spike-b1-20261001T084920Z-77925 soglia[9640]: event.name=cgroup_bpf.startup result=PASS generation=1 duration_ms=118 swept=0 readiness=READY
+Oct 01 10:51:36 lima-soglia-spike-b1-20261001T084920Z-77925 soglia[9637]: 2026-10-01T08:51:36.962011Z  INFO privileges dropped event.name="startup.privileges_dropped" uid=65534 gid=65534
+Oct 01 10:51:36 lima-soglia-spike-b1-20261001T084920Z-77925 soglia[9637]: 2026-10-01T08:51:36.962289Z  INFO soglia is ready event.name="startup.ready" ingress=127.0.0.1:18091 egress=10.200.255.1:15001

@@ -1,0 +1,2 @@
+{"stage":"before","mount_id_unique":4294967336,"handle_type":254,"handle_bytes":8,"open_result":0,"open_errno":0,"handle_hex":"aa66000000000000"}
+{"stage":"after","open_result":-1,"open_errno":116,"open_error":"Stale file handle"}

@@ -1,0 +1,16 @@
+{
+  "observation": {
+    "dns_when_resolve_returned": 0,
+    "elapsed_ms": 0,
+    "health_failure": null,
+    "local": "10.200.255.1:15001",
+    "mismatch": null,
+    "outbound_when_resolve_returned": 0,
+    "outcome": "RESOLVED",
+    "peer": "10.201.0.1:47000",
+    "recv_q_bytes": 61,
+    "resolved_execution": "ee8abddb94a0a3a3b0c301152aaef6ea",
+    "tuple_cookie": 4122
+  },
+  "verdict": "PASS"
+}

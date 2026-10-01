@@ -1,0 +1,2 @@
+Oct 01 11:08:26 lima-soglia-spike-b5-20261001T090127Z-95379 soglia[9765]: soglia: the cgroup-bpf backend could not start: refused: the executions cgroup has 1 unrecorded direct BPF attachment(s)
+Oct 01 11:08:26 lima-soglia-spike-b5-20261001T090127Z-95379 soglia[9755]: soglia: the enforcer did not start: the cgroup-bpf backend could not start: refused: the executions cgroup has 1 unrecorded direct BPF attachment(s)

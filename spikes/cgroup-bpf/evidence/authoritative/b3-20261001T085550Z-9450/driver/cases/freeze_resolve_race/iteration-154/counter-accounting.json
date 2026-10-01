@@ -1,0 +1,25 @@
+{
+  "C_TUPLE_INSERT_FAILED_absolute": 0,
+  "after": {
+    "live_cookies": 0,
+    "live_tuples": 0,
+    "published": 187,
+    "tuple_insert_failed": 0,
+    "unpublished": 0
+  },
+  "before": {
+    "live_cookies": 0,
+    "live_tuples": 0,
+    "published": 186,
+    "tuple_insert_failed": 0,
+    "unpublished": 0
+  },
+  "delta": {
+    "consumed_by_resolve": 1,
+    "live": 0,
+    "published": 1,
+    "unpublished_by_sockops_close": 0
+  },
+  "equation": "published = unpublished + consumed + live",
+  "holds": true
+}

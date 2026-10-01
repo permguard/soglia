@@ -1,0 +1,6 @@
+Stopping soglia-b1.service - /var/tmp/soglia-b1-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b1-20261001T085130Z-9419/positive-config.yaml...
+[2m2026-10-01T08:51:37.039377Z[0m [31mERROR[0m a privileged helper is gone; the runtime stops fail-closed [3mevent.name[0m[2m=[0m"runtime.helper_lost" [3mhelper[0m[2m=[0m"sandboxd" [3mreason[0m[2m=[0mchild exited from signal 15
+soglia: a privileged helper was lost
+soglia-b1.service: Main process exited, code=exited, status=1/FAILURE
+soglia-b1.service: Failed with result 'exit-code'.
+Stopped soglia-b1.service - /var/tmp/soglia-b1-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b1-20261001T085130Z-9419/positive-config.yaml.

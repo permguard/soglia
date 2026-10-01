@@ -1,0 +1,7 @@
+{
+  "enforcer_swept": [
+    "cgroup-BPF generation 1"
+  ],
+  "production_backend": "cgroup-bpf",
+  "sandbox_swept": []
+}

@@ -1,0 +1,47 @@
+{
+  "observations": [
+    {
+      "dns_when_resolve_returned": 0,
+      "elapsed_ms": 5,
+      "health_failure": null,
+      "local": "10.200.255.1:15001",
+      "mismatch": null,
+      "outbound_when_resolve_returned": 0,
+      "outcome": "QUEUE_FULL",
+      "peer": "10.201.0.1:43000",
+      "recv_q_bytes": 61,
+      "resolved_execution": null,
+      "tuple_cookie": 28
+    },
+    {
+      "dns_when_resolve_returned": 0,
+      "elapsed_ms": 2000,
+      "health_failure": null,
+      "local": "10.200.255.1:15001",
+      "mismatch": null,
+      "outbound_when_resolve_returned": 0,
+      "outcome": "TIMEOUT",
+      "peer": "10.201.0.1:43002",
+      "recv_q_bytes": 61,
+      "resolved_execution": null,
+      "tuple_cookie": 8225
+    },
+    {
+      "dns_when_resolve_returned": 0,
+      "elapsed_ms": 2000,
+      "health_failure": null,
+      "local": "10.200.255.1:15001",
+      "mismatch": null,
+      "outbound_when_resolve_returned": 0,
+      "outcome": "TIMEOUT",
+      "peer": "10.201.0.1:43001",
+      "recv_q_bytes": 61,
+      "resolved_execution": null,
+      "tuple_cookie": 12316
+    }
+  ],
+  "queue_depth": 2,
+  "queue_full_count": 1,
+  "timeout_count": 2,
+  "verdict": "PASS"
+}

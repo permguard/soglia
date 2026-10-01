@@ -1,0 +1,4048 @@
+{
+  "case": "FREEZE_RESOLVE_RACE",
+  "controlled_orderings": 2,
+  "genuine_concurrent_iterations": 200,
+  "invariant": "each outcome is Resolved followed by revocation or Revoked, with no effects after freeze",
+  "iterations": [
+    {
+      "agent_report": "{\"cmd\":\"proxy-connect-report\",\"ok\":false,\"errno\":104,\"error\":\"Connection reset by peer (os error 104)\",\"i\":0,\"source_port\":44000,\"local\":\"10.201.0.1:44000\",\"proxy_destination\":\"10.200.255.1:15001\",\"mode\":\"hold\",\"phase\":\"established\",\"elapsed_ms\":0}\n",
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 1,
+        "outbound": 1
+      },
+      "effects_at_freeze": {
+        "dns": 1,
+        "outbound": 1
+      },
+      "health_failure": null,
+      "iteration": 0,
+      "mismatch": null,
+      "ordering": "RESOLVE_FIRST",
+      "outcome": "RESOLVED",
+      "resolved_then_revoked": true,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 1,
+      "mismatch": null,
+      "ordering": "FREEZE_FIRST",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 2,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 3,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 4,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 5,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 6,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 7,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 8,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 9,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 10,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 11,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 12,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": "{\"cmd\":\"proxy-connect-report\",\"ok\":false,\"errno\":104,\"error\":\"Connection reset by peer (os error 104)\",\"i\":0,\"source_port\":44000,\"local\":\"10.201.0.1:44000\",\"proxy_destination\":\"10.200.255.1:15001\",\"mode\":\"hold\",\"phase\":\"established\",\"elapsed_ms\":1}\n",
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 13,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 14,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": "{\"cmd\":\"proxy-connect-report\",\"ok\":false,\"errno\":104,\"error\":\"Connection reset by peer (os error 104)\",\"i\":0,\"source_port\":44000,\"local\":\"10.201.0.1:44000\",\"proxy_destination\":\"10.200.255.1:15001\",\"mode\":\"hold\",\"phase\":\"established\",\"elapsed_ms\":0}\n",
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 15,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 16,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 17,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": "{\"cmd\":\"proxy-connect-report\",\"ok\":false,\"errno\":104,\"error\":\"Connection reset by peer (os error 104)\",\"i\":0,\"source_port\":44000,\"local\":\"10.201.0.1:44000\",\"proxy_destination\":\"10.200.255.1:15001\",\"mode\":\"hold\",\"phase\":\"established\",\"elapsed_ms\":4}\n",
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 18,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 19,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 20,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 21,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 22,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 23,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 24,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 25,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 26,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 27,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 28,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 29,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 30,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 31,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 32,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 33,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 34,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 35,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 36,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 37,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 38,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 39,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 40,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 41,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 42,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 43,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 44,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 45,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 46,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 47,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 48,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 49,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 50,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 51,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": "{\"cmd\":\"proxy-connect-report\",\"ok\":false,\"errno\":104,\"error\":\"Connection reset by peer (os error 104)\",\"i\":0,\"source_port\":44000,\"local\":\"10.201.0.1:44000\",\"proxy_destination\":\"10.200.255.1:15001\",\"mode\":\"hold\",\"phase\":\"established\",\"elapsed_ms\":4}\n",
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 52,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 53,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 54,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 55,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 56,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 57,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 58,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": "{\"cmd\":\"proxy-connect-report\",\"ok\":false,\"errno\":104,\"error\":\"Connection reset by peer (os error 104)\",\"i\":0,\"source_port\":44000,\"local\":\"10.201.0.1:44000\",\"proxy_destination\":\"10.200.255.1:15001\",\"mode\":\"hold\",\"phase\":\"established\",\"elapsed_ms\":0}\n",
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 59,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 60,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 61,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 62,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 63,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 64,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 65,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 66,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 67,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 68,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 69,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": "{\"cmd\":\"proxy-connect-report\",\"ok\":false,\"errno\":104,\"error\":\"Connection reset by peer (os error 104)\",\"i\":0,\"source_port\":44000,\"local\":\"10.201.0.1:44000\",\"proxy_destination\":\"10.200.255.1:15001\",\"mode\":\"hold\",\"phase\":\"established\",\"elapsed_ms\":4}\n",
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 70,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 71,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 72,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 73,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 74,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 75,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 76,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 77,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 78,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": "{\"cmd\":\"proxy-connect-report\",\"ok\":false,\"errno\":104,\"error\":\"Connection reset by peer (os error 104)\",\"i\":0,\"source_port\":44000,\"local\":\"10.201.0.1:44000\",\"proxy_destination\":\"10.200.255.1:15001\",\"mode\":\"hold\",\"phase\":\"established\",\"elapsed_ms\":0}\n",
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 79,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 80,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 81,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 82,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 83,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 84,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": "{\"cmd\":\"proxy-connect-report\",\"ok\":false,\"errno\":104,\"error\":\"Connection reset by peer (os error 104)\",\"i\":0,\"source_port\":44000,\"local\":\"10.201.0.1:44000\",\"proxy_destination\":\"10.200.255.1:15001\",\"mode\":\"hold\",\"phase\":\"established\",\"elapsed_ms\":1}\n",
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 85,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 86,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 87,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 88,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 89,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 90,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 91,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 92,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 93,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 94,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 95,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 96,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 97,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 98,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 99,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 100,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 101,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 102,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 103,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 104,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 105,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 106,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 107,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 108,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 109,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 110,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 111,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 112,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": "{\"cmd\":\"proxy-connect-report\",\"ok\":false,\"errno\":104,\"error\":\"Connection reset by peer (os error 104)\",\"i\":0,\"source_port\":44000,\"local\":\"10.201.0.1:44000\",\"proxy_destination\":\"10.200.255.1:15001\",\"mode\":\"hold\",\"phase\":\"established\",\"elapsed_ms\":4}\n",
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 113,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": "{\"cmd\":\"proxy-connect-report\",\"ok\":false,\"errno\":104,\"error\":\"Connection reset by peer (os error 104)\",\"i\":0,\"source_port\":44000,\"local\":\"10.201.0.1:44000\",\"proxy_destination\":\"10.200.255.1:15001\",\"mode\":\"hold\",\"phase\":\"established\",\"elapsed_ms\":0}\n",
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 114,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 115,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 116,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 117,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 118,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 119,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 120,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 121,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 122,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 123,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 124,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 125,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 126,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 127,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 128,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 129,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 130,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": "{\"cmd\":\"proxy-connect-report\",\"ok\":false,\"errno\":104,\"error\":\"Connection reset by peer (os error 104)\",\"i\":0,\"source_port\":44000,\"local\":\"10.201.0.1:44000\",\"proxy_destination\":\"10.200.255.1:15001\",\"mode\":\"hold\",\"phase\":\"established\",\"elapsed_ms\":1}\n",
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 131,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 132,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 133,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 134,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 135,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 136,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 137,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 138,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 139,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 140,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": "{\"cmd\":\"proxy-connect-report\",\"ok\":false,\"errno\":104,\"error\":\"Connection reset by peer (os error 104)\",\"i\":0,\"source_port\":44000,\"local\":\"10.201.0.1:44000\",\"proxy_destination\":\"10.200.255.1:15001\",\"mode\":\"hold\",\"phase\":\"established\",\"elapsed_ms\":1}\n",
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 141,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 142,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 143,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 144,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 145,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 146,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 147,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 148,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 149,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 150,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 151,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 152,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 153,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": "{\"cmd\":\"proxy-connect-report\",\"ok\":false,\"errno\":104,\"error\":\"Connection reset by peer (os error 104)\",\"i\":0,\"source_port\":44000,\"local\":\"10.201.0.1:44000\",\"proxy_destination\":\"10.200.255.1:15001\",\"mode\":\"hold\",\"phase\":\"established\",\"elapsed_ms\":0}\n",
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 154,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": "{\"cmd\":\"proxy-connect-report\",\"ok\":false,\"errno\":104,\"error\":\"Connection reset by peer (os error 104)\",\"i\":0,\"source_port\":44000,\"local\":\"10.201.0.1:44000\",\"proxy_destination\":\"10.200.255.1:15001\",\"mode\":\"hold\",\"phase\":\"established\",\"elapsed_ms\":1}\n",
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 155,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 156,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 157,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 158,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 159,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": "{\"cmd\":\"proxy-connect-report\",\"ok\":false,\"errno\":104,\"error\":\"Connection reset by peer (os error 104)\",\"i\":0,\"source_port\":44000,\"local\":\"10.201.0.1:44000\",\"proxy_destination\":\"10.200.255.1:15001\",\"mode\":\"hold\",\"phase\":\"established\",\"elapsed_ms\":3}\n",
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 160,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 161,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 162,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": "{\"cmd\":\"proxy-connect-report\",\"ok\":false,\"errno\":104,\"error\":\"Connection reset by peer (os error 104)\",\"i\":0,\"source_port\":44000,\"local\":\"10.201.0.1:44000\",\"proxy_destination\":\"10.200.255.1:15001\",\"mode\":\"hold\",\"phase\":\"established\",\"elapsed_ms\":1}\n",
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 163,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 164,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 165,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 166,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": "{\"cmd\":\"proxy-connect-report\",\"ok\":false,\"errno\":104,\"error\":\"Connection reset by peer (os error 104)\",\"i\":0,\"source_port\":44000,\"local\":\"10.201.0.1:44000\",\"proxy_destination\":\"10.200.255.1:15001\",\"mode\":\"hold\",\"phase\":\"established\",\"elapsed_ms\":0}\n",
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 167,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 168,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 169,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 170,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 171,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 172,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 173,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 174,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 175,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 176,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 177,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 178,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 179,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 180,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 181,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": "{\"cmd\":\"proxy-connect-report\",\"ok\":false,\"errno\":104,\"error\":\"Connection reset by peer (os error 104)\",\"i\":0,\"source_port\":44000,\"local\":\"10.201.0.1:44000\",\"proxy_destination\":\"10.200.255.1:15001\",\"mode\":\"hold\",\"phase\":\"established\",\"elapsed_ms\":0}\n",
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 182,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 183,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 184,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 185,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 186,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 187,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 188,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 189,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 190,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 191,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 192,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 193,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 194,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 195,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 196,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 197,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 198,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 199,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 200,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    },
+    {
+      "agent_report": null,
+      "agent_report_required": false,
+      "agent_report_scope": "a freeze may close CONNECT before an application response; proxy outcome and no-post-freeze effects are authoritative",
+      "effects_after_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "effects_at_freeze": {
+        "dns": 0,
+        "outbound": 0
+      },
+      "health_failure": null,
+      "iteration": 201,
+      "mismatch": null,
+      "ordering": "CONCURRENT",
+      "outcome": "REVOKED",
+      "resolved_then_revoked": false,
+      "verdict": "PASS"
+    }
+  ]
+}

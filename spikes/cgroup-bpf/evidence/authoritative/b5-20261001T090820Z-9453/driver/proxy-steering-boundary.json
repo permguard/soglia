@@ -1,0 +1,37 @@
+{
+  "access_points": [
+    {
+      "classification": "READ",
+      "field": "user_port",
+      "line": 222,
+      "source": "__u32 dport = bpf_ntohs((__u16)ctx->user_port);"
+    },
+    {
+      "classification": "READ",
+      "field": "user_ip4",
+      "line": 230,
+      "source": "else if (ctx->user_ip4 != proxy_ip4 || dport != proxy_port)"
+    }
+  ],
+  "audited_destination_fields": [
+    "user_ip4",
+    "user_ip6",
+    "user_port"
+  ],
+  "bpf_bind_absent": true,
+  "expected_reads_complete": true,
+  "no_writes_to_destination_fields": true,
+  "proxy_steering_layer": "outside BPF",
+  "runtime": {
+    "agent_requested_destination": "10.200.255.1:15001",
+    "configured_destination": "10.200.255.1:15001",
+    "destinations_match": true,
+    "proxy_observed_destination": "10.200.255.1:15001",
+    "source_evidence": "/soglia/spikes/cgroup-bpf/evidence/replay/b5-20261001T090820Z-9453/driver/cases/proxy_positive/result.json"
+  },
+  "schema": 1,
+  "sha256": "ea98c0c0517e67c6018420164d615198f92454079727ed887a2612ff93154174",
+  "source": "/soglia/crates/soglia-enforcer/bpf/candidate_a.c",
+  "unexpected_accesses": [],
+  "verdict": "PASS"
+}

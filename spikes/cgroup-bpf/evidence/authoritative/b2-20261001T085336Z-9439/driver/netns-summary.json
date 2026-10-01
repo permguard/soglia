@@ -1,0 +1,28 @@
+{
+  "cookie_probe": "SO_NETNS_COOKIE",
+  "identity_criterion": "PROVEN",
+  "inode_used_as_identity": false,
+  "lifecycle_criterion": "PROVEN",
+  "observed_unique_cookies": [
+    8193,
+    12289,
+    4098,
+    4099,
+    12290,
+    2,
+    8194,
+    4100,
+    4101
+  ],
+  "observed_unique_owned_paths": [
+    "/run/netns/soglia-312361b42a",
+    "/run/netns/soglia-226c0230e2",
+    "/run/netns/soglia-c427c23c04",
+    "/run/netns/soglia-ae2f472ade",
+    "/run/netns/soglia-44e3bab303",
+    "/run/netns/soglia-7be9a69b16",
+    "/run/netns/soglia-464ae68447",
+    "/run/netns/soglia-038c3d45e5",
+    "/run/netns/soglia-ed6975052a"
+  ]
+}

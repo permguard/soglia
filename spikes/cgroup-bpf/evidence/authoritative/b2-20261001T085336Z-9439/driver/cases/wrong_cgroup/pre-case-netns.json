@@ -1,0 +1,5 @@
+{
+  "case": "WRONG_CGROUP",
+  "previous_netns_path": "/run/netns/soglia-226c0230e2",
+  "previous_netns_path_absent": true
+}

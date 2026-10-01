@@ -1,0 +1,5 @@
+Stopping soglia-b6-sandbox-sigkill.service - /var/tmp/b6-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b6-20261001T091053Z-9423/cases/sandbox_sigkill/config.yaml...
+[2m2026-10-01T09:12:02.948953Z[0m [32m INFO[0m soglia stopped [3mevent.name[0m[2m=[0m"shutdown.done"
+soglia-b6-sandbox-sigkill.service: Killing process 43554 (exe) with signal SIGKILL.
+soglia-b6-sandbox-sigkill.service: Deactivated successfully.
+Stopped soglia-b6-sandbox-sigkill.service - /var/tmp/b6-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b6-20261001T091053Z-9423/cases/sandbox_sigkill/config.yaml.

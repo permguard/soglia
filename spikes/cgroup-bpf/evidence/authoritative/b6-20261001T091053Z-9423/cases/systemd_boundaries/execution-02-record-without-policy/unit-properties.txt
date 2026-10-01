@@ -1,0 +1,6 @@
+Restart=on-failure
+RestartUSec=100ms
+NRestarts=0
+ControlGroup=/system.slice/soglia-b6-execution-6.service
+Delegate=yes
+KillMode=mixed

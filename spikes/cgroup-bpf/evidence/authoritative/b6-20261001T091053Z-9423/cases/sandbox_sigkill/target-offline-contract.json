@@ -1,0 +1,22 @@
+{
+  "durable_handle_matches_independent_probe": true,
+  "handle_type": 254,
+  "handle_length": 8,
+  "handle_hex": "aa66000000000000",
+  "mount_id_unique": 4294967336,
+  "open_after_removal": {
+    "result": -1,
+    "errno": 116
+  },
+  "retained_cgroup_procs_write": {
+    "result": -1,
+    "errno": 19
+  },
+  "retained_clone_into_cgroup": {
+    "result": -1,
+    "errno": 2
+  },
+  "old_id_absent_from_live_hierarchy": true,
+  "page_cache_mb": 512,
+  "verdict": "PASS"
+}

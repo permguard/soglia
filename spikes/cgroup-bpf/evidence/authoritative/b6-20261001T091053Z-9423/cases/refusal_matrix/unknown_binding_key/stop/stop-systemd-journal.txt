@@ -1,0 +1,4 @@
+Stopping soglia-b6-refusal-12.service - /var/tmp/b6-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b6-20261001T091053Z-9423/cases/refusal_matrix/unknown_binding_key/config.yaml...
+soglia-b6-refusal-12.service: Killing process 61916 (exe) with signal SIGKILL.
+soglia-b6-refusal-12.service: Deactivated successfully.
+Stopped soglia-b6-refusal-12.service - /var/tmp/b6-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b6-20261001T091053Z-9423/cases/refusal_matrix/unknown_binding_key/config.yaml.

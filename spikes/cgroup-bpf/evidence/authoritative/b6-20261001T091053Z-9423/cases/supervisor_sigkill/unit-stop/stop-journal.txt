@@ -1,0 +1,5 @@
+[2m2026-10-01T09:11:56.312673Z[0m [32m INFO[0m soglia stopped [3mevent.name[0m[2m=[0m"shutdown.done"
+Stopping soglia-b6-supervisor-sigkill.service - /var/tmp/b6-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b6-20261001T091053Z-9423/cases/supervisor_sigkill/config.yaml...
+soglia-b6-supervisor-sigkill.service: Killing process 42458 (exe) with signal SIGKILL.
+soglia-b6-supervisor-sigkill.service: Deactivated successfully.
+Stopped soglia-b6-supervisor-sigkill.service - /var/tmp/b6-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b6-20261001T091053Z-9423/cases/supervisor_sigkill/config.yaml.
