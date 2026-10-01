@@ -572,6 +572,32 @@ mod tests {
         assert!(durable.contains(Options::PTRACE_O_TRACEFORK));
         assert!(durable.contains(Options::PTRACE_O_TRACEEXEC));
     }
+
+    #[test]
+    fn uninstall_boundary_requires_a_durable_complete_intent() {
+        let intent = json!({
+            "schema": 1,
+            "state": {
+                "phase": "INTENT",
+                "maps": [{}, {}, {}, {}, {}, {}, {}],
+                "links": [{}, {}, {}, {}, {}, {}]
+            }
+        });
+        assert!(uninstall_intent_matches(&intent, true));
+        assert!(!uninstall_intent_matches(&intent, false));
+
+        let mut ready = intent.clone();
+        ready["state"]["phase"] = json!("READY");
+        assert!(!uninstall_intent_matches(&ready, true));
+
+        let mut wrong_schema = intent.clone();
+        wrong_schema["schema"] = json!(2);
+        assert!(!uninstall_intent_matches(&wrong_schema, true));
+
+        let mut incomplete = intent;
+        incomplete["state"]["links"] = json!([{}, {}, {}, {}, {}]);
+        assert!(!uninstall_intent_matches(&incomplete, true));
+    }
 }
 
 fn boundary_matches(
@@ -585,21 +611,7 @@ fn boundary_matches(
     }
     let state = read_json(state_path)?;
     if boundary == "uninstall_intent" {
-        let recorded = state.get("state").and_then(Value::as_object);
-        return Ok(durable
-            && state.get("schema").and_then(Value::as_u64) == Some(1)
-            && recorded
-                .and_then(|value| value.get("phase"))
-                .and_then(Value::as_str)
-                == Some("READY")
-            && recorded
-                .and_then(|value| value.get("maps"))
-                .and_then(Value::as_array)
-                .is_some_and(|maps| maps.len() == 7)
-            && recorded
-                .and_then(|value| value.get("links"))
-                .and_then(Value::as_array)
-                .is_some_and(|links| links.len() == 6));
+        return Ok(uninstall_intent_matches(&state, durable));
     }
     let phase = state.get("phase").and_then(Value::as_str);
     let maps = state
@@ -696,6 +708,24 @@ fn boundary_matches(
         "uninstall_intent" => unreachable!("handled before the host-state decoder"),
         other => return Err(format!("unknown B6 boundary: {other}")),
     })
+}
+
+fn uninstall_intent_matches(state: &Value, durable: bool) -> bool {
+    let recorded = state.get("state").and_then(Value::as_object);
+    durable
+        && state.get("schema").and_then(Value::as_u64) == Some(1)
+        && recorded
+            .and_then(|value| value.get("phase"))
+            .and_then(Value::as_str)
+            == Some("INTENT")
+        && recorded
+            .and_then(|value| value.get("maps"))
+            .and_then(Value::as_array)
+            .is_some_and(|maps| maps.len() == 7)
+        && recorded
+            .and_then(|value| value.get("links"))
+            .and_then(Value::as_array)
+            .is_some_and(|links| links.len() == 6)
 }
 
 fn existing_pins(state: &Value) -> Vec<String> {
