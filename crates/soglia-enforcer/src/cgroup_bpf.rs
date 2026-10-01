@@ -2038,14 +2038,19 @@ impl PreparedCgroupBpfUninstall {
                 }
                 backend.remove_recorded_pins(&state)?;
                 backend.verify_recorded_objects_absent(&state)?;
-                let owned: BTreeSet<u32> =
-                    state.programs.iter().map(|program| program.id).collect();
-                let external = backend.foreign_effective_fingerprint(&owned)?;
-                require_same_external_inventory(
-                    &state.ancestor_bpf,
-                    &external,
-                    "after verified uninstall",
-                )?;
+                if verify_external_inventory_on_target(
+                    target_released,
+                    backend.settings.executions.exists(),
+                )? {
+                    let owned: BTreeSet<u32> =
+                        state.programs.iter().map(|program| program.id).collect();
+                    let external = backend.foreign_effective_fingerprint(&owned)?;
+                    require_same_external_inventory(
+                        &state.ancestor_bpf,
+                        &external,
+                        "after verified uninstall",
+                    )?;
+                }
                 (
                     classification,
                     vec![format!(
@@ -2117,6 +2122,21 @@ fn validate_ring_event(event: &[u8]) -> Result<u32, BackendError> {
         )));
     }
     Ok(reason)
+}
+
+fn verify_external_inventory_on_target(
+    target_released: bool,
+    target_exists: bool,
+) -> Result<bool, BackendError> {
+    if target_exists {
+        Ok(true)
+    } else if target_released {
+        Ok(false)
+    } else {
+        Err(BackendError::Failed(
+            "the known-compatible cgroup-BPF target vanished during verified uninstall".to_owned(),
+        ))
+    }
 }
 
 fn ring_drain_limit(ring_bytes: u32) -> usize {
@@ -4211,6 +4231,17 @@ mod tests {
         assert!(target_release_required(41, None));
         assert!(target_release_required(41, Some(42)));
         assert!(!target_release_required(41, Some(41)));
+    }
+
+    #[test]
+    fn uninstall_queries_effective_inventory_only_on_a_live_target() {
+        assert!(verify_external_inventory_on_target(false, true).unwrap());
+        assert!(verify_external_inventory_on_target(true, true).unwrap());
+        assert!(!verify_external_inventory_on_target(true, false).unwrap());
+        assert!(matches!(
+            verify_external_inventory_on_target(false, false),
+            Err(BackendError::Failed(_))
+        ));
     }
 
     #[test]
