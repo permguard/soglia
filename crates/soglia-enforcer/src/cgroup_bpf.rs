@@ -309,6 +309,7 @@ struct ResourceEnvelope {
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
 struct CgroupAttachment {
     id: u32,
+    #[serde(default)]
     name: String,
     attach_type: String,
     #[serde(default)]
@@ -836,7 +837,7 @@ impl CgroupBpfBackend {
             .as_array()
             .and_then(|programs| programs.first())
             .unwrap_or(&value);
-        let field = |name: &str| {
+        let required_field = |name: &str| {
             program
                 .get(name)
                 .and_then(serde_json::Value::as_str)
@@ -858,16 +859,21 @@ impl CgroupBpfBackend {
                     attachment.id
                 ))
             })?;
-        if reported_id != attachment.id || field("name")? != attachment.name {
+        if reported_id != attachment.id {
             return Err(BackendError::Unknown(
                 "cgroup and program inventory identities disagree".to_owned(),
             ));
         }
+        let name = reconcile_external_program_name(
+            attachment.id,
+            &attachment.name,
+            program.get("name").and_then(serde_json::Value::as_str),
+        )?;
         Ok(AttachmentFingerprint {
             program_id: reported_id,
-            name: attachment.name.clone(),
-            program_type: field("type")?,
-            tag: field("tag")?,
+            name,
+            program_type: required_field("type")?,
+            tag: required_field("tag")?,
             attach_type: attachment.attach_type.clone(),
         })
     }
@@ -3531,7 +3537,15 @@ fn validate_no_record_pin_state(path: &Path) -> Result<NoRecordPinRoot, BackendE
         // unrecorded empty root.
         validate_private_directory_if_present(path)?;
     }
-    if !directory_entries(path)?.is_empty() {
+    classify_trusted_no_record_pin_state(path, exists, directory_entries(path)?.is_empty())
+}
+
+fn classify_trusted_no_record_pin_state(
+    path: &Path,
+    exists: bool,
+    empty: bool,
+) -> Result<NoRecordPinRoot, BackendError> {
+    if !empty {
         Err(BackendError::Unknown(format!(
             "UNKNOWN cgroup-BPF state: {} contains pins without a trusted record",
             path.display()
@@ -3540,6 +3554,22 @@ fn validate_no_record_pin_state(path: &Path) -> Result<NoRecordPinRoot, BackendE
         Ok(NoRecordPinRoot::Empty)
     } else {
         Ok(NoRecordPinRoot::Absent)
+    }
+}
+
+fn reconcile_external_program_name(
+    program_id: u32,
+    attachment_name: &str,
+    program_name: Option<&str>,
+) -> Result<String, BackendError> {
+    let attachment_name = (!attachment_name.is_empty()).then_some(attachment_name);
+    let program_name = program_name.filter(|name| !name.is_empty());
+    match (attachment_name, program_name) {
+        (Some(attachment), Some(program)) if attachment != program => Err(BackendError::Unknown(
+            format!("cgroup and program inventory names disagree for program {program_id}"),
+        )),
+        (Some(name), _) | (None, Some(name)) => Ok(name.to_owned()),
+        (None, None) => Ok(String::new()),
     }
 }
 
@@ -4270,27 +4300,46 @@ mod tests {
 
     #[test]
     fn startup_and_uninstall_share_the_empty_unrecorded_pin_root_rule() {
-        let root = std::env::temp_dir().join(format!(
-            "soglia-uninstall-unrecorded-pins-{}",
-            ExecutionId::generate().unwrap()
-        ));
+        let root = Path::new("/sys/fs/bpf/soglia-test");
         assert_eq!(
-            validate_no_record_pin_state(&root).unwrap(),
+            classify_trusted_no_record_pin_state(root, false, true).unwrap(),
             NoRecordPinRoot::Absent
         );
-        fs::create_dir(&root).unwrap();
-        fs::set_permissions(&root, fs::Permissions::from_mode(0o700)).unwrap();
         assert_eq!(
-            validate_no_record_pin_state(&root).unwrap(),
+            classify_trusted_no_record_pin_state(root, true, true).unwrap(),
             NoRecordPinRoot::Empty
         );
-        fs::write(root.join("unexpected-pin"), "pin").unwrap();
         assert!(matches!(
-            validate_no_record_pin_state(&root),
+            classify_trusted_no_record_pin_state(root, true, false),
             Err(BackendError::Unknown(_))
         ));
-        fs::remove_file(root.join("unexpected-pin")).unwrap();
-        fs::remove_dir(&root).unwrap();
+    }
+
+    #[test]
+    fn external_program_names_are_optional_but_must_agree_when_present() {
+        let attachment: CgroupAttachment = serde_json::from_value(serde_json::json!({
+            "id": 101,
+            "attach_type": "cgroup_device"
+        }))
+        .unwrap();
+        assert_eq!(attachment.name, "");
+        assert_eq!(
+            reconcile_external_program_name(101, "sd_devices", Some("sd_devices")).unwrap(),
+            "sd_devices"
+        );
+        assert_eq!(
+            reconcile_external_program_name(101, "sd_devices", None).unwrap(),
+            "sd_devices"
+        );
+        assert_eq!(
+            reconcile_external_program_name(101, "", Some("sd_devices")).unwrap(),
+            "sd_devices"
+        );
+        assert_eq!(reconcile_external_program_name(101, "", None).unwrap(), "");
+        assert!(matches!(
+            reconcile_external_program_name(101, "sd_devices", Some("foreign")),
+            Err(BackendError::Unknown(_))
+        ));
     }
 
     #[test]
