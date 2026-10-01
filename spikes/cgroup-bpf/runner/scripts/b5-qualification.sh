@@ -24,7 +24,7 @@ if [[ $# -eq 6 ]]; then
   authoritative=true
 fi
 
-production_baseline=17d8fc732bfdbdc99d7924193965c427e52a0b68
+production_baseline=7dd0840e4d51078c01ab26343c9eebfd315e5e5e
 vm_name=${SOGLIA_B5_VM_NAME:-}
 if [[ "$authoritative" == true && "$vm_name" != soglia-spike-b5-* ]]; then
   echo "authoritative B5 requires a recorded soglia-spike-b5-* VM name" >&2

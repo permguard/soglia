@@ -22,7 +22,7 @@ foreign_object=$5
 authoritative=false
 if [[ $# -eq 6 ]]; then [[ $6 == --authoritative ]] || { echo "$usage" >&2; exit 13; }; authoritative=true; fi
 
-production_baseline=17d8fc732bfdbdc99d7924193965c427e52a0b68
+production_baseline=7dd0840e4d51078c01ab26343c9eebfd315e5e5e
 vm_name=${SOGLIA_B7_VM_NAME:-}
 if [[ $authoritative == true && $vm_name != soglia-spike-b7-* ]]; then
   echo 'authoritative B7 requires a recorded fresh soglia-spike-b7-* VM' >&2

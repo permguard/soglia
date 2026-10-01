@@ -10,7 +10,7 @@ repo_dir=$(CDPATH= cd -- "$host_dir/../.." && pwd)
 source "$host_dir/common.sh"
 
 require_host
-production_baseline=17d8fc732bfdbdc99d7924193965c427e52a0b68
+production_baseline=7dd0840e4d51078c01ab26343c9eebfd315e5e5e
 
 git -C "$repo_dir" cat-file -e "$production_baseline^{commit}"
 git -C "$repo_dir" diff --exit-code "$production_baseline" -- \
