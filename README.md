@@ -237,10 +237,10 @@ soglia run -f examples/soglia.yaml
 curl -X POST --data 'echo hello' http://127.0.0.1:8088/v1/execute/echo
 ```
 
-The default network backend is `cgroup-bpf`. It requires the qualified Linux cgroup v2,
-systemd delegation, bpffs and BPF capabilities and fails startup closed when they are absent.
-There is no automatic downgrade. A compatibility deployment must set
-`network.backend: netns-nft` explicitly.
+The default network backend is `cgroup-bpf`.
+It requires the qualified Linux cgroup v2, systemd delegation, bpffs and BPF capabilities and fails startup closed when they are absent.
+There is no automatic downgrade.
+A compatibility deployment must set `network.backend: netns-nft` explicitly.
 
 Run it inside a cgroup subtree delegated to it.
 [dev/systemd/soglia.service](dev/systemd/soglia.service) shows the unit, with `Delegate=yes`.

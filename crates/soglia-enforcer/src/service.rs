@@ -111,7 +111,8 @@ fn start(
         class: RefusalClass::Incompatible,
         detail: format!("the Enforcer configuration is incompatible: {error}"),
     })?;
-    let mut backend: Box<dyn EnforcementBackend + Send> = match config.network.backend {
+    let selected_backend = config.network.backend;
+    let mut backend: Box<dyn EnforcementBackend + Send> = match selected_backend {
         NetworkBackend::NetnsNft => {
             let settings = NetworkSettings::from_config(&config).map_err(|error| {
                 error.into_helper_failure("the netns-nft configuration is incompatible")
@@ -121,10 +122,18 @@ fn start(
         NetworkBackend::CgroupBpf => production_cgroup_backend(&config)?,
     };
     backend.probe_capabilities().map_err(|error| {
-        error.into_helper_failure(&format!("the {} probe failed", backend.name()))
+        startup_failure(
+            error,
+            &format!("the {} probe failed", backend.name()),
+            selected_backend,
+        )
     })?;
     let swept = backend.initialize().map_err(|error| {
-        error.into_helper_failure(&format!("the {} backend could not start", backend.name()))
+        startup_failure(
+            error,
+            &format!("the {} backend could not start", backend.name()),
+            selected_backend,
+        )
     })?;
 
     Ok((backend, swept))
@@ -222,7 +231,36 @@ fn production_cgroup_backend(
 ) -> Result<Box<dyn EnforcementBackend + Send>, HelperFailure> {
     CgroupBpfBackend::from_config(config)
         .map(|backend| Box::new(backend) as Box<dyn EnforcementBackend + Send>)
-        .map_err(|error| error.into_helper_failure("the cgroup-bpf configuration is incompatible"))
+        .map_err(|error| {
+            startup_failure(
+                error,
+                "the cgroup-bpf configuration is incompatible",
+                NetworkBackend::CgroupBpf,
+            )
+        })
+}
+
+fn startup_failure(
+    error: BackendError,
+    context: &str,
+    selected_backend: NetworkBackend,
+) -> HelperFailure {
+    let failure = error.into_helper_failure(context);
+    match failure {
+        HelperFailure::Refused {
+            class: RefusalClass::Unsupported,
+            mut detail,
+        } if selected_backend == NetworkBackend::CgroupBpf => {
+            detail.push_str(
+                "; to request the compatibility backend explicitly, set network.backend: netns-nft and restart",
+            );
+            HelperFailure::Refused {
+                class: RefusalClass::Unsupported,
+                detail,
+            }
+        }
+        failure => failure,
+    }
 }
 
 #[cfg(not(feature = "cgroup-bpf"))]
@@ -234,4 +272,69 @@ fn production_cgroup_backend(
         detail: "cgroup-bpf was selected but this binary was built without the `cgroup-bpf` feature; set network.backend: netns-nft explicitly and restart"
             .to_owned(),
     })
+}
+
+#[cfg(test)]
+mod tests {
+    use soglia_core::config::NetworkBackend;
+    use soglia_core::helper::{HelperFailure, RefusalClass};
+
+    use super::startup_failure;
+    use crate::backend::BackendError;
+
+    #[test]
+    fn only_cgroup_bpf_startup_unsupported_names_the_compatibility_backend() {
+        let cgroup = startup_failure(
+            BackendError::Unsupported("kernel capability is absent".to_owned()),
+            "probe failed",
+            NetworkBackend::CgroupBpf,
+        );
+        let netns = startup_failure(
+            BackendError::Unsupported("kernel capability is absent".to_owned()),
+            "probe failed",
+            NetworkBackend::NetnsNft,
+        );
+        assert!(matches!(
+            cgroup,
+            HelperFailure::Refused {
+                class: RefusalClass::Unsupported,
+                detail,
+            } if detail.contains("network.backend: netns-nft")
+        ));
+        assert!(matches!(
+            netns,
+            HelperFailure::Refused {
+                class: RefusalClass::Unsupported,
+                detail,
+            } if !detail.contains("network.backend: netns-nft")
+        ));
+    }
+
+    #[test]
+    fn uninstall_refusals_remain_typed_and_never_name_a_backend_choice() {
+        for (error, expected) in [
+            (
+                BackendError::Incompatible("schema".to_owned()),
+                RefusalClass::Incompatible,
+            ),
+            (
+                BackendError::Unknown("ownership".to_owned()),
+                RefusalClass::Unknown,
+            ),
+            (
+                BackendError::Unsupported("kernel".to_owned()),
+                RefusalClass::Unsupported,
+            ),
+            (
+                BackendError::Failed("host".to_owned()),
+                RefusalClass::Infrastructure,
+            ),
+        ] {
+            assert!(matches!(
+                error.into_helper_failure("uninstall"),
+                HelperFailure::Refused { class, detail }
+                    if class == expected && !detail.contains("network.backend: netns-nft")
+            ));
+        }
+    }
 }

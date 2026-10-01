@@ -78,9 +78,7 @@ impl BackendError {
         match self {
             Self::Unavailable(_) | Self::Unsupported(_) => HelperFailure::Refused {
                 class: RefusalClass::Unsupported,
-                detail: format!(
-                    "{detail}; to request the compatibility backend explicitly, set network.backend: netns-nft and restart"
-                ),
+                detail,
             },
             Self::Refused(_) | Self::Incompatible(_) => HelperFailure::Refused {
                 class: RefusalClass::Incompatible,
@@ -1061,15 +1059,15 @@ mod tests {
     }
 
     #[test]
-    fn unsupported_backend_failure_names_the_explicit_compatibility_choice() {
+    fn generic_unsupported_failure_does_not_name_a_backend_choice() {
         let failure = BackendError::Unsupported("kernel capability is absent".to_owned())
-            .into_helper_failure("the cgroup-bpf backend could not start");
+            .into_helper_failure("backend operation failed");
         assert!(matches!(
             failure,
             HelperFailure::Refused {
                 class: RefusalClass::Unsupported,
                 detail,
-            } if detail.contains("network.backend: netns-nft")
+            } if !detail.contains("network.backend: netns-nft")
         ));
     }
 

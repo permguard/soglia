@@ -71,10 +71,9 @@ agents:
 
 Every field not written takes its default.
 Unknown fields are refused, so a misspelt setting stops the runtime instead of being ignored.
-The network default is `cgroup-bpf`, which requires the qualified Linux cgroup v2, systemd
-delegation, bpffs and BPF capabilities. Startup fails closed when they are unavailable; Soglia
-never downgrades automatically. Set `network.backend: netns-nft` explicitly only for a
-compatibility deployment.
+The network default is `cgroup-bpf`, which requires the qualified Linux cgroup v2, systemd delegation, bpffs and BPF capabilities.
+Startup fails closed when they are unavailable; Soglia never downgrades automatically.
+Set `network.backend: netns-nft` explicitly only for a compatibility deployment.
 
 ## Give Soglia a delegated cgroup
 
