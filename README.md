@@ -259,14 +259,20 @@ Verified uninstall removes only resources whose durable records and current kern
 It has no `--force` option and preserves any state whose ownership cannot be proved.
 If the command is interrupted after recording its intent, run the same command again to resume the exact recorded plan.
 
-| Exit status | Meaning | Operator action |
-| --- | --- | --- |
-| `0` | Uninstall completed, resumed successfully, or the host was already clean | No further cleanup is required |
-| `20` | Recorded schema, ABI or object is incompatible | Use the matching Soglia version or a qualified migration; do not delete the state manually |
-| `21` | Ownership is unknown or recorded and kernel identities disagree | Inspect the reported trusted state path and preserve the objects until ownership is resolved |
-| `22` | A required kernel or host capability is unsupported | Restore the required capability on a qualified host and retry |
-| `23` | An independent host, I/O or service operation failed | Correct the reported infrastructure problem and retry |
-| `24` | The cgroup-BPF attachment topology is incompatible | Resolve the reported hook and errno conflict, then retry without deleting pins manually |
+| Exit status | Meaning                   | Operator action                   |
+| ----------- | ------------------------- | --------------------------------- |
+| `0`         | Complete or already clean | No further cleanup                |
+| `20`        | Incompatible state        | Use a matching version/migration  |
+| `21`        | Unproved ownership        | Inspect and preserve the state    |
+| `22`        | Unsupported capability    | Restore the capability and retry  |
+| `23`        | Runtime active/host error | Stop or repair the host and retry |
+| `24`        | Incompatible BPF topology | Resolve the conflict and retry    |
+
+Status `20` requires the matching Soglia version or a qualified migration; do not delete the recorded state manually.
+Status `21` means recorded and kernel identities do not prove ownership, so inspect the reported trusted path and preserve its objects.
+Status `22` means the host lacks a required kernel or environment capability.
+The most common status `23` refusal is an active Soglia runtime: stop the service and retry; if it is already stopped, correct the reported host, I/O or service failure.
+Status `24` reports the conflicting cgroup-BPF hook and errno; resolve that topology conflict before retrying without deleting pins manually.
 
 On systemd 255, a stopped unit can occasionally leave an empty `runtime` cgroup after systemd ignores an `EBUSY` pruning race.
 The empty leaf contains no process and is harmless: the next trusted startup reuses it, and verified uninstall removes it by exact path.
