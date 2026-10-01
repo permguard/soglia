@@ -3525,6 +3525,12 @@ fn validate_no_record_pin_state(path: &Path) -> Result<NoRecordPinRoot, BackendE
         Err(error) if error.kind() == io::ErrorKind::NotFound => false,
         Err(error) => return Err(error.into()),
     };
+    if exists {
+        // Classification is also the source of truth for uninstall dry-run.  Validate trust here,
+        // not only immediately before removal, so dry-run and execution cannot disagree about an
+        // unrecorded empty root.
+        validate_private_directory_if_present(path)?;
+    }
     if !directory_entries(path)?.is_empty() {
         Err(BackendError::Unknown(format!(
             "UNKNOWN cgroup-BPF state: {} contains pins without a trusted record",
@@ -4283,6 +4289,21 @@ mod tests {
             Err(BackendError::Unknown(_))
         ));
         fs::remove_file(root.join("unexpected-pin")).unwrap();
+        fs::remove_dir(&root).unwrap();
+    }
+
+    #[test]
+    fn an_untrusted_empty_pin_root_is_unknown_during_classification() {
+        let root = std::env::temp_dir().join(format!(
+            "soglia-uninstall-untrusted-empty-pins-{}",
+            ExecutionId::generate().unwrap()
+        ));
+        fs::create_dir(&root).unwrap();
+        fs::set_permissions(&root, fs::Permissions::from_mode(0o755)).unwrap();
+        assert!(matches!(
+            validate_no_record_pin_state(&root),
+            Err(BackendError::Unknown(_))
+        ));
         fs::remove_dir(&root).unwrap();
     }
 
