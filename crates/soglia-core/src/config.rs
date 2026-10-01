@@ -145,7 +145,7 @@ pub struct NetworkConfig {
 impl Default for NetworkConfig {
     fn default() -> Self {
         Self {
-            backend: NetworkBackend::NetnsNft,
+            backend: NetworkBackend::CgroupBpf,
             execution_pool: Cidr::new(IpAddr::V4(Ipv4Addr::new(10, 201, 0, 0)), 16)
                 .unwrap_or_else(|_| unreachable!("the default pool is a valid range")),
             proxy_address: Ipv4Addr::new(10, 200, 255, 1),
@@ -160,9 +160,9 @@ impl Default for NetworkConfig {
 #[serde(rename_all = "kebab-case")]
 pub enum NetworkBackend {
     /// Network namespace, veth and nftables with source-address attribution.
-    #[default]
     NetnsNft,
     /// The composite namespace/nftables backend with Candidate-A cgroup-BPF attribution.
+    #[default]
     CgroupBpf,
 }
 
@@ -712,7 +712,7 @@ agents:
         assert_eq!(config.runtime.cleanup_failure_threshold, 1);
         assert_eq!(config.runtime.bpftool, PathBuf::from("/usr/sbin/bpftool"));
         assert_eq!(config.network.proxy_port, 15001);
-        assert_eq!(config.network.backend, NetworkBackend::NetnsNft);
+        assert_eq!(config.network.backend, NetworkBackend::CgroupBpf);
         let echo = &config.agents["echo"];
         assert_eq!(echo.port, 8080);
         assert_eq!(echo.uid, 65534);
@@ -853,5 +853,11 @@ agents:
         let mut too_many_policies = Config::from_yaml(MINIMAL).unwrap();
         too_many_policies.runtime.max_concurrency = 65_536;
         assert!(too_many_policies.validate().is_err());
+    }
+
+    #[test]
+    fn netns_nft_remains_an_explicit_backend_choice() {
+        let config = with("network:\n  backend: netns-nft\n").unwrap();
+        assert_eq!(config.network.backend, NetworkBackend::NetnsNft);
     }
 }

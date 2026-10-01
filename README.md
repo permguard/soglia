@@ -237,6 +237,11 @@ soglia run -f examples/soglia.yaml
 curl -X POST --data 'echo hello' http://127.0.0.1:8088/v1/execute/echo
 ```
 
+The default network backend is `cgroup-bpf`. It requires the qualified Linux cgroup v2,
+systemd delegation, bpffs and BPF capabilities and fails startup closed when they are absent.
+There is no automatic downgrade. A compatibility deployment must set
+`network.backend: netns-nft` explicitly.
+
 Run it inside a cgroup subtree delegated to it.
 [dev/systemd/soglia.service](dev/systemd/soglia.service) shows the unit, with `Delegate=yes`.
 
@@ -247,7 +252,7 @@ All of them run on Linux, and inside the development container:
 
 ```sh
 task check             # lint, headers, Phase-0 dependency check, supply chain, unit tests
-task test:acceptance   # the privileged suite: T1-T10, H1-H4, and the backends on a real kernel
+task test:acceptance   # privileged T1-T10/H1-H4 with default cgroup-bpf and explicit netns-nft
 ```
 
 On macOS there are two ways to work.

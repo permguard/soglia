@@ -31,7 +31,7 @@ tracing-subscriber.workspace = true
 tracing.workspace = true
 
 [features]
-default = []
+default = ["cgroup-bpf"]
 cgroup-bpf = ["soglia-enforcer/cgroup-bpf"]
 
 [lints]

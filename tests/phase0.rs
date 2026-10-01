@@ -84,6 +84,8 @@ fn rootfs() -> PathBuf {
 }
 
 fn config(rootfs: &Path, extra: &str) -> String {
+    let backend =
+        std::env::var("SOGLIA_TEST_NETWORK_BACKEND").unwrap_or_else(|_| "cgroup-bpf".to_owned());
     format!(
         r#"
 runtime:
@@ -96,6 +98,8 @@ runtime:
 ingress:
   listen: {INGRESS}
   max_response_bytes: 65536
+network:
+  backend: {backend}
 cgroup:
   root: /sys/fs/cgroup/soglia
 egress:
@@ -120,7 +124,8 @@ agents:
     timeout_ms: 8000
     limits: {{ pids_max: 24, memory_max_bytes: 67108864 }}
 {extra}"#,
-        root = rootfs.display()
+        root = rootfs.display(),
+        backend = backend,
     )
 }
 
@@ -628,6 +633,18 @@ fn z_shutdown_is_clean() {
     };
     assert!(status.success(), "{status}:\n{}", soglia.log_tail());
     assert_gone("shutdown");
+
+    if std::env::var("SOGLIA_TEST_NETWORK_BACKEND").as_deref() == Ok("cgroup-bpf") {
+        let output = Command::new(env!("CARGO_BIN_EXE_soglia"))
+            .args(["uninstall", "-f", "/tmp/soglia-phase0/soglia.yaml"])
+            .output()
+            .unwrap();
+        assert!(
+            output.status.success(),
+            "verified uninstall failed: {}",
+            String::from_utf8_lossy(&output.stderr)
+        );
+    }
 
     // Leave the host as it was found, so another privileged test can start from scratch.
     run("ip", &["link", "del", "soglia0"]);

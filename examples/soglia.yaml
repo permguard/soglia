@@ -14,6 +14,10 @@ runtime:
 ingress:
   listen: 127.0.0.1:8088
 
+network:
+  # cgroup-bpf is the fail-closed default. Set netns-nft explicitly only for a compatibility host.
+  backend: cgroup-bpf
+
 egress:
   allow:
     - host: api.example.com

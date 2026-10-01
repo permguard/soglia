@@ -9,7 +9,7 @@ Status: `APPROVED_FOR_IMPLEMENTATION`.
 
 Candidate A, socket cookie to cgroup identity, was selected explicitly after the completed candidate review on 2026-09-27.
 This document defines the normative production contract and its B1-B7 qualification gates.
-The first implementation is feature-gated; it does not change the default backend, execute B1-B7 or authorize a commit.
+The production implementation is feature-gated and `cgroup-bpf` is enabled by the default build.
 
 The normative inputs are:
 
@@ -58,9 +58,9 @@ An absent, delayed, full, stale, ambiguous or unverifiable attribution state den
 
 `CgroupBpfBackend` is a composite network backend, not a BPF-only replacement for `NetnsNftBackend`.
 It retains the proven namespace, veth and nft responsibilities and replaces IP-based proxy attribution with Candidate A.
-Backend choice must be an explicit validated configuration value.
+Backend choice is a validated configuration value; omitted configuration selects `cgroup-bpf`.
 When `cgroup-bpf` is selected, any capability, recovery or initialization failure fails startup; the runtime must never fall back silently to `NetnsNftBackend`.
-The existing backend remains the default until implementation, B1-B7, full regressions and a separate enablement decision are complete.
+`NetnsNftBackend` remains available only as the explicit `network.backend: netns-nft` compatibility choice.
 
 The privileged Enforcer exposes two logically separate inherited-socketpair services:
 
@@ -708,10 +708,8 @@ uninstall; there is no implicit schema rewrite or best-effort ABI cleanup.
 
 ## Default-backend enablement design
 
-After the uninstall command and the release regressions qualify, the release
-configuration will enable the Cargo `cgroup-bpf` feature by default and change
-`NetworkBackend::default()` to `NetworkBackend::CgroupBpf`.  This is a separate
-production change and release decision; this section does not enact it.
+The release configuration enables the Cargo `cgroup-bpf` feature by default and
+`NetworkBackend::default()` is `NetworkBackend::CgroupBpf`.
 `NetworkBackend::NetnsNft` remains a supported explicit value.
 
 Default does not mean fallback.  The normal startup capability probe, delegation
@@ -766,4 +764,4 @@ gate set to be repeated before release.
 - Full kernel/distro/architecture portability, upgrades between BPF ABI versions and rolling multi-instance coordination remain unqualified.
 - Phase-0 CONNECT mediation still does not provide L7 TLS identity or prevent domain-fronting behavior after an allowed tunnel is established.
 
-Implementation was explicitly authorized against this contract. Production enablement remains blocked on B1-B7, the full regressions and a separate explicit default-backend decision.
+Implementation and default enablement were explicitly authorized against this contract. Release remains blocked on the final B1-B7 plus uninstall qualification and full dual-backend regressions.

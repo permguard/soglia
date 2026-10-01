@@ -17,7 +17,11 @@ cd "$(dirname "$0")/../.."
 if [ "${SOGLIA_DEV_CONTAINER:-}" = "1" ]; then
     SOGLIA_TEST_AGENT="$(dev/linux/build-test-agent.sh)"
     export SOGLIA_TEST_AGENT
-    exec cargo test --workspace --locked -- --ignored --test-threads=1
+    SOGLIA_TEST_NETWORK_BACKEND=netns-nft \
+        cargo test --workspace --locked --no-default-features -- --ignored --test-threads=1
+    SOGLIA_TEST_NETWORK_BACKEND=cgroup-bpf \
+        cargo test --workspace --locked -- --ignored --test-threads=1
+    exit 0
 fi
 
 exec dev/linux/run.sh --privileged dev/linux/acceptance.sh

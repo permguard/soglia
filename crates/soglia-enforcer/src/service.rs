@@ -231,8 +231,7 @@ fn production_cgroup_backend(
 ) -> Result<Box<dyn EnforcementBackend + Send>, HelperFailure> {
     Err(HelperFailure::Refused {
         class: RefusalClass::Unsupported,
-        detail:
-            "cgroup-bpf was selected but this binary was built without the `cgroup-bpf` feature"
-                .to_owned(),
+        detail: "cgroup-bpf was selected but this binary was built without the `cgroup-bpf` feature; set network.backend: netns-nft explicitly and restart"
+            .to_owned(),
     })
 }

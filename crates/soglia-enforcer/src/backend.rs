@@ -7,9 +7,9 @@
 //! anti-spoofing that makes its address attributable, and the teardown of both. It does not parse
 //! HTTP and it does not implement PIC.
 //!
-//! `NetnsNftBackend` remains the default. `CgroupBpfBackend` is an explicit feature-gated
-//! production implementation; selecting it in a binary built without that feature refuses startup
-//! rather than silently changing enforcement.
+//! `CgroupBpfBackend` is the production default. `NetnsNftBackend` remains an explicit
+//! compatibility choice; an unavailable default refuses startup rather than silently changing
+//! enforcement.
 
 use std::collections::{BTreeMap, HashMap};
 use std::fmt;
@@ -78,7 +78,9 @@ impl BackendError {
         match self {
             Self::Unavailable(_) | Self::Unsupported(_) => HelperFailure::Refused {
                 class: RefusalClass::Unsupported,
-                detail,
+                detail: format!(
+                    "{detail}; to request the compatibility backend explicitly, set network.backend: netns-nft and restart"
+                ),
             },
             Self::Refused(_) | Self::Incompatible(_) => HelperFailure::Refused {
                 class: RefusalClass::Incompatible,
@@ -1055,6 +1057,19 @@ mod tests {
             .into_helper_failure("uninstall"),
             HelperFailure::IncompatibleBpfTopology { hook, errno, .. }
                 if hook == "connect4" && errno == Some(1)
+        ));
+    }
+
+    #[test]
+    fn unsupported_backend_failure_names_the_explicit_compatibility_choice() {
+        let failure = BackendError::Unsupported("kernel capability is absent".to_owned())
+            .into_helper_failure("the cgroup-bpf backend could not start");
+        assert!(matches!(
+            failure,
+            HelperFailure::Refused {
+                class: RefusalClass::Unsupported,
+                detail,
+            } if detail.contains("network.backend: netns-nft")
         ));
     }
 
