@@ -537,7 +537,7 @@ mod linux {
         }
 
         #[cfg(feature = "cgroup-bpf")]
-        fn validate_unrecorded_host_network(
+        pub(super) fn validate_unrecorded_host_network(
             has_record: bool,
             interface_exists: bool,
             table_exists: bool,
