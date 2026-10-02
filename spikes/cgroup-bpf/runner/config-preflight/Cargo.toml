@@ -1,0 +1,16 @@
+# Copyright (c) 2022 Nitro Agility S.r.l.
+# SPDX-License-Identifier: Apache-2.0
+
+[package]
+name = "soglia-config-preflight"
+description = "Host-side production-parser preflight for Soglia qualification configs."
+version = "0.0.0"
+edition = "2024"
+rust-version = "1.97"
+license = "Apache-2.0"
+publish = false
+
+[dependencies]
+soglia-core = { path = "../../../../crates/soglia-core" }
+
+[workspace]

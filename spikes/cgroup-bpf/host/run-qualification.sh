@@ -8,6 +8,7 @@ host_dir=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
 repo_dir=$(git -C "$host_dir" rev-parse --show-toplevel)
 evidence_root="$repo_dir/spikes/cgroup-bpf/evidence/replay"
 verifier="$repo_dir/spikes/cgroup-bpf/runner/scripts/verify_qualification.py"
+config_preflight="$repo_dir/spikes/cgroup-bpf/runner/scripts/preflight_qualification_configs.py"
 qualification_id="qualification-$(date -u +%Y%m%dT%H%M%SZ)-$$"
 qualification_dir="$evidence_root/$qualification_id"
 
@@ -19,6 +20,11 @@ fi
 
 mkdir -p "$qualification_dir"
 : > "$qualification_dir/runs.txt"
+
+cargo +1.97.0 build --locked \
+  --manifest-path "$repo_dir/spikes/cgroup-bpf/runner/config-preflight/Cargo.toml"
+config_validator="$repo_dir/spikes/cgroup-bpf/runner/config-preflight/target/debug/soglia-config-preflight"
+[[ -x $config_validator ]] || { echo 'qualification config validator was not built' >&2; exit 13; }
 
 snapshot_vms() {
   limactl list --json | jq -r '.name // empty' | sort
@@ -36,12 +42,37 @@ gate_specs=(
   'UNINSTALL|soglia-spike-uninstall-|run-uninstall-fresh.sh'
 )
 
+preflight_gate() {
+  local gate=$1 gate_slug
+  gate_slug=$(printf '%s' "$gate" | tr '[:upper:]' '[:lower:]')
+  PYTHONDONTWRITEBYTECODE=1 python3 "$config_preflight" \
+    --scripts-root "$repo_dir/spikes/cgroup-bpf/runner/scripts" \
+    --validator "$config_validator" --gate "$gate" \
+    --json-output "$qualification_dir/$gate_slug-config-preflight.json"
+}
+
+if [[ ${SOGLIA_SPIKE_PREFLIGHT_ONLY:-0} == 1 ]]; then
+  for spec in "${gate_specs[@]}"; do
+    IFS='|' read -r gate _ <<< "$spec"
+    preflight_gate "$gate" || {
+      echo "$gate: INFRA_ERROR: qualification configuration preflight failed before VM launch" >&2
+      exit 13
+    }
+  done
+  echo "Qualification config preflight: PASS ($qualification_dir)"
+  exit 0
+fi
+
 for spec in "${gate_specs[@]}"; do
   IFS='|' read -r gate vm_prefix runner <<< "$spec"
   before_vms=$(mktemp -t soglia-qualify-before-vms.XXXXXX)
   after_vms=$(mktemp -t soglia-qualify-after-vms.XXXXXX)
   gate_slug=$(printf '%s' "$gate" | tr '[:upper:]' '[:lower:]')
   gate_log="$qualification_dir/$gate_slug.log"
+  if ! preflight_gate "$gate"; then
+    echo "$gate: INFRA_ERROR: qualification configuration preflight failed before VM launch" >&2
+    exit 13
+  fi
   snapshot_vms > "$before_vms"
 
   set +e

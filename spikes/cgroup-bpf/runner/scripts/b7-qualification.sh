@@ -67,19 +67,24 @@ persist_state() {
 write_summary() {
   local verdict=$1
   if [[ $gate == B8 ]]; then
-    local p99_us=0 achieved=0 ramp=0
+    local p99_us=0 achieved=0 ramp=0 ramp_cap=0 ramp_breakpoint=false ramp_stop=NOT_RUN
     if [[ -f $evidence/profiles/B8/result.json ]]; then
       p99_us=$(jq '.rates[0].measurement.p99_us // 0' "$evidence/profiles/B8/result.json")
       achieved=$(jq '.rates[0].measurement.achieved_rate_per_second // 0' "$evidence/profiles/B8/result.json")
     fi
-    [[ ! -f $evidence/profiles/B8/b8-characterization.json ]] \
-      || ramp=$(jq '.ramp.maximum_sustained_rate_per_second // 0' "$evidence/profiles/B8/b8-characterization.json")
+    if [[ -f $evidence/profiles/B8/b8-characterization.json ]]; then
+      ramp=$(jq '.ramp.maximum_sustained_rate_per_second // 0' "$evidence/profiles/B8/b8-characterization.json")
+      ramp_cap=$(jq '.ramp.declared_rate_cap_per_second // 0' "$evidence/profiles/B8/b8-characterization.json")
+      ramp_breakpoint=$(jq '.ramp.breakpoint_reached // false' "$evidence/profiles/B8/b8-characterization.json")
+      ramp_stop=$(jq -r '.ramp.stop_reason // "MISSING"' "$evidence/profiles/B8/b8-characterization.json")
+    fi
     jq -n --arg run_id "$run_id" --arg verdict "$verdict" --arg cleanup "$cleanup_status" \
       --arg programs "$program_classification" --arg links "$links_classification" \
       --arg maps "$maps_classification" --arg baseline "$production_baseline" \
       --arg vm_name "$vm_name" --argjson authoritative "$authoritative" \
       --argjson source_matches "$production_source_matches" --argjson p99_us "$p99_us" \
-      --argjson achieved "$achieved" --argjson ramp "$ramp" \
+      --argjson achieved "$achieved" --argjson ramp "$ramp" --argjson ramp_cap "$ramp_cap" \
+      --argjson ramp_breakpoint "$ramp_breakpoint" --arg ramp_stop "$ramp_stop" \
       '{schema:1,run_id:$run_id,gate:"B8",authoritative:$authoritative,verdict:$verdict,
         production_source_baseline:{commit:$baseline,matches:$source_matches},
         profile:{max_pending_resolves:64,resolve_workers:4,target_rate_per_second:500,
@@ -88,7 +93,9 @@ write_summary() {
         qualified:{parallel_load:true,correct_correlation:true,within_profile_outcomes_clean:true,
           return_to_baseline:true,burst_queue_full:true,mixed_workload_bounds:true,
           fault_injection:true,client_and_supervisor_latency:true},
-        characterization:{maximum_sustained_rate_per_second:$ramp,pass_criterion:false},
+        characterization:{maximum_sustained_rate_per_second:$ramp,pass_criterion:false,
+          declared_rate_cap_per_second:$ramp_cap,breakpoint_reached:$ramp_breakpoint,
+          stop_reason:$ramp_stop},
         cleanup:{verdict:$cleanup,programs:$programs,links:$links,maps:$maps},
         authoritative_vm:(if $authoritative then {name:$vm_name} else null end)}' \
       > "$evidence/summary.json"

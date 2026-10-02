@@ -30,6 +30,9 @@ def load_b7() -> Any:
 
 B7 = load_b7()
 
+RAMP_REQUESTED_RATES = (500, 750, 1000, 1250, 1500, 2000, 4000, 8000, 16_000)
+RAMP_RATE_CAP_PER_SECOND = RAMP_REQUESTED_RATES[-1]
+
 
 def write_json(path: pathlib.Path, value: Any) -> None:
     path.write_text(json.dumps(value, indent=2, sort_keys=True) + "\n")
@@ -59,11 +62,22 @@ def result_body(invocation: dict[str, Any]) -> dict[str, Any]:
     return invocation["body"]
 
 
+def breakpoint_reasons(measured: dict[str, Any], requested: int, achieved: float) -> list[str]:
+    reasons = []
+    if int(measured["failed"]) > 0:
+        reasons.append("negative_outcome")
+    if int(measured["p99_us"]) > 20_000:
+        reasons.append("p99_above_20_ms")
+    if achieved < requested * 0.95:
+        reasons.append("achieved_rate_below_95_percent")
+    return reasons
+
+
 def ramp(port: int, target: pathlib.Path) -> dict[str, Any]:
     steps = []
     maximum = 0.0
     breakpoint: dict[str, Any] | None = None
-    for requested in (500, 750, 1000, 1250, 1500, 2000):
+    for requested in RAMP_REQUESTED_RATES:
         invocation = B7.invoke(
             port,
             f"b8-resolve-rate-report 11.0.0.2:443 {requested} 5 403 "
@@ -72,11 +86,8 @@ def ramp(port: int, target: pathlib.Path) -> dict[str, Any]:
         )
         measured = result_body(invocation)
         achieved = float(measured["succeeded"]) / max(float(measured["elapsed_ms"]) / 1000.0, 0.001)
-        broken = (
-            int(measured["failed"]) > 0
-            or int(measured["p99_us"]) > 20_000
-            or achieved < requested * 0.95
-        )
+        reasons = breakpoint_reasons(measured, requested, achieved)
+        broken = bool(reasons)
         record = {
             "requested_rate_per_second": requested,
             "achieved_rate_per_second": achieved,
@@ -85,6 +96,7 @@ def ramp(port: int, target: pathlib.Path) -> dict[str, Any]:
             "execution_id": invocation.get("execution_id"),
             "post_resolve_decision": "policy_denied",
             "breakpoint": broken,
+            "breakpoint_reasons": reasons,
         }
         steps.append(record)
         B7.wait_children(target, 0, 30)
@@ -92,11 +104,19 @@ def ramp(port: int, target: pathlib.Path) -> dict[str, Any]:
             breakpoint = record
             break
         maximum = achieved
+    stop_reason = (
+        "breakpoint_reached"
+        if breakpoint is not None
+        else "breakpoint_not_reached_within_declared_cap"
+    )
     return {
         "pass_criterion": False,
         "steps": steps,
         "maximum_sustained_rate_per_second": maximum,
         "breakpoint": breakpoint,
+        "breakpoint_reached": breakpoint is not None,
+        "declared_rate_cap_per_second": RAMP_RATE_CAP_PER_SECOND,
+        "stop_reason": stop_reason,
         "outbound_ephemeral_ports_consumed": False,
     }
 

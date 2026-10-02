@@ -124,6 +124,7 @@ network:
   execution_pool: 10.238.0.0/24
   proxy_address: 10.200.255.1
   proxy_port: 15001
+  max_proxy_connections: 64
 egress:
   connect_timeout_ms: 1000
   idle_timeout_ms: 30000
@@ -131,6 +132,8 @@ egress:
 cgroup: { root: "$cgroup_root" }
 cgroup_bpf:
   max_tracked_sockets: 64
+  max_pending_resolves: 64
+  resolve_workers: 4
   resolve_timeout_ms: 2000
   ring_buffer_bytes: 65536
   pin_root: $pin_root

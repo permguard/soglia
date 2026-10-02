@@ -420,6 +420,29 @@ def verify_b8(run: Path) -> None:
         evidence.get("mixed", {}).get("limits_respected") is True,
         f"{run.name}: B8 mixed workload exceeded a configured limit",
     )
+    ramp = evidence.get("ramp", {})
+    require(ramp.get("pass_criterion") is False, f"{run.name}: B8 ramp became a PASS criterion")
+    require(
+        ramp.get("declared_rate_cap_per_second", 0) > 2_000,
+        f"{run.name}: B8 ramp did not extend beyond 2,000 resolves/s",
+    )
+    breakpoint = ramp.get("breakpoint")
+    if breakpoint is None:
+        require(
+            ramp.get("breakpoint_reached") is False
+            and ramp.get("stop_reason") == "breakpoint_not_reached_within_declared_cap"
+            and ramp.get("steps", [{}])[-1].get("requested_rate_per_second")
+            == ramp.get("declared_rate_cap_per_second"),
+            f"{run.name}: B8 ramp stopped without a breakpoint or a declared-cap explanation",
+        )
+    else:
+        require(
+            ramp.get("breakpoint_reached") is True
+            and ramp.get("stop_reason") == "breakpoint_reached"
+            and breakpoint.get("breakpoint") is True
+            and bool(breakpoint.get("breakpoint_reasons")),
+            f"{run.name}: B8 ramp breakpoint has no typed stopping reason",
+        )
     faults = evidence.get("fault_injection", {})
     require(faults.get("verdict") == "PASS", f"{run.name}: B8 fault injection is not PASS")
     expected_faults = {

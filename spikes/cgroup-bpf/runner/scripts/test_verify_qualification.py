@@ -255,6 +255,24 @@ class QualificationVerifierTests(unittest.TestCase):
                     },
                     "baseline_return": {"verdict": "PASS"},
                     "mixed": {"limits_respected": True},
+                    "ramp": {
+                        "pass_criterion": False,
+                        "steps": [
+                            {
+                                "requested_rate_per_second": 4000,
+                                "achieved_rate_per_second": 4000.0,
+                                "p99_us": 1000,
+                                "failed": 0,
+                                "breakpoint": False,
+                                "breakpoint_reasons": [],
+                            }
+                        ],
+                        "maximum_sustained_rate_per_second": 4000.0,
+                        "breakpoint": None,
+                        "breakpoint_reached": False,
+                        "declared_rate_cap_per_second": 4000,
+                        "stop_reason": "breakpoint_not_reached_within_declared_cap",
+                    },
                     "fault_injection": {
                         "verdict": "PASS",
                         "cases": {name: {"verdict": "PASS"} for name in fault_names},
@@ -442,6 +460,14 @@ class QualificationVerifierTests(unittest.TestCase):
         self.write_json(path, value)
         self.write_sums(self.runs[7])
         self.assert_reason("fault cases are not PASS")
+
+    def test_b8_ramp_without_breakpoint_or_cap_reason_fails(self) -> None:
+        path = self.runs[7] / "profiles/B8/b8-characterization.json"
+        value = json.loads(path.read_text(encoding="utf-8"))
+        value["ramp"]["stop_reason"] = "MISSING"
+        self.write_json(path, value)
+        self.write_sums(self.runs[7])
+        self.assert_reason("stopped without a breakpoint or a declared-cap explanation")
 
     def test_b8_resolve_only_outbound_tamper_with_recomputed_checksum_fails(self) -> None:
         path = self.runs[7] / "profiles/B8/b8-characterization.json"
