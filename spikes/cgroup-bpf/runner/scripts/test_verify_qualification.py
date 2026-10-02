@@ -21,7 +21,7 @@ class QualificationVerifierTests(unittest.TestCase):
     def setUp(self) -> None:
         self.temporary = tempfile.TemporaryDirectory()
         self.root = Path(self.temporary.name)
-        self.runs = [self.make_run(number) for number in range(1, 8)]
+        self.runs = [self.make_run(number) for number in range(1, 9)]
         self.runs.append(self.make_uninstall_run())
 
     def tearDown(self) -> None:
@@ -51,6 +51,15 @@ class QualificationVerifierTests(unittest.TestCase):
             }
         if number == 7:
             summary["qualified"] = {"within_envelope_resolve_outcomes_clean": True}
+        if number == 8:
+            summary["profile"] = {
+                "max_pending_resolves": 64,
+                "resolve_workers": 4,
+                "target_rate_per_second": 500,
+                "duration_seconds": 60,
+                "p99_us": 10_000,
+                "achieved_rate_per_second": 500,
+            }
         self.write_json(run / "summary.json", summary)
         (run / "verdict.txt").write_text("PASS\n", encoding="utf-8")
         (run / "source-fingerprint.txt").write_text(
@@ -88,6 +97,53 @@ class QualificationVerifierTests(unittest.TestCase):
                     "cleanup": {"soglia_owned_resources_absent": True},
                 },
             )
+            contract_cases = {
+                name: {
+                    "verdict": "PASS",
+                    "refusal_class": "INCOMPATIBLE",
+                    "stable_exit_code": 20,
+                    "durable_inventory_byte_identical": True,
+                }
+                for name in ("wrong_version", "wrong_max_pending", "wrong_workers", "malformed", "absent")
+            }
+            self.write_json(
+                run / "cases/resolver_contract/result.json",
+                {
+                    "verdict": "PASS",
+                    "typed_exit_code": 20,
+                    "ready_emitted": False,
+                    "backend_start_called": False,
+                    "cases": contract_cases,
+                },
+            )
+        if number == 2:
+            self.write_json(
+                run / "phase2-contract/result.json",
+                {
+                    "verdict": "PASS",
+                    "cases": {
+                        name: {"verdict": "PASS"}
+                        for name in (
+                            "out_of_order_replies_are_correlated_to_their_request_ids",
+                            "cancellation_before_write_removes_the_request_without_a_frame",
+                            "a_cancelled_caller_cannot_desynchronize_the_next_exchange",
+                            "pending_after_the_publication_deadline_times_out_without_poisoning",
+                            "complete_after_the_publication_deadline_is_still_consumed",
+                        )
+                    },
+                },
+            )
+        if number == 3:
+            self.write_json(
+                run / "phase2-contract/result.json",
+                {
+                    "verdict": "PASS",
+                    "cases": {
+                        "lifecycle_writer_has_priority_over_new_resolve_readers": {"verdict": "PASS"},
+                        "out_of_order_replies_are_correlated_to_their_request_ids": {"verdict": "PASS"},
+                    },
+                },
+            )
         if number == 5:
             self.write_json(
                 run / "driver/proxy-steering-boundary.json",
@@ -97,6 +153,17 @@ class QualificationVerifierTests(unittest.TestCase):
                     "no_writes_to_destination_fields": True,
                     "bpf_bind_absent": True,
                     "runtime": {"destinations_match": True},
+                },
+            )
+            self.write_json(
+                run / "phase2-contract/result.json",
+                {
+                    "verdict": "PASS",
+                    "direct_ipv4": {
+                        "resolve_required_before_effect": True,
+                        "veth_syn_packets": 0,
+                        "execution_nft_drop_path_packets": 0,
+                    },
                 },
             )
         if number == 6:
@@ -149,6 +216,49 @@ class QualificationVerifierTests(unittest.TestCase):
                     },
                     "resolve_health": {"workload_totals": {"queue_refusal": 1}},
                     "immediate_control": {"body": {"succeeded": 1}},
+                },
+            )
+        if number == 8:
+            fault_names = {
+                "duplicate_id", "unknown_id", "out_of_order", "cancel_before_write",
+                "cancel_after_write", "partial_frame", "wrong_version",
+                "writer_or_exchange_watchdog", "worker_blocked", "worker_panic",
+                "malformed_result", "lifecycle_write_contention", "helper_exit",
+            }
+            self.write_json(
+                run / "profiles/B8/b8-characterization.json",
+                {
+                    "verdict": "PASS",
+                    "supported_profile": {
+                        "measurement": {
+                            "requested": 30_000,
+                            "succeeded": 30_000,
+                            "failed": 0,
+                            "expected_status": 403,
+                        },
+                        "correct_correlations": True,
+                        "negative_outcomes": 0,
+                        "post_resolve_decision": "policy_denied",
+                        "effects": {
+                            "outbound_accept_delta": 0,
+                            "dns_packet_delta": {"tcp": 0, "udp": 0},
+                            "outbound_attempts": {"distinct_connection_attempts": 0},
+                        },
+                    },
+                    "burst": {
+                        "verdict": "PASS", "requested": 4, "succeeded": 3, "refused": 1,
+                        "effects": {
+                            "rejected_connection_outbound_attempts": 0,
+                            "rejected_connection_outbound_accepts": 0,
+                            "dns_packet_delta": {"tcp": 0, "udp": 0},
+                        },
+                    },
+                    "baseline_return": {"verdict": "PASS"},
+                    "mixed": {"limits_respected": True},
+                    "fault_injection": {
+                        "verdict": "PASS",
+                        "cases": {name: {"verdict": "PASS"} for name in fault_names},
+                    },
                 },
             )
         self.write_sums(run)
@@ -317,20 +427,46 @@ class QualificationVerifierTests(unittest.TestCase):
     def test_b7_burst_verdict_tamper_fails(self) -> None:
         self.tamper_b7(lambda value: value.__setitem__("verdict", "FAIL"), "burst verdict is not PASS")
 
-    def test_uninstall_case_tamper_fails(self) -> None:
+    def test_b8_p99_tamper_with_recomputed_checksum_fails(self) -> None:
         path = self.runs[7] / "summary.json"
+        value = json.loads(path.read_text(encoding="utf-8"))
+        value["profile"]["p99_us"] = 20_001
+        self.write_json(path, value)
+        self.write_sums(self.runs[7])
+        self.assert_reason("client p99 exceeds 20 ms")
+
+    def test_b8_fault_tamper_with_recomputed_checksum_fails(self) -> None:
+        path = self.runs[7] / "profiles/B8/b8-characterization.json"
+        value = json.loads(path.read_text(encoding="utf-8"))
+        value["fault_injection"]["cases"]["worker_panic"]["verdict"] = "FAIL"
+        self.write_json(path, value)
+        self.write_sums(self.runs[7])
+        self.assert_reason("fault cases are not PASS")
+
+    def test_b8_resolve_only_outbound_tamper_with_recomputed_checksum_fails(self) -> None:
+        path = self.runs[7] / "profiles/B8/b8-characterization.json"
+        value = json.loads(path.read_text(encoding="utf-8"))
+        value["supported_profile"]["effects"]["outbound_attempts"][
+            "distinct_connection_attempts"
+        ] = 1
+        self.write_json(path, value)
+        self.write_sums(self.runs[7])
+        self.assert_reason("Resolve-only supported load caused an external effect")
+
+    def test_uninstall_case_tamper_fails(self) -> None:
+        path = self.runs[8] / "summary.json"
         value = json.loads(path.read_text(encoding="utf-8"))
         value["cases"]["normal_service_stop"] = "FAIL"
         self.write_json(path, value)
-        self.write_sums(self.runs[7])
+        self.write_sums(self.runs[8])
         self.assert_reason("normal_service_stop is not PASS")
 
     def test_uninstall_residue_tamper_fails(self) -> None:
-        path = self.runs[7] / "cases/known_compatible/residue-before-harness-teardown.json"
+        path = self.runs[8] / "cases/known_compatible/residue-before-harness-teardown.json"
         value = json.loads(path.read_text(encoding="utf-8"))
         value["owned_residue"] = True
         self.write_json(path, value)
-        self.write_sums(self.runs[7])
+        self.write_sums(self.runs[8])
         self.assert_reason("does not prove zero residue")
 
 

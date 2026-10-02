@@ -10,7 +10,7 @@ repo_dir=$(CDPATH='' cd -- "$host_dir/../.." && pwd)
 source "$host_dir/common.sh"
 
 require_host
-production_baseline=7dd0840e4d51078c01ab26343c9eebfd315e5e5e
+production_baseline=cfb2d375e76de59694e25374ec5df47c2bfb6c6a
 git -C "$repo_dir" cat-file -e "$production_baseline^{commit}"
 git -C "$repo_dir" diff --exit-code "$production_baseline" -- crates src Cargo.toml Cargo.lock
 if [[ -n $(git -C "$repo_dir" status --short --untracked-files=all) ]]; then
@@ -44,4 +44,4 @@ limactl shell "$vm" -- sudo env SOGLIA_B5_VM_NAME="$vm" bash \
   /var/tmp/soglia-spike-2/bin/b1-attach-diag \
   "$production_object" --authoritative
 
-echo "B5 authoritative qualification completed on $vm; B6-B7 were not executed."
+echo "B5 authoritative qualification completed on $vm; B6-B8 were not executed."

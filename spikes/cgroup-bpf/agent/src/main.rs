@@ -1202,6 +1202,14 @@ fn answer(mut stream: TcpStream) {
             let report = words.get(4).copied().unwrap_or("/tmp/b7-rate.json");
             b7_rate_report(target, rate, duration, report)
         }
+        Some("b8-resolve-rate-report") => {
+            let target = words.get(1).copied().unwrap_or("11.0.0.2:443");
+            let rate = words.get(2).and_then(|s| s.parse().ok()).unwrap_or(1);
+            let duration = words.get(3).and_then(|s| s.parse().ok()).unwrap_or(1);
+            let expected_status = words.get(4).and_then(|s| s.parse().ok()).unwrap_or(403);
+            let report = words.get(5).copied().unwrap_or("/tmp/b8-resolve-rate.json");
+            b8_resolve_rate_report(target, rate, duration, expected_status, report)
+        }
         Some("delayed-b7-live-report") => {
             let delay_ms = words.get(1).and_then(|s| s.parse().ok()).unwrap_or(30_000);
             let target = words.get(2).copied().unwrap_or("allowed.test:443");
@@ -1239,33 +1247,70 @@ fn answer(mut stream: TcpStream) {
 /// Runs a bounded sequence of complete proxy handshakes and emits aggregate, non-secret
 /// qualification measurements. The production proxy and Candidate-A resolver remain unchanged.
 fn b7_churn_report(target: &str, count: usize, report: &str) -> String {
-    b7_connection_workload(target, count, None, report, "churn")
+    b7_connection_workload(target, count, None, None, report, "churn")
 }
 
 /// Runs complete proxy handshakes at a monotonic-clock rate for the declared B7 interval.
 fn b7_rate_report(target: &str, rate: usize, duration_secs: u64, report: &str) -> String {
     let count = rate.saturating_mul(duration_secs as usize);
-    b7_connection_workload(target, count, Some(rate), report, "rate")
+    b7_connection_workload(target, count, Some(rate), None, report, "rate")
+}
+
+/// Measures Resolve throughput without turning the test into an outbound ephemeral-port test.
+///
+/// The proxy first resolves the production Candidate-A identity, then returns the expected policy
+/// refusal for the deliberately unlisted numeric destination. An exact status match proves that
+/// the request reached the post-Resolve policy decision while avoiding DNS and outbound sockets.
+fn b8_resolve_rate_report(
+    target: &str,
+    rate: usize,
+    duration_secs: u64,
+    expected_status: u16,
+    report: &str,
+) -> String {
+    let count = rate.saturating_mul(duration_secs as usize);
+    b7_connection_workload(
+        target,
+        count,
+        Some(rate),
+        Some(expected_status),
+        report,
+        "resolve-rate",
+    )
 }
 
 fn b7_live_report(target: &str, count: usize, hold_secs: u64, report: &str) -> String {
     let started = Instant::now();
-    let mut sockets = Vec::with_capacity(count);
+    // One connected socket per Execution proves attribution. The remaining sockets exercise the
+    // Candidate-A sock_create/cookie-map envelope without consuming two proxy file descriptors per
+    // socket; proxy concurrency has its own independently qualified capacity boundary.
+    let mut connected = Vec::with_capacity(usize::from(count > 0));
+    let mut unconnected = Vec::with_capacity(count.saturating_sub(1));
     let mut failed = 0_usize;
     let mut latencies = Vec::with_capacity(count);
-    for _ in 0..count {
+    if count > 0 {
         let attempt = Instant::now();
         match TcpStream::connect_timeout(&SocketAddr::V4(PROXY), CONNECT_TIMEOUT)
             .and_then(|mut stream| establish_connect(&mut stream, target).map(|_| stream))
         {
-            Ok(stream) => sockets.push(stream),
+            Ok(stream) => connected.push(stream),
             Err(_) => failed += 1,
         }
         latencies.push(u64::try_from(attempt.elapsed().as_micros()).unwrap_or(u64::MAX));
     }
+    for _ in 1..count {
+        let attempt = Instant::now();
+        match rustix::net::socket(AddressFamily::INET, SocketType::STREAM, None) {
+            Ok(socket) => unconnected.push(socket),
+            Err(_) => failed += 1,
+        }
+        latencies.push(u64::try_from(attempt.elapsed().as_micros()).unwrap_or(u64::MAX));
+    }
+    let succeeded = connected.len() + unconnected.len();
     let value = format!(
-        "{{\"kind\":\"live\",\"requested\":{count},\"succeeded\":{},\"failed\":{failed},\"elapsed_ms\":{},\"max_us\":{}}}",
-        sockets.len(),
+        "{{\"kind\":\"live\",\"requested\":{count},\"succeeded\":{succeeded},\"failed\":{failed},\"resolved_connections\":{},\"unconnected_sockets\":{},\"elapsed_ms\":{},\"max_us\":{}}}",
+        connected.len(),
+        unconnected.len(),
         started.elapsed().as_millis(),
         latencies.into_iter().max().unwrap_or(0)
     );
@@ -1336,6 +1381,7 @@ fn b7_connection_workload(
     target: &str,
     count: usize,
     rate: Option<usize>,
+    expected_status: Option<u16>,
     report: &str,
     kind: &str,
 ) -> String {
@@ -1352,7 +1398,18 @@ fn b7_connection_workload(
         }
         let attempt = Instant::now();
         let result = TcpStream::connect_timeout(&SocketAddr::V4(PROXY), CONNECT_TIMEOUT)
-            .and_then(|mut stream| establish_connect(&mut stream, target));
+            .and_then(|mut stream| establish_connect(&mut stream, target))
+            .and_then(|status| {
+                if expected_status
+                    .is_none_or(|code| status.starts_with(&format!("HTTP/1.1 {code} ")))
+                {
+                    Ok(status)
+                } else {
+                    Err(std::io::Error::other(format!(
+                        "unexpected proxy response status: {status}"
+                    )))
+                }
+            });
         latencies.push(u64::try_from(attempt.elapsed().as_micros()).unwrap_or(u64::MAX));
         if result.is_ok() {
             succeeded += 1;
@@ -1370,8 +1427,9 @@ fn b7_connection_workload(
     };
     let elapsed_ms = u64::try_from(started.elapsed().as_millis()).unwrap_or(u64::MAX);
     let value = format!(
-        "{{\"kind\":{},\"strategy\":\"one-shot-no-retry\",\"requested\":{count},\"attempts\":{count},\"retry_count\":0,\"succeeded\":{succeeded},\"failed\":{failed},\"elapsed_ms\":{elapsed_ms},\"p50_us\":{},\"p95_us\":{},\"p99_us\":{},\"max_us\":{}}}",
+        "{{\"kind\":{},\"strategy\":\"one-shot-no-retry\",\"expected_status\":{},\"requested\":{count},\"attempts\":{count},\"retry_count\":0,\"succeeded\":{succeeded},\"failed\":{failed},\"elapsed_ms\":{elapsed_ms},\"p50_us\":{},\"p95_us\":{},\"p99_us\":{},\"max_us\":{}}}",
         quote(kind),
+        expected_status.map_or_else(|| "null".to_owned(), |status| status.to_string()),
         percentile(50),
         percentile(95),
         percentile(99),

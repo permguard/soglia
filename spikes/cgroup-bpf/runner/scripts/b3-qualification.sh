@@ -26,7 +26,7 @@ if [[ $# -eq 4 ]]; then
   authoritative=true
 fi
 
-production_baseline=7dd0840e4d51078c01ab26343c9eebfd315e5e5e
+production_baseline=cfb2d375e76de59694e25374ec5df47c2bfb6c6a
 vm_name=${SOGLIA_B3_VM_NAME:-}
 if [[ "$authoritative" == true && "$vm_name" != soglia-spike-b3-* ]]; then
   echo "authoritative B3 requires a recorded soglia-spike-b3-* VM name" >&2
@@ -94,7 +94,7 @@ write_summary() {
         production_code_change:"NOT_PERFORMED: qualification harness only"
       },
       authoritative_vm:(if $authoritative then {name:$vm_name} else null end),
-      remaining_gates:{B4:"NOT_EXECUTED",B5:"NOT_EXECUTED",B6:"NOT_EXECUTED",B7:"NOT_EXECUTED"}}' \
+      remaining_gates:{B4:"NOT_EXECUTED",B5:"NOT_EXECUTED",B6:"NOT_EXECUTED",B7:"NOT_EXECUTED",B8:"NOT_EXECUTED"}}' \
     > "$evidence/summary.json"
   printf '%s\n' "$verdict" > "$evidence/verdict.txt"
 }
@@ -249,6 +249,7 @@ runtime:
   state_dir: $runtime
   max_concurrency: 2
   max_queue: 4
+  max_ingress_connections: 6
   cleanup_failure_threshold: 1
   teardown_timeout_ms: 5000
   runc: /usr/sbin/runc
@@ -262,6 +263,7 @@ network:
   execution_pool: 10.201.0.0/24
   proxy_address: 10.200.255.1
   proxy_port: 15001
+  max_proxy_connections: 128
 egress:
   connect_timeout_ms: 1000
   idle_timeout_ms: 2000
@@ -273,6 +275,8 @@ cgroup_bpf:
   max_tracked_sockets: 128
   resolve_timeout_ms: 2000
   ring_buffer_bytes: 65536
+  max_pending_resolves: 64
+  resolve_workers: 4
   pin_root: $pin_parent
 agents:
   probe:
@@ -377,3 +381,5 @@ set -e
 printf '%s\n' "$driver_status" > "$evidence/driver-status.txt"
 [[ $driver_status -eq 0 ]]
 grep -Fx PASS "$evidence/driver/verdict.txt" >/dev/null
+python3 "$scripts/phase2-gate-contract.py" --gate B3 --production-root /soglia \
+  --output "$evidence/phase2-contract"

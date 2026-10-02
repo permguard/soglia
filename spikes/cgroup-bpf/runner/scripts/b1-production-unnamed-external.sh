@@ -161,6 +161,7 @@ runtime:
   state_dir: $runtime
   max_concurrency: 2
   max_queue: 2
+  max_ingress_connections: 4
   cleanup_failure_threshold: 1
   teardown_timeout_ms: 5000
   runc: /usr/sbin/runc
@@ -173,11 +174,14 @@ network:
   execution_pool: 10.231.0.0/24
   proxy_address: 10.200.255.1
   proxy_port: 15001
+  max_proxy_connections: 64
 cgroup: { root: "$runtime_cgroup" }
 cgroup_bpf:
   max_tracked_sockets: 64
   resolve_timeout_ms: 2000
   ring_buffer_bytes: 65536
+  max_pending_resolves: 64
+  resolve_workers: 4
   pin_root: $pin_parent
 agents:
   probe:

@@ -2,7 +2,7 @@
 # Copyright (c) 2022 Nitro Agility S.r.l.
 # SPDX-License-Identifier: Apache-2.0
 
-# Production Candidate-A B7 resource, observability, topology and integrity-drift qualification.
+# Production Candidate-A B7 resource or B8 parallel-load qualification.
 
 set -euo pipefail
 export PYTHONDONTWRITEBYTECODE=1
@@ -22,19 +22,26 @@ foreign_object=$5
 authoritative=false
 if [[ $# -eq 6 ]]; then [[ $6 == --authoritative ]] || { echo "$usage" >&2; exit 13; }; authoritative=true; fi
 
-production_baseline=7dd0840e4d51078c01ab26343c9eebfd315e5e5e
-vm_name=${SOGLIA_B7_VM_NAME:-}
-if [[ $authoritative == true && $vm_name != soglia-spike-b7-* ]]; then
-  echo 'authoritative B7 requires a recorded fresh soglia-spike-b7-* VM' >&2
+production_baseline=cfb2d375e76de59694e25374ec5df47c2bfb6c6a
+gate=${SOGLIA_QUALIFICATION_GATE:-B7}
+[[ $gate == B7 || $gate == B8 ]] || { echo "unsupported qualification gate: $gate" >&2; exit 13; }
+gate_slug=${gate,,}
+if [[ $gate == B8 ]]; then
+  vm_name=${SOGLIA_B8_VM_NAME:-}
+else
+  vm_name=${SOGLIA_B7_VM_NAME:-}
+fi
+if [[ $authoritative == true && $vm_name != soglia-spike-$gate_slug-* ]]; then
+  echo "authoritative $gate requires a recorded fresh soglia-spike-$gate_slug-* VM" >&2
   exit 13
 fi
-prefix=b7-diagnostic
-[[ $authoritative == true ]] && prefix=b7
+prefix=$gate_slug-diagnostic
+[[ $authoritative == true ]] && prefix=$gate_slug
 run_id="$prefix-$(date -u +%Y%m%dT%H%M%SZ)-$$"
 evidence="/soglia/spikes/cgroup-bpf/evidence/replay/$run_id"
-pin_parent=/sys/fs/bpf/soglia-b7
-runtime_parent=/run/soglia-b7
-rootfs=/var/tmp/soglia-b7-rootfs
+pin_parent="/sys/fs/bpf/soglia-$gate_slug"
+runtime_parent="/run/soglia-$gate_slug"
+rootfs="/var/tmp/soglia-$gate_slug-rootfs"
 current_phase=INITIALIZING
 last_case=none
 cleanup_status=NOT_RUN
@@ -52,12 +59,42 @@ printf '%s\n' RUNNING > "$evidence/verdict.txt"
 persist_state() {
   jq -n --arg run_id "$run_id" --arg phase "$current_phase" --arg last_case "$last_case" \
     --argjson authoritative "$authoritative" \
-    '{schema:1,run_id:$run_id,gate:"B7",authoritative:$authoritative,current_phase:$phase,last_case:$last_case}' \
+    --arg gate "$gate" \
+    '{schema:1,run_id:$run_id,gate:$gate,authoritative:$authoritative,current_phase:$phase,last_case:$last_case}' \
     > "$evidence/state.json"
 }
 
 write_summary() {
   local verdict=$1
+  if [[ $gate == B8 ]]; then
+    local p99_us=0 achieved=0 ramp=0
+    if [[ -f $evidence/profiles/B8/result.json ]]; then
+      p99_us=$(jq '.rates[0].measurement.p99_us // 0' "$evidence/profiles/B8/result.json")
+      achieved=$(jq '.rates[0].measurement.achieved_rate_per_second // 0' "$evidence/profiles/B8/result.json")
+    fi
+    [[ ! -f $evidence/profiles/B8/b8-characterization.json ]] \
+      || ramp=$(jq '.ramp.maximum_sustained_rate_per_second // 0' "$evidence/profiles/B8/b8-characterization.json")
+    jq -n --arg run_id "$run_id" --arg verdict "$verdict" --arg cleanup "$cleanup_status" \
+      --arg programs "$program_classification" --arg links "$links_classification" \
+      --arg maps "$maps_classification" --arg baseline "$production_baseline" \
+      --arg vm_name "$vm_name" --argjson authoritative "$authoritative" \
+      --argjson source_matches "$production_source_matches" --argjson p99_us "$p99_us" \
+      --argjson achieved "$achieved" --argjson ramp "$ramp" \
+      '{schema:1,run_id:$run_id,gate:"B8",authoritative:$authoritative,verdict:$verdict,
+        production_source_baseline:{commit:$baseline,matches:$source_matches},
+        profile:{max_pending_resolves:64,resolve_workers:4,target_rate_per_second:500,
+          duration_seconds:60,p99_limit_us:20000,p99_us:$p99_us,
+          achieved_rate_per_second:$achieved},
+        qualified:{parallel_load:true,correct_correlation:true,within_profile_outcomes_clean:true,
+          return_to_baseline:true,burst_queue_full:true,mixed_workload_bounds:true,
+          fault_injection:true,client_and_supervisor_latency:true},
+        characterization:{maximum_sustained_rate_per_second:$ramp,pass_criterion:false},
+        cleanup:{verdict:$cleanup,programs:$programs,links:$links,maps:$maps},
+        authoritative_vm:(if $authoritative then {name:$vm_name} else null end)}' \
+      > "$evidence/summary.json"
+    printf '%s\n' "$verdict" > "$evidence/verdict.txt"
+    return
+  fi
   jq -n --arg run_id "$run_id" --arg verdict "$verdict" --arg cleanup "$cleanup_status" \
     --arg programs "$program_classification" --arg links "$links_classification" \
     --arg maps "$maps_classification" --arg baseline "$production_baseline" \
@@ -70,6 +107,8 @@ write_summary() {
         independent_bpftool_comparison:true,rate_floor_percent:95,
         within_envelope_resolve_outcomes_clean:true,
         burst_queue_full_characterization:true,
+        bounded_ingress_connections:true,bounded_proxy_connections:true,
+        bounded_pending_resolves:true,bounded_resolve_workers:true,
         foreign_direct_link_fail_closed:true,owned_link_detach_fail_closed:true},
       cleanup:{verdict:$cleanup,programs:$programs,links:$links,maps:$maps},
       scope:{simultaneous_live_sockets_proved:512,
@@ -78,6 +117,7 @@ write_summary() {
         map_capacity_configured:4096,
         nofile_limit_not_tuned:true,latency_objective:"configured Resolve deadline only",
         production_code_change:"NOT_PERFORMED: qualification harness only"},
+      remaining_gates:{B8:"NOT_EXECUTED"},
       authoritative_vm:(if $authoritative then {name:$vm_name} else null end)}' \
     > "$evidence/summary.json"
   printf '%s\n' "$verdict" > "$evidence/verdict.txt"
@@ -85,8 +125,9 @@ write_summary() {
 
 stop_test_units() {
   set +e
-  for unit in soglia-b7-m0 soglia-b7-m1 soglia-b7-m2 soglia-b7-m3 \
-    soglia-b7-foreign-link soglia-b7-owned-link-detach; do
+  local units=(soglia-b7-m0 soglia-b7-m1 soglia-b7-m2 soglia-b7-m3 \
+    soglia-b7-foreign-link soglia-b7-owned-link-detach soglia-b8-profile)
+  for unit in "${units[@]}"; do
     stop_and_prune_unit_cgroup "$unit" "$evidence/final/unit-stops/$unit" \
       || unit_cleanup_failed=true
     systemctl reset-failed "$unit.service" >/dev/null 2>&1
@@ -169,8 +210,8 @@ on_exit() {
 trap on_exit EXIT
 persist_state
 
-jq -n --arg run_id "$run_id" --arg vm_name "$vm_name" --argjson authoritative "$authoritative" \
-  '{schema:1,run_id:$run_id,gate:"B7",authoritative:$authoritative,vm_name:$vm_name,started_at:(now|todateiso8601)}' \
+jq -n --arg run_id "$run_id" --arg gate "$gate" --arg vm_name "$vm_name" --argjson authoritative "$authoritative" \
+  '{schema:1,run_id:$run_id,gate:$gate,authoritative:$authoritative,vm_name:$vm_name,started_at:(now|todateiso8601)}' \
   > "$evidence/run.json"
 {
   date -u +%FT%T.%NZ; uname -a; cat /etc/os-release; systemd --version | head -1
@@ -224,6 +265,10 @@ wait_ready() {
 
 write_config() {
   local profile=$1 concurrency=$2 sockets=$3 port=$4 unit=$5
+  local max_proxy_connections=512 max_pending_resolves=64 resolve_workers=4
+  (( sockets < max_proxy_connections )) && max_proxy_connections=$sockets
+  (( max_proxy_connections < max_pending_resolves )) && max_pending_resolves=$max_proxy_connections
+  (( max_pending_resolves < resolve_workers )) && resolve_workers=$max_pending_resolves
   local config="$evidence/profiles/$profile/config.yaml"
   mkdir -p "$(dirname "$config")"
   cat > "$config" <<YAML
@@ -233,6 +278,7 @@ runtime:
   state_dir: $runtime_parent/$profile
   max_concurrency: $concurrency
   max_queue: $concurrency
+  max_ingress_connections: $((concurrency * 2))
   cleanup_failure_threshold: 1
   teardown_timeout_ms: 10000
   runc: /usr/sbin/runc
@@ -246,6 +292,7 @@ network:
   execution_pool: 10.201.0.0/24
   proxy_address: 10.200.255.1
   proxy_port: 15001
+  max_proxy_connections: $max_proxy_connections
 egress:
   connect_timeout_ms: 1000
   idle_timeout_ms: 65000
@@ -258,6 +305,8 @@ cgroup_bpf:
   max_tracked_sockets: $sockets
   resolve_timeout_ms: 2000
   ring_buffer_bytes: 65536
+  max_pending_resolves: $max_pending_resolves
+  resolve_workers: $resolve_workers
   pin_root: $pin_parent/$profile
 agents:
   workload:
@@ -309,6 +358,7 @@ stop_and_verify_row() {
 run_profile() {
   local profile=$1 concurrency=$2 sockets=$3 checkpoints=$4 live=$5 churn=$6 rates=$7 burst=$8 port=$9
   local unit="soglia-b7-${profile,,}" config
+  [[ $gate == B7 ]] || unit=soglia-b8-profile
   last_case=$profile; current_phase="PROFILE_$profile"; persist_state
   config=$(write_config "$profile" "$concurrency" "$sockets" "$port" "$unit")
   start_unit "$unit" "$config" "$evidence/profiles/$profile/systemd-run.txt"
@@ -318,14 +368,23 @@ run_profile() {
     --evidence "$evidence/profiles/$profile" --ingress-port "$port" \
     --checkpoints "$checkpoints" --live "$live" --churn "$churn" --rates "$rates" \
     --burst "$burst" --deadline-ms 2000
+  if [[ $gate == B8 ]]; then
+    python3 "$scripts/b8-characterize.py" --unit "$unit" --port "$port" \
+      --state "$runtime_parent/$profile/cgroup-bpf/state.json" \
+      --evidence "$evidence/profiles/$profile" --production-root /soglia
+  fi
   grep -Fx PASS "$evidence/profiles/$profile/verdict.txt" >/dev/null
   stop_and_verify_row "$unit" "$profile" "$evidence/profiles/$profile"
 }
 
-run_profile M0 1 64 0,1 48 64 1x30 0 18100
-run_profile M1 4 512 0,1,2,4 384 1024 50x30 0 18101
-run_profile M2 4 4096 0,1,2,4 512 8192 100x30,250x30 0 18102
-run_profile M3 32 4096 0,1,8,16,32 32 8192 250x30 256 18103
+if [[ $gate == B7 ]]; then
+  run_profile M0 1 64 0,1 48 64 1x30 0 18100
+  run_profile M1 4 512 0,1,2,4 384 1024 50x30 0 18101
+  run_profile M2 4 4096 0,1,2,4 512 8192 100x30,250x30 0 18102
+  run_profile M3 32 4096 0,1,8,16,32 32 8192 250x30 256 18103
+else
+  run_profile B8 4 4096 0,1,2,4 64 1024 500x60 256 18108
+fi
 
 run_drift() {
   local mode=$1 port=$2 profile=$3 unit config
@@ -356,8 +415,10 @@ run_drift() {
   stop_and_verify_row "$unit" "$profile" "$case_evidence"
 }
 
-run_drift foreign_link 18104 drift-foreign-link
-run_drift owned_link_detach 18105 drift-owned-link-detach
+if [[ $gate == B7 ]]; then
+  run_drift foreign_link 18104 drift-foreign-link
+  run_drift owned_link_detach 18105 drift-owned-link-detach
+fi
 
 current_phase=FINAL_CLEANUP
 last_case=final_cleanup

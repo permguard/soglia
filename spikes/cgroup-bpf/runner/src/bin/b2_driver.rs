@@ -537,6 +537,9 @@ async fn run() -> Result<(), String> {
     enforcer
         .ensure_running()
         .map_err(|error| error.to_string())?;
+    enforcer
+        .start_resolver_pipeline()
+        .map_err(|error| error.to_string())?;
     fs::write(
         evidence.join("startup.json"),
         serde_json::to_vec_pretty(&json!({
@@ -2868,6 +2871,9 @@ pub async fn run_b3() -> Result<(), String> {
     enforcer
         .ensure_running()
         .map_err(|error| error.to_string())?;
+    enforcer
+        .start_resolver_pipeline()
+        .map_err(|error| error.to_string())?;
     fs::write(
         evidence.join("startup.json"),
         serde_json::to_vec_pretty(&json!({
@@ -3002,6 +3008,9 @@ async fn run_b3_cleanup_recovery(
     enforcer
         .ensure_running()
         .map_err(|error| error.to_string())?;
+    enforcer
+        .start_resolver_pipeline()
+        .map_err(|error| error.to_string())?;
     fs::write(
         evidence.join("result.json"),
         serde_json::to_vec_pretty(&json!({
@@ -3066,6 +3075,9 @@ pub async fn run_b5() -> Result<(), String> {
         .map_err(|error| error.to_string())?;
     enforcer
         .ensure_running()
+        .map_err(|error| error.to_string())?;
+    enforcer
+        .start_resolver_pipeline()
         .map_err(|error| error.to_string())?;
     fs::write(
         evidence.join("startup.json"),
@@ -4321,6 +4333,9 @@ fn b5_start_foreign_enforcer(
         .map_err(|error| format!("start production Enforcer with ancestor {program}: {error}"))?;
     enforcer
         .ensure_running()
+        .map_err(|error| error.to_string())?;
+    enforcer
+        .start_resolver_pipeline()
         .map_err(|error| error.to_string())?;
     fs::write(
         evidence.join("startup-with-foreign.json"),
@@ -6485,6 +6500,9 @@ async fn run_b3_backend_generation(
         .map_err(|error| format!("valid backend-generation recovery failed: {error}"))?;
     current
         .ensure_running()
+        .map_err(|error| error.to_string())?;
+    current
+        .start_resolver_pipeline()
         .map_err(|error| error.to_string())?;
     let recovered_state: Value =
         serde_json::from_slice(&fs::read(&state_path).map_err(|error| error.to_string())?)

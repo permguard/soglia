@@ -31,7 +31,7 @@ if [[ $authoritative == true ]]; then
     exit 13
   }
 fi
-production_baseline=7dd0840e4d51078c01ab26343c9eebfd315e5e5e
+production_baseline=cfb2d375e76de59694e25374ec5df47c2bfb6c6a
 if [[ $authoritative == true ]]; then
   run_id="uninstall-$(date -u +%Y%m%dT%H%M%SZ)-$$"
 else

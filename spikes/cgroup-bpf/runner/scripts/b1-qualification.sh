@@ -9,7 +9,7 @@ set -euo pipefail
 binary="${1:?usage: b1-qualification.sh <soglia> [--authoritative]}"
 authoritative=false
 if [[ "${2:-}" == --authoritative ]]; then authoritative=true; fi
-production_baseline=7dd0840e4d51078c01ab26343c9eebfd315e5e5e
+production_baseline=cfb2d375e76de59694e25374ec5df47c2bfb6c6a
 production_source_matches=false
 vm_name=${SOGLIA_B1_VM_NAME:-}
 if [[ "$authoritative" == true && "$vm_name" != soglia-spike-b1-* ]]; then
@@ -57,7 +57,7 @@ record_failure() {
       verdict:"FAIL",failure:{last_case:$last_case,line:$line,status:$status},
       production_source_baseline:{commit:$baseline,matches:$production_source_matches},
       remaining_gates:{B2:"NOT_EXECUTED",B3:"NOT_EXECUTED",B4:"NOT_EXECUTED",
-        B5:"NOT_EXECUTED",B6:"NOT_EXECUTED",B7:"NOT_EXECUTED"}}' \
+        B5:"NOT_EXECUTED",B6:"NOT_EXECUTED",B7:"NOT_EXECUTED",B8:"NOT_EXECUTED"}}' \
     > "$evidence/summary.json"
   printf '%s\n' FAIL > "$evidence/verdict.txt"
 }
@@ -193,6 +193,13 @@ run_case synchronous_rollback "$scripts/b1-production-sync-rollback.sh" "$binary
 run_case recovery "$scripts/b1-production-recovery.sh" "$binary"
 run_case typed_refusals "$scripts/b1-production-refusals.sh" "$binary"
 run_case unnamed_external "$scripts/b1-production-unnamed-external.sh" "$binary"
+last_case=resolver_contract
+current_phase=CASE_RESOLVER_CONTRACT
+persist_state
+python3 "$scripts/b1-resolver-contract.py" --binary "$binary" --config "$config" \
+  --evidence "$evidence/cases/resolver_contract" --state-root /run/soglia-b1 \
+  --pin-root /sys/fs/bpf/soglia-b1 --cgroup-root "$cgroup"
+grep -Fx PASS "$evidence/cases/resolver_contract/verdict.txt" >/dev/null
 
 last_case=final_inventory
 current_phase=CLEANUP_VERIFICATION
@@ -237,13 +244,15 @@ jq -n \
       missing_delegation_refusal:true,missing_dependency_refusal:true,
       unexpected_direct_attachment_refusal:true,unknown_state_preserved:true,
       unnamed_external_ancestor_preserved:true,
-      unnamed_external_changed_tag_refused:true},
+      unnamed_external_changed_tag_refused:true,
+      resolver_contract_validated_before_mutation:true,
+      resolver_contract_refusals_typed_incompatible:true},
     cleanup:{verdict:"PASS",program_inventory:$inventory,links:"MATCH",maps:"MATCH",
       owned_resources_absent:true},
     scope:{supported_platform:"the exact recorded environment fingerprint",
       missing_kernel_feature_simulation:"NOT_PERFORMED: production object was never modified"},
     remaining_gates:{B2:"NOT_EXECUTED",B3:"NOT_EXECUTED",B4:"NOT_EXECUTED",
-      B5:"NOT_EXECUTED",B6:"NOT_EXECUTED",B7:"NOT_EXECUTED"}}' \
+      B5:"NOT_EXECUTED",B6:"NOT_EXECUTED",B7:"NOT_EXECUTED",B8:"NOT_EXECUTED"}}' \
   > "$evidence/summary.json"
 printf '%s\n' PASS > "$evidence/verdict.txt"
 (

@@ -10,7 +10,7 @@ repo_dir=$(CDPATH= cd -- "$host_dir/../.." && pwd)
 source "$host_dir/common.sh"
 
 require_host
-production_baseline=7dd0840e4d51078c01ab26343c9eebfd315e5e5e
+production_baseline=cfb2d375e76de59694e25374ec5df47c2bfb6c6a
 
 git -C "$repo_dir" cat-file -e "$production_baseline^{commit}"
 git -C "$repo_dir" diff --exit-code "$production_baseline" -- \
@@ -48,4 +48,4 @@ limactl shell "$vm" -- sudo env SOGLIA_B1_VM_NAME="$vm" bash \
   /var/tmp/soglia-b1-production-target/release/soglia \
   --authoritative
 
-echo "B1 authoritative qualification completed on $vm; B2-B7 were not executed."
+echo "B1 authoritative qualification completed on $vm; B2-B8 were not executed."

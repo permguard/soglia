@@ -45,7 +45,7 @@ YES ?=
 scope   = $(if $(PKG),-p $(PKG),--workspace)
 profile = $(if $(RELEASE),--release)
 
-.PHONY: help build check check-headers check-notices check-phase0-deps check-supply-chain check-systems clean coverage coverage-html coverage-lcov dev-image fmt lint notices spike-b1 spike-b2 spike-b2-diagnostic spike-b3 spike-b3-diagnostic spike-b4 spike-b4-diagnostic spike-b5 spike-b5-diagnostic spike-b6 spike-b6-diagnostic spike-b7 spike-b7-diagnostic spike-delete-vms spike-doctor spike-qualify spike-replay spike-run spike-uninstall spike-uninstall-diagnostic spike-vms test test-acceptance test-portable
+.PHONY: help build check check-headers check-notices check-phase0-deps check-supply-chain check-systems clean coverage coverage-html coverage-lcov dev-image fmt lint notices spike-b1 spike-b1-diagnostic spike-b2 spike-b2-diagnostic spike-b3 spike-b3-diagnostic spike-b4 spike-b4-diagnostic spike-b5 spike-b5-diagnostic spike-b6 spike-b6-diagnostic spike-b7 spike-b7-diagnostic spike-b8 spike-b8-diagnostic spike-delete-vms spike-doctor spike-qualify spike-replay spike-run spike-uninstall spike-uninstall-diagnostic spike-vms test test-acceptance test-portable
 
 help: ## List the targets.
 	@grep -E '^[a-z0-9-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-20s %s\n", $$1, $$2}'
@@ -107,6 +107,9 @@ lint: ## Check formatting and run clippy with warnings denied.
 spike-b1: ## Run authoritative production B1 once on a newly created Lima VM.
 	./spikes/cgroup-bpf/host/run-b1-fresh.sh
 
+spike-b1-diagnostic: ## Run diagnostic production B1 on the reusable development VM.
+	./spikes/cgroup-bpf/host/run-b1-diagnostic.sh
+
 spike-b2: ## Run authoritative production B2 once on a newly created Lima VM.
 	./spikes/cgroup-bpf/host/run-b2-fresh.sh
 
@@ -143,13 +146,19 @@ spike-b7: ## Run authoritative production B7 once on a newly created Lima VM.
 spike-b7-diagnostic: ## Run diagnostic production B7 on the reusable development VM.
 	./spikes/cgroup-bpf/host/run-b7-diagnostic.sh
 
+spike-b8: ## Run authoritative production B8 parallel-load qualification on a fresh VM.
+	./spikes/cgroup-bpf/host/run-b8-fresh.sh
+
+spike-b8-diagnostic: ## Run diagnostic production B8 on the reusable development VM.
+	./spikes/cgroup-bpf/host/run-b8-diagnostic.sh
+
 spike-delete-vms: ## Stop and delete every soglia-spike* Lima VM (asks first; YES=1 skips the question).
 	./spikes/cgroup-bpf/host/delete-vms.sh $(if $(YES),--yes)
 
 spike-doctor: ## Check the cgroup-BPF spike environment on the development VM (created if missing).
 	SOGLIA_SPIKE_INTERACTIVE=$(INTERACTIVE) ./spikes/cgroup-bpf/host/run-dev.sh doctor
 
-spike-qualify: ## Run and verify authoritative B1-B7 plus uninstall on fresh VMs.
+spike-qualify: ## Run and verify authoritative B1-B8 plus uninstall on fresh VMs.
 	./spikes/cgroup-bpf/host/run-qualification.sh
 
 spike-uninstall: ## Run authoritative verified-uninstall qualification on a fresh VM.

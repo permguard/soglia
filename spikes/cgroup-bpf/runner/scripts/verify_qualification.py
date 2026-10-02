@@ -2,7 +2,7 @@
 # Copyright (c) 2022 Nitro Agility S.r.l.
 # SPDX-License-Identifier: Apache-2.0
 
-"""Verify a complete B1-B7 plus uninstall authoritative qualification set."""
+"""Verify a complete B1-B8 plus uninstall authoritative qualification set."""
 
 from __future__ import annotations
 
@@ -16,7 +16,7 @@ from typing import Any
 
 
 EMPTY_DIFF_SHA256 = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-EXPECTED_GATES = (*tuple(f"B{number}" for number in range(1, 8)), "UNINSTALL")
+EXPECTED_GATES = (*tuple(f"B{number}" for number in range(1, 9)), "UNINSTALL")
 NEGATIVE_RESOLVE_OUTCOMES = (
     "identity_mismatch",
     "integrity_failure",
@@ -203,6 +203,56 @@ def verify_b1(run: Path) -> None:
         result.get("cleanup", {}).get("soglia_owned_resources_absent") is True,
         f"{run.name}: B1 unnamed external case left Soglia-owned resources",
     )
+    contract = load_json(run / "cases/resolver_contract/result.json")
+    require(contract.get("verdict") == "PASS", f"{run.name}: B1 Resolve contract case is not PASS")
+    require(contract.get("typed_exit_code") == 20, f"{run.name}: B1 Resolve refusal is not exit class 20")
+    require(contract.get("ready_emitted") is False, f"{run.name}: B1 emitted READY after refusal")
+    require(contract.get("backend_start_called") is False, f"{run.name}: B1 started the backend before refusal")
+    expected = {"wrong_version", "wrong_max_pending", "wrong_workers", "malformed", "absent"}
+    require(set(contract.get("cases", {})) == expected, f"{run.name}: B1 Resolve contract cases are incomplete")
+    for name, case in contract["cases"].items():
+        require(
+            case.get("verdict") == "PASS"
+            and case.get("refusal_class") == "INCOMPATIBLE"
+            and case.get("stable_exit_code") == 20
+            and case.get("durable_inventory_byte_identical") is True,
+            f"{run.name}: B1 Resolve contract case {name} is incomplete",
+        )
+
+
+def verify_phase2_contract(run: Path, expected: set[str]) -> dict[str, Any]:
+    contract = load_json(run / "phase2-contract/result.json")
+    require(contract.get("verdict") == "PASS", f"{run.name}: Phase-2 contract is not PASS")
+    cases = contract.get("cases", {})
+    require(set(cases) == expected, f"{run.name}: Phase-2 contract cases are incomplete")
+    require(
+        all(case.get("verdict") == "PASS" for case in cases.values()),
+        f"{run.name}: a Phase-2 contract case is not PASS",
+    )
+    return contract
+
+
+def verify_b2(run: Path) -> None:
+    verify_phase2_contract(
+        run,
+        {
+            "out_of_order_replies_are_correlated_to_their_request_ids",
+            "cancellation_before_write_removes_the_request_without_a_frame",
+            "a_cancelled_caller_cannot_desynchronize_the_next_exchange",
+            "pending_after_the_publication_deadline_times_out_without_poisoning",
+            "complete_after_the_publication_deadline_is_still_consumed",
+        },
+    )
+
+
+def verify_b3(run: Path) -> None:
+    verify_phase2_contract(
+        run,
+        {
+            "lifecycle_writer_has_priority_over_new_resolve_readers",
+            "out_of_order_replies_are_correlated_to_their_request_ids",
+        },
+    )
 
 
 def verify_b5(run: Path) -> None:
@@ -215,6 +265,15 @@ def verify_b5(run: Path) -> None:
     require(steering.get("no_writes_to_destination_fields") is True, f"{run.name}: B5 destination fields may be written")
     require(steering.get("bpf_bind_absent") is True, f"{run.name}: B5 found bpf_bind")
     require(steering.get("runtime", {}).get("destinations_match") is True, f"{run.name}: B5 runtime destinations differ")
+    contract = load_json(run / "phase2-contract/result.json")
+    direct = contract.get("direct_ipv4", {})
+    require(
+        contract.get("verdict") == "PASS"
+        and direct.get("resolve_required_before_effect") is True
+        and direct.get("veth_syn_packets") == 0
+        and direct.get("execution_nft_drop_path_packets") == 0,
+        f"{run.name}: B5 does not prove zero effect before a successful Resolve",
+    )
 
 
 def verify_b6(run: Path) -> None:
@@ -303,6 +362,79 @@ def verify_b7(run: Path) -> None:
     require(dns.get("tcp") == 0 and dns.get("udp") == 0, f"{run.name}: B7 refused burst produced DNS traffic")
 
 
+def verify_b8(run: Path) -> None:
+    summary = load_json(run / "summary.json")
+    profile = summary.get("profile", {})
+    require(
+        profile.get("max_pending_resolves") == 64
+        and profile.get("resolve_workers") == 4
+        and profile.get("target_rate_per_second") == 500
+        and profile.get("duration_seconds") == 60,
+        f"{run.name}: B8 supported profile differs from the approved contract",
+    )
+    require(profile.get("p99_us", 20_001) <= 20_000, f"{run.name}: B8 client p99 exceeds 20 ms")
+    require(profile.get("achieved_rate_per_second", 0) >= 475, f"{run.name}: B8 achieved rate is below 95%")
+    evidence = load_json(run / "profiles/B8/b8-characterization.json")
+    supported = evidence.get("supported_profile", {})
+    measurement = supported.get("measurement", {})
+    require(
+        measurement.get("requested") == 30_000
+        and measurement.get("succeeded") == 30_000
+        and measurement.get("failed") == 0
+        and measurement.get("expected_status") == 403
+        and supported.get("correct_correlations") is True
+        and supported.get("negative_outcomes") == 0,
+        f"{run.name}: B8 supported load has missing, negative or miscorrelated outcomes",
+    )
+    supported_effects = supported.get("effects", {})
+    supported_dns = supported_effects.get("dns_packet_delta", {})
+    supported_attempts = supported_effects.get("outbound_attempts", {})
+    require(
+        supported.get("post_resolve_decision") == "policy_denied"
+        and supported_effects.get("outbound_accept_delta") == 0
+        and supported_dns.get("tcp") == 0
+        and supported_dns.get("udp") == 0
+        and supported_attempts.get("distinct_connection_attempts") == 0,
+        f"{run.name}: B8 Resolve-only supported load caused an external effect",
+    )
+    burst = evidence.get("burst", {})
+    require(burst.get("verdict") == "PASS", f"{run.name}: B8 burst is not PASS")
+    require(
+        burst.get("requested") == burst.get("succeeded", 0) + burst.get("refused", 0),
+        f"{run.name}: B8 burst accounting is not exact",
+    )
+    effects = burst.get("effects", {})
+    dns = effects.get("dns_packet_delta", {})
+    require(
+        effects.get("rejected_connection_outbound_attempts") == 0
+        and effects.get("rejected_connection_outbound_accepts") == 0
+        and dns.get("tcp") == 0
+        and dns.get("udp") == 0,
+        f"{run.name}: B8 refused burst caused an external effect",
+    )
+    require(
+        evidence.get("baseline_return", {}).get("verdict") == "PASS",
+        f"{run.name}: B8 did not return to its resource baseline",
+    )
+    require(
+        evidence.get("mixed", {}).get("limits_respected") is True,
+        f"{run.name}: B8 mixed workload exceeded a configured limit",
+    )
+    faults = evidence.get("fault_injection", {})
+    require(faults.get("verdict") == "PASS", f"{run.name}: B8 fault injection is not PASS")
+    expected_faults = {
+        "duplicate_id", "unknown_id", "out_of_order", "cancel_before_write",
+        "cancel_after_write", "partial_frame", "wrong_version",
+        "writer_or_exchange_watchdog", "worker_blocked", "worker_panic",
+        "malformed_result", "lifecycle_write_contention", "helper_exit",
+    }
+    require(set(faults.get("cases", {})) == expected_faults, f"{run.name}: B8 fault cases are incomplete")
+    require(
+        all(case.get("verdict") == "PASS" for case in faults["cases"].values()),
+        f"{run.name}: one or more B8 fault cases are not PASS",
+    )
+
+
 def verify_uninstall(run: Path) -> None:
     summary = load_json(run / "summary.json")
     cases = summary.get("cases", {})
@@ -352,12 +484,18 @@ def verify_run(run: Path) -> dict[str, Any]:
     systemd_prune_races = verify_stop_classifications(run)
     if gate == "B1":
         verify_b1(run)
+    elif gate == "B2":
+        verify_b2(run)
+    elif gate == "B3":
+        verify_b3(run)
     elif gate == "B5":
         verify_b5(run)
     elif gate == "B6":
         verify_b6(run)
     elif gate == "B7":
         verify_b7(run)
+    elif gate == "B8":
+        verify_b8(run)
     elif gate == "UNINSTALL":
         verify_uninstall(run)
     return {
@@ -380,7 +518,7 @@ def verify_manifest(results: list[dict[str, Any]], path: Path | None) -> str:
     require(manifest.get("schema") == 1, f"{path}: unsupported manifest schema")
     declared = manifest.get("runs")
     require(isinstance(declared, dict), f"{path}: runs must be an object")
-    require(set(declared) == set(EXPECTED_GATES), f"{path}: manifest must declare exactly B1-B7 and UNINSTALL")
+    require(set(declared) == set(EXPECTED_GATES), f"{path}: manifest must declare exactly B1-B8 and UNINSTALL")
     require(manifest.get("production_baseline") == results[0]["production_baseline"], f"{path}: baseline mismatch")
     for result in results:
         expected = declared[result["gate"]]
@@ -390,13 +528,13 @@ def verify_manifest(results: list[dict[str, Any]], path: Path | None) -> str:
 
 
 def verify(runs: list[Path], manifest: Path | None = None) -> dict[str, Any]:
-    require(len(runs) == 8, "qualification requires exactly eight run directories")
+    require(len(runs) == 9, "qualification requires exactly nine run directories")
     results = [verify_run(run) for run in runs]
     order = {gate: index for index, gate in enumerate(EXPECTED_GATES)}
     results.sort(key=lambda result: order[result["gate"]])
     require(
         tuple(result["gate"] for result in results) == EXPECTED_GATES,
-        "qualification must contain exactly one run for each gate B1-B7 and UNINSTALL",
+        "qualification must contain exactly one run for each gate B1-B8 and UNINSTALL",
     )
     baselines = {result["production_baseline"] for result in results}
     require(len(baselines) == 1, "qualification runs have different production baselines")

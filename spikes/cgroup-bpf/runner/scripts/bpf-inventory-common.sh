@@ -2,7 +2,7 @@
 # Copyright (c) 2022 Nitro Agility S.r.l.
 # SPDX-License-Identifier: Apache-2.0
 
-# Shared B1-B7 qualification inventory capture and strict external attribution.
+# Shared B1-B8 qualification inventory capture and strict external attribution.
 
 scripts=${scripts:-/soglia/spikes/cgroup-bpf/runner/scripts}
 # shellcheck source=spikes/cgroup-bpf/runner/scripts/systemd-cgroup-common.sh

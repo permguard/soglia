@@ -32,6 +32,7 @@ gate_specs=(
   'B5|soglia-spike-b5-|run-b5-fresh.sh'
   'B6|soglia-spike-b6-|run-b6-fresh.sh'
   'B7|soglia-spike-b7-|run-b7-fresh.sh'
+  'B8|soglia-spike-b8-|run-b8-fresh.sh'
   'UNINSTALL|soglia-spike-uninstall-|run-uninstall-fresh.sh'
 )
 

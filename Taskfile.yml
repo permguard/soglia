@@ -173,7 +173,7 @@ tasks:
     desc: Run authoritative production B1 once on a newly created Lima VM.
     summary: |
       Create one fresh VM named `soglia-spike-b1-<id>`, provision it, build the production binary
-      with the cgroup-BPF feature, and execute B1 only. The VM is left in place and B2-B7 are never
+      with the cgroup-BPF feature, and execute B1 only. The VM is left in place and B2-B8 are never
       started. Evidence goes to spikes/cgroup-bpf/evidence/replay/.
 
       Example:
@@ -181,13 +181,19 @@ tasks:
     cmds:
       - ./spikes/cgroup-bpf/host/run-b1-fresh.sh
 
+  spike:b1:diagnostic:
+    interactive: true
+    desc: Run diagnostic production B1 on the reusable development VM.
+    cmds:
+      - ./spikes/cgroup-bpf/host/run-b1-diagnostic.sh
+
   spike:b2:
     interactive: true
     desc: Run authoritative production B2 once on a newly created Lima VM.
     summary: |
       Create one fresh VM named `soglia-spike-b2-<id>`, verify that production sources match the
       B1-qualified baseline, build the production binary with the cgroup-BPF feature, and execute
-      B2 only. The VM is left in place and B3-B7 are never started. Evidence goes to
+      B2 only. The VM is left in place and B3-B8 are never started. Evidence goes to
       spikes/cgroup-bpf/evidence/replay/.
 
       Example:
@@ -201,7 +207,7 @@ tasks:
     summary: |
       Create or reuse `soglia-spike-dev`, build the production Candidate-A backend and its
       qualification harness, and execute B2 diagnostically. This never creates authoritative
-      evidence and never starts B3-B7.
+      evidence and never starts B3-B8.
 
       Example:
         task spike:b2:diagnostic
@@ -213,7 +219,7 @@ tasks:
     desc: Run authoritative production B3 once on a newly created Lima VM.
     summary: |
       Create one fresh VM named `soglia-spike-b3-<id>`, verify that production sources match the
-      qualified baseline, build the production binary and execute B3 only. B4-B7 are never
+      qualified baseline, build the production binary and execute B3 only. B4-B8 are never
       started. Run only after an explicit authorization for the authoritative B3 gate.
 
       Example:
@@ -227,7 +233,7 @@ tasks:
     summary: |
       Create or reuse `soglia-spike-dev`, build the unchanged production Candidate-A backend and
       the B3 harness, then execute B3 diagnostically. This never creates authoritative evidence
-      and never starts B4-B7.
+      and never starts B4-B8.
 
       Example:
         task spike:b3:diagnostic
@@ -239,7 +245,7 @@ tasks:
     desc: Run authoritative production B4 once on a newly created Lima VM.
     summary: |
       Create one fresh VM named `soglia-spike-b4-<id>`, verify that production sources match the
-      qualified baseline, build the production binary and execute B4 only. B5-B7 are never
+      qualified baseline, build the production binary and execute B4 only. B5-B8 are never
       started. Run only after explicit authorization for the authoritative B4 gate.
 
       Example:
@@ -253,7 +259,7 @@ tasks:
     summary: |
       Create or reuse `soglia-spike-dev`, build the unchanged production Candidate-A backend and
       the B4 harness, then execute B4 diagnostically. This never creates authoritative evidence
-      and never starts B5-B7.
+      and never starts B5-B8.
 
       Example:
         task spike:b4:diagnostic
@@ -265,7 +271,7 @@ tasks:
     desc: Run authoritative production B5 once on a newly created Lima VM.
     summary: |
       Create one fresh VM named `soglia-spike-b5-<id>`, verify that production sources match the
-      qualified baseline, build the production binary and execute B5 only. B6-B7 are never
+      qualified baseline, build the production binary and execute B5 only. B6-B8 are never
       started. Run only after explicit authorization for the authoritative B5 gate.
 
       Example:
@@ -279,7 +285,7 @@ tasks:
     summary: |
       Create or reuse `soglia-spike-dev`, build the unchanged production Candidate-A backend and
       the B5 harness, then execute B5 diagnostically. This never creates authoritative evidence
-      and never starts B6-B7.
+      and never starts B6-B8.
 
       Example:
         task spike:b5:diagnostic
@@ -329,11 +335,26 @@ tasks:
     cmds:
       - ./spikes/cgroup-bpf/host/run-b7-diagnostic.sh
 
+  spike:b8:
+    interactive: true
+    desc: Run authoritative production B8 parallel-load qualification on a new VM.
+    summary: |
+      Create one fresh VM, exercise the supported parallel Resolve profile, burst, ramp, mixed load
+      and fault contract, then preserve authoritative evidence for aggregate qualification.
+    cmds:
+      - ./spikes/cgroup-bpf/host/run-b8-fresh.sh
+
+  spike:b8:diagnostic:
+    interactive: true
+    desc: Run diagnostic production B8 on the reusable development VM.
+    cmds:
+      - ./spikes/cgroup-bpf/host/run-b8-diagnostic.sh
+
   spike:qualify:
     interactive: true
-    desc: Run and verify authoritative B1-B7 plus uninstall, each on a fresh VM.
+    desc: Run and verify authoritative B1-B8 plus uninstall, each on a fresh VM.
     summary: |
-      Require a clean tree, run B1 through B7 and verified uninstall in order on eight fresh VMs,
+      Require a clean tree, run B1 through B8 and verified uninstall in order on nine fresh VMs,
       delete each VM after its gate even when the gate fails, and stop at the first non-PASS result. If all gates pass,
       verify checksums, fingerprints, the common production baseline, every case/group verdict,
       and the B5-B7 gate-specific invariants. Do not use this target for a partial diagnostic run.

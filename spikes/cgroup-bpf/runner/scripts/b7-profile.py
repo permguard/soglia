@@ -87,16 +87,21 @@ def distinct_syn_attempts(lines: list[str]) -> dict[str, Any]:
 class DistinctSynCapture:
     """Capture target SYNs and retain both raw packets and deduplicated attempts."""
 
-    FILTER = (
-        "tcp and dst host 11.0.0.1 and dst port 443 and "
-        "(tcp[tcpflags] & (tcp-syn|tcp-ack) == tcp-syn)"
-    )
-
-    def __init__(self, root: pathlib.Path) -> None:
-        self.pcap = root / "burst-outbound-syn.pcap"
-        self.decoded = root / "burst-outbound-syn.txt"
-        self.stderr = root / "burst-outbound-syn-capture.stderr"
-        self.result = root / "burst-outbound-attempts.json"
+    def __init__(
+        self,
+        root: pathlib.Path,
+        destination: str = "11.0.0.1",
+        label: str = "burst",
+    ) -> None:
+        self.destination = destination
+        self.filter = (
+            f"tcp and dst host {destination} and dst port 443 and "
+            "(tcp[tcpflags] & (tcp-syn|tcp-ack) == tcp-syn)"
+        )
+        self.pcap = root / f"{label}-outbound-syn.pcap"
+        self.decoded = root / f"{label}-outbound-syn.txt"
+        self.stderr = root / f"{label}-outbound-syn-capture.stderr"
+        self.result = root / f"{label}-outbound-attempts.json"
         self.process: subprocess.Popen[bytes] | None = None
         self.stderr_handle: Any = None
 
@@ -105,7 +110,7 @@ class DistinctSynCapture:
         self.process = subprocess.Popen(
             [
                 "tcpdump", "-i", "any", "-U", "-nn", "-s", "96",
-                "-w", str(self.pcap), self.FILTER,
+                "-w", str(self.pcap), self.filter,
             ],
             stdout=subprocess.DEVNULL,
             stderr=self.stderr_handle,
@@ -146,16 +151,16 @@ class DistinctSynCapture:
                 f"SYN capture exited with {status}: {self.stderr.read_text()}"
             )
         decoded = command(
-            "tcpdump", "-nn", "-tt", "-r", str(self.pcap), self.FILTER
+            "tcpdump", "-nn", "-tt", "-r", str(self.pcap), self.filter
         ).decode(errors="replace")
         self.decoded.write_text(decoded)
         result = distinct_syn_attempts(decoded.splitlines())
         result.update({
             "capture_interface": "any",
-            "capture_filter": self.FILTER,
+            "capture_filter": self.filter,
             "capture_scope": (
-                "the controlled burst window to the qualification-only endpoint "
-                "11.0.0.1:443"
+                "the controlled workload window to the qualification-only endpoint "
+                f"{self.destination}:443"
             ),
             "deduplication_key": [
                 "source", "source_port", "destination", "destination_port"
@@ -231,6 +236,21 @@ class Upstream:
     def accepted_count(self) -> int:
         with self.lock:
             return self.accepted
+
+    def settled_accepted_count(self) -> int:
+        """Return a count that stayed unchanged long enough to include prior control traffic."""
+        deadline = time.monotonic() + 2.0
+        previous = self.accepted_count()
+        stable_since = time.monotonic()
+        while time.monotonic() < deadline:
+            time.sleep(0.01)
+            current = self.accepted_count()
+            if current != previous:
+                previous = current
+                stable_since = time.monotonic()
+            elif time.monotonic() - stable_since >= 0.1:
+                return current
+        raise RuntimeError("the qualification upstream accept count did not settle")
 
 
 def invoke(port: int, body: str, timeout: float = 150.0) -> dict[str, Any]:
@@ -718,18 +738,28 @@ def main() -> None:
         if sum(int(value["succeeded"]) for value in live_values) != args.live \
                 or any(int(value["failed"]) != 0 for value in live_values):
             raise RuntimeError("the declared simultaneous live-socket count was not reached")
+        if any(int(value["resolved_connections"]) != 1 for value in live_values) \
+                or any(
+                    int(value["unconnected_sockets"]) != per_execution - 1
+                    for value in live_values
+                ):
+            raise RuntimeError(
+                "the live-socket workload did not preserve one attributed connection per Execution"
+            )
         execution_ids = [result["execution_id"] for result in live_results]
         if None in execution_ids or len(set(execution_ids)) != maximum:
             raise RuntimeError("sampled child attribution omitted or reused an ExecutionId")
         completed_execution_ids.extend(execution_ids)
         live_health = finish_resolve_health_window(
             args.evidence, "live", args.unit, args.ingress_port, target,
-            live_health_start, args.live, completed_execution_ids, args.deadline_ms,
+            live_health_start, maximum, completed_execution_ids, args.deadline_ms,
         )
-        assert_supported_health(live_health, args.live, args.evidence)
+        assert_supported_health(live_health, maximum, args.evidence)
         results["live"] = {
             "requested_sockets": args.live,
             "per_execution": per_execution,
+            "resolved_connections": maximum,
+            "unconnected_tracked_sockets": args.live - maximum,
             "sampled_children": live_results,
             "measurements": live_values,
             "correct_attribution": True,
@@ -773,15 +803,53 @@ def main() -> None:
                 args.unit, args.ingress_port, target, completed_execution_ids,
                 args.deadline_ms, rate_label,
             )
-            rate_invocation = invoke(
-                args.ingress_port,
-                f"b7-rate-report 11.0.0.1:443 {rate} {duration} /tmp/b7-rate.json",
-                timeout=duration + 120,
+            b8_rate = args.profile == "B8"
+            upstream_before = upstream.settled_accepted_count()
+            dns_before = {
+                "udp": nft_counter("b7_dns_udp"),
+                "tcp": nft_counter("b7_dns_tcp"),
+            }
+            syn_capture = (
+                DistinctSynCapture(args.evidence, "11.0.0.2", rate_label)
+                if b8_rate else None
             )
+            if syn_capture is not None:
+                syn_capture.start()
+            try:
+                workload = (
+                    f"b8-resolve-rate-report 11.0.0.2:443 {rate} {duration} 403 "
+                    "/tmp/b8-resolve-rate.json"
+                    if b8_rate else
+                    f"b7-rate-report 11.0.0.1:443 {rate} {duration} /tmp/b7-rate.json"
+                )
+                rate_invocation = invoke(
+                    args.ingress_port, workload, timeout=duration + 120,
+                )
+            finally:
+                syn_attempts = syn_capture.stop() if syn_capture is not None else None
             measured = workload_value(rate_invocation)
             assert_measurement(measured, rate, duration, args.deadline_ms)
             if rate_invocation["execution_id"] is None:
                 raise RuntimeError(f"rate {specification} omitted its ExecutionId")
+            # Measure external effects before finish_resolve_health_window opens its allowed
+            # control connection to flush the final production metrics interval.
+            effects = {
+                "outbound_accept_delta": upstream.accepted_count() - upstream_before,
+                "dns_packet_delta": {
+                    "udp": nft_counter("b7_dns_udp") - dns_before["udp"],
+                    "tcp": nft_counter("b7_dns_tcp") - dns_before["tcp"],
+                },
+                "outbound_attempts": syn_attempts,
+            }
+            if b8_rate and (
+                effects["outbound_accept_delta"] != 0
+                or effects["dns_packet_delta"] != {"udp": 0, "tcp": 0}
+                or syn_attempts is None
+                or syn_attempts["distinct_connection_attempts"] != 0
+            ):
+                raise RuntimeError(
+                    f"B8 Resolve-only rate caused an outbound effect: {effects}"
+                )
             completed_execution_ids.append(rate_invocation["execution_id"])
             rate_health = finish_resolve_health_window(
                 args.evidence, rate_label, args.unit, args.ingress_port, target,
@@ -794,6 +862,8 @@ def main() -> None:
                 "resolve_health": rate_health,
                 "one_attempt_per_scheduled_connection": True,
                 "refusal_retry": False,
+                "post_resolve_decision": "policy_denied" if b8_rate else "allowed",
+                "effects": effects,
             })
             wait_children(target, 0, 15)
             residue_measurements.append(measure_execution_residue(
