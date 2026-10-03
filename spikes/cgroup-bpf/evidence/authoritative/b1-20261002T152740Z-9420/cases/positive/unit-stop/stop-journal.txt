@@ -1,0 +1,4 @@
+[2m2026-10-02T15:27:47.441212Z[0m [32m INFO[0m soglia stopped [3mevent.name[0m[2m=[0m"shutdown.done"
+Stopping soglia-b1.service - /var/tmp/soglia-b1-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b1-20261002T152740Z-9420/positive-config.yaml...
+soglia-b1.service: Deactivated successfully.
+Stopped soglia-b1.service - /var/tmp/soglia-b1-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b1-20261002T152740Z-9420/positive-config.yaml.

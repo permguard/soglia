@@ -1,0 +1,96 @@
+runtime:
+  uid: 65534
+  gid: 65534
+  state_dir: /run/soglia-b4
+  max_concurrency: 2
+  max_queue: 0
+  max_ingress_connections: 4
+  cleanup_failure_threshold: 1
+  teardown_timeout_ms: 5000
+  runc: /usr/sbin/runc
+  nft: /usr/sbin/nft
+  ip: /usr/sbin/ip
+  bpftool: /usr/sbin/bpftool
+ingress:
+  listen: 127.0.0.1:18094
+network:
+  backend: cgroup-bpf
+  execution_pool: 10.201.0.0/24
+  proxy_address: 10.200.255.1
+  proxy_port: 15001
+  max_proxy_connections: 4
+egress:
+  connect_timeout_ms: 1000
+  idle_timeout_ms: 2000
+  allow:
+    - { host: allowed.test, ports: [443] }
+    - { host: 11.0.0.1, ports: [443] }
+cgroup:
+  root: /sys/fs/cgroup/system.slice/soglia-b4.service
+cgroup_bpf:
+  max_tracked_sockets: 4
+  max_pending_resolves: 4
+  resolve_workers: 2
+  resolve_timeout_ms: 2000
+  ring_buffer_bytes: 4096
+  pin_root: /sys/fs/bpf/soglia-b4
+agents:
+  admission:
+    rootfs: /var/tmp/soglia-b4-rootfs
+    command: ["/agent", "serve"]
+    env: { AGENT_PORT: "8080" }
+    timeout_ms: 10000
+  control:
+    rootfs: /var/tmp/soglia-b4-rootfs
+    command: ["/agent", "proxy-connect-report allowed.test:443 47000 close /tmp/b4-report.jsonl 2 1"]
+    env: {}
+    timeout_ms: 10000
+    tmpfs: [{ path: /tmp, size_bytes: 1048576 }]
+  cookie-capacity:
+    rootfs: /var/tmp/soglia-b4-rootfs
+    command: ["/agent", "proxy-capacity-report allowed.test:443 40000 4 /tmp/b4-capacity.jsonl 30"]
+    env: {}
+    timeout_ms: 40000
+    tmpfs: [{ path: /tmp, size_bytes: 1048576 }]
+  duplicate-cookie:
+    rootfs: /var/tmp/soglia-b4-rootfs
+    command: ["/agent", "proxy-preconnect-report allowed.test:443 41000 /tmp/b4-preconnect.jsonl 30"]
+    env: {}
+    timeout_ms: 40000
+    tmpfs: [{ path: /tmp, size_bytes: 1048576 }]
+  tuple-full:
+    rootfs: /var/tmp/soglia-b4-rootfs
+    command: ["/agent", "proxy-connect-report allowed.test:443 42000 close /tmp/b4-report.jsonl 4 1"]
+    env: {}
+    timeout_ms: 10000
+    tmpfs: [{ path: /tmp, size_bytes: 1048576 }]
+  duplicate-tuple:
+    rootfs: /var/tmp/soglia-b4-rootfs
+    command: ["/agent", "proxy-connect-report allowed.test:443 42001 close /tmp/b4-report.jsonl 4 1"]
+    env: {}
+    timeout_ms: 10000
+    tmpfs: [{ path: /tmp, size_bytes: 1048576 }]
+  delayed:
+    rootfs: /var/tmp/soglia-b4-rootfs
+    command: ["/agent", "proxy-connect-report allowed.test:443 42002 close /tmp/b4-report.jsonl 4 1"]
+    env: {}
+    timeout_ms: 10000
+    tmpfs: [{ path: /tmp, size_bytes: 1048576 }]
+  missing:
+    rootfs: /var/tmp/soglia-b4-rootfs
+    command: ["/agent", "proxy-connect-report allowed.test:443 42003 close /tmp/b4-report.jsonl 4 1"]
+    env: {}
+    timeout_ms: 10000
+    tmpfs: [{ path: /tmp, size_bytes: 1048576 }]
+  queue:
+    rootfs: /var/tmp/soglia-b4-rootfs
+    command: ["/agent", "proxy-connect-many-report allowed.test:443 43000 3 /tmp/b4-report.jsonl 4"]
+    env: {}
+    timeout_ms: 10000
+    tmpfs: [{ path: /tmp, size_bytes: 1048576 }]
+  ring:
+    rootfs: /var/tmp/soglia-b4-rootfs
+    command: ["/agent", "direct-flood-report 10.200.255.1:15002 256 /tmp/b4-ring.json 5"]
+    env: {}
+    timeout_ms: 10000
+    tmpfs: [{ path: /tmp, size_bytes: 1048576 }]

@@ -1,0 +1,6 @@
+Stopping soglia-b7-m2.service - /var/tmp/b7-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b7-20261002T155001Z-9439/profiles/M2/config.yaml...
+[2m2026-10-02T15:53:18.613507Z[0m [32m INFO[0m soglia stopped [3mevent.name[0m[2m=[0m"shutdown.done"
+[2m2026-10-02T15:53:18.613979Z[0m [31mERROR[0m a privileged helper is gone; the runtime stops fail-closed [3mevent.name[0m[2m=[0m"runtime.helper_lost" [3mhelper[0m[2m=[0m"enforcer-resolve" [3mreason[0m[2m=[0mthe authenticated Resolve channel is unavailable
+soglia-b7-m2.service: Deactivated successfully.
+Stopped soglia-b7-m2.service - /var/tmp/b7-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b7-20261002T155001Z-9439/profiles/M2/config.yaml.
+soglia-b7-m2.service: Consumed 9.371s CPU time, 30.0M memory peak, 0B memory swap peak.

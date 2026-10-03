@@ -1,0 +1,14 @@
+{
+  "dry_run": true,
+  "enforcer": {
+    "absence_verified": false,
+    "classification": "FRESH",
+    "dry_run": true,
+    "operations": [
+      "remove empty cgroup-BPF pin root left by interrupted startup"
+    ]
+  },
+  "sandbox_operations": [],
+  "schema": 1,
+  "verdict": "PASS"
+}

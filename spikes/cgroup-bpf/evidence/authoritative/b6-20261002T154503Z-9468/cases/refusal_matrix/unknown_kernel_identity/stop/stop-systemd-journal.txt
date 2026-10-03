@@ -1,0 +1,5 @@
+Stopping soglia-b6-refusal-8.service - /var/tmp/b6-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b6-20261002T154503Z-9468/cases/refusal_matrix/unknown_kernel_identity/config.yaml...
+soglia-b6-refusal-8.service: Killing process 64376 (exe) with signal SIGKILL.
+soglia-b6-refusal-8.service: Failed to kill control group /system.slice/soglia-b6-refusal-8.service, ignoring: Invalid argument
+soglia-b6-refusal-8.service: Deactivated successfully.
+Stopped soglia-b6-refusal-8.service - /var/tmp/b6-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b6-20261002T154503Z-9468/cases/refusal_matrix/unknown_kernel_identity/config.yaml.

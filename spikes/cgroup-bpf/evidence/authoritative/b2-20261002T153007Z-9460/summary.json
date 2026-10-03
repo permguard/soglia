@@ -1,0 +1,39 @@
+{
+  "schema": 1,
+  "run_id": "b2-20261002T153007Z-9460",
+  "gate": "B2",
+  "authoritative": true,
+  "verdict": "PASS",
+  "driver_status": 0,
+  "cleanup": {
+    "verdict": "PASS",
+    "programs": "EXTERNAL_CHURN",
+    "links": "MATCH",
+    "maps": "MATCH"
+  },
+  "scope": {
+    "supported_platform": "the exact recorded authoritative fresh-VM environment fingerprint",
+    "authoritative_fresh_vm": "PERFORMED: the host wrapper created a never-used VM",
+    "production_code_change": "NOT_PERFORMED: qualification harness only",
+    "helper_loss_cancellation": "NOT_PERFORMED: belongs to B6",
+    "concurrency_and_identity_reuse": "NOT_PERFORMED: belongs to B3",
+    "capacity_exhaustion": "NOT_PERFORMED: belongs to B4",
+    "tuple_disappears_during_sweep": "NOT_PERFORMED: deterministic privileged race injection is unavailable; ENOENT classification is unit-tested"
+  },
+  "remaining_gates": {
+    "B3": "NOT_EXECUTED",
+    "B4": "NOT_EXECUTED",
+    "B5": "NOT_EXECUTED",
+    "B6": "NOT_EXECUTED",
+    "B7": "NOT_EXECUTED",
+    "B8": "NOT_EXECUTED"
+  },
+  "production_source_baseline": {
+    "commit": "cfb2d375e76de59694e25374ec5df47c2bfb6c6a",
+    "matches": true
+  },
+  "authoritative_vm": {
+    "name": "soglia-spike-b2-20261002T152809Z-88105",
+    "fresh_name_verified_by_host_wrapper": true
+  }
+}

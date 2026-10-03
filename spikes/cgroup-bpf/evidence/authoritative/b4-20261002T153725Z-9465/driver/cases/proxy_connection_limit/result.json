@@ -1,0 +1,12 @@
+{
+  "attribution_calls": 4,
+  "dns_calls": 0,
+  "held_connections": 4,
+  "limit": 4,
+  "outbound_connections": 0,
+  "overflow_attributed": false,
+  "overflow_closed_before_application_read": true,
+  "overflow_elapsed_ms": 0,
+  "overflow_write_result": "Ok(())",
+  "verdict": "PASS"
+}

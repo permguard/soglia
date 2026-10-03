@@ -1,0 +1,29 @@
+{
+  "verdict": "PASS",
+  "positive": {
+    "startup_ready": true,
+    "effective_on_execution_subtree": true,
+    "bpftool_name": "ABSENT_OR_EMPTY",
+    "program_id": 370,
+    "tag": "57cd311f2e27366b",
+    "program_preserved_by_uninstall": true,
+    "link_preserved_by_uninstall": true
+  },
+  "negative": {
+    "replacement_name": "ABSENT_OR_EMPTY",
+    "program_id": 451,
+    "tag": "711788109f1edac6",
+    "tag_differs_from_original": true,
+    "refusal_class": "UNKNOWN",
+    "exit_code": 21,
+    "replacement_preserved_during_refusal": true
+  },
+  "control": {
+    "original_identity_restored": true,
+    "startup_ready": true,
+    "uninstall_preserved_external_program": true
+  },
+  "cleanup": {
+    "soglia_owned_resources_absent": true
+  }
+}

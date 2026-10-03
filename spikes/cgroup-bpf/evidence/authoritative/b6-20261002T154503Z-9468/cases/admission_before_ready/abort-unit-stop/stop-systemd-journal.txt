@@ -1,0 +1,5 @@
+Stopping soglia-b6-admission-before-ready.service - /bin/bash -c "kill -STOP 0; exec \"\$@\"" bash /var/tmp/b6-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b6-20261002T154503Z-9468/cases/admission_before_ready/config.yaml...
+soglia-b6-admission-before-ready.service: Killing process 9797 (exe) with signal SIGKILL.
+soglia-b6-admission-before-ready.service: Failed to kill control group /system.slice/soglia-b6-admission-before-ready.service, ignoring: Invalid argument
+soglia-b6-admission-before-ready.service: Deactivated successfully.
+Stopped soglia-b6-admission-before-ready.service - /bin/bash -c "kill -STOP 0; exec \"\$@\"" bash /var/tmp/b6-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b6-20261002T154503Z-9468/cases/admission_before_ready/config.yaml.

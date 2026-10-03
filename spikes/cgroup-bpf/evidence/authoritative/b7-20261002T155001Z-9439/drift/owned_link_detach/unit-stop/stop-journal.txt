@@ -1,0 +1,4 @@
+[2m2026-10-02T15:54:25.411999Z[0m [32m INFO[0m soglia stopped [3mevent.name[0m[2m=[0m"shutdown.done"
+Stopping soglia-b7-owned-link-detach.service - /var/tmp/b7-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b7-20261002T155001Z-9439/profiles/drift-owned-link-detach/config.yaml...
+soglia-b7-owned-link-detach.service: Deactivated successfully.
+Stopped soglia-b7-owned-link-detach.service - /var/tmp/b7-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b7-20261002T155001Z-9439/profiles/drift-owned-link-detach/config.yaml.

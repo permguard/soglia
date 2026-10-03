@@ -1,0 +1,54 @@
+[
+  {
+    "peer": "10.201.0.1:40000",
+    "local": "10.200.255.1:15001",
+    "queried_peer": "10.201.0.1:16540",
+    "queried_local": "10.200.255.1:15001",
+    "recv_q_bytes": 8,
+    "outcome": "TIMEOUT",
+    "mismatch": null,
+    "resolve_elapsed_ms": 2009,
+    "dns_when_resolve_returned": 0,
+    "outbound_when_resolve_returned": 0,
+    "health_failure": null
+  },
+  {
+    "peer": "10.201.0.1:40001",
+    "local": "10.200.255.1:15001",
+    "queried_peer": "10.201.0.1:16796",
+    "queried_local": "10.200.255.1:15001",
+    "recv_q_bytes": 8,
+    "outcome": "TIMEOUT",
+    "mismatch": null,
+    "resolve_elapsed_ms": 2007,
+    "dns_when_resolve_returned": 0,
+    "outbound_when_resolve_returned": 0,
+    "health_failure": null
+  },
+  {
+    "peer": "10.201.0.1:40003",
+    "local": "10.200.255.1:15001",
+    "queried_peer": "10.201.0.1:17308",
+    "queried_local": "10.200.255.1:15001",
+    "recv_q_bytes": 8,
+    "outcome": "TIMEOUT",
+    "mismatch": null,
+    "resolve_elapsed_ms": 2007,
+    "dns_when_resolve_returned": 0,
+    "outbound_when_resolve_returned": 0,
+    "health_failure": null
+  },
+  {
+    "peer": "10.201.0.1:40002",
+    "local": "10.200.255.1:15001",
+    "queried_peer": "10.201.0.1:17052",
+    "queried_local": "10.200.255.1:15001",
+    "recv_q_bytes": 8,
+    "outcome": "TIMEOUT",
+    "mismatch": null,
+    "resolve_elapsed_ms": 2026,
+    "dns_when_resolve_returned": 0,
+    "outbound_when_resolve_returned": 0,
+    "health_failure": null
+  }
+]

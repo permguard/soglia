@@ -1,0 +1,2 @@
+[2m2026-10-02T16:01:15.198943Z[0m [31mERROR[0m Soglia refused uninstall [3mevent.name[0m[2m=[0m"uninstall.refused" [3mrefusal.class[0m[2m=[0m"INCOMPATIBLE"
+soglia: uninstall refused: verified uninstall refused: refused: INCOMPATIBLE cgroup-BPF ownership state; kernel objects were left untouched

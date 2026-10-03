@@ -75,6 +75,27 @@ The network default is `cgroup-bpf`, which requires the qualified Linux cgroup v
 Startup fails closed when they are unavailable; Soglia never downgrades automatically.
 Set `network.backend: netns-nft` explicitly only for a compatibility deployment.
 
+### Capacity limits
+
+Every connection and every pending attribution has a hard limit, so load beyond capacity is refused instead of accumulating.
+
+| Setting                           | Default | When the limit is reached                         |
+| --------------------------------- | ------: | ------------------------------------------------- |
+| `runtime.max_ingress_connections` |      32 | The call is refused before it is admitted         |
+| `network.max_proxy_connections`   |     512 | The connection is closed before any byte is read  |
+| `cgroup_bpf.max_pending_resolves` |      64 | The connection is refused with `QueueFull`        |
+| `cgroup_bpf.resolve_workers`      |       4 | Work waits in the bounded queue, then `QueueFull` |
+
+Startup refuses a configuration that breaks these relations:
+
+- `max_ingress_connections` is at least `max_concurrency` plus `max_queue`, so the invocation queue can fill;
+- `resolve_workers` does not exceed `max_pending_resolves`;
+- `max_pending_resolves` does not exceed `max_proxy_connections`;
+- `max_proxy_connections` does not exceed `cgroup_bpf.max_tracked_sockets`.
+
+A refused connection never reaches DNS or the destination.
+On the qualified four-CPU host, the defaults sustain 4,000 attributions per second with a p99 below one millisecond.
+
 ## Give Soglia a delegated cgroup
 
 Soglia creates each Execution's cgroup below a cgroup v2 subtree delegated to it.

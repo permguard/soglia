@@ -1,0 +1,9 @@
+{
+  "unit": "soglia-b6-refusal-10.service",
+  "classification": "SYSTEMD_PRUNE_RACE",
+  "wait_ms": 10000,
+  "exact_empty_shape": "runtime",
+  "unit_populated": false,
+  "runtime_populated": false,
+  "exact_rmdir_verified": true
+}

@@ -1,0 +1,3 @@
+Stopping soglia-b1-recovery.service - /usr/bin/bash /soglia/spikes/cgroup-bpf/runner/scripts/b1-service-loop.sh /var/tmp/soglia-b1-production-target/release/soglia /soglia/spikes/cgroup-bpf/evidence/replay/b1-diagnostic-recovery-20261002T152750Z-11051/config.yaml /run/b1-diagnostic-recovery-20261002T152750Z-11051-control...
+soglia-b1-recovery.service: Deactivated successfully.
+Stopped soglia-b1-recovery.service - /usr/bin/bash /soglia/spikes/cgroup-bpf/runner/scripts/b1-service-loop.sh /var/tmp/soglia-b1-production-target/release/soglia /soglia/spikes/cgroup-bpf/evidence/replay/b1-diagnostic-recovery-20261002T152750Z-11051/config.yaml /run/b1-diagnostic-recovery-20261002T152750Z-11051-control.

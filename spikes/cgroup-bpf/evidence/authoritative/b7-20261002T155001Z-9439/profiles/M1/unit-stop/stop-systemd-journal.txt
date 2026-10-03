@@ -1,0 +1,4 @@
+Stopping soglia-b7-m1.service - /var/tmp/b7-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b7-20261002T155001Z-9439/profiles/M1/config.yaml...
+soglia-b7-m1.service: Deactivated successfully.
+Stopped soglia-b7-m1.service - /var/tmp/b7-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b7-20261002T155001Z-9439/profiles/M1/config.yaml.
+soglia-b7-m1.service: Consumed 2.780s CPU time, 29.6M memory peak, 0B memory swap peak.

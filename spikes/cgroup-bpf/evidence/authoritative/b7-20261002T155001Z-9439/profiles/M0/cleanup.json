@@ -1,0 +1,10 @@
+{
+  "profile": "M0",
+  "cleanup": "PASS",
+  "measurements": {
+    "execution_residue": "/soglia/spikes/cgroup-bpf/evidence/replay/b7-20261002T155001Z-9439/profiles/M0/active-residue",
+    "persistent_generation": "/soglia/spikes/cgroup-bpf/evidence/replay/b7-20261002T155001Z-9439/profiles/M0/persistent-generation.json",
+    "harness_teardown": "/soglia/spikes/cgroup-bpf/evidence/replay/b7-20261002T155001Z-9439/profiles/M0/harness-teardown.json"
+  },
+  "wildcard_deletion": false
+}

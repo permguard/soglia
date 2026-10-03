@@ -1,0 +1,5 @@
+Stopping soglia-b6-refusal-5.service - /var/tmp/b6-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b6-20261002T154503Z-9468/cases/refusal_matrix/unknown_trust/config.yaml...
+[2m2026-10-02T15:46:57.990256Z[0m [32m INFO[0m soglia stopped [3mevent.name[0m[2m=[0m"shutdown.done"
+soglia-b6-refusal-5.service: Failed to kill control group /system.slice/soglia-b6-refusal-5.service, ignoring: Invalid argument
+soglia-b6-refusal-5.service: Deactivated successfully.
+Stopped soglia-b6-refusal-5.service - /var/tmp/b6-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b6-20261002T154503Z-9468/cases/refusal_matrix/unknown_trust/config.yaml.

@@ -5,7 +5,8 @@
 
 ## Status and decision
 
-Status: `PHASE_1_RELEASE_QUALIFIED` on production baseline `7dd0840e4d51078c01ab26343c9eebfd315e5e5e`.
+Status: `PHASE_2_RELEASE_QUALIFIED` on production baseline `cfb2d375e76de59694e25374ec5df47c2bfb6c6a`.
+The Phase 2 qualification adds B8 and the parallel Resolve pipeline defined in `design/RESOLVE-PARALLEL.md`; see the REPORT section "Phase 2 release qualification on `cfb2d375`".
 
 Candidate A, socket cookie to cgroup identity, was selected explicitly after the completed candidate review on 2026-09-27.
 This document defines the normative production contract and its B1-B7 qualification gates.

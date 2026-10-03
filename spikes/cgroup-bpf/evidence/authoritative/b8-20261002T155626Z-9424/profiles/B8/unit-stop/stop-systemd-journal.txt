@@ -1,0 +1,4 @@
+Stopping soglia-b8-profile.service - /var/tmp/b8-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b8-20261002T155626Z-9424/profiles/B8/config.yaml...
+soglia-b8-profile.service: Deactivated successfully.
+Stopped soglia-b8-profile.service - /var/tmp/b8-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b8-20261002T155626Z-9424/profiles/B8/config.yaml.
+soglia-b8-profile.service: Consumed 26.366s CPU time, 37.3M memory peak, 0B memory swap peak.

@@ -1,0 +1,30 @@
+{
+  "agent_report": "{\"cmd\":\"proxy-connect-report\",\"ok\":false,\"errno\":111,\"error\":\"Connection refused (os error 111)\",\"i\":0,\"source_port\":41003,\"mode\":\"close\" ,\"phase\":\"connect\"}\n",
+  "binding": {
+    "backend_generation": 1,
+    "cgroup_id": 8155,
+    "execution_nonce": [
+      17,
+      104,
+      37,
+      151,
+      110,
+      205,
+      43,
+      143,
+      176,
+      197,
+      24,
+      87,
+      180,
+      5,
+      243,
+      127
+    ]
+  },
+  "case": "CONNECT_FAILURE",
+  "cleanup_failures": [],
+  "execution_id": "b83cf14e2bf20b253a6f261c919cbccd",
+  "health_failure": null,
+  "observations": []
+}

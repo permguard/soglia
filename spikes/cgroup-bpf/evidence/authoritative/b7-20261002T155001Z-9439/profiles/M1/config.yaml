@@ -1,0 +1,43 @@
+runtime:
+  uid: 65534
+  gid: 65534
+  state_dir: /run/soglia-b7/M1
+  max_concurrency: 4
+  max_queue: 4
+  max_ingress_connections: 8
+  cleanup_failure_threshold: 1
+  teardown_timeout_ms: 10000
+  runc: /usr/sbin/runc
+  nft: /usr/sbin/nft
+  ip: /usr/sbin/ip
+  bpftool: /usr/sbin/bpftool
+ingress:
+  listen: 127.0.0.1:18101
+network:
+  backend: cgroup-bpf
+  execution_pool: 10.201.0.0/24
+  proxy_address: 10.200.255.1
+  proxy_port: 15001
+  max_proxy_connections: 512
+egress:
+  connect_timeout_ms: 1000
+  idle_timeout_ms: 65000
+  allow:
+    - { host: allowed.test, ports: [443] }
+    - { host: 11.0.0.1, ports: [443] }
+cgroup:
+  root: /sys/fs/cgroup/system.slice/soglia-b7-m1.service
+cgroup_bpf:
+  max_tracked_sockets: 512
+  resolve_timeout_ms: 2000
+  ring_buffer_bytes: 65536
+  max_pending_resolves: 64
+  resolve_workers: 4
+  pin_root: /sys/fs/bpf/soglia-b7/M1
+agents:
+  workload:
+    rootfs: /var/tmp/soglia-b7-rootfs
+    command: ["/agent", "serve"]
+    env: { AGENT_PORT: "8080" }
+    timeout_ms: 600000
+    tmpfs: [{ path: /tmp, size_bytes: 16777216 }]

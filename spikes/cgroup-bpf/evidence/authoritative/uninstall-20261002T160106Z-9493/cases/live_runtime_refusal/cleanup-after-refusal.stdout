@@ -1,0 +1,15 @@
+{
+  "dry_run": false,
+  "enforcer": {
+    "absence_verified": true,
+    "classification": "KNOWN_COMPATIBLE",
+    "dry_run": false,
+    "operations": [
+      "remove recorded cgroup-BPF generation 1",
+      "remove host nft table and proxy interface"
+    ]
+  },
+  "sandbox_operations": [],
+  "schema": 1,
+  "verdict": "PASS"
+}

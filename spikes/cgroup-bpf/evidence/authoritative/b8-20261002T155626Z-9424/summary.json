@@ -1,0 +1,46 @@
+{
+  "schema": 1,
+  "run_id": "b8-20261002T155626Z-9424",
+  "gate": "B8",
+  "authoritative": true,
+  "verdict": "PASS",
+  "production_source_baseline": {
+    "commit": "cfb2d375e76de59694e25374ec5df47c2bfb6c6a",
+    "matches": true
+  },
+  "profile": {
+    "max_pending_resolves": 64,
+    "resolve_workers": 4,
+    "target_rate_per_second": 500,
+    "duration_seconds": 60,
+    "p99_limit_us": 20000,
+    "p99_us": 370,
+    "achieved_rate_per_second": 500.01666722224076
+  },
+  "qualified": {
+    "parallel_load": true,
+    "correct_correlation": true,
+    "within_profile_outcomes_clean": true,
+    "return_to_baseline": true,
+    "burst_queue_full": true,
+    "mixed_workload_bounds": true,
+    "fault_injection": true,
+    "client_and_supervisor_latency": true
+  },
+  "characterization": {
+    "maximum_sustained_rate_per_second": 4000.0,
+    "pass_criterion": false,
+    "declared_rate_cap_per_second": 16000,
+    "breakpoint_reached": true,
+    "stop_reason": "breakpoint_reached"
+  },
+  "cleanup": {
+    "verdict": "PASS",
+    "programs": "EXTERNAL_CHURN",
+    "links": "MATCH",
+    "maps": "MATCH"
+  },
+  "authoritative_vm": {
+    "name": "soglia-spike-b8-20261002T155429Z-38323"
+  }
+}

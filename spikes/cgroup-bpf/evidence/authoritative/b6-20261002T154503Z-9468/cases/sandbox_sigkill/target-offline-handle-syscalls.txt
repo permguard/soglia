@@ -1,0 +1,3 @@
+46914 name_to_handle_at(AT_FDCWD, "/sys/fs/cgroup/system.slice/soglia-b6-sandbox-sigkill.service/executions", {handle_bytes=128 => 8, handle_type=254, f_handle="\x3c\x69\x00\x00\x00\x00\x00\x00"}, [36], 0) = 0
+46914 open_by_handle_at(3, {handle_bytes=8, handle_type=254, f_handle="\x3c\x69\x00\x00\x00\x00\x00\x00"}, O_RDONLY|O_PATH|O_DIRECTORY) = 4
+46914 open_by_handle_at(3, {handle_bytes=8, handle_type=254, f_handle="\x3c\x69\x00\x00\x00\x00\x00\x00"}, O_RDONLY|O_PATH|O_DIRECTORY) = -1 ESTALE (Stale file handle)

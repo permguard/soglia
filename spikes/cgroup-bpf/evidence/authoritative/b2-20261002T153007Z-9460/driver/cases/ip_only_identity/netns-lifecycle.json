@@ -1,0 +1,38 @@
+{
+  "agent_matches_owned_netns": true,
+  "case": "IP_ONLY",
+  "cookie": {
+    "criterion": "PROVEN",
+    "supported": true,
+    "unique_across_b2_cases": true,
+    "value": 12290
+  },
+  "current_owned_path_absent_after_teardown": true,
+  "informational_inode": 4026532356,
+  "inode_used_as_identity": false,
+  "observed_netns_cookies": [
+    4097,
+    4098,
+    3,
+    4,
+    4099,
+    8193,
+    8194,
+    12289,
+    12290
+  ],
+  "observed_netns_paths": [
+    "/run/netns/soglia-ecee07a8c4",
+    "/run/netns/soglia-bb46437d7b",
+    "/run/netns/soglia-cd56adf1c3",
+    "/run/netns/soglia-0889b93ff7",
+    "/run/netns/soglia-ea308e1352",
+    "/run/netns/soglia-fcb1265fb0",
+    "/run/netns/soglia-b6651d59bc",
+    "/run/netns/soglia-d6a7858e80",
+    "/run/netns/soglia-2ca3b41cb9"
+  ],
+  "owned_path": "/run/netns/soglia-2ca3b41cb9",
+  "owned_path_unique": true,
+  "previous_owned_path_absent_before_case": true
+}

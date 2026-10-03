@@ -1,0 +1,12 @@
+{
+  "dry_run": false,
+  "enforcer": {
+    "absence_verified": true,
+    "classification": "FRESH",
+    "dry_run": false,
+    "operations": []
+  },
+  "sandbox_operations": [],
+  "schema": 1,
+  "verdict": "PASS"
+}

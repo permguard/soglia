@@ -1,5 +1,6 @@
 {
   "harness_commit_policy": "single_commit",
+  "historical_status": "SUPERSEDED",
   "production_baseline": "7dd0840e4d51078c01ab26343c9eebfd315e5e5e",
   "runs": [
     {
@@ -76,6 +77,8 @@
     }
   ],
   "schema": 1,
+  "superseded_by": "qualification-cfb2d375.json",
   "total_checksums": 5003,
-  "verdict": "PASS"
+  "verdict": "PASS",
+  "verifiable_with_commit": "22cfba0c93e78621c6abe6849fa0d046fbd285f6"
 }

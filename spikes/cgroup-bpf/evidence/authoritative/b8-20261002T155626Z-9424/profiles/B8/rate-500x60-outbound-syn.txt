@@ -1,0 +1,2 @@
+reading from file /soglia/spikes/cgroup-bpf/evidence/replay/b8-20261002T155626Z-9424/profiles/B8/rate-500x60-outbound-syn.pcap, link-type LINUX_SLL2 (Linux cooked v2), snapshot length 96
+Warning: interface names might be incorrect

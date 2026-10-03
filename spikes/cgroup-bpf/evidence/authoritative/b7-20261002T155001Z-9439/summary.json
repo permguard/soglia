@@ -1,0 +1,53 @@
+{
+  "schema": 1,
+  "run_id": "b7-20261002T155001Z-9439",
+  "gate": "B7",
+  "authoritative": true,
+  "verdict": "PASS",
+  "production_source_baseline": {
+    "commit": "cfb2d375e76de59694e25374ec5df47c2bfb6c6a",
+    "matches": true
+  },
+  "matrix": [
+    "M0",
+    "M1",
+    "M2",
+    "M3"
+  ],
+  "qualified": {
+    "declared_matrix": true,
+    "constant_shared_topology": true,
+    "production_events": true,
+    "independent_bpftool_comparison": true,
+    "rate_floor_percent": 95,
+    "within_envelope_resolve_outcomes_clean": true,
+    "burst_queue_full_characterization": true,
+    "bounded_ingress_connections": true,
+    "bounded_proxy_connections": true,
+    "bounded_pending_resolves": true,
+    "bounded_resolve_workers": true,
+    "foreign_direct_link_fail_closed": true,
+    "owned_link_detach_fail_closed": true
+  },
+  "cleanup": {
+    "verdict": "PASS",
+    "programs": "EXTERNAL_CHURN",
+    "links": "MATCH",
+    "maps": "MATCH"
+  },
+  "scope": {
+    "simultaneous_live_sockets_proved": 512,
+    "simultaneous_new_connection_admissions_proved": 32,
+    "burst_256": "OUTSIDE_SUPPORTED_ENVELOPE_REFUSAL_CHARACTERIZATION",
+    "map_capacity_configured": 4096,
+    "nofile_limit_not_tuned": true,
+    "latency_objective": "configured Resolve deadline only",
+    "production_code_change": "NOT_PERFORMED: qualification harness only"
+  },
+  "remaining_gates": {
+    "B8": "NOT_EXECUTED"
+  },
+  "authoritative_vm": {
+    "name": "soglia-spike-b7-20261002T154808Z-26673"
+  }
+}

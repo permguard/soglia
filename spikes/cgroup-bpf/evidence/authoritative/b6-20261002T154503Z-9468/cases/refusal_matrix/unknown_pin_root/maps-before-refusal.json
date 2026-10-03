@@ -1,0 +1,748 @@
+[
+  {
+    "pin": "/sys/fs/bpf/soglia-b6-refusal-6/5e6c8d13d7a5fdf4a9126188b4b153e0-g1/maps/soglia_cookie_a",
+    "show": {
+      "id": 924,
+      "type": "hash",
+      "name": "soglia_cookie_a",
+      "flags": 0,
+      "bytes_key": 8,
+      "bytes_value": 32,
+      "max_entries": 64,
+      "bytes_memlock": 8128,
+      "frozen": 0,
+      "btf_id": 565
+    },
+    "contents": []
+  },
+  {
+    "pin": "/sys/fs/bpf/soglia-b6-refusal-6/5e6c8d13d7a5fdf4a9126188b4b153e0-g1/maps/soglia_counters",
+    "show": {
+      "id": 922,
+      "type": "array",
+      "name": "soglia_counters",
+      "flags": 0,
+      "bytes_key": 4,
+      "bytes_value": 8,
+      "max_entries": 26,
+      "bytes_memlock": 592,
+      "frozen": 0,
+      "btf_id": 565
+    },
+    "contents": [
+      {
+        "key": [
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "value": [
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "formatted": {
+          "key": 0,
+          "value": 0
+        }
+      },
+      {
+        "key": [
+          "0x01",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "value": [
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "formatted": {
+          "key": 1,
+          "value": 0
+        }
+      },
+      {
+        "key": [
+          "0x02",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "value": [
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "formatted": {
+          "key": 2,
+          "value": 0
+        }
+      },
+      {
+        "key": [
+          "0x03",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "value": [
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "formatted": {
+          "key": 3,
+          "value": 0
+        }
+      },
+      {
+        "key": [
+          "0x04",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "value": [
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "formatted": {
+          "key": 4,
+          "value": 0
+        }
+      },
+      {
+        "key": [
+          "0x05",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "value": [
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "formatted": {
+          "key": 5,
+          "value": 0
+        }
+      },
+      {
+        "key": [
+          "0x06",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "value": [
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "formatted": {
+          "key": 6,
+          "value": 0
+        }
+      },
+      {
+        "key": [
+          "0x07",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "value": [
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "formatted": {
+          "key": 7,
+          "value": 0
+        }
+      },
+      {
+        "key": [
+          "0x08",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "value": [
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "formatted": {
+          "key": 8,
+          "value": 0
+        }
+      },
+      {
+        "key": [
+          "0x09",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "value": [
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "formatted": {
+          "key": 9,
+          "value": 0
+        }
+      },
+      {
+        "key": [
+          "0x0a",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "value": [
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "formatted": {
+          "key": 10,
+          "value": 0
+        }
+      },
+      {
+        "key": [
+          "0x0b",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "value": [
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "formatted": {
+          "key": 11,
+          "value": 0
+        }
+      },
+      {
+        "key": [
+          "0x0c",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "value": [
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "formatted": {
+          "key": 12,
+          "value": 0
+        }
+      },
+      {
+        "key": [
+          "0x0d",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "value": [
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "formatted": {
+          "key": 13,
+          "value": 0
+        }
+      },
+      {
+        "key": [
+          "0x0e",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "value": [
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "formatted": {
+          "key": 14,
+          "value": 0
+        }
+      },
+      {
+        "key": [
+          "0x0f",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "value": [
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "formatted": {
+          "key": 15,
+          "value": 0
+        }
+      },
+      {
+        "key": [
+          "0x10",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "value": [
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "formatted": {
+          "key": 16,
+          "value": 0
+        }
+      },
+      {
+        "key": [
+          "0x11",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "value": [
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "formatted": {
+          "key": 17,
+          "value": 0
+        }
+      },
+      {
+        "key": [
+          "0x12",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "value": [
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "formatted": {
+          "key": 18,
+          "value": 0
+        }
+      },
+      {
+        "key": [
+          "0x13",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "value": [
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "formatted": {
+          "key": 19,
+          "value": 0
+        }
+      },
+      {
+        "key": [
+          "0x14",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "value": [
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "formatted": {
+          "key": 20,
+          "value": 0
+        }
+      },
+      {
+        "key": [
+          "0x15",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "value": [
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "formatted": {
+          "key": 21,
+          "value": 0
+        }
+      },
+      {
+        "key": [
+          "0x16",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "value": [
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "formatted": {
+          "key": 22,
+          "value": 0
+        }
+      },
+      {
+        "key": [
+          "0x17",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "value": [
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "formatted": {
+          "key": 23,
+          "value": 0
+        }
+      },
+      {
+        "key": [
+          "0x18",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "value": [
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "formatted": {
+          "key": 24,
+          "value": 0
+        }
+      },
+      {
+        "key": [
+          "0x19",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "value": [
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "formatted": {
+          "key": 25,
+          "value": 0
+        }
+      }
+    ]
+  },
+  {
+    "pin": "/sys/fs/bpf/soglia-b6-refusal-6/5e6c8d13d7a5fdf4a9126188b4b153e0-g1/maps/soglia_denies",
+    "show": {
+      "id": 920,
+      "type": "hash",
+      "name": "soglia_denies",
+      "flags": 0,
+      "bytes_key": 32,
+      "bytes_value": 8,
+      "max_entries": 3,
+      "bytes_memlock": 1800,
+      "frozen": 0,
+      "btf_id": 565
+    },
+    "contents": []
+  },
+  {
+    "pin": "/sys/fs/bpf/soglia-b6-refusal-6/5e6c8d13d7a5fdf4a9126188b4b153e0-g1/maps/soglia_events",
+    "show": {
+      "id": 923,
+      "type": "ringbuf",
+      "name": "soglia_events",
+      "flags": 0,
+      "bytes_key": 0,
+      "bytes_value": 0,
+      "max_entries": 65536,
+      "bytes_memlock": 78488,
+      "frozen": 0
+    },
+    "contents": "NOT_APPLICABLE:ringbuf"
+  },
+  {
+    "pin": "/sys/fs/bpf/soglia-b6-refusal-6/5e6c8d13d7a5fdf4a9126188b4b153e0-g1/maps/soglia_meta",
+    "show": {
+      "id": 917,
+      "type": "array",
+      "name": "soglia_meta",
+      "flags": 0,
+      "bytes_key": 4,
+      "bytes_value": 40,
+      "max_entries": 1,
+      "bytes_memlock": 424,
+      "frozen": 0,
+      "btf_id": 565
+    },
+    "contents": [
+      {
+        "key": [
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "value": [
+          "0x50",
+          "0x42",
+          "0x41",
+          "0x49",
+          "0x4c",
+          "0x47",
+          "0x4f",
+          "0x53",
+          "0x03",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x02",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x5e",
+          "0x6c",
+          "0x8d",
+          "0x13",
+          "0xd7",
+          "0xa5",
+          "0xfd",
+          "0xf4",
+          "0xa9",
+          "0x12",
+          "0x61",
+          "0x88",
+          "0xb4",
+          "0xb1",
+          "0x53",
+          "0xe0",
+          "0x01",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00",
+          "0x00"
+        ],
+        "formatted": {
+          "key": 0,
+          "value": {
+            "magic": 6003095221280260688,
+            "schema": 3,
+            "abi": 2,
+            "state_id_hi": 17653448457526799454,
+            "state_id_lo": 16164458876503134889,
+            "generation": 1
+          }
+        }
+      }
+    ]
+  },
+  {
+    "pin": "/sys/fs/bpf/soglia-b6-refusal-6/5e6c8d13d7a5fdf4a9126188b4b153e0-g1/maps/soglia_policy",
+    "show": {
+      "id": 919,
+      "type": "hash",
+      "name": "soglia_policy",
+      "flags": 0,
+      "bytes_key": 8,
+      "bytes_value": 40,
+      "max_entries": 3,
+      "bytes_memlock": 1856,
+      "frozen": 0,
+      "btf_id": 565
+    },
+    "contents": []
+  },
+  {
+    "pin": "/sys/fs/bpf/soglia-b6-refusal-6/5e6c8d13d7a5fdf4a9126188b4b153e0-g1/maps/soglia_tuples",
+    "show": {
+      "id": 918,
+      "type": "hash",
+      "name": "soglia_tuples",
+      "flags": 0,
+      "bytes_key": 16,
+      "bytes_value": 48,
+      "max_entries": 64,
+      "bytes_memlock": 9760,
+      "frozen": 0,
+      "btf_id": 565
+    },
+    "contents": []
+  }
+]

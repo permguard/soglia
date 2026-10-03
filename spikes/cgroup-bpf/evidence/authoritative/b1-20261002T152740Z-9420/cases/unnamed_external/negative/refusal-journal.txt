@@ -1,0 +1,12 @@
+Oct 02 17:27:53 lima-soglia-spike-b1-20261002T152540Z-82965 systemd[1]: Started soglia-b1-unnamed.service - /var/tmp/soglia-b1-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b1-unnamed-external-20261002T152752Z-12428/config.yaml.
+Oct 02 17:27:53 lima-soglia-spike-b1-20261002T152540Z-82965 soglia[13016]: event.name=cgroup_bpf.target_released_link_observation elapsed_ms=0 link=sock_create link_id=68 program_id=433 attach_type=2 cgroup_id=0
+Oct 02 17:27:53 lima-soglia-spike-b1-20261002T152540Z-82965 soglia[13016]: event.name=cgroup_bpf.target_released_link_observation elapsed_ms=0 link=connect4 link_id=69 program_id=434 attach_type=10 cgroup_id=0
+Oct 02 17:27:53 lima-soglia-spike-b1-20261002T152540Z-82965 soglia[13016]: event.name=cgroup_bpf.target_released_link_observation elapsed_ms=0 link=connect6 link_id=70 program_id=435 attach_type=11 cgroup_id=0
+Oct 02 17:27:53 lima-soglia-spike-b1-20261002T152540Z-82965 soglia[13016]: event.name=cgroup_bpf.target_released_link_observation elapsed_ms=0 link=sendmsg4 link_id=71 program_id=436 attach_type=14 cgroup_id=0
+Oct 02 17:27:53 lima-soglia-spike-b1-20261002T152540Z-82965 soglia[13016]: event.name=cgroup_bpf.target_released_link_observation elapsed_ms=0 link=sendmsg6 link_id=72 program_id=437 attach_type=15 cgroup_id=0
+Oct 02 17:27:53 lima-soglia-spike-b1-20261002T152540Z-82965 soglia[13016]: event.name=cgroup_bpf.target_released_link_observation elapsed_ms=0 link=sock_ops link_id=73 program_id=438 attach_type=3 cgroup_id=0
+Oct 02 17:27:53 lima-soglia-spike-b1-20261002T152540Z-82965 soglia[13016]: soglia: the cgroup-bpf backend could not start: refused: UNKNOWN non-owned ancestor BPF inventory changed during released-target recovery
+Oct 02 17:27:53 lima-soglia-spike-b1-20261002T152540Z-82965 soglia[13011]: 2026-10-02T15:27:53.096377Z ERROR Soglia refused startup event.name="startup.refused" refusal.class="UNKNOWN"
+Oct 02 17:27:53 lima-soglia-spike-b1-20261002T152540Z-82965 soglia[13011]: soglia: the enforcer did not start: the cgroup-bpf backend could not start: refused: UNKNOWN non-owned ancestor BPF inventory changed during released-target recovery
+Oct 02 17:27:53 lima-soglia-spike-b1-20261002T152540Z-82965 systemd[1]: soglia-b1-unnamed.service: Main process exited, code=exited, status=21/n/a
+Oct 02 17:27:53 lima-soglia-spike-b1-20261002T152540Z-82965 systemd[1]: soglia-b1-unnamed.service: Failed with result 'exit-code'.

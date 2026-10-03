@@ -1,0 +1,6 @@
+[2m2026-10-02T15:47:13.867536Z[0m [32m INFO[0m soglia stopped [3mevent.name[0m[2m=[0m"shutdown.done"
+Stopping soglia-b6-refusal-11.service - /var/tmp/b6-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b6-20261002T154503Z-9468/cases/refusal_matrix/unknown_orphan_policy/config.yaml...
+soglia-b6-refusal-11.service: Killing process 69658 (exe) with signal SIGKILL.
+soglia-b6-refusal-11.service: Killing process 69659 (exe) with signal SIGKILL.
+soglia-b6-refusal-11.service: Deactivated successfully.
+Stopped soglia-b6-refusal-11.service - /var/tmp/b6-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b6-20261002T154503Z-9468/cases/refusal_matrix/unknown_orphan_policy/config.yaml.

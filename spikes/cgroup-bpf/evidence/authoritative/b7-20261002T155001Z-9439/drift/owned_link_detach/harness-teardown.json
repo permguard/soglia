@@ -1,0 +1,42 @@
+{
+  "measurement": "harness exact teardown after residue measurements",
+  "remaining_pin_directories": [
+    "/sys/fs/bpf/soglia-b7"
+  ],
+  "remaining_pin_files": [],
+  "remaining_runtime_directories": [
+    "/run/soglia-b7"
+  ],
+  "remaining_runtime_files": [],
+  "removed_exact_paths": [
+    "/sys/fs/bpf/soglia-b7/drift-owned-link-detach/fa2ca184972503c8b2a03ea9f6dd47c9-g2/maps/soglia_events",
+    "/sys/fs/bpf/soglia-b7/drift-owned-link-detach/fa2ca184972503c8b2a03ea9f6dd47c9-g2/maps/soglia_denies",
+    "/sys/fs/bpf/soglia-b7/drift-owned-link-detach/fa2ca184972503c8b2a03ea9f6dd47c9-g2/maps/soglia_counters",
+    "/sys/fs/bpf/soglia-b7/drift-owned-link-detach/fa2ca184972503c8b2a03ea9f6dd47c9-g2/maps/soglia_tuples",
+    "/sys/fs/bpf/soglia-b7/drift-owned-link-detach/fa2ca184972503c8b2a03ea9f6dd47c9-g2/maps/soglia_cookie_a",
+    "/sys/fs/bpf/soglia-b7/drift-owned-link-detach/fa2ca184972503c8b2a03ea9f6dd47c9-g2/maps/soglia_policy",
+    "/sys/fs/bpf/soglia-b7/drift-owned-link-detach/fa2ca184972503c8b2a03ea9f6dd47c9-g2/maps/soglia_meta",
+    "/sys/fs/bpf/soglia-b7/drift-owned-link-detach/fa2ca184972503c8b2a03ea9f6dd47c9-g2/links/sock_ops",
+    "/sys/fs/bpf/soglia-b7/drift-owned-link-detach/fa2ca184972503c8b2a03ea9f6dd47c9-g2/links/sendmsg6",
+    "/sys/fs/bpf/soglia-b7/drift-owned-link-detach/fa2ca184972503c8b2a03ea9f6dd47c9-g2/links/sendmsg4",
+    "/sys/fs/bpf/soglia-b7/drift-owned-link-detach/fa2ca184972503c8b2a03ea9f6dd47c9-g2/links/connect6",
+    "/sys/fs/bpf/soglia-b7/drift-owned-link-detach/fa2ca184972503c8b2a03ea9f6dd47c9-g2/links/connect4",
+    "/sys/fs/bpf/soglia-b7/drift-owned-link-detach/fa2ca184972503c8b2a03ea9f6dd47c9-g2/links/sock_create",
+    "/sys/fs/bpf/soglia-b7/drift-owned-link-detach/fa2ca184972503c8b2a03ea9f6dd47c9-g2/links",
+    "/sys/fs/bpf/soglia-b7/drift-owned-link-detach/fa2ca184972503c8b2a03ea9f6dd47c9-g2/maps",
+    "/sys/fs/bpf/soglia-b7/drift-owned-link-detach/fa2ca184972503c8b2a03ea9f6dd47c9-g2",
+    "/sys/fs/bpf/soglia-b7/drift-owned-link-detach",
+    "/run/soglia-b7/drift-owned-link-detach/net/host.json",
+    "/run/soglia-b7/drift-owned-link-detach/cgroup-bpf/state.json",
+    "/run/soglia-b7/drift-owned-link-detach/lock",
+    "/run/soglia-b7/drift-owned-link-detach/cgroup-bpf",
+    "/run/soglia-b7/drift-owned-link-detach/net",
+    "/run/soglia-b7/drift-owned-link-detach/sandbox",
+    "/run/soglia-b7/drift-owned-link-detach/bundles",
+    "/run/soglia-b7/drift-owned-link-detach/runc",
+    "/run/soglia-b7/drift-owned-link-detach"
+  ],
+  "source": "/soglia/spikes/cgroup-bpf/evidence/replay/b7-20261002T155001Z-9439/drift/owned_link_detach/persistent-generation.json",
+  "verdict": "PASS",
+  "wildcard_deletion": false
+}

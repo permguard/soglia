@@ -1,0 +1,13 @@
+{
+  "id": 451,
+  "type": "cgroup_device",
+  "tag": "711788109f1edac6",
+  "gpl_compatible": false,
+  "loaded_at": 1790954872,
+  "uid": 0,
+  "orphaned": false,
+  "bytes_xlated": 24,
+  "jited": true,
+  "bytes_jited": 120,
+  "bytes_memlock": 4096
+}

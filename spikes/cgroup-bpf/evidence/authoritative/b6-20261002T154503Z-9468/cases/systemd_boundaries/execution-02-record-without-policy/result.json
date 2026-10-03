@@ -1,0 +1,9 @@
+{
+  "family": "execution",
+  "boundary": "02-record-without-policy",
+  "restarts": 1,
+  "target_released": true,
+  "fixed_detach_timeout_ms": 5000,
+  "fixed_poll_interval_ms": 10,
+  "verdict": "PASS"
+}

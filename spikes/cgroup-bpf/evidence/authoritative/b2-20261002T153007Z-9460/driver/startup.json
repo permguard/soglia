@@ -1,0 +1,6 @@
+{
+  "enforcer_swept": [],
+  "production_backend": "cgroup-bpf",
+  "production_binary": "/var/tmp/soglia-b2-production-target/release/soglia",
+  "sandbox_swept": []
+}

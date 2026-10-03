@@ -1,0 +1,2808 @@
+{
+  "baseline_return": {
+    "after": {
+      "durable_executions": 0,
+      "execution_cgroups": 0,
+      "fds": 20,
+      "maps": {
+        "soglia_cookie_a": 0,
+        "soglia_denies": 0,
+        "soglia_policy": 0,
+        "soglia_tuples": 0
+      },
+      "pid": 9614,
+      "tasks": 12
+    },
+    "before": {
+      "durable_executions": 0,
+      "execution_cgroups": 0,
+      "fds": 20,
+      "maps": {
+        "soglia_cookie_a": 0,
+        "soglia_denies": 0,
+        "soglia_policy": 0,
+        "soglia_tuples": 0
+      },
+      "pid": 9614,
+      "tasks": 12
+    },
+    "deadline_seconds": 60,
+    "residue": {
+      "directory_state": {
+        "bundles": [],
+        "network_execution_records": [],
+        "runc_states": [],
+        "sandbox_records": [],
+        "target_children": []
+      },
+      "durable_execution_records": {},
+      "execution_ids": [
+        "062c67fb1647fdf9ca9f23913a64d1a4",
+        "e3c047f5d1db05f92afd7ee57aea1be3",
+        "3dd21002511957f9135cc562254f283b"
+      ],
+      "harness_deletion_before_measurement": false,
+      "label": "b8-mixed",
+      "map_entries": {
+        "soglia_cookie_a": [],
+        "soglia_denies": [],
+        "soglia_policy": [],
+        "soglia_tuples": []
+      },
+      "measured_while_runtime_active": true,
+      "resource_registry": {
+        "closed": true,
+        "entries": [
+          {
+            "kind": "cgroup",
+            "path": "/sys/fs/cgroup/system.slice/soglia-b8-profile.service/executions/062c67fb16",
+            "present": false,
+            "tag": "062c67fb16"
+          },
+          {
+            "kind": "netns",
+            "path": "/run/netns/soglia-062c67fb16",
+            "present": false,
+            "tag": "062c67fb16"
+          },
+          {
+            "kind": "host_veth",
+            "path": "/sys/class/net/sgh-062c67fb16",
+            "present": false,
+            "tag": "062c67fb16"
+          },
+          {
+            "kind": "network_record",
+            "path": "/run/soglia-b8/B8/net/062c67fb16.json",
+            "present": false,
+            "tag": "062c67fb16"
+          },
+          {
+            "kind": "sandbox_record",
+            "path": "/run/soglia-b8/B8/sandbox/062c67fb16.json",
+            "present": false,
+            "tag": "062c67fb16"
+          },
+          {
+            "kind": "bundle",
+            "path": "/run/soglia-b8/B8/bundles/062c67fb16",
+            "present": false,
+            "tag": "062c67fb16"
+          },
+          {
+            "kind": "runc_state",
+            "path": "/run/soglia-b8/B8/runc/soglia-062c67fb16",
+            "present": false,
+            "tag": "062c67fb16"
+          },
+          {
+            "kind": "cgroup",
+            "path": "/sys/fs/cgroup/system.slice/soglia-b8-profile.service/executions/3dd2100251",
+            "present": false,
+            "tag": "3dd2100251"
+          },
+          {
+            "kind": "netns",
+            "path": "/run/netns/soglia-3dd2100251",
+            "present": false,
+            "tag": "3dd2100251"
+          },
+          {
+            "kind": "host_veth",
+            "path": "/sys/class/net/sgh-3dd2100251",
+            "present": false,
+            "tag": "3dd2100251"
+          },
+          {
+            "kind": "network_record",
+            "path": "/run/soglia-b8/B8/net/3dd2100251.json",
+            "present": false,
+            "tag": "3dd2100251"
+          },
+          {
+            "kind": "sandbox_record",
+            "path": "/run/soglia-b8/B8/sandbox/3dd2100251.json",
+            "present": false,
+            "tag": "3dd2100251"
+          },
+          {
+            "kind": "bundle",
+            "path": "/run/soglia-b8/B8/bundles/3dd2100251",
+            "present": false,
+            "tag": "3dd2100251"
+          },
+          {
+            "kind": "runc_state",
+            "path": "/run/soglia-b8/B8/runc/soglia-3dd2100251",
+            "present": false,
+            "tag": "3dd2100251"
+          },
+          {
+            "kind": "cgroup",
+            "path": "/sys/fs/cgroup/system.slice/soglia-b8-profile.service/executions/e3c047f5d1",
+            "present": false,
+            "tag": "e3c047f5d1"
+          },
+          {
+            "kind": "netns",
+            "path": "/run/netns/soglia-e3c047f5d1",
+            "present": false,
+            "tag": "e3c047f5d1"
+          },
+          {
+            "kind": "host_veth",
+            "path": "/sys/class/net/sgh-e3c047f5d1",
+            "present": false,
+            "tag": "e3c047f5d1"
+          },
+          {
+            "kind": "network_record",
+            "path": "/run/soglia-b8/B8/net/e3c047f5d1.json",
+            "present": false,
+            "tag": "e3c047f5d1"
+          },
+          {
+            "kind": "sandbox_record",
+            "path": "/run/soglia-b8/B8/sandbox/e3c047f5d1.json",
+            "present": false,
+            "tag": "e3c047f5d1"
+          },
+          {
+            "kind": "bundle",
+            "path": "/run/soglia-b8/B8/bundles/e3c047f5d1",
+            "present": false,
+            "tag": "e3c047f5d1"
+          },
+          {
+            "kind": "runc_state",
+            "path": "/run/soglia-b8/B8/runc/soglia-e3c047f5d1",
+            "present": false,
+            "tag": "e3c047f5d1"
+          }
+        ],
+        "live_entries": 0
+      },
+      "tags": [
+        "062c67fb16",
+        "3dd2100251",
+        "e3c047f5d1"
+      ],
+      "verdict": "PASS"
+    },
+    "verdict": "PASS"
+  },
+  "burst": {
+    "classification": "OUTSIDE_SUPPORTED_ENVELOPE_REFUSAL_CHARACTERIZATION",
+    "effects": {
+      "dns_packet_delta": {
+        "tcp": 0,
+        "udp": 0
+      },
+      "dns_packets_after": {
+        "tcp": 0,
+        "udp": 0
+      },
+      "dns_packets_before": {
+        "tcp": 0,
+        "udp": 0
+      },
+      "outbound_connection_attempts": {
+        "capture_filter": "tcp and dst host 11.0.0.1 and dst port 443 and (tcp[tcpflags] & (tcp-syn|tcp-ack) == tcp-syn)",
+        "capture_interface": "any",
+        "capture_scope": "the controlled workload window to the qualification-only endpoint 11.0.0.1:443",
+        "decoded_evidence": "/soglia/spikes/cgroup-bpf/evidence/replay/b8-20261002T155626Z-9424/profiles/B8/burst-outbound-syn.txt",
+        "deduplication_key": [
+          "source",
+          "source_port",
+          "destination",
+          "destination_port"
+        ],
+        "distinct_connection_attempts": 210,
+        "duplicate_or_retransmitted_syn_packets": 0,
+        "flows": [
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 40208
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 40222
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 40230
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 40246
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 40260
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 40264
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 40268
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 40282
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 40292
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 40304
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 40312
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 40324
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 40326
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 40328
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 40338
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 40354
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 40358
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 40374
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 40384
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 40396
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 40406
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 40418
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 40422
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 40428
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 40436
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 40440
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 40454
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 40458
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 40460
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 40468
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 40482
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 40488
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 40496
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 40502
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 40518
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 40532
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 40546
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 40554
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 40564
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 40572
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 40584
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 40598
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 40612
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 40628
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 40644
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 40648
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 40656
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 40662
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 40672
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 40674
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 40686
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 40700
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 40706
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 40720
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 40732
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 40738
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 40742
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 40746
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 40758
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 40766
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 40778
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 40792
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 40802
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 40806
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 40820
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 40828
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 40834
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 40836
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 40844
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 40846
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 40862
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 40876
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 40886
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 40888
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 40898
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 40902
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 40908
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 40918
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 40922
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 40928
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 40938
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 40948
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 40952
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 40962
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 40976
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 40986
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 40998
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41004
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41016
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41020
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41034
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41042
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41048
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41050
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41052
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41066
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41074
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41090
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41100
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41112
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41122
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41134
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41148
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41158
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41170
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41176
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41182
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41194
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41200
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41214
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41216
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41218
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41224
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41238
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41248
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41260
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41262
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41268
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41274
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41280
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41288
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41304
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41320
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41332
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41336
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41346
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41356
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41368
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41378
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41394
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41402
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41408
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41410
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41412
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41420
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41424
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41434
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41438
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41444
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41448
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41458
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41462
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41468
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41476
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41480
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41484
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41492
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41496
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41500
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41514
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41516
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41528
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41532
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41534
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41546
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41560
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41564
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41576
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41590
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41596
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41610
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41626
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41640
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41642
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41654
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41670
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41672
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41688
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41704
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41720
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41726
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41728
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41740
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41752
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41768
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41772
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41782
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41796
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41802
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41812
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41816
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41832
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41836
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41844
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41850
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41860
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41868
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41874
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41888
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41900
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41908
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41922
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41936
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41946
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41950
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41964
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41970
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41978
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41982
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 41996
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 42008
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 42016
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 42026
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 42034
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 42040
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 42042
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 42044
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 42054
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 42062
+          },
+          {
+            "destination": "11.0.0.1",
+            "destination_port": 443,
+            "source": "11.0.0.1",
+            "source_port": 42070
+          }
+        ],
+        "raw_evidence": "/soglia/spikes/cgroup-bpf/evidence/replay/b8-20261002T155626Z-9424/profiles/B8/burst-outbound-syn.pcap",
+        "raw_syn_packets": 210
+      },
+      "rejected_connection_outbound_accepts": 0,
+      "rejected_connection_outbound_attempts": 0,
+      "successful_connections": 210,
+      "upstream_accepts_after": 1245,
+      "upstream_accepts_before": 1035
+    },
+    "failure_class": "QueueFull",
+    "immediate_control": {
+      "body": {
+        "achieved_rate_per_second": 1000.0,
+        "attempts": 1,
+        "elapsed_ms": 0,
+        "expected_status": null,
+        "failed": 0,
+        "kind": "rate",
+        "max_us": 359,
+        "minimum_rate_per_second": 0.95,
+        "p50_us": 359,
+        "p95_us": 359,
+        "p99_us": 359,
+        "requested": 1,
+        "requested_rate_per_second": 1,
+        "retry_count": 0,
+        "strategy": "one-shot-no-retry",
+        "succeeded": 1
+      },
+      "command": "b7-rate-report 11.0.0.1:443 1 1 /tmp/b7-burst-control.json",
+      "elapsed_ms": 260,
+      "execution_id": "76c7719562882470bcde2e6b9e932790",
+      "status": 200
+    },
+    "prior_observer_diagnosis": {
+      "cause": "the legacy parser looked for counter as a sibling of rule.comment, but nft -j stores it in rule.expr; it therefore returned zero for every commented rule. The observed service real UID is 65534, so the skuid filter itself does not explain the historical zero",
+      "historical_derived_rejected_syn": -107,
+      "historical_raw_syn_packets": 0,
+      "historical_run": "b7-diagnostic-20260930T210309Z-1170989",
+      "historical_successful_connections": 107,
+      "legacy_filter": "meta skuid 65534",
+      "replacement": "packet capture of target SYNs with distinct 4-tuple counting; retransmissions and capture duplicates do not add attempts",
+      "sandbox_agent_uid": 65534,
+      "service_process": {
+        "main_pid": 9614,
+        "real_uid": 65534
+      }
+    },
+    "refused": 46,
+    "requested": 256,
+    "resolve_health": {
+      "control_resolves_excluded": 2,
+      "event_count": 2,
+      "events": [
+        {
+          "delayed_hit": 0,
+          "identity_mismatch": 0,
+          "integrity_failure": 0,
+          "interval_ms": 2167,
+          "latency_max_us": 2897,
+          "not_found": 0,
+          "queue_refusal": 46,
+          "resolved": 211,
+          "revoked": 0,
+          "stale_generation": 0,
+          "timeout": 0,
+          "unavailable": 0
+        },
+        {
+          "delayed_hit": 0,
+          "identity_mismatch": 0,
+          "integrity_failure": 0,
+          "interval_ms": 1343,
+          "latency_max_us": 101,
+          "not_found": 0,
+          "queue_refusal": 0,
+          "resolved": 1,
+          "revoked": 0,
+          "stale_generation": 0,
+          "timeout": 0,
+          "unavailable": 0
+        }
+      ],
+      "label": "burst",
+      "raw_totals": {
+        "delayed_hit": 0,
+        "identity_mismatch": 0,
+        "integrity_failure": 0,
+        "not_found": 0,
+        "queue_refusal": 46,
+        "resolved": 212,
+        "revoked": 0,
+        "stale_generation": 0,
+        "timeout": 0,
+        "unavailable": 0
+      },
+      "source": "production cgroup_bpf.resolve_health structured events",
+      "verdict": "PASS",
+      "workload_attempts": 256,
+      "workload_totals": {
+        "delayed_hit": 0,
+        "identity_mismatch": 0,
+        "integrity_failure": 0,
+        "not_found": 0,
+        "queue_refusal": 46,
+        "resolved": 210,
+        "revoked": 0,
+        "stale_generation": 0,
+        "timeout": 0,
+        "unavailable": 0
+      }
+    },
+    "succeeded": 210,
+    "supported_capacity_claim": false,
+    "verdict": "PASS"
+  },
+  "fault_injection": {
+    "cases": {
+      "cancel_after_write": {
+        "test": "a_cancelled_caller_cannot_desynchronize_the_next_exchange",
+        "verdict": "PASS"
+      },
+      "cancel_before_write": {
+        "test": "cancellation_before_write_removes_the_request_without_a_frame",
+        "verdict": "PASS"
+      },
+      "duplicate_id": {
+        "test": "duplicate_zero_and_late_request_ids_are_protocol_failures",
+        "verdict": "PASS"
+      },
+      "helper_exit": {
+        "test": "broken_resolve_channel_is_unavailable_and_changes_runtime_health",
+        "verdict": "PASS"
+      },
+      "lifecycle_write_contention": {
+        "test": "lifecycle_writer_has_priority_over_new_resolve_readers",
+        "verdict": "PASS"
+      },
+      "malformed_result": {
+        "test": "a_backend_error_is_an_integrity_failure_not_a_panic",
+        "verdict": "PASS"
+      },
+      "out_of_order": {
+        "test": "out_of_order_replies_are_correlated_to_their_request_ids",
+        "verdict": "PASS"
+      },
+      "partial_frame": {
+        "test": "a_truncated_frame_is_an_error_not_a_close",
+        "verdict": "PASS"
+      },
+      "unknown_id": {
+        "test": "a_wrong_response_id_poisons_the_channel_permanently",
+        "verdict": "PASS"
+      },
+      "worker_blocked": {
+        "test": "concurrent_missing_tuples_timeout_without_a_health_failure",
+        "verdict": "PASS"
+      },
+      "worker_panic": {
+        "test": "a_worker_panic_is_not_converted_to_a_consumable_answer",
+        "verdict": "PASS"
+      },
+      "writer_or_exchange_watchdog": {
+        "test": "a_watchdog_timeout_poisons_the_channel_permanently",
+        "verdict": "PASS"
+      },
+      "wrong_version": {
+        "test": "a_wrong_resolver_version_is_typed_before_backend_start",
+        "verdict": "PASS"
+      }
+    },
+    "command": [
+      "/root/.cargo/bin/cargo",
+      "+1.97.0",
+      "test",
+      "--manifest-path",
+      "/soglia/Cargo.toml",
+      "--workspace",
+      "--all-features",
+      "--",
+      "--nocapture"
+    ],
+    "source": "production unit-level fault injection under the qualified source fingerprint",
+    "typed_outcomes_and_health_transitions_verified": true,
+    "verdict": "PASS"
+  },
+  "generator": {
+    "host_cpu_count": 4,
+    "placement": "same qualification VM, inside one production Execution",
+    "process_allowed_cpus": [
+      0,
+      1,
+      2,
+      3
+    ]
+  },
+  "mixed": {
+    "commands": [
+      "delayed-b7-live-report 0 11.0.0.1:443 32 5 /tmp/b8-mixed-live.json",
+      "b7-churn-report 11.0.0.1:443 256 /tmp/b8-mixed-churn.json",
+      "b7-rate-report 11.0.0.1:443 250 5 /tmp/b8-mixed-rate.json"
+    ],
+    "high_water": {
+      "ingress": 0,
+      "proxy": 0,
+      "resolve": 0,
+      "worker": 57
+    },
+    "invocations": [
+      {
+        "body": {
+          "elapsed_ms": 34,
+          "failed": 0,
+          "kind": "live",
+          "max_us": 34624,
+          "requested": 32,
+          "resolved_connections": 1,
+          "succeeded": 32,
+          "unconnected_sockets": 31
+        },
+        "command": "delayed-b7-live-report 0 11.0.0.1:443 32 5 /tmp/b8-mixed-live.json",
+        "elapsed_ms": 5289,
+        "execution_id": "062c67fb1647fdf9ca9f23913a64d1a4",
+        "status": 200
+      },
+      {
+        "body": {
+          "attempts": 256,
+          "elapsed_ms": 59,
+          "expected_status": null,
+          "failed": 0,
+          "kind": "churn",
+          "max_us": 8646,
+          "p50_us": 170,
+          "p95_us": 410,
+          "p99_us": 879,
+          "requested": 256,
+          "retry_count": 0,
+          "strategy": "one-shot-no-retry",
+          "succeeded": 256
+        },
+        "command": "b7-churn-report 11.0.0.1:443 256 /tmp/b8-mixed-churn.json",
+        "elapsed_ms": 345,
+        "execution_id": "e3c047f5d1db05f92afd7ee57aea1be3",
+        "status": 200
+      },
+      {
+        "body": {
+          "attempts": 1250,
+          "elapsed_ms": 4996,
+          "expected_status": null,
+          "failed": 0,
+          "kind": "rate",
+          "max_us": 22979,
+          "p50_us": 234,
+          "p95_us": 335,
+          "p99_us": 777,
+          "requested": 1250,
+          "retry_count": 0,
+          "strategy": "one-shot-no-retry",
+          "succeeded": 1250
+        },
+        "command": "b7-rate-report 11.0.0.1:443 250 5 /tmp/b8-mixed-rate.json",
+        "elapsed_ms": 5394,
+        "execution_id": "3dd21002511957f9135cc562254f283b",
+        "status": 200
+      }
+    ],
+    "limits": {
+      "ingress": 8,
+      "proxy": 512,
+      "resolve": 64,
+      "worker": 64
+    },
+    "limits_respected": true
+  },
+  "ramp": {
+    "breakpoint": {
+      "achieved_rate_per_second": 6543.432030099787,
+      "breakpoint": true,
+      "breakpoint_reasons": [
+        "achieved_rate_below_95_percent"
+      ],
+      "execution_id": "ff4a1fbd94554b34f27546a83d1017c3",
+      "failed": 0,
+      "p99_us": 322,
+      "post_resolve_decision": "policy_denied",
+      "requested_rate_per_second": 8000
+    },
+    "breakpoint_reached": true,
+    "declared_rate_cap_per_second": 16000,
+    "maximum_sustained_rate_per_second": 4000.0,
+    "outbound_ephemeral_ports_consumed": false,
+    "pass_criterion": false,
+    "steps": [
+      {
+        "achieved_rate_per_second": 500.2000800320128,
+        "breakpoint": false,
+        "breakpoint_reasons": [],
+        "execution_id": "2e4f4beaf88da8754f81917321eed2fb",
+        "failed": 0,
+        "p99_us": 378,
+        "post_resolve_decision": "policy_denied",
+        "requested_rate_per_second": 500
+      },
+      {
+        "achieved_rate_per_second": 750.1500300060012,
+        "breakpoint": false,
+        "breakpoint_reasons": [],
+        "execution_id": "35f84d304092572bc73cb31fb5040dc7",
+        "failed": 0,
+        "p99_us": 475,
+        "post_resolve_decision": "policy_denied",
+        "requested_rate_per_second": 750
+      },
+      {
+        "achieved_rate_per_second": 1000.2000400080017,
+        "breakpoint": false,
+        "breakpoint_reasons": [],
+        "execution_id": "a8623a494927bb0204e0f84fd0be1625",
+        "failed": 0,
+        "p99_us": 362,
+        "post_resolve_decision": "policy_denied",
+        "requested_rate_per_second": 1000
+      },
+      {
+        "achieved_rate_per_second": 1250.250050010002,
+        "breakpoint": false,
+        "breakpoint_reasons": [],
+        "execution_id": "f6935b5f8ca529fce3934a51fa29ca03",
+        "failed": 0,
+        "p99_us": 348,
+        "post_resolve_decision": "policy_denied",
+        "requested_rate_per_second": 1250
+      },
+      {
+        "achieved_rate_per_second": 1500.3000600120024,
+        "breakpoint": false,
+        "breakpoint_reasons": [],
+        "execution_id": "47fd26bcf748d014b622fd8254071f1d",
+        "failed": 0,
+        "p99_us": 405,
+        "post_resolve_decision": "policy_denied",
+        "requested_rate_per_second": 1500
+      },
+      {
+        "achieved_rate_per_second": 2000.0,
+        "breakpoint": false,
+        "breakpoint_reasons": [],
+        "execution_id": "cf18db5c10ef4f3302944e7f85f1df98",
+        "failed": 0,
+        "p99_us": 497,
+        "post_resolve_decision": "policy_denied",
+        "requested_rate_per_second": 2000
+      },
+      {
+        "achieved_rate_per_second": 4000.0,
+        "breakpoint": false,
+        "breakpoint_reasons": [],
+        "execution_id": "5dcc0e3c1431f70e3f963e10e1b2dbb3",
+        "failed": 0,
+        "p99_us": 353,
+        "post_resolve_decision": "policy_denied",
+        "requested_rate_per_second": 4000
+      },
+      {
+        "achieved_rate_per_second": 6543.432030099787,
+        "breakpoint": true,
+        "breakpoint_reasons": [
+          "achieved_rate_below_95_percent"
+        ],
+        "execution_id": "ff4a1fbd94554b34f27546a83d1017c3",
+        "failed": 0,
+        "p99_us": 322,
+        "post_resolve_decision": "policy_denied",
+        "requested_rate_per_second": 8000
+      }
+    ],
+    "stop_reason": "breakpoint_reached"
+  },
+  "schema": 1,
+  "supported_profile": {
+    "client_p99_pass": true,
+    "configured_pending": 64,
+    "configured_workers": 4,
+    "correct_correlations": true,
+    "duration_seconds": 60,
+    "effects": {
+      "dns_packet_delta": {
+        "tcp": 0,
+        "udp": 0
+      },
+      "outbound_accept_delta": 0,
+      "outbound_attempts": {
+        "capture_filter": "tcp and dst host 11.0.0.2 and dst port 443 and (tcp[tcpflags] & (tcp-syn|tcp-ack) == tcp-syn)",
+        "capture_interface": "any",
+        "capture_scope": "the controlled workload window to the qualification-only endpoint 11.0.0.2:443",
+        "decoded_evidence": "/soglia/spikes/cgroup-bpf/evidence/replay/b8-20261002T155626Z-9424/profiles/B8/rate-500x60-outbound-syn.txt",
+        "deduplication_key": [
+          "source",
+          "source_port",
+          "destination",
+          "destination_port"
+        ],
+        "distinct_connection_attempts": 0,
+        "duplicate_or_retransmitted_syn_packets": 0,
+        "flows": [],
+        "raw_evidence": "/soglia/spikes/cgroup-bpf/evidence/replay/b8-20261002T155626Z-9424/profiles/B8/rate-500x60-outbound-syn.pcap",
+        "raw_syn_packets": 0
+      }
+    },
+    "measurement": {
+      "achieved_rate_per_second": 500.01666722224076,
+      "attempts": 30000,
+      "elapsed_ms": 59998,
+      "expected_status": 403,
+      "failed": 0,
+      "kind": "resolve-rate",
+      "max_us": 30262,
+      "minimum_rate_per_second": 475.0,
+      "p50_us": 169,
+      "p95_us": 253,
+      "p99_us": 370,
+      "requested": 30000,
+      "requested_rate_per_second": 500,
+      "retry_count": 0,
+      "strategy": "one-shot-no-retry",
+      "succeeded": 30000
+    },
+    "negative_outcomes": 0,
+    "post_resolve_decision": "policy_denied",
+    "rate_floor_pass": true,
+    "supervisor_metrics": {
+      "control_resolves_excluded": 1,
+      "event_count": 61,
+      "events": [
+        {
+          "delayed_hit": 1,
+          "identity_mismatch": 0,
+          "integrity_failure": 0,
+          "interval_ms": 1001,
+          "latency_max_us": 23320,
+          "not_found": 0,
+          "queue_refusal": 0,
+          "resolved": 304,
+          "revoked": 0,
+          "stale_generation": 0,
+          "timeout": 0,
+          "unavailable": 0
+        },
+        {
+          "delayed_hit": 1,
+          "identity_mismatch": 0,
+          "integrity_failure": 0,
+          "interval_ms": 1001,
+          "latency_max_us": 22714,
+          "not_found": 0,
+          "queue_refusal": 0,
+          "resolved": 501,
+          "revoked": 0,
+          "stale_generation": 0,
+          "timeout": 0,
+          "unavailable": 0
+        },
+        {
+          "delayed_hit": 1,
+          "identity_mismatch": 0,
+          "integrity_failure": 0,
+          "interval_ms": 1000,
+          "latency_max_us": 22813,
+          "not_found": 0,
+          "queue_refusal": 0,
+          "resolved": 500,
+          "revoked": 0,
+          "stale_generation": 0,
+          "timeout": 0,
+          "unavailable": 0
+        },
+        {
+          "delayed_hit": 1,
+          "identity_mismatch": 0,
+          "integrity_failure": 0,
+          "interval_ms": 1002,
+          "latency_max_us": 22442,
+          "not_found": 0,
+          "queue_refusal": 0,
+          "resolved": 501,
+          "revoked": 0,
+          "stale_generation": 0,
+          "timeout": 0,
+          "unavailable": 0
+        },
+        {
+          "delayed_hit": 1,
+          "identity_mismatch": 0,
+          "integrity_failure": 0,
+          "interval_ms": 1001,
+          "latency_max_us": 23186,
+          "not_found": 0,
+          "queue_refusal": 0,
+          "resolved": 501,
+          "revoked": 0,
+          "stale_generation": 0,
+          "timeout": 0,
+          "unavailable": 0
+        },
+        {
+          "delayed_hit": 1,
+          "identity_mismatch": 0,
+          "integrity_failure": 0,
+          "interval_ms": 1000,
+          "latency_max_us": 23719,
+          "not_found": 0,
+          "queue_refusal": 0,
+          "resolved": 500,
+          "revoked": 0,
+          "stale_generation": 0,
+          "timeout": 0,
+          "unavailable": 0
+        },
+        {
+          "delayed_hit": 1,
+          "identity_mismatch": 0,
+          "integrity_failure": 0,
+          "interval_ms": 1001,
+          "latency_max_us": 24128,
+          "not_found": 0,
+          "queue_refusal": 0,
+          "resolved": 501,
+          "revoked": 0,
+          "stale_generation": 0,
+          "timeout": 0,
+          "unavailable": 0
+        },
+        {
+          "delayed_hit": 1,
+          "identity_mismatch": 0,
+          "integrity_failure": 0,
+          "interval_ms": 1000,
+          "latency_max_us": 23804,
+          "not_found": 0,
+          "queue_refusal": 0,
+          "resolved": 500,
+          "revoked": 0,
+          "stale_generation": 0,
+          "timeout": 0,
+          "unavailable": 0
+        },
+        {
+          "delayed_hit": 1,
+          "identity_mismatch": 0,
+          "integrity_failure": 0,
+          "interval_ms": 1017,
+          "latency_max_us": 23755,
+          "not_found": 0,
+          "queue_refusal": 0,
+          "resolved": 497,
+          "revoked": 0,
+          "stale_generation": 0,
+          "timeout": 0,
+          "unavailable": 0
+        },
+        {
+          "delayed_hit": 1,
+          "identity_mismatch": 0,
+          "integrity_failure": 0,
+          "interval_ms": 1024,
+          "latency_max_us": 26724,
+          "not_found": 0,
+          "queue_refusal": 0,
+          "resolved": 511,
+          "revoked": 0,
+          "stale_generation": 0,
+          "timeout": 0,
+          "unavailable": 0
+        },
+        {
+          "delayed_hit": 1,
+          "identity_mismatch": 0,
+          "integrity_failure": 0,
+          "interval_ms": 1025,
+          "latency_max_us": 26695,
+          "not_found": 0,
+          "queue_refusal": 0,
+          "resolved": 513,
+          "revoked": 0,
+          "stale_generation": 0,
+          "timeout": 0,
+          "unavailable": 0
+        },
+        {
+          "delayed_hit": 1,
+          "identity_mismatch": 0,
+          "integrity_failure": 0,
+          "interval_ms": 1019,
+          "latency_max_us": 22114,
+          "not_found": 0,
+          "queue_refusal": 0,
+          "resolved": 512,
+          "revoked": 0,
+          "stale_generation": 0,
+          "timeout": 0,
+          "unavailable": 0
+        },
+        {
+          "delayed_hit": 0,
+          "identity_mismatch": 0,
+          "integrity_failure": 0,
+          "interval_ms": 1000,
+          "latency_max_us": 11581,
+          "not_found": 0,
+          "queue_refusal": 0,
+          "resolved": 511,
+          "revoked": 0,
+          "stale_generation": 0,
+          "timeout": 0,
+          "unavailable": 0
+        },
+        {
+          "delayed_hit": 1,
+          "identity_mismatch": 0,
+          "integrity_failure": 0,
+          "interval_ms": 1001,
+          "latency_max_us": 22368,
+          "not_found": 0,
+          "queue_refusal": 0,
+          "resolved": 501,
+          "revoked": 0,
+          "stale_generation": 0,
+          "timeout": 0,
+          "unavailable": 0
+        },
+        {
+          "delayed_hit": 1,
+          "identity_mismatch": 0,
+          "integrity_failure": 0,
+          "interval_ms": 1001,
+          "latency_max_us": 25408,
+          "not_found": 0,
+          "queue_refusal": 0,
+          "resolved": 501,
+          "revoked": 0,
+          "stale_generation": 0,
+          "timeout": 0,
+          "unavailable": 0
+        },
+        {
+          "delayed_hit": 1,
+          "identity_mismatch": 0,
+          "integrity_failure": 0,
+          "interval_ms": 1000,
+          "latency_max_us": 22859,
+          "not_found": 0,
+          "queue_refusal": 0,
+          "resolved": 500,
+          "revoked": 0,
+          "stale_generation": 0,
+          "timeout": 0,
+          "unavailable": 0
+        },
+        {
+          "delayed_hit": 1,
+          "identity_mismatch": 0,
+          "integrity_failure": 0,
+          "interval_ms": 1001,
+          "latency_max_us": 22025,
+          "not_found": 0,
+          "queue_refusal": 0,
+          "resolved": 501,
+          "revoked": 0,
+          "stale_generation": 0,
+          "timeout": 0,
+          "unavailable": 0
+        },
+        {
+          "delayed_hit": 1,
+          "identity_mismatch": 0,
+          "integrity_failure": 0,
+          "interval_ms": 1000,
+          "latency_max_us": 22201,
+          "not_found": 0,
+          "queue_refusal": 0,
+          "resolved": 500,
+          "revoked": 0,
+          "stale_generation": 0,
+          "timeout": 0,
+          "unavailable": 0
+        },
+        {
+          "delayed_hit": 1,
+          "identity_mismatch": 0,
+          "integrity_failure": 0,
+          "interval_ms": 1001,
+          "latency_max_us": 22964,
+          "not_found": 0,
+          "queue_refusal": 0,
+          "resolved": 501,
+          "revoked": 0,
+          "stale_generation": 0,
+          "timeout": 0,
+          "unavailable": 0
+        },
+        {
+          "delayed_hit": 1,
+          "identity_mismatch": 0,
+          "integrity_failure": 0,
+          "interval_ms": 1001,
+          "latency_max_us": 21263,
+          "not_found": 0,
+          "queue_refusal": 0,
+          "resolved": 501,
+          "revoked": 0,
+          "stale_generation": 0,
+          "timeout": 0,
+          "unavailable": 0
+        },
+        {
+          "delayed_hit": 1,
+          "identity_mismatch": 0,
+          "integrity_failure": 0,
+          "interval_ms": 1001,
+          "latency_max_us": 22043,
+          "not_found": 0,
+          "queue_refusal": 0,
+          "resolved": 501,
+          "revoked": 0,
+          "stale_generation": 0,
+          "timeout": 0,
+          "unavailable": 0
+        },
+        {
+          "delayed_hit": 1,
+          "identity_mismatch": 0,
+          "integrity_failure": 0,
+          "interval_ms": 1000,
+          "latency_max_us": 24367,
+          "not_found": 0,
+          "queue_refusal": 0,
+          "resolved": 500,
+          "revoked": 0,
+          "stale_generation": 0,
+          "timeout": 0,
+          "unavailable": 0
+        },
+        {
+          "delayed_hit": 1,
+          "identity_mismatch": 0,
+          "integrity_failure": 0,
+          "interval_ms": 1001,
+          "latency_max_us": 22592,
+          "not_found": 0,
+          "queue_refusal": 0,
+          "resolved": 501,
+          "revoked": 0,
+          "stale_generation": 0,
+          "timeout": 0,
+          "unavailable": 0
+        },
+        {
+          "delayed_hit": 1,
+          "identity_mismatch": 0,
+          "integrity_failure": 0,
+          "interval_ms": 1001,
+          "latency_max_us": 22735,
+          "not_found": 0,
+          "queue_refusal": 0,
+          "resolved": 501,
+          "revoked": 0,
+          "stale_generation": 0,
+          "timeout": 0,
+          "unavailable": 0
+        },
+        {
+          "delayed_hit": 1,
+          "identity_mismatch": 0,
+          "integrity_failure": 0,
+          "interval_ms": 1000,
+          "latency_max_us": 23140,
+          "not_found": 0,
+          "queue_refusal": 0,
+          "resolved": 500,
+          "revoked": 0,
+          "stale_generation": 0,
+          "timeout": 0,
+          "unavailable": 0
+        },
+        {
+          "delayed_hit": 1,
+          "identity_mismatch": 0,
+          "integrity_failure": 0,
+          "interval_ms": 1001,
+          "latency_max_us": 22930,
+          "not_found": 0,
+          "queue_refusal": 0,
+          "resolved": 501,
+          "revoked": 0,
+          "stale_generation": 0,
+          "timeout": 0,
+          "unavailable": 0
+        },
+        {
+          "delayed_hit": 1,
+          "identity_mismatch": 0,
+          "integrity_failure": 0,
+          "interval_ms": 1001,
+          "latency_max_us": 22242,
+          "not_found": 0,
+          "queue_refusal": 0,
+          "resolved": 501,
+          "revoked": 0,
+          "stale_generation": 0,
+          "timeout": 0,
+          "unavailable": 0
+        },
+        {
+          "delayed_hit": 1,
+          "identity_mismatch": 0,
+          "integrity_failure": 0,
+          "interval_ms": 1002,
+          "latency_max_us": 23687,
+          "not_found": 0,
+          "queue_refusal": 0,
+          "resolved": 501,
+          "revoked": 0,
+          "stale_generation": 0,
+          "timeout": 0,
+          "unavailable": 0
+        },
+        {
+          "delayed_hit": 1,
+          "identity_mismatch": 0,
+          "integrity_failure": 0,
+          "interval_ms": 1001,
+          "latency_max_us": 23852,
+          "not_found": 0,
+          "queue_refusal": 0,
+          "resolved": 501,
+          "revoked": 0,
+          "stale_generation": 0,
+          "timeout": 0,
+          "unavailable": 0
+        },
+        {
+          "delayed_hit": 1,
+          "identity_mismatch": 0,
+          "integrity_failure": 0,
+          "interval_ms": 1002,
+          "latency_max_us": 22843,
+          "not_found": 0,
+          "queue_refusal": 0,
+          "resolved": 501,
+          "revoked": 0,
+          "stale_generation": 0,
+          "timeout": 0,
+          "unavailable": 0
+        },
+        {
+          "delayed_hit": 1,
+          "identity_mismatch": 0,
+          "integrity_failure": 0,
+          "interval_ms": 1000,
+          "latency_max_us": 23091,
+          "not_found": 0,
+          "queue_refusal": 0,
+          "resolved": 500,
+          "revoked": 0,
+          "stale_generation": 0,
+          "timeout": 0,
+          "unavailable": 0
+        },
+        {
+          "delayed_hit": 1,
+          "identity_mismatch": 0,
+          "integrity_failure": 0,
+          "interval_ms": 1001,
+          "latency_max_us": 23640,
+          "not_found": 0,
+          "queue_refusal": 0,
+          "resolved": 501,
+          "revoked": 0,
+          "stale_generation": 0,
+          "timeout": 0,
+          "unavailable": 0
+        },
+        {
+          "delayed_hit": 1,
+          "identity_mismatch": 0,
+          "integrity_failure": 0,
+          "interval_ms": 1001,
+          "latency_max_us": 23747,
+          "not_found": 0,
+          "queue_refusal": 0,
+          "resolved": 501,
+          "revoked": 0,
+          "stale_generation": 0,
+          "timeout": 0,
+          "unavailable": 0
+        },
+        {
+          "delayed_hit": 1,
+          "identity_mismatch": 0,
+          "integrity_failure": 0,
+          "interval_ms": 1001,
+          "latency_max_us": 23716,
+          "not_found": 0,
+          "queue_refusal": 0,
+          "resolved": 501,
+          "revoked": 0,
+          "stale_generation": 0,
+          "timeout": 0,
+          "unavailable": 0
+        },
+        {
+          "delayed_hit": 1,
+          "identity_mismatch": 0,
+          "integrity_failure": 0,
+          "interval_ms": 1002,
+          "latency_max_us": 23373,
+          "not_found": 0,
+          "queue_refusal": 0,
+          "resolved": 501,
+          "revoked": 0,
+          "stale_generation": 0,
+          "timeout": 0,
+          "unavailable": 0
+        },
+        {
+          "delayed_hit": 1,
+          "identity_mismatch": 0,
+          "integrity_failure": 0,
+          "interval_ms": 1000,
+          "latency_max_us": 22521,
+          "not_found": 0,
+          "queue_refusal": 0,
+          "resolved": 500,
+          "revoked": 0,
+          "stale_generation": 0,
+          "timeout": 0,
+          "unavailable": 0
+        },
+        {
+          "delayed_hit": 1,
+          "identity_mismatch": 0,
+          "integrity_failure": 0,
+          "interval_ms": 1001,
+          "latency_max_us": 23728,
+          "not_found": 0,
+          "queue_refusal": 0,
+          "resolved": 501,
+          "revoked": 0,
+          "stale_generation": 0,
+          "timeout": 0,
+          "unavailable": 0
+        },
+        {
+          "delayed_hit": 1,
+          "identity_mismatch": 0,
+          "integrity_failure": 0,
+          "interval_ms": 1000,
+          "latency_max_us": 22058,
+          "not_found": 0,
+          "queue_refusal": 0,
+          "resolved": 500,
+          "revoked": 0,
+          "stale_generation": 0,
+          "timeout": 0,
+          "unavailable": 0
+        },
+        {
+          "delayed_hit": 1,
+          "identity_mismatch": 0,
+          "integrity_failure": 0,
+          "interval_ms": 1002,
+          "latency_max_us": 22907,
+          "not_found": 0,
+          "queue_refusal": 0,
+          "resolved": 501,
+          "revoked": 0,
+          "stale_generation": 0,
+          "timeout": 0,
+          "unavailable": 0
+        },
+        {
+          "delayed_hit": 1,
+          "identity_mismatch": 0,
+          "integrity_failure": 0,
+          "interval_ms": 1001,
+          "latency_max_us": 22882,
+          "not_found": 0,
+          "queue_refusal": 0,
+          "resolved": 501,
+          "revoked": 0,
+          "stale_generation": 0,
+          "timeout": 0,
+          "unavailable": 0
+        },
+        {
+          "delayed_hit": 1,
+          "identity_mismatch": 0,
+          "integrity_failure": 0,
+          "interval_ms": 1002,
+          "latency_max_us": 20286,
+          "not_found": 0,
+          "queue_refusal": 0,
+          "resolved": 501,
+          "revoked": 0,
+          "stale_generation": 0,
+          "timeout": 0,
+          "unavailable": 0
+        },
+        {
+          "delayed_hit": 1,
+          "identity_mismatch": 0,
+          "integrity_failure": 0,
+          "interval_ms": 1001,
+          "latency_max_us": 23623,
+          "not_found": 0,
+          "queue_refusal": 0,
+          "resolved": 501,
+          "revoked": 0,
+          "stale_generation": 0,
+          "timeout": 0,
+          "unavailable": 0
+        },
+        {
+          "delayed_hit": 1,
+          "identity_mismatch": 0,
+          "integrity_failure": 0,
+          "interval_ms": 1001,
+          "latency_max_us": 23851,
+          "not_found": 0,
+          "queue_refusal": 0,
+          "resolved": 501,
+          "revoked": 0,
+          "stale_generation": 0,
+          "timeout": 0,
+          "unavailable": 0
+        },
+        {
+          "delayed_hit": 1,
+          "identity_mismatch": 0,
+          "integrity_failure": 0,
+          "interval_ms": 1002,
+          "latency_max_us": 21946,
+          "not_found": 0,
+          "queue_refusal": 0,
+          "resolved": 501,
+          "revoked": 0,
+          "stale_generation": 0,
+          "timeout": 0,
+          "unavailable": 0
+        },
+        {
+          "delayed_hit": 1,
+          "identity_mismatch": 0,
+          "integrity_failure": 0,
+          "interval_ms": 1001,
+          "latency_max_us": 21963,
+          "not_found": 0,
+          "queue_refusal": 0,
+          "resolved": 501,
+          "revoked": 0,
+          "stale_generation": 0,
+          "timeout": 0,
+          "unavailable": 0
+        },
+        {
+          "delayed_hit": 1,
+          "identity_mismatch": 0,
+          "integrity_failure": 0,
+          "interval_ms": 1000,
+          "latency_max_us": 23738,
+          "not_found": 0,
+          "queue_refusal": 0,
+          "resolved": 500,
+          "revoked": 0,
+          "stale_generation": 0,
+          "timeout": 0,
+          "unavailable": 0
+        },
+        {
+          "delayed_hit": 1,
+          "identity_mismatch": 0,
+          "integrity_failure": 0,
+          "interval_ms": 1001,
+          "latency_max_us": 23659,
+          "not_found": 0,
+          "queue_refusal": 0,
+          "resolved": 501,
+          "revoked": 0,
+          "stale_generation": 0,
+          "timeout": 0,
+          "unavailable": 0
+        },
+        {
+          "delayed_hit": 1,
+          "identity_mismatch": 0,
+          "integrity_failure": 0,
+          "interval_ms": 1000,
+          "latency_max_us": 23708,
+          "not_found": 0,
+          "queue_refusal": 0,
+          "resolved": 500,
+          "revoked": 0,
+          "stale_generation": 0,
+          "timeout": 0,
+          "unavailable": 0
+        },
+        {
+          "delayed_hit": 1,
+          "identity_mismatch": 0,
+          "integrity_failure": 0,
+          "interval_ms": 1001,
+          "latency_max_us": 23771,
+          "not_found": 0,
+          "queue_refusal": 0,
+          "resolved": 501,
+          "revoked": 0,
+          "stale_generation": 0,
+          "timeout": 0,
+          "unavailable": 0
+        },
+        {
+          "delayed_hit": 1,
+          "identity_mismatch": 0,
+          "integrity_failure": 0,
+          "interval_ms": 1002,
+          "latency_max_us": 23804,
+          "not_found": 0,
+          "queue_refusal": 0,
+          "resolved": 501,
+          "revoked": 0,
+          "stale_generation": 0,
+          "timeout": 0,
+          "unavailable": 0
+        },
+        {
+          "delayed_hit": 1,
+          "identity_mismatch": 0,
+          "integrity_failure": 0,
+          "interval_ms": 1001,
+          "latency_max_us": 26180,
+          "not_found": 0,
+          "queue_refusal": 0,
+          "resolved": 501,
+          "revoked": 0,
+          "stale_generation": 0,
+          "timeout": 0,
+          "unavailable": 0
+        },
+        {
+          "delayed_hit": 1,
+          "identity_mismatch": 0,
+          "integrity_failure": 0,
+          "interval_ms": 1000,
+          "latency_max_us": 22782,
+          "not_found": 0,
+          "queue_refusal": 0,
+          "resolved": 500,
+          "revoked": 0,
+          "stale_generation": 0,
+          "timeout": 0,
+          "unavailable": 0
+        },
+        {
+          "delayed_hit": 1,
+          "identity_mismatch": 0,
+          "integrity_failure": 0,
+          "interval_ms": 1001,
+          "latency_max_us": 30061,
+          "not_found": 0,
+          "queue_refusal": 0,
+          "resolved": 501,
+          "revoked": 0,
+          "stale_generation": 0,
+          "timeout": 0,
+          "unavailable": 0
+        },
+        {
+          "delayed_hit": 1,
+          "identity_mismatch": 0,
+          "integrity_failure": 0,
+          "interval_ms": 1002,
+          "latency_max_us": 23461,
+          "not_found": 0,
+          "queue_refusal": 0,
+          "resolved": 501,
+          "revoked": 0,
+          "stale_generation": 0,
+          "timeout": 0,
+          "unavailable": 0
+        },
+        {
+          "delayed_hit": 1,
+          "identity_mismatch": 0,
+          "integrity_failure": 0,
+          "interval_ms": 1001,
+          "latency_max_us": 22882,
+          "not_found": 0,
+          "queue_refusal": 0,
+          "resolved": 501,
+          "revoked": 0,
+          "stale_generation": 0,
+          "timeout": 0,
+          "unavailable": 0
+        },
+        {
+          "delayed_hit": 1,
+          "identity_mismatch": 0,
+          "integrity_failure": 0,
+          "interval_ms": 1000,
+          "latency_max_us": 23412,
+          "not_found": 0,
+          "queue_refusal": 0,
+          "resolved": 500,
+          "revoked": 0,
+          "stale_generation": 0,
+          "timeout": 0,
+          "unavailable": 0
+        },
+        {
+          "delayed_hit": 1,
+          "identity_mismatch": 0,
+          "integrity_failure": 0,
+          "interval_ms": 1002,
+          "latency_max_us": 23311,
+          "not_found": 0,
+          "queue_refusal": 0,
+          "resolved": 501,
+          "revoked": 0,
+          "stale_generation": 0,
+          "timeout": 0,
+          "unavailable": 0
+        },
+        {
+          "delayed_hit": 1,
+          "identity_mismatch": 0,
+          "integrity_failure": 0,
+          "interval_ms": 1001,
+          "latency_max_us": 22009,
+          "not_found": 0,
+          "queue_refusal": 0,
+          "resolved": 501,
+          "revoked": 0,
+          "stale_generation": 0,
+          "timeout": 0,
+          "unavailable": 0
+        },
+        {
+          "delayed_hit": 1,
+          "identity_mismatch": 0,
+          "integrity_failure": 0,
+          "interval_ms": 1000,
+          "latency_max_us": 22911,
+          "not_found": 0,
+          "queue_refusal": 0,
+          "resolved": 495,
+          "revoked": 0,
+          "stale_generation": 0,
+          "timeout": 0,
+          "unavailable": 0
+        },
+        {
+          "delayed_hit": 1,
+          "identity_mismatch": 0,
+          "integrity_failure": 0,
+          "interval_ms": 1026,
+          "latency_max_us": 28684,
+          "not_found": 0,
+          "queue_refusal": 0,
+          "resolved": 504,
+          "revoked": 0,
+          "stale_generation": 0,
+          "timeout": 0,
+          "unavailable": 0
+        },
+        {
+          "delayed_hit": 0,
+          "identity_mismatch": 0,
+          "integrity_failure": 0,
+          "interval_ms": 1530,
+          "latency_max_us": 271,
+          "not_found": 0,
+          "queue_refusal": 0,
+          "resolved": 116,
+          "revoked": 0,
+          "stale_generation": 0,
+          "timeout": 0,
+          "unavailable": 0
+        }
+      ],
+      "label": "rate-500x60",
+      "raw_totals": {
+        "delayed_hit": 59,
+        "identity_mismatch": 0,
+        "integrity_failure": 0,
+        "not_found": 0,
+        "queue_refusal": 0,
+        "resolved": 30001,
+        "revoked": 0,
+        "stale_generation": 0,
+        "timeout": 0,
+        "unavailable": 0
+      },
+      "source": "production cgroup_bpf.resolve_health structured events",
+      "supported_envelope": true,
+      "verdict": "PASS",
+      "workload_attempts": 30000,
+      "workload_totals": {
+        "delayed_hit": 59,
+        "identity_mismatch": 0,
+        "integrity_failure": 0,
+        "not_found": 0,
+        "queue_refusal": 0,
+        "resolved": 30000,
+        "revoked": 0,
+        "stale_generation": 0,
+        "timeout": 0,
+        "unavailable": 0
+      }
+    },
+    "target_rate_per_second": 500
+  },
+  "verdict": "PASS"
+}

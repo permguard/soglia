@@ -1,0 +1,124 @@
+{
+  "backend_start_called": false,
+  "cases": {
+    "absent": {
+      "cgroup_unchanged": true,
+      "durable_inventory_byte_identical": true,
+      "elapsed_ms": 1007,
+      "helper_process_status": 0,
+      "netns_unchanged": true,
+      "nft_unchanged": true,
+      "pins_unchanged": true,
+      "refusal_class": "INCOMPATIBLE",
+      "response": {
+        "Failed": {
+          "failure": {
+            "Refused": {
+              "class": "INCOMPATIBLE",
+              "detail": "the Resolve v2 handshake is incompatible: the channel failed: Resource temporarily unavailable (os error 11)"
+            }
+          }
+        }
+      },
+      "stable_exit_code": 20,
+      "state_json_unchanged": true,
+      "verdict": "PASS"
+    },
+    "malformed": {
+      "cgroup_unchanged": true,
+      "durable_inventory_byte_identical": true,
+      "elapsed_ms": 0,
+      "helper_process_status": 0,
+      "netns_unchanged": true,
+      "nft_unchanged": true,
+      "pins_unchanged": true,
+      "refusal_class": "INCOMPATIBLE",
+      "response": {
+        "Failed": {
+          "failure": {
+            "Refused": {
+              "class": "INCOMPATIBLE",
+              "detail": "the Resolve v2 handshake is incompatible: an unexpected message arrived: missing field `version` at line 1 column 2"
+            }
+          }
+        }
+      },
+      "stable_exit_code": 20,
+      "state_json_unchanged": true,
+      "verdict": "PASS"
+    },
+    "wrong_max_pending": {
+      "cgroup_unchanged": true,
+      "durable_inventory_byte_identical": true,
+      "elapsed_ms": 0,
+      "helper_process_status": 0,
+      "netns_unchanged": true,
+      "nft_unchanged": true,
+      "pins_unchanged": true,
+      "refusal_class": "INCOMPATIBLE",
+      "response": {
+        "Failed": {
+          "failure": {
+            "Refused": {
+              "class": "INCOMPATIBLE",
+              "detail": "Resolve v2 contract mismatch: offered=ResolverHello { version: 2, max_pending_resolves: 65, resolve_workers: 4 } required=ResolverReady { version: 2, max_pending_resolves: 64, resolve_workers: 4 }"
+            }
+          }
+        }
+      },
+      "stable_exit_code": 20,
+      "state_json_unchanged": true,
+      "verdict": "PASS"
+    },
+    "wrong_version": {
+      "cgroup_unchanged": true,
+      "durable_inventory_byte_identical": true,
+      "elapsed_ms": 0,
+      "helper_process_status": 0,
+      "netns_unchanged": true,
+      "nft_unchanged": true,
+      "pins_unchanged": true,
+      "refusal_class": "INCOMPATIBLE",
+      "response": {
+        "Failed": {
+          "failure": {
+            "Refused": {
+              "class": "INCOMPATIBLE",
+              "detail": "Resolve v2 contract mismatch: offered=ResolverHello { version: 1, max_pending_resolves: 64, resolve_workers: 4 } required=ResolverReady { version: 2, max_pending_resolves: 64, resolve_workers: 4 }"
+            }
+          }
+        }
+      },
+      "stable_exit_code": 20,
+      "state_json_unchanged": true,
+      "verdict": "PASS"
+    },
+    "wrong_workers": {
+      "cgroup_unchanged": true,
+      "durable_inventory_byte_identical": true,
+      "elapsed_ms": 0,
+      "helper_process_status": 0,
+      "netns_unchanged": true,
+      "nft_unchanged": true,
+      "pins_unchanged": true,
+      "refusal_class": "INCOMPATIBLE",
+      "response": {
+        "Failed": {
+          "failure": {
+            "Refused": {
+              "class": "INCOMPATIBLE",
+              "detail": "Resolve v2 contract mismatch: offered=ResolverHello { version: 2, max_pending_resolves: 64, resolve_workers: 3 } required=ResolverReady { version: 2, max_pending_resolves: 64, resolve_workers: 4 }"
+            }
+          }
+        }
+      },
+      "stable_exit_code": 20,
+      "state_json_unchanged": true,
+      "verdict": "PASS"
+    }
+  },
+  "ready_emitted": false,
+  "schema": 1,
+  "typed_exit_code": 20,
+  "verdict": "PASS"
+}

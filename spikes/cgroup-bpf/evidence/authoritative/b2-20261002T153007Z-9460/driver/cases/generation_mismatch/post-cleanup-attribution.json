@@ -1,0 +1,32 @@
+{
+  "C_TUPLE_INSERT_FAILED": 0,
+  "binding": {
+    "backend_generation": 1,
+    "cgroup_id": 8208,
+    "execution_nonce": [
+      9,
+      82,
+      24,
+      42,
+      81,
+      93,
+      224,
+      102,
+      76,
+      180,
+      148,
+      94,
+      115,
+      170,
+      136,
+      161
+    ]
+  },
+  "case": "GENERATION_MISMATCH",
+  "cookie_entries_after_cleanup": 0,
+  "execution_attribution_absent": true,
+  "execution_id": "ea308e13524422c556a728075bff6c44",
+  "tuple_entries_after_cleanup": 0,
+  "tuple_entries_before_cleanup": 0,
+  "tuple_insert_failed_invariant": true
+}

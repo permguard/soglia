@@ -1,0 +1,23 @@
+{
+  "cgroup_unchanged": true,
+  "durable_inventory_byte_identical": true,
+  "elapsed_ms": 0,
+  "helper_process_status": 0,
+  "netns_unchanged": true,
+  "nft_unchanged": true,
+  "pins_unchanged": true,
+  "refusal_class": "INCOMPATIBLE",
+  "response": {
+    "Failed": {
+      "failure": {
+        "Refused": {
+          "class": "INCOMPATIBLE",
+          "detail": "Resolve v2 contract mismatch: offered=ResolverHello { version: 1, max_pending_resolves: 64, resolve_workers: 4 } required=ResolverReady { version: 2, max_pending_resolves: 64, resolve_workers: 4 }"
+        }
+      }
+    }
+  },
+  "stable_exit_code": 20,
+  "state_json_unchanged": true,
+  "verdict": "PASS"
+}

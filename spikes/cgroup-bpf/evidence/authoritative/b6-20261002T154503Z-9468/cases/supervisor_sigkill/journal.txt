@@ -1,0 +1,62 @@
+[  205.022982] lima-soglia-spike-b6-20261002T154137Z-16302 systemd[1]: Started soglia-b6-supervisor-sigkill.service - /var/tmp/b6-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b6-20261002T154503Z-9468/cases/supervisor_sigkill/config.yaml.
+[  205.100509] lima-soglia-spike-b6-20261002T154137Z-16302 soglia[45436]: event.name=cgroup_bpf.attach_probe result=PASS mode=single hooks=6 effective=true
+[  205.138183] lima-soglia-spike-b6-20261002T154137Z-16302 soglia[45436]: event.name=cgroup_bpf.ready generation=1 programs=6 links=6 maps=7 policy_capacity=5 socket_capacity=64 ring_bytes=65536
+[  205.138183] lima-soglia-spike-b6-20261002T154137Z-16302 soglia[45436]: event.name=cgroup_bpf.startup result=PASS generation=1 duration_ms=105 swept=0 readiness=READY
+[  205.138287] lima-soglia-spike-b6-20261002T154137Z-16302 soglia[45436]: event.name=cgroup_bpf.resolve_protocol_ready version=2 max_pending=64 workers=4
+[  205.138504] lima-soglia-spike-b6-20261002T154137Z-16302 soglia[45434]: 2026-10-02T15:46:18.059989Z  INFO privileges dropped event.name="startup.privileges_dropped" uid=65534 gid=65534
+[  205.138809] lima-soglia-spike-b6-20261002T154137Z-16302 soglia[45434]: 2026-10-02T15:46:18.060169Z  INFO soglia is ready event.name="startup.ready" ingress=127.0.0.1:18106 egress=10.200.255.1:15001
+[  205.180261] lima-soglia-spike-b6-20261002T154137Z-16302 soglia[45434]: 2026-10-02T15:46:18.101810Z  INFO execution admitted event.name="execution.admitted" execution_id=8183df063dba3872d2e3a0aa62d63ffb agent=probe slot=0
+[  205.180261] lima-soglia-spike-b6-20261002T154137Z-16302 soglia[45434]: 2026-10-02T15:46:18.101824Z  INFO execution phase event.name="execution.phase" execution_id=8183df063dba3872d2e3a0aa62d63ffb phase=Creating
+[  205.189402] lima-soglia-spike-b6-20261002T154137Z-16302 soglia[45434]: 2026-10-02T15:46:18.110965Z  INFO execution phase event.name="execution.phase" execution_id=8183df063dba3872d2e3a0aa62d63ffb phase=Starting
+[  205.192679] lima-soglia-spike-b6-20261002T154137Z-16302 soglia[45434]: 2026-10-02T15:46:18.114236Z  INFO execution admitted event.name="execution.admitted" execution_id=bdc86d1b204534d950c02066a48fc59c agent=probe slot=1
+[  205.192679] lima-soglia-spike-b6-20261002T154137Z-16302 soglia[45434]: 2026-10-02T15:46:18.114247Z  INFO execution phase event.name="execution.phase" execution_id=bdc86d1b204534d950c02066a48fc59c phase=Creating
+[  205.243606] lima-soglia-spike-b6-20261002T154137Z-16302 soglia[45434]: 2026-10-02T15:46:18.165168Z  INFO execution phase event.name="execution.phase" execution_id=bdc86d1b204534d950c02066a48fc59c phase=Starting
+[  205.285261] lima-soglia-spike-b6-20261002T154137Z-16302 soglia[45434]: 2026-10-02T15:46:18.206809Z  INFO execution phase event.name="execution.phase" execution_id=8183df063dba3872d2e3a0aa62d63ffb phase=Ready
+[  205.285261] lima-soglia-spike-b6-20261002T154137Z-16302 soglia[45434]: 2026-10-02T15:46:18.206822Z  INFO execution phase event.name="execution.phase" execution_id=8183df063dba3872d2e3a0aa62d63ffb phase=Running
+[  205.306915] lima-soglia-spike-b6-20261002T154137Z-16302 soglia[45434]: 2026-10-02T15:46:18.228462Z  INFO execution phase event.name="execution.phase" execution_id=bdc86d1b204534d950c02066a48fc59c phase=Ready
+[  205.306915] lima-soglia-spike-b6-20261002T154137Z-16302 soglia[45434]: 2026-10-02T15:46:18.228476Z  INFO execution phase event.name="execution.phase" execution_id=bdc86d1b204534d950c02066a48fc59c phase=Running
+[  205.307199] lima-soglia-spike-b6-20261002T154137Z-16302 soglia[45436]: event.name=cgroup_bpf.resolve_worker_occupancy active=1 high_water=1 capacity=64 refused_total=0
+[  205.307808] lima-soglia-spike-b6-20261002T154137Z-16302 soglia[45434]: 2026-10-02T15:46:18.229373Z  WARN connection ended with an error event.name="egress.connection_failed" peer=10.206.0.3:40000 error=invalid URI
+[  205.307957] lima-soglia-spike-b6-20261002T154137Z-16302 soglia[45435]: soglia-agent bdc86d1b204534d950c02066a48fc59c: {"cmd":"proxy-fixed","ok":true,"detail":"HTTP/1.1 400 Bad Request","i":0,"source_port":40000,"local":"10.206.0.3:40000","status":"connected"}
+[  205.308103] lima-soglia-spike-b6-20261002T154137Z-16302 soglia[45435]: soglia-agent bdc86d1b204534d950c02066a48fc59c: {"cmd":"proxy-fixed-report","ok":true,"detail":"recorded 1 client outcomes"}
+[  205.332677] lima-soglia-spike-b6-20261002T154137Z-16302 systemd[1]: soglia-b6-supervisor-sigkill.service: Main process exited, code=killed, status=9/KILL
+[  205.333604] lima-soglia-spike-b6-20261002T154137Z-16302 systemd[1]: soglia-b6-supervisor-sigkill.service: Killing process 45670 (agent) with signal SIGKILL.
+[  205.333666] lima-soglia-spike-b6-20261002T154137Z-16302 systemd[1]: soglia-b6-supervisor-sigkill.service: Killing process 45435 (exe) with signal SIGKILL.
+[  205.333764] lima-soglia-spike-b6-20261002T154137Z-16302 systemd[1]: soglia-b6-supervisor-sigkill.service: Killing process 45436 (exe) with signal SIGKILL.
+[  205.333791] lima-soglia-spike-b6-20261002T154137Z-16302 systemd[1]: soglia-b6-supervisor-sigkill.service: Killing process 45853 (nft) with signal SIGKILL.
+[  205.333806] lima-soglia-spike-b6-20261002T154137Z-16302 systemd[1]: soglia-b6-supervisor-sigkill.service: Failed to kill control group /system.slice/soglia-b6-supervisor-sigkill.service, ignoring: Invalid argument
+[  205.333818] lima-soglia-spike-b6-20261002T154137Z-16302 systemd[1]: soglia-b6-supervisor-sigkill.service: Killing process 45670 (agent) with signal SIGKILL.
+[  205.333829] lima-soglia-spike-b6-20261002T154137Z-16302 systemd[1]: soglia-b6-supervisor-sigkill.service: Killing process 45853 (nft) with signal SIGKILL.
+[  205.333841] lima-soglia-spike-b6-20261002T154137Z-16302 systemd[1]: soglia-b6-supervisor-sigkill.service: Killing process 45435 (exe) with signal SIGKILL.
+[  205.333849] lima-soglia-spike-b6-20261002T154137Z-16302 systemd[1]: soglia-b6-supervisor-sigkill.service: Killing process 45436 (exe) with signal SIGKILL.
+[  205.333859] lima-soglia-spike-b6-20261002T154137Z-16302 systemd[1]: soglia-b6-supervisor-sigkill.service: Failed to kill control group /system.slice/soglia-b6-supervisor-sigkill.service, ignoring: Invalid argument
+[  205.333869] lima-soglia-spike-b6-20261002T154137Z-16302 systemd[1]: soglia-b6-supervisor-sigkill.service: Failed with result 'signal'.
+[  205.333886] lima-soglia-spike-b6-20261002T154137Z-16302 systemd[1]: soglia-b6-supervisor-sigkill.service: Unit process 45670 (agent) remains running after unit stopped.
+[  205.333902] lima-soglia-spike-b6-20261002T154137Z-16302 systemd[1]: soglia-b6-supervisor-sigkill.service: Unit process 45436 (exe) remains running after unit stopped.
+[  205.436300] lima-soglia-spike-b6-20261002T154137Z-16302 systemd[1]: soglia-b6-supervisor-sigkill.service: Scheduled restart job, restart counter is at 1.
+[  205.443361] lima-soglia-spike-b6-20261002T154137Z-16302 systemd[1]: Started soglia-b6-supervisor-sigkill.service - /var/tmp/b6-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b6-20261002T154503Z-9468/cases/supervisor_sigkill/config.yaml.
+[  205.655471] lima-soglia-spike-b6-20261002T154137Z-16302 soglia[45917]: 2026-10-02T15:46:18.577023Z  INFO a resource left by a previous run was removed event.name="startup.swept" helper="sandboxd" resource=sandbox of Execution bdc86d1b204534d950c02066a48fc59c
+[  205.655471] lima-soglia-spike-b6-20261002T154137Z-16302 soglia[45917]: 2026-10-02T15:46:18.577035Z  INFO a resource left by a previous run was removed event.name="startup.swept" helper="sandboxd" resource=sandbox of Execution 8183df063dba3872d2e3a0aa62d63ffb
+[  205.690798] lima-soglia-spike-b6-20261002T154137Z-16302 soglia[45922]: event.name=cgroup_bpf.target_released_link_observation elapsed_ms=0 link=sock_create link_id=369 program_id=1017 attach_type=2 cgroup_id=0
+[  205.690798] lima-soglia-spike-b6-20261002T154137Z-16302 soglia[45922]: event.name=cgroup_bpf.target_released_link_observation elapsed_ms=0 link=connect4 link_id=370 program_id=1018 attach_type=10 cgroup_id=0
+[  205.690798] lima-soglia-spike-b6-20261002T154137Z-16302 soglia[45922]: event.name=cgroup_bpf.target_released_link_observation elapsed_ms=0 link=connect6 link_id=371 program_id=1019 attach_type=11 cgroup_id=0
+[  205.690798] lima-soglia-spike-b6-20261002T154137Z-16302 soglia[45922]: event.name=cgroup_bpf.target_released_link_observation elapsed_ms=0 link=sendmsg4 link_id=372 program_id=1020 attach_type=14 cgroup_id=0
+[  205.690798] lima-soglia-spike-b6-20261002T154137Z-16302 soglia[45922]: event.name=cgroup_bpf.target_released_link_observation elapsed_ms=0 link=sendmsg6 link_id=373 program_id=1021 attach_type=15 cgroup_id=0
+[  205.690798] lima-soglia-spike-b6-20261002T154137Z-16302 soglia[45922]: event.name=cgroup_bpf.target_released_link_observation elapsed_ms=0 link=sock_ops link_id=374 program_id=1022 attach_type=3 cgroup_id=0
+[  205.695127] lima-soglia-spike-b6-20261002T154137Z-16302 soglia[45922]: event.name=cgroup_bpf.target_released result=PASS recorded_cgroup_id=25584 current_cgroup_id=26147 target_absent=false detach_timeout_ms=5000 poll_interval_ms=10
+[  205.695170] lima-soglia-spike-b6-20261002T154137Z-16302 soglia[45922]: event.name=cgroup_bpf.target_released_link_detach link=sock_create link_id=369 program_id=1017 attach_type=2 before_cgroup_id=0 after_cgroup_id=0
+[  205.695192] lima-soglia-spike-b6-20261002T154137Z-16302 soglia[45922]: event.name=cgroup_bpf.target_released_link_detach link=connect4 link_id=370 program_id=1018 attach_type=10 before_cgroup_id=0 after_cgroup_id=0
+[  205.695192] lima-soglia-spike-b6-20261002T154137Z-16302 soglia[45922]: event.name=cgroup_bpf.target_released_link_detach link=connect6 link_id=371 program_id=1019 attach_type=11 before_cgroup_id=0 after_cgroup_id=0
+[  205.695192] lima-soglia-spike-b6-20261002T154137Z-16302 soglia[45922]: event.name=cgroup_bpf.target_released_link_detach link=sendmsg4 link_id=372 program_id=1020 attach_type=14 before_cgroup_id=0 after_cgroup_id=0
+[  205.695192] lima-soglia-spike-b6-20261002T154137Z-16302 soglia[45922]: event.name=cgroup_bpf.target_released_link_detach link=sendmsg6 link_id=373 program_id=1021 attach_type=15 before_cgroup_id=0 after_cgroup_id=0
+[  205.695247] lima-soglia-spike-b6-20261002T154137Z-16302 soglia[45922]: event.name=cgroup_bpf.target_released_link_detach link=sock_ops link_id=374 program_id=1022 attach_type=3 before_cgroup_id=0 after_cgroup_id=0
+[  205.695314] lima-soglia-spike-b6-20261002T154137Z-16302 soglia[45922]: event.name=cgroup_bpf.recovery_cleanup_observation elapsed_ms=0 surviving=map:612,map:614,map:608,map:609,map:610,map:613
+[  205.748709] lima-soglia-spike-b6-20261002T154137Z-16302 soglia[45922]: event.name=cgroup_bpf.attach_probe result=PASS mode=single hooks=6 effective=true
+[  205.783632] lima-soglia-spike-b6-20261002T154137Z-16302 soglia[45922]: event.name=cgroup_bpf.ready generation=2 programs=6 links=6 maps=7 policy_capacity=5 socket_capacity=64 ring_bytes=65536
+[  205.783632] lima-soglia-spike-b6-20261002T154137Z-16302 soglia[45922]: event.name=cgroup_bpf.startup result=PASS generation=2 duration_ms=125 swept=3 readiness=READY
+[  205.783806] lima-soglia-spike-b6-20261002T154137Z-16302 soglia[45922]: event.name=cgroup_bpf.resolve_protocol_ready version=2 max_pending=64 workers=4
+[  205.783849] lima-soglia-spike-b6-20261002T154137Z-16302 soglia[45917]: 2026-10-02T15:46:18.705408Z  INFO a resource left by a previous run was removed event.name="startup.swept" helper="enforcer" resource=network of Execution 8183df063dba3872d2e3a0aa62d63ffb
+[  205.783849] lima-soglia-spike-b6-20261002T154137Z-16302 soglia[45917]: 2026-10-02T15:46:18.705418Z  INFO a resource left by a previous run was removed event.name="startup.swept" helper="enforcer" resource=network of Execution bdc86d1b204534d950c02066a48fc59c
+[  205.783849] lima-soglia-spike-b6-20261002T154137Z-16302 soglia[45917]: 2026-10-02T15:46:18.705420Z  INFO a resource left by a previous run was removed event.name="startup.swept" helper="enforcer" resource=TargetReleased cgroup-BPF generation 1
+[  205.783959] lima-soglia-spike-b6-20261002T154137Z-16302 soglia[45917]: 2026-10-02T15:46:18.705520Z  INFO privileges dropped event.name="startup.privileges_dropped" uid=65534 gid=65534
+[  205.784707] lima-soglia-spike-b6-20261002T154137Z-16302 soglia[45917]: 2026-10-02T15:46:18.705714Z  INFO soglia is ready event.name="startup.ready" ingress=127.0.0.1:18106 egress=10.200.255.1:15001

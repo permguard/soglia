@@ -1,0 +1,11 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.09s
+     Running unittests src/main.rs (target/debug/deps/soglia-e3e6b18c62a2bccb)
+     Running tests/phase0.rs (target/debug/deps/phase0-77148e8bc1c54a5e)
+     Running unittests src/lib.rs (target/debug/deps/soglia_core-a01468df1552f1b8)
+     Running unittests src/lib.rs (target/debug/deps/soglia_enforcer-78cfa150a143e5fb)
+     Running tests/netns_nft.rs (target/debug/deps/netns_nft-67adb067dcba2044)
+     Running unittests src/lib.rs (target/debug/deps/soglia_proxy-64abb6d9261e04d2)
+     Running unittests src/lib.rs (target/debug/deps/soglia_sandbox-cdb74a4bc54a70e4)
+     Running tests/runc.rs (target/debug/deps/runc-2a4019b30cdb03f0)
+     Running unittests src/lib.rs (target/debug/deps/soglia_supervisor-45fd1f972fc4739a)
+     Running unittests src/main.rs (target/debug/deps/soglia_test_agent-aef2e2d37030de46)

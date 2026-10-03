@@ -1109,7 +1109,8 @@ The current verifier intentionally requires B1-B7 plus uninstall and therefore m
 
 ### Phase 1 requalification on `7dd0840e`
 
-**Status: QUALIFIED on production baseline `7dd0840e4d51078c01ab26343c9eebfd315e5e5e`.**
+**Historical status: SUPERSEDED by [Phase 2 release qualification on `cfb2d375`](#phase-2-release-qualification-on-cfb2d375).**
+**It was QUALIFIED on production baseline `7dd0840e4d51078c01ab26343c9eebfd315e5e5e`.**
 The single `spike:qualify` run `qualification-20261001T151901Z-13424` executed B1 through B7 plus verified uninstall on eight fresh VMs and stopped only after the aggregate verifier returned `PASS`.
 All eight authoritative runs record `production_source_baseline.matches: true`, the same clean harness fingerprint `22cfba0c93e78621c6abe6849fa0d046fbd285f6`, an empty working-tree diff, cleanup `PASS` and zero `SYSTEMD_PRUNE_RACE` classifications.
 The promoted verifier result is [`qualification-7dd0840e.json`](evidence/authoritative/qualification-7dd0840e.json) and records the `single_commit` policy with 5,003 verified checksums.
@@ -1135,6 +1136,78 @@ The current verifier rejects that historical set because its B1 predates the unn
 
 Phase 1 qualification is closed for the exact recorded platform and release baseline `7dd0840e4d51078c01ab26343c9eebfd315e5e5e`.
 The optimization work below remains deferred and unchanged; it is not part of the release qualification claim.
+
+## Phase 2 release qualification on `cfb2d375`
+
+**Status: QUALIFIED on production baseline `cfb2d375e76de59694e25374ec5df47c2bfb6c6a`.**
+The single `spike:qualify` run `qualification-20261002T152506Z-81876` executed B1 through B8 plus verified uninstall on nine fresh VMs and stopped only after the aggregate verifier returned `PASS`.
+All nine authoritative runs record `production_source_baseline.matches: true`, the same clean harness fingerprint `82a2d119503b67fbf7208f1e6f3ed8548b8891ef`, an empty working-tree diff and cleanup `PASS`.
+The promoted verifier result is [`qualification-cfb2d375.json`](evidence/authoritative/qualification-cfb2d375.json) and records the `single_commit` policy with 5,253 verified checksums.
+Before any VM started, the configuration preflight validated every harness configuration of every gate with the production parser.
+
+| Gate      | Authoritative run                                                                              | Checksums | `SYSTEMD_PRUNE_RACE` |
+| --------- | ---------------------------------------------------------------------------------------------- | --------- | -------------------- |
+| B1        | [`b1-20261002T152740Z-9420`](evidence/authoritative/b1-20261002T152740Z-9420/)                 | 466/466   | 1                    |
+| B2        | [`b2-20261002T153007Z-9460`](evidence/authoritative/b2-20261002T153007Z-9460/)                 | 382/382   | 0                    |
+| B3        | [`b3-20261002T153226Z-9501`](evidence/authoritative/b3-20261002T153226Z-9501/)                 | 1934/1934 | 0                    |
+| B4        | [`b4-20261002T153725Z-9465`](evidence/authoritative/b4-20261002T153725Z-9465/)                 | 103/103   | 0                    |
+| B5        | [`b5-20261002T154120Z-9427`](evidence/authoritative/b5-20261002T154120Z-9427/)                 | 179/179   | 0                    |
+| B6        | [`b6-20261002T154503Z-9468`](evidence/authoritative/b6-20261002T154503Z-9468/)                 | 1469/1469 | 5                    |
+| B7        | [`b7-20261002T155001Z-9439`](evidence/authoritative/b7-20261002T155001Z-9439/)                 | 360/360   | 0                    |
+| B8        | [`b8-20261002T155626Z-9424`](evidence/authoritative/b8-20261002T155626Z-9424/)                 | 146/146   | 0                    |
+| Uninstall | [`uninstall-20261002T160106Z-9493`](evidence/authoritative/uninstall-20261002T160106Z-9493/)   | 214/214   | 0                    |
+
+### What Phase 2 changed
+
+Phase 2 implements the deferred [option B](#follow-up-option-b-a-parallel-resolve-path) as designed in [`design/RESOLVE-PARALLEL.md`](../../design/RESOLVE-PARALLEL.md).
+The Candidate-A channel is now resolver protocol version 2: a bounded, `request_id`-correlated pipeline between the Supervisor and a fixed pool of stateless Enforcer workers, negotiated before `READY` and without a version-1 fallback.
+Workers read a shared `ResolveView` while lifecycle operations publish complete snapshots under exclusive access.
+A worker panic, a watchdog expiry or a protocol anomaly poisons the channel permanently and takes the qualified S8 path.
+
+Every accepted connection, pending Resolve and attribution entry now has a local hard bound, closing R3 and R5 for these resources:
+
+| Setting                           | Default | Saturation result                    |
+| --------------------------------- | ------: | ------------------------------------ |
+| `runtime.max_ingress_connections` |      32 | Refusal before invocation admission  |
+| `network.max_proxy_connections`   |     512 | Close before any application read    |
+| `cgroup_bpf.max_pending_resolves` |      64 | Typed `QueueFull`                    |
+| `cgroup_bpf.resolve_workers`      |       4 | Bounded queue, then `QueueFull`      |
+
+The attribution tables are bounded by `runtime.max_concurrency` plus the cleanup-failure allowance.
+Configuration validation enforces `max_ingress_connections >= max_concurrency + max_queue` and `resolve_workers <= max_pending_resolves <= max_proxy_connections <= max_tracked_sockets`.
+
+Three defects were found and corrected during the phase, each before release:
+
+- the Resolve threads started before the Supervisor dropped privileges, which the single-thread drop check refused; they now start after the drop;
+- the Enforcer validated the resolver contract after `initialize()`, so an incompatible contract was refused after durable mutation; it is now validated before any host mutation and refused as typed `Incompatible`;
+- a harness configuration inherited the new 512-connection default above its 64-socket map; the configuration preflight now rejects such a configuration before any VM starts.
+
+### B8 parallel-load results
+
+B8 sustained 30,000 present-tuple Resolves at 500.02 per second for 60 seconds with zero failures, a p50 of 169 µs, a p95 of 253 µs and a p99 of 370 µs, against a 20 ms threshold.
+The 256-connection out-of-envelope burst produced 210 successes and 46 typed `QueueFull` refusals, with no application read, DNS packet or outbound attempt for any refused connection, followed by an immediate successful control Resolve.
+A 1,024-call lifecycle-churn run completed with a p99 of 316 µs.
+
+The characterization ramp is not a PASS criterion; it records the capacity used for sizing:
+
+| Requested per second | Achieved per second | p99    | Failures |
+| -------------------: | ------------------: | -----: | -------: |
+|                  500 |                 500 | 378 µs |        0 |
+|                1,000 |               1,000 | 362 µs |        0 |
+|                2,000 |               2,000 | 497 µs |        0 |
+|                4,000 |               4,000 | 353 µs |        0 |
+|                8,000 |               6,543 | 322 µs |        0 |
+
+The ramp stopped at 8,000 requested per second because the achieved rate fell below 95%, while latency stayed below one millisecond and no request failed.
+The limit is throughput, not latency: the supported sizing figure is 4,000 Resolves per second sustained on the recorded four-CPU VM.
+
+### systemd prune races
+
+The verifier records six `SYSTEMD_PRUNE_RACE` classifications, one in B1 and five in B6.
+Each shows `populated 0` and an empty `runtime` cgroup after the unit stopped, the proved harmless shape described under Phase 1, and each was removed by exact path and verified absent.
+
+The historical [`qualification-7dd0840e.json`](evidence/authoritative/qualification-7dd0840e.json) is explicitly superseded by this qualification.
+The current verifier rejects that set because it predates B8; verifier commit `22cfba0c93e78621c6abe6849fa0d046fbd285f6` still verifies its 5,003 checksums and returns `PASS`.
 
 ## Deferred work: independent Resolve queue depth
 

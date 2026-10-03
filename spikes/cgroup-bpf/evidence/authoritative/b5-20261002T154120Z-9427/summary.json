@@ -1,0 +1,58 @@
+{
+  "schema": 1,
+  "run_id": "b5-20261002T154120Z-9427",
+  "gate": "B5",
+  "authoritative": true,
+  "verdict": "PASS",
+  "driver_status": 0,
+  "cases": [
+    "direct_ipv4_early_deny",
+    "exact_nft_relaxation",
+    "fin",
+    "foreign_ancestor_allow",
+    "foreign_ancestor_rewrite_nft_barrier",
+    "ipv4_datagram_sock_create",
+    "ipv6_datagram_sock_create",
+    "ipv6_stream_sock_create",
+    "no_inherited_sockets",
+    "proxy_positive",
+    "successful_close"
+  ],
+  "cleanup": {
+    "verdict": "PASS",
+    "programs": "EXTERNAL_CHURN",
+    "links": "MATCH",
+    "maps": "MATCH"
+  },
+  "production_source_baseline": {
+    "commit": "cfb2d375e76de59694e25374ec5df47c2bfb6c6a",
+    "matches": true
+  },
+  "scope": {
+    "proxy_path": "PERFORMED",
+    "proxy_steering_outside_bpf": "PERFORMED: static production-source audit of candidate_a.c and runtime destination correlation",
+    "ipv6_stream_sock_create": "PERFORMED",
+    "ipv4_datagram_sock_create": "PERFORMED",
+    "ipv6_datagram_sock_create": "PERFORMED",
+    "connect6_runtime": "NOT_PERFORMED: unreachable by construction because sock_create admits only IPv4/TCP and the socket cgroup is fixed at creation",
+    "sendmsg4_runtime": "NOT_PERFORMED: unreachable by construction because sock_create admits only IPv4/TCP and the socket cgroup is fixed at creation",
+    "sendmsg6_runtime": "NOT_PERFORMED: unreachable by construction because sock_create admits only IPv4/TCP and the socket cgroup is fixed at creation",
+    "direct_ipv4_early_deny": "PERFORMED",
+    "exact_nft_relaxation": "PERFORMED with trap-backed cleanup",
+    "no_inherited_sockets": "PERFORMED",
+    "foreign_ancestor_allow": "PERFORMED",
+    "foreign_ancestor_rewrite": "PERFORMED without ordering claim",
+    "unexpected_direct_program_and_link": "PERFORMED and preserved until test-owned release",
+    "tcp_fastopen_direct": "NOT_PERFORMED: optional B5 extension",
+    "authoritative_fresh_vm": "PERFORMED",
+    "production_code_change": "NOT_PERFORMED: qualification harness only"
+  },
+  "authoritative_vm": {
+    "name": "soglia-spike-b5-20261002T153928Z-11551"
+  },
+  "remaining_gates": {
+    "B6": "NOT_EXECUTED",
+    "B7": "NOT_EXECUTED",
+    "B8": "NOT_EXECUTED"
+  }
+}

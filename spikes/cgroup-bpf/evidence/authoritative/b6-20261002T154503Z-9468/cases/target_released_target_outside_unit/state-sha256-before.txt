@@ -1,0 +1,1 @@
+0c023c6983bb1a44923142b1745dabaa1fbbf97efbb5ffc08576d6a9e43c3076  /run/soglia-b6-target-target-outside-unit/cgroup-bpf/state.json

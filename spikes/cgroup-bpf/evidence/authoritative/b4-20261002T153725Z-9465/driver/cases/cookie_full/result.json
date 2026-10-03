@@ -1,0 +1,58 @@
+{
+  "after_c_plus_one": {
+    "connect4_deny": 1,
+    "cookie_insert_failed": 1,
+    "cookie_miss": 0,
+    "cookies": 4,
+    "events_dropped": 0,
+    "policies": 1,
+    "published": 6,
+    "tuple_insert_failed": 0,
+    "tuples": 0,
+    "unpublished": 0
+  },
+  "agent_created_socket_count": 5,
+  "at_capacity": {
+    "connect4_deny": 0,
+    "cookie_insert_failed": 0,
+    "cookie_miss": 0,
+    "cookies": 4,
+    "events_dropped": 0,
+    "policies": 1,
+    "published": 6,
+    "tuple_insert_failed": 0,
+    "tuples": 0,
+    "unpublished": 0
+  },
+  "before": {
+    "connect4_deny": 0,
+    "cookie_insert_failed": 0,
+    "cookie_miss": 0,
+    "cookies": 0,
+    "events_dropped": 0,
+    "policies": 1,
+    "published": 2,
+    "tuple_insert_failed": 0,
+    "tuples": 0,
+    "unpublished": 0
+  },
+  "c_plus_one_client": {
+    "cmd": "proxy-capacity-report",
+    "cookie": 4116,
+    "detail": "Operation not permitted (os error 1)",
+    "elapsed_ms": 0,
+    "errno": 1,
+    "ok": false,
+    "phase": "plus_result",
+    "source_port": 40004
+  },
+  "c_plus_one_cookie": 4116,
+  "c_plus_one_cookie_absent_before_connect": true,
+  "c_plus_one_denied_by_connect4_before_proxy": true,
+  "capacity": 4,
+  "health_failure": null,
+  "proxy_accept_count": 4,
+  "saturation_origin": "production agent inside the Execution cgroup",
+  "tuple_map_had_capacity": true,
+  "verdict": "PASS"
+}

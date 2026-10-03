@@ -1,0 +1,52 @@
+{
+  "health_failure": null,
+  "maps_after": {
+    "connect4_deny": 2,
+    "cookie_insert_failed": 2,
+    "cookie_miss": 0,
+    "cookies": 0,
+    "events_dropped": 0,
+    "policies": 0,
+    "published": 12,
+    "tuple_insert_failed": 2,
+    "tuples": 0,
+    "unpublished": 0
+  },
+  "maps_before": {
+    "connect4_deny": 2,
+    "cookie_insert_failed": 2,
+    "cookie_miss": 0,
+    "cookies": 0,
+    "events_dropped": 0,
+    "policies": 0,
+    "published": 12,
+    "tuple_insert_failed": 2,
+    "tuples": 0,
+    "unpublished": 0
+  },
+  "max_pending_resolves": 4,
+  "outbound_connections": 0,
+  "overflow_elapsed_ms": 0,
+  "overflow_outcome": "QUEUE_FULL",
+  "pending_results": [
+    {
+      "elapsed_ms": 2000,
+      "outcome": "TIMEOUT"
+    },
+    {
+      "elapsed_ms": 2000,
+      "outcome": "TIMEOUT"
+    },
+    {
+      "elapsed_ms": 2000,
+      "outcome": "TIMEOUT"
+    },
+    {
+      "elapsed_ms": 2000,
+      "outcome": "TIMEOUT"
+    }
+  ],
+  "resolve_workers": 2,
+  "timeout_count": 4,
+  "verdict": "PASS"
+}

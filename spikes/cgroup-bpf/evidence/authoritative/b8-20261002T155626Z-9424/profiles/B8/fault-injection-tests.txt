@@ -1,0 +1,413 @@
+
+running 2 tests
+test tests::typed_startup_failures_select_stable_process_status ... ok
+test tests::uninstall_has_dry_run_but_no_force_escape_hatch ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 15 tests
+test h1_an_allowed_name_resolving_to_a_forbidden_address_is_denied ... ignored, privileged; see the module documentation
+test h2_ipv6_is_disabled_and_unusable ... ignored, privileged; see the module documentation
+test h3_one_execution_cannot_reach_another ... ignored, privileged; see the module documentation
+test h4_resource_exhaustion_fails_the_execution_and_cleans_up ... ignored, privileged; see the module documentation
+test t01_an_invocation_runs_in_a_fresh_sandbox_and_answers_after_teardown ... ignored, privileged; see the module documentation
+test t02_an_allowed_destination_is_reachable_through_the_proxy ... ignored, privileged; see the module documentation
+test t03_a_denied_destination_is_refused_by_the_proxy ... ignored, privileged; see the module documentation
+test t04_a_direct_socket_to_the_internet_cannot_be_established ... ignored, privileged; see the module documentation
+test t05_a_direct_socket_to_a_host_service_cannot_be_established ... ignored, privileged; see the module documentation
+test t06_after_success_nothing_of_the_execution_remains ... ignored, privileged; see the module documentation
+test t07_after_a_crash_or_a_timeout_nothing_of_the_execution_remains ... ignored, privileged; see the module documentation
+test t08_sequential_invocations_get_distinct_executions_and_fresh_sandboxes ... ignored, privileged; see the module documentation
+test t09_the_concurrency_limit_and_queue_hold ... ignored, privileged; see the module documentation
+test t10_later_phase_components_are_not_part_of_the_path ... ignored, privileged; see the module documentation
+test z_shutdown_is_clean ... ignored, privileged; see the module documentation
+
+test result: ok. 0 passed; 0 failed; 15 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 44 tests
+test config::tests::an_agent_never_runs_as_root ... ok
+test config::tests::a_minimal_configuration_takes_the_defaults ... ok
+test config::tests::egress_rules_need_ports ... ok
+test config::tests::cgroup_bpf_limits_are_bounded_and_explicit_selection_is_accepted ... ok
+test config::tests::netns_nft_remains_an_explicit_backend_choice ... ok
+test config::tests::internal_ranges_may_not_open_the_pool_or_the_proxy ... ok
+test config::tests::enabling_a_later_phase_component_is_refused_by_that_component ... ok
+test config::tests::paths_and_names_are_checked ... ok
+test config::tests::soglia_owns_the_proxy_variables ... ok
+test config::tests::the_pool_outlasts_the_concurrency_limit ... ok
+test config::tests::the_proxy_address_is_outside_the_pool ... ok
+test config::tests::the_runtime_never_runs_as_root ... ok
+test helper::tests::refusal_exit_codes_are_stable_and_distinct ... ok
+test helper::tests::requests_carry_identifiers_not_paths ... ok
+test helper::tests::helper_failures_round_trip_without_text_classification ... ok
+test id::tests::binding_key_equality_covers_all_three_identity_fields ... ok
+test id::tests::generated_identifiers_differ_and_round_trip ... ok
+test helper::tests::resolve_results_round_trip_without_text_classification ... ok
+test id::tests::identifiers_serialize_as_strings ... ok
+test id::tests::parsing_is_strict ... ok
+test config::tests::unknown_fields_are_refused ... ok
+test id::tests::resource_names_fit_the_kernel_limits ... ok
+test id::tests::the_tag_is_the_identifier_prefix ... ok
+test ipc::tests::a_message_round_trips ... ok
+test ipc::tests::a_truncated_frame_is_an_error_not_a_close ... ok
+test ipc::tests::an_oversized_frame_is_refused_before_it_is_read ... ok
+test ipc::tests::the_resolver_channel_enforces_its_stricter_limit ... ok
+test ipc::tests::an_unexpected_operation_is_refused ... ok
+test net::tests::containment_respects_family_and_prefix ... ok
+test net::tests::overlap_is_symmetric ... ok
+test net::tests::pool_membership_covers_both_ends_and_nothing_else ... ok
+test net::tests::ranges_parse_strictly ... ok
+test net::tests::the_pool_hands_out_point_to_point_pairs ... ok
+test net::tests::the_pool_is_ipv4_with_room_for_two_executions ... ok
+test phase::tests::a_phase_that_created_resources_reaches_an_end_only_through_teardown ... ok
+test phase::tests::the_success_path_is_allowed ... ok
+test phase::tests::success_is_reachable_only_from_teardown ... ok
+test phase::tests::terminal_phases_are_final ... ok
+test records::tests::a_corrupt_record_is_an_error_not_an_absence ... ok
+test records::tests::names_cannot_escape_the_directory ... ok
+test unavailable::tests::no_deferred_component_can_be_activated ... ok
+test unavailable::tests::the_refusal_names_its_kind ... ok
+test records::tests::a_published_record_reads_back_and_leaves_no_temporary ... ok
+test records::tests::republishing_replaces_the_whole_record ... ok
+
+test result: ok. 44 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.69s
+
+
+running 67 tests
+test backend::tests::generic_unsupported_failure_does_not_name_a_backend_choice ... ok
+test backend::tests::a_plan_is_derived_from_configuration_not_from_the_request ... ok
+test backend::tests::uninstall_refusals_preserve_every_stable_class ... ok
+test backend::tests::a_plan_outside_the_configuration_is_refused ... ok
+test backend::tests::a_live_slot_or_tag_is_not_planned_twice ... ok
+test backend::tests::uninstall_rejects_an_unrecorded_host_nft_table ... ok
+test cgroup_bpf::tests::a_stale_tuple_cannot_resolve_after_the_same_four_tuple_is_reused ... ok
+test cgroup_bpf::tests::an_untrusted_empty_pin_root_is_unknown_during_classification ... ok
+test cgroup_bpf::tests::candidate_a_abi_round_trips_the_indivisible_binding_and_tuple ... ok
+test cgroup_bpf::tests::cleanup_delete_accepts_only_delete_enoent ... ok
+test cgroup_bpf::tests::exclusive_ancestor_eperm_is_a_typed_topology_refusal ... ok
+test cgroup_bpf::tests::external_program_names_are_optional_but_must_agree_when_present ... ok
+test cgroup_bpf::tests::non_topology_attach_errors_are_not_reclassified ... ok
+test cgroup_bpf::tests::mismatch_diagnostics_follow_only_a_failed_whole_binding_comparison ... ok
+test cgroup_bpf::tests::observability_counter_layout_is_a_versioned_bpf_abi ... ok
+test cgroup_bpf::tests::production_attach_plan_is_exactly_six_single_links ... ok
+test cgroup_bpf::tests::only_stable_systemd_id_replacement_is_external_churn ... ok
+test cgroup_bpf::tests::real_recovery_refusals_keep_their_class_across_the_helper_boundary ... ok
+test cgroup_bpf::tests::recovery_accepts_a_destroy_crash_after_policy_and_before_record_removal ... ok
+test cgroup_bpf::tests::recovery_accepts_exact_active_and_frozen_policy_bindings ... ok
+test cgroup_bpf::tests::recovery_accepts_a_prepare_crash_after_the_record_and_before_policy ... ok
+test cgroup_bpf::tests::recovery_allows_intent_after_the_policy_map_was_removed ... ok
+test cgroup_bpf::tests::recovery_inventory_accepts_only_get_fd_by_id_enoent ... ok
+test cgroup_bpf::tests::recovery_rejects_a_durable_cgroup_that_disagrees_with_policy ... ok
+test cgroup_bpf::tests::recovery_rejects_a_durable_generation_that_disagrees_with_policy ... ok
+test cgroup_bpf::tests::recovery_ignores_cgroup_control_files_but_rejects_child_cgroups ... ok
+test cgroup_bpf::tests::recovery_rejects_a_durable_nonce_that_disagrees_with_policy ... ok
+test cgroup_bpf::tests::recovery_rejects_an_active_record_without_policy ... ok
+test cgroup_bpf::tests::recovery_rejects_an_invalid_policy_state ... ok
+test cgroup_bpf::tests::recovery_rejects_an_orphan_policy_entry ... ok
+test cgroup_bpf::tests::ring_drain_is_bounded_by_the_configured_ring_capacity ... ok
+test cgroup_bpf::tests::ring_events_accept_only_the_fixed_non_secret_reason_abi ... ok
+test cgroup_bpf::tests::startup_and_uninstall_share_the_empty_unrecorded_pin_root_rule ... ok
+test cgroup_bpf::tests::target_released_accepts_old_or_detached_links_for_crash_resume ... ok
+test cgroup_bpf::tests::schema_two_state_is_not_implicitly_migrated ... ok
+test cgroup_bpf::tests::target_released_rejects_every_recorded_link_identity_mismatch ... ok
+test cgroup_bpf::tests::target_released_accepts_only_phase_valid_intent_inventory_shapes ... ok
+test cgroup_bpf::tests::target_released_requires_a_well_formed_durable_handle ... ok
+test cgroup_bpf::tests::target_released_requires_every_replacement_target_predicate ... ok
+test cgroup_bpf::tests::target_released_requires_exactly_estale_from_the_old_handle ... ok
+test cgroup_bpf::tests::target_released_requires_zero_after_exact_detach ... ok
+test cgroup_bpf::tests::uninstall_fresh_requires_every_owned_subsystem_to_be_absent ... ok
+test cgroup_bpf::tests::uninstall_intent_is_the_only_authority_for_an_interrupted_resume ... ok
+test cgroup_bpf::tests::uninstall_queries_effective_inventory_only_on_a_live_target ... ok
+test cgroup_bpf::tests::uninstall_rejects_a_pin_root_that_appears_after_absent_validation ... ok
+test cgroup_bpf::tests::uninstall_routes_a_missing_or_replaced_target_to_target_released ... ok
+test cgroup_bpf::tests::uninstall_removes_only_the_prevalidated_empty_pin_root ... ok
+test rules::tests::freezing_keeps_the_drop_policies ... ok
+test rules::tests::set_elements_are_keyed_to_the_execution_veth_and_address ... ok
+test rules::tests::the_execution_table_admits_only_the_proxy_out_and_the_host_end_in ... ok
+test rules::tests::the_host_table_holds_only_drops ... ok
+test rules::tests::the_host_table_replaces_itself_in_one_transaction ... ok
+test rules::tests::unbinding_is_idempotent_and_touches_only_this_execution ... ok
+test service::tests::a_backend_error_is_an_integrity_failure_not_a_panic ... ok
+test service::tests::a_worker_panic_is_not_converted_to_a_consumable_answer ... ok
+test service::tests::a_malformed_resolver_hello_is_typed_before_backend_start ... ok
+test service::tests::a_wrong_resolver_version_is_typed_before_backend_start ... ok
+test service::tests::a_wrong_pending_limit_is_typed_before_backend_start ... ok
+test service::tests::a_wrong_worker_limit_is_typed_before_backend_start ... ok
+test service::tests::duplicate_zero_and_late_request_ids_are_protocol_failures ... ok
+test service::tests::only_cgroup_bpf_startup_unsupported_names_the_compatibility_backend ... ok
+test service::tests::resolver_v2_has_no_implicit_v1_or_capacity_fallback ... ok
+test service::tests::the_worker_queue_has_an_exact_bound ... ok
+test service::tests::uninstall_refusals_remain_typed_and_never_name_a_backend_choice ... ok
+test cgroup_bpf::tests::uninstall_accepts_only_empty_children_named_by_sandbox_records ... ok
+test cgroup_bpf::tests::lifecycle_writer_has_priority_over_new_resolve_readers ... ok
+test service::tests::an_absent_resolver_hello_times_out_before_backend_start ... ok
+
+test result: ok. 67 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+
+running 1 test
+test the_network_backend_confines_attributes_and_cleans_up ... ignored, needs root, nftables and iproute2 on Linux
+
+test result: ok. 0 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 40 tests
+test attribution::tests::a_bound_address_attributes_its_execution ... ok
+test attribution::tests::a_revoked_address_attributes_nothing_but_stays_reserved ... ok
+test attribution::tests::candidate_a_lookup_requires_the_complete_binding_key ... ok
+test attribution::tests::an_open_connection_learns_of_the_revocation ... ok
+test attribution::tests::only_a_revoked_binding_of_the_same_execution_is_released ... ok
+test attribution::tests::either_attribution_index_refuses_entries_beyond_its_bound ... ok
+test egress::tests::a_connect_to_an_unlisted_host_is_forbidden ... ok
+test egress::tests::a_revoked_execution_loses_its_open_tunnel ... ok
+test egress::tests::an_allowed_connect_tunnels_bytes ... ok
+test egress::tests::hop_by_hop_headers_do_not_cross ... ok
+test egress::tests::an_unattributed_connection_is_closed_without_an_answer ... ok
+test egress::tests::an_allowed_name_resolving_to_a_forbidden_address_is_forbidden ... ok
+test egress::tests::malformed_proxy_requests_are_refused ... ok
+test ingress::tests::a_refusal_is_reported_as_json_with_its_status ... ok
+test egress::tests::an_absolute_form_request_is_forwarded_in_origin_form ... ok
+test egress::tests::runtime_cancellation_closes_an_open_tunnel ... ok
+test egress::tests::runtime_cancellation_drops_pending_dns ... ok
+test ingress::tests::an_invocation_reaches_the_executor_and_its_answer_the_caller ... ok
+test policy::address::tests::embedded_address_formats_and_special_space_are_forbidden ... ok
+test ingress::tests::runtime_cancellation_closes_an_active_ingress_request ... ok
+test policy::address::tests::loopback_link_local_and_metadata_are_forbidden_in_both_families ... ok
+test policy::address::tests::private_ranges_are_internal_not_forbidden ... ok
+test policy::address::tests::public_addresses_are_global ... ok
+test ingress::tests::malformed_invocations_never_reach_the_executor ... ok
+test policy::host::tests::ambiguous_or_malformed_hosts_are_refused ... ok
+test policy::address::tests::every_table_entry_is_a_valid_range ... ok
+test policy::host::tests::literals_are_strict ... ok
+test policy::host::tests::names_have_one_spelling ... ok
+test policy::tests::a_malformed_rule_host_is_a_configuration_error ... ok
+test policy::tests::a_mapped_address_is_connected_as_ipv4 ... ok
+test policy::tests::global_candidates_are_returned_in_order_without_duplicates ... ok
+test policy::tests::forbidden_ranges_cannot_be_allowed_by_configuration ... ok
+test policy::tests::internal_ranges_open_only_when_configured ... ok
+test policy::tests::the_allow_list_matches_canonical_host_and_exact_port ... ok
+test ingress::tests::reasons_are_escaped_as_json ... ok
+test policy::tests::one_forbidden_candidate_refuses_the_whole_destination ... ok
+test tunnel::tests::bytes_flow_both_ways_until_both_sides_close ... ok
+test tunnel::tests::teardown_closes_the_tunnel ... ok
+test tunnel::tests::a_tunnel_stops_at_its_byte_limit ... ok
+test tunnel::tests::a_silent_tunnel_is_closed ... ok
+
+test result: ok. 40 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.21s
+
+
+running 11 tests
+test backend::tests::runc_null_is_the_empty_inventory_but_other_shapes_are_refused ... ok
+test bundle::tests::clone3_is_refused_whole_with_enosys ... ok
+test bundle::tests::a_namespace_creating_clone_is_refused_per_flag ... ok
+test bundle::tests::io_uring_unshare_and_setns_are_refused ... ok
+test bundle::tests::soglia_variables_come_last_and_path_has_a_default ... ok
+test bundle::tests::the_agent_has_no_capabilities_and_no_new_privileges ... ok
+test cgroup::tests::an_explicit_root_must_be_inside_the_cgroup_mount ... ok
+test bundle::tests::limits_reach_the_cgroup ... ok
+test cgroup::tests::counters_are_read_from_flat_keyed_files ... ok
+test bundle::tests::the_agent_joins_the_soglia_network_namespace_by_path ... ok
+test bundle::tests::the_root_is_read_only_and_only_tmpfs_is_writable ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 1 test
+test the_sandbox_isolates_classifies_and_cleans_up ... ignored, needs root, a delegated cgroup, runc, nftables and iproute2 on Linux
+
+test result: ok. 0 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 29 tests
+test forward::tests::an_oversized_answer_is_refused ... ok
+test forward::tests::the_invocation_reaches_the_agent_and_its_answer_is_buffered ... ok
+test helpers::tests::a_duplicate_response_id_poisons_the_channel_after_the_first_reply ... ok
+test helpers::tests::a_watchdog_timeout_poisons_the_channel_permanently ... ok
+test helpers::tests::a_wrong_response_id_poisons_the_channel_permanently ... ok
+test helpers::tests::broken_resolve_channel_is_unavailable_and_changes_runtime_health ... ok
+test helpers::tests::cancellation_before_write_removes_the_request_without_a_frame ... ok
+test helpers::tests::child_exit_is_observed_without_an_rpc ... ok
+test helpers::tests::a_cancelled_caller_cannot_desynchronize_the_next_exchange ... ok
+test helpers::tests::closing_the_channel_releases_a_healthy_helper ... ok
+test helpers::tests::a_full_logical_queue_refuses_only_the_extra_connection ... ok
+test helpers::tests::concurrent_missing_tuples_timeout_without_a_health_failure ... ok
+test helpers::tests::integrity_failure_denies_and_changes_runtime_health ... ok
+test helpers::tests::mismatch_and_timeout_deny_without_changing_runtime_health ... ok
+test helpers::tests::missing_and_revoked_live_bindings_stay_distinct ... ok
+test helpers::tests::complete_after_the_publication_deadline_is_still_consumed ... ok
+test helpers::tests::out_of_order_replies_are_correlated_to_their_request_ids ... ok
+test helpers::tests::pending_after_the_publication_deadline_times_out_without_poisoning ... ok
+test helpers::tests::resolve_observability_has_bounded_typed_outcomes_and_latency_buckets ... ok
+test slots::tests::a_live_tag_is_not_reserved_twice ... ok
+test slots::tests::a_quarantined_slot_and_tag_never_come_back ... ok
+test slots::tests::slots_are_handed_out_lowest_first_and_come_back_on_release ... ok
+test supervisor::tests::admission_stays_closed_until_startup_is_ready ... ok
+test supervisor::tests::helper_loss_is_idempotent_stops_admission_and_cancels_work ... ok
+test supervisor::tests::stopping_after_readiness_is_irreversible ... ok
+test supervisor::tests::stopping_before_readiness_is_irreversible ... ok
+test helpers::tests::negotiation_does_not_activate_parent_threads_before_privilege_drop ... ok
+test forward::tests::an_absent_listener_is_never_ready ... ok
+test helpers::tests::helper_refusal_reaches_the_supervisor_without_text_classification ... ok
+
+test result: ok. 29 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.09s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Compiling proc-macro2 v1.0.107
+   Compiling unicode-ident v1.0.26
+   Compiling quote v1.0.47
+   Compiling libc v0.2.189
+   Compiling itoa v1.0.18
+   Compiling foldhash v0.2.0
+   Compiling equivalent v1.0.2
+   Compiling serde_core v1.0.229
+   Compiling hashbrown v0.17.1
+   Compiling bytes v1.12.1
+   Compiling indexmap v2.14.2
+   Compiling syn v3.0.6
+   Compiling memchr v2.8.3
+   Compiling zmij v1.0.23
+   Compiling serde v1.0.229
+   Compiling cfg-if v1.0.5
+   Compiling serde_json v1.0.151
+   Compiling unsafe-libyaml-norway v0.2.15
+   Compiling ryu v1.0.23
+   Compiling once_cell v1.21.4
+   Compiling shlex v2.0.1
+   Compiling find-msvc-tools v0.1.14
+   Compiling cc v1.5.1
+   Compiling cfg_aliases v0.2.2
+   Compiling bitflags v2.13.2
+   Compiling version_check v0.9.5
+   Compiling generic-array v0.14.7
+   Compiling nix v0.31.3
+   Compiling rustix v1.1.5
+   Compiling typenum v1.20.1
+   Compiling serde_derive v1.0.229
+   Compiling linux-raw-sys v0.12.1
+   Compiling crc32fast v1.5.2
+   Compiling object v0.39.1
+   Compiling pin-project-lite v0.2.17
+   Compiling pkg-config v0.3.34
+   Compiling thiserror v2.0.21
+   Compiling libbpf-sys v1.7.0+v1.7.0
+   Compiling thiserror-impl v2.0.21
+   Compiling vsprintf v2.0.0
+   Compiling http v1.5.0
+   Compiling serde_norway v0.9.42
+   Compiling errno v0.3.14
+   Compiling futures-core v0.3.34
+   Compiling httparse v1.10.1
+   Compiling signal-hook-registry v1.4.8
+   Compiling http-body v1.1.0
+   Compiling soglia-core v0.1.0 (/soglia/crates/soglia-core)
+   Compiling block-buffer v0.10.4
+   Compiling crypto-common v0.1.7
+   Compiling tokio-macros v2.7.2
+   Compiling mio v1.2.3
+   Compiling socket2 v0.6.5
+   Compiling try-lock v0.2.5
+   Compiling log v0.4.34
+   Compiling tokio v1.53.1
+   Compiling want v0.3.1
+   Compiling digest v0.10.7
+   Compiling futures-channel v0.3.34
+   Compiling tracing-core v0.1.36
+   Compiling cpufeatures v0.2.17
+   Compiling syn v2.0.119
+   Compiling aya-obj v0.3.0
+   Compiling smallvec v1.16.2
+   Compiling atomic-waker v1.1.2
+   Compiling assert_matches v1.5.0
+   Compiling soglia-enforcer v0.1.0 (/soglia/crates/soglia-enforcer)
+   Compiling scopeguard v1.2.0
+   Compiling httpdate v1.0.3
+   Compiling hyper v1.11.1
+   Compiling aya v0.14.0
+   Compiling sha2 v0.10.9
+   Compiling libbpf-rs v0.27.2
+   Compiling tracing-attributes v0.1.31
+   Compiling name-to-handle-at v0.1.0
+   Compiling hyper-util v0.1.21
+   Compiling http-body-util v0.1.5
+   Compiling utf8parse v0.2.2
+   Compiling anstyle-parse v1.0.0
+   Compiling anstyle-query v1.1.5
+   Compiling is_terminal_polyfill v1.70.2
+   Compiling colorchoice v1.0.5
+   Compiling anstyle v1.0.14
+   Compiling anstream v1.0.0
+   Compiling soglia-sandbox v0.1.0 (/soglia/crates/soglia-sandbox)
+   Compiling tracing v0.1.44
+   Compiling lazy_static v1.5.0
+   Compiling soglia-proxy v0.1.0 (/soglia/crates/soglia-proxy)
+   Compiling strsim v0.11.1
+   Compiling heck v0.5.0
+   Compiling clap_lex v1.1.1
+   Compiling clap_builder v4.6.7
+   Compiling clap_derive v4.6.7
+   Compiling soglia-supervisor v0.1.0 (/soglia/crates/soglia-supervisor)
+   Compiling sharded-slab v0.1.7
+   Compiling thread_local v1.1.10
+   Compiling nu-ansi-term v0.50.3
+   Compiling tracing-subscriber v0.3.23
+   Compiling clap v4.6.7
+   Compiling soglia v0.1.0 (/soglia)
+   Compiling soglia-test-agent v0.1.0 (/soglia/fixtures/test-agent)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 14.69s
+     Running unittests src/main.rs (/var/tmp/b8-fault-target/debug/deps/soglia-e3e6b18c62a2bccb)
+     Running tests/phase0.rs (/var/tmp/b8-fault-target/debug/deps/phase0-77148e8bc1c54a5e)
+     Running unittests src/lib.rs (/var/tmp/b8-fault-target/debug/deps/soglia_core-a01468df1552f1b8)
+     Running unittests src/lib.rs (/var/tmp/b8-fault-target/debug/deps/soglia_enforcer-78cfa150a143e5fb)
+event.name=cgroup_bpf.recovery_record_without_policy cgroup_id=41 phase=Frozen
+event.name=cgroup_bpf.recovery_record_without_policy cgroup_id=41 phase=NetworkPreparedFrozen
+soglia __enforcer: Resolve integrity failure: failed: injected
+
+thread 'service::tests::a_worker_panic_is_not_converted_to_a_consumable_answer' (62931) panicked at crates/soglia-enforcer/src/service.rs:591:13:
+injected worker panic
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+     Running tests/netns_nft.rs (/var/tmp/b8-fault-target/debug/deps/netns_nft-67adb067dcba2044)
+     Running unittests src/lib.rs (/var/tmp/b8-fault-target/debug/deps/soglia_proxy-64abb6d9261e04d2)
+     Running unittests src/lib.rs (/var/tmp/b8-fault-target/debug/deps/soglia_sandbox-cdb74a4bc54a70e4)
+     Running tests/runc.rs (/var/tmp/b8-fault-target/debug/deps/runc-2a4019b30cdb03f0)
+     Running unittests src/lib.rs (/var/tmp/b8-fault-target/debug/deps/soglia_supervisor-45fd1f972fc4739a)
+
+thread 'soglia-resolve-read' (63069) panicked at crates/soglia-supervisor/src/helpers.rs:1570:32:
+unexpected health failure: Unavailable
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+     Running unittests src/main.rs (/var/tmp/b8-fault-target/debug/deps/soglia_test_agent-aef2e2d37030de46)
+   Doc-tests soglia_core
+   Doc-tests soglia_enforcer
+   Doc-tests soglia_proxy
+   Doc-tests soglia_sandbox
+   Doc-tests soglia_supervisor

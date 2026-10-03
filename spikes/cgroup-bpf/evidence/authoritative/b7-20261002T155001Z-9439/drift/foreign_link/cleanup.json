@@ -1,0 +1,10 @@
+{
+  "profile": "drift-foreign-link",
+  "cleanup": "PASS",
+  "measurements": {
+    "execution_residue": "/soglia/spikes/cgroup-bpf/evidence/replay/b7-20261002T155001Z-9439/drift/foreign_link/active-residue",
+    "persistent_generation": "/soglia/spikes/cgroup-bpf/evidence/replay/b7-20261002T155001Z-9439/drift/foreign_link/persistent-generation.json",
+    "harness_teardown": "/soglia/spikes/cgroup-bpf/evidence/replay/b7-20261002T155001Z-9439/drift/foreign_link/harness-teardown.json"
+  },
+  "wildcard_deletion": false
+}

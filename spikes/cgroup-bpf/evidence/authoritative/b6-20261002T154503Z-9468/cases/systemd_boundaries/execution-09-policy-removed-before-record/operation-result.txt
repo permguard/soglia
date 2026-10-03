@@ -1,0 +1,1 @@
+Err("the helper channel failed: the peer closed the channel")

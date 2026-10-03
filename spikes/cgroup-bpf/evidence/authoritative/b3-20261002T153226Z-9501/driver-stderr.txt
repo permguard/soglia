@@ -1,0 +1,1003 @@
+Running as unit: soglia-b3.service
+event.name=cgroup_bpf.attach_probe result=PASS mode=single hooks=6 effective=true
+event.name=cgroup_bpf.ready generation=1 programs=6 links=6 maps=7 policy_capacity=3 socket_capacity=128 ring_bytes=65536
+event.name=cgroup_bpf.startup result=PASS generation=1 duration_ms=181 swept=0 readiness=READY
+event.name=cgroup_bpf.resolve_protocol_ready version=2 max_pending=64 workers=4
+event.name=cgroup_bpf.resolve_worker_occupancy active=1 high_water=1 capacity=64 refused_total=0
+event.name=cgroup_bpf.resolve_worker_occupancy active=2 high_water=2 capacity=64 refused_total=0
+event.name=cgroup_bpf.resolve_worker_occupancy active=3 high_water=3 capacity=64 refused_total=0
+2026-10-02T15:32:32.822334Z  INFO egress request allowed event.name="egress.allowed" execution_id=a9e5cb563e115c6e99191512ee2f9afa method=CONNECT target=allowed.test:443 status=200
+2026-10-02T15:32:32.822334Z  INFO egress request allowed event.name="egress.allowed" execution_id=0a04fcf363847b1d98dde866e339995b method=CONNECT target=allowed.test:443 status=200
+2026-10-02T15:32:32.822338Z  INFO egress request allowed event.name="egress.allowed" execution_id=0a04fcf363847b1d98dde866e339995b method=CONNECT target=allowed.test:443 status=200
+2026-10-02T15:32:32.822390Z  INFO egress request allowed event.name="egress.allowed" execution_id=a9e5cb563e115c6e99191512ee2f9afa method=CONNECT target=allowed.test:443 status=200
+2026-10-02T15:32:32.822487Z  INFO egress request allowed event.name="egress.allowed" execution_id=a9e5cb563e115c6e99191512ee2f9afa method=CONNECT target=allowed.test:443 status=200
+2026-10-02T15:32:32.822564Z  INFO egress request allowed event.name="egress.allowed" execution_id=0a04fcf363847b1d98dde866e339995b method=CONNECT target=allowed.test:443 status=200
+2026-10-02T15:32:32.822639Z  INFO egress request allowed event.name="egress.allowed" execution_id=a9e5cb563e115c6e99191512ee2f9afa method=CONNECT target=allowed.test:443 status=200
+2026-10-02T15:32:32.822710Z  INFO egress request allowed event.name="egress.allowed" execution_id=0a04fcf363847b1d98dde866e339995b method=CONNECT target=allowed.test:443 status=200
+2026-10-02T15:32:32.825023Z  INFO tunnel ended event.name="egress.tunnel_ended" execution_id=a9e5cb563e115c6e99191512ee2f9afa end="runtime-shutdown"
+2026-10-02T15:32:32.825030Z  INFO tunnel ended event.name="egress.tunnel_ended" execution_id=0a04fcf363847b1d98dde866e339995b end="runtime-shutdown"
+2026-10-02T15:32:32.825214Z  INFO tunnel ended event.name="egress.tunnel_ended" execution_id=0a04fcf363847b1d98dde866e339995b end="runtime-shutdown"
+2026-10-02T15:32:32.825283Z  INFO tunnel ended event.name="egress.tunnel_ended" execution_id=0a04fcf363847b1d98dde866e339995b end="runtime-shutdown"
+2026-10-02T15:32:32.825353Z  INFO tunnel ended event.name="egress.tunnel_ended" execution_id=a9e5cb563e115c6e99191512ee2f9afa end="runtime-shutdown"
+2026-10-02T15:32:32.825114Z  INFO tunnel ended event.name="egress.tunnel_ended" execution_id=a9e5cb563e115c6e99191512ee2f9afa end="runtime-shutdown"
+2026-10-02T15:32:32.825041Z  INFO tunnel ended event.name="egress.tunnel_ended" execution_id=0a04fcf363847b1d98dde866e339995b end="runtime-shutdown"
+2026-10-02T15:32:32.825056Z  INFO tunnel ended event.name="egress.tunnel_ended" execution_id=a9e5cb563e115c6e99191512ee2f9afa end="runtime-shutdown"
+event.name=cgroup_bpf.freeze result=PASS correlation=a9e5cb563e duration_ms=7
+event.name=cgroup_bpf.destroy result=PASS correlation=a9e5cb563e duration_ms=17
+event.name=cgroup_bpf.freeze result=PASS correlation=0a04fcf363 duration_ms=9
+event.name=cgroup_bpf.destroy result=PASS correlation=0a04fcf363 duration_ms=20
+2026-10-02T15:32:33.250389Z  INFO egress request allowed event.name="egress.allowed" execution_id=5a4f6ceedf223ac3af2d13a3317ace07 method=CONNECT target=allowed.test:443 status=200
+soglia-agent 2026-10-02T15:32:33.255910Z  INFO tunnel ended event.name="egress.tunnel_ended" execution_id=5a4f6ceedf223ac3af2d13a3317ace07 end="closed"
+5a4f6ceedf223ac3af2d13a3317ace07: {"cmd":"proxy-connect-report","ok":true,"detail":"HTTP/1.1 200 OK","i":0,"source_port":41000,"local":"10.201.0.1:41000","proxy_destination":"10.200.255.1:15001","mode":"close","phase":"established","elapsed_ms":14}
+event.name=cgroup_bpf.freeze result=PASS correlation=5a4f6ceedf duration_ms=17
+event.name=cgroup_bpf.destroy result=PASS correlation=5a4f6ceedf duration_ms=26
+2026-10-02T15:32:33.535791Z  INFO egress request allowed event.name="egress.allowed" execution_id=c571126a25f2d333d232e837e299b99f method=CONNECT target=allowed.test:443 status=200
+soglia-agent 2026-10-02T15:32:33.538866Z  INFO tunnel ended event.name="egress.tunnel_ended" execution_id=c571126a25f2d333d232e837e299b99f end="closed"
+c571126a25f2d333d232e837e299b99f: {"cmd":"proxy-connect-report","ok":true,"detail":"HTTP/1.1 200 OK","i":0,"source_port":41001,"local":"10.201.0.1:41001","proxy_destination":"10.200.255.1:15001","mode":"fin","phase":"established","elapsed_ms":11}
+event.name=cgroup_bpf.freeze result=PASS correlation=c571126a25 duration_ms=8
+event.name=cgroup_bpf.destroy result=PASS correlation=c571126a25 duration_ms=16
+2026-10-02T15:32:33.794854Z  INFO egress request allowed event.name="egress.allowed" execution_id=46981f5a6f2d5dc01d0d540b5055010f method=CONNECT target=allowed.test:443 status=200
+soglia-agent 2026-10-02T15:32:33.796569Z  INFO tunnel ended event.name="egress.tunnel_ended" execution_id=46981f5a6f2d5dc01d0d540b5055010f end="failed"
+46981f5a6f2d5dc01d0d540b5055010f: {"cmd":"proxy-connect-report","ok":true,"detail":"HTTP/1.1 200 OK","i":0,"source_port":41002,"local":"10.201.0.1:41002","proxy_destination":"10.200.255.1:15001","mode":"rst","phase":"established","elapsed_ms":5}
+event.name=cgroup_bpf.freeze result=PASS correlation=46981f5a6f duration_ms=13
+event.name=cgroup_bpf.destroy result=PASS correlation=46981f5a6f duration_ms=24
+soglia-agent b83cf14e2bf20b253a6f261c919cbccd: {"cmd":"proxy-connect-report","ok":false,"errno":111,"error":"Connection refused (os error 111)","i":0,"source_port":41003,"mode":"close" ,"phase":"connect"}
+event.name=cgroup_bpf.freeze result=PASS correlation=b83cf14e2b duration_ms=9
+event.name=cgroup_bpf.destroy result=PASS correlation=b83cf14e2b duration_ms=78
+2026-10-02T15:32:34.380955Z  INFO egress request allowed event.name="egress.allowed" execution_id=830d37a82b9f9aa1ac5fc955773003f3 method=CONNECT target=allowed.test:443 status=200
+soglia-agent 830d37a82b9f9aa1ac5fc955773003f3: {"cmd":"proxy-connect-report","ok":true,"detail":"HTTP/1.1 200 OK","i":0,"source_port":41004,"local":"10.201.0.1:41004","proxy_destination":"10.200.255.1:15001","mode":"hold","phase":"established","elapsed_ms":12}
+2026-10-02T15:32:34.398753Z  INFO tunnel ended event.name="egress.tunnel_ended" execution_id=830d37a82b9f9aa1ac5fc955773003f3 end="closed"
+event.name=cgroup_bpf.freeze result=PASS correlation=830d37a82b duration_ms=7
+event.name=cgroup_bpf.destroy result=PASS correlation=830d37a82b duration_ms=23
+event.name=cgroup_bpf.freeze result=PASS correlation=c8d695e538 duration_ms=11
+event.name=cgroup_bpf.freeze result=PASS correlation=c8d695e538 duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=c8d695e538 duration_ms=14
+2026-10-02T15:32:34.928992Z  INFO egress request allowed event.name="egress.allowed" execution_id=50768d2a3b6ec42185a548a1db8ed0bb method=CONNECT target=allowed.test:443 status=200
+2026-10-02T15:32:34.943105Z  INFO tunnel ended event.name="egress.tunnel_ended" execution_id=50768d2a3b6ec42185a548a1db8ed0bb end="closed"
+2026-10-02T15:32:34.961751Z  INFO egress request allowed event.name="egress.allowed" execution_id=50768d2a3b6ec42185a548a1db8ed0bb method=CONNECT target=allowed.test:443 status=200
+soglia-agent 2026-10-02T15:32:34.962582Z  INFO tunnel ended event.name="egress.tunnel_ended" execution_id=50768d2a3b6ec42185a548a1db8ed0bb end="runtime-shutdown"
+50768d2a3b6ec42185a548a1db8ed0bb: {"cmd":"proxy-reuse-report","ok":true,"detail":"HTTP/1.1 200 OK; HTTP/1.1 200 OK"}
+event.name=cgroup_bpf.freeze result=PASS correlation=50768d2a3b duration_ms=5
+event.name=cgroup_bpf.destroy result=PASS correlation=50768d2a3b duration_ms=27
+2026-10-02T15:32:35.262719Z  INFO egress request allowed event.name="egress.allowed" execution_id=b4012088eb38603ce23652765fd4e49d method=CONNECT target=allowed.test:443 status=200
+soglia-agent 2026-10-02T15:32:35.263782Z  INFO tunnel ended event.name="egress.tunnel_ended" execution_id=b4012088eb38603ce23652765fd4e49d end="closed"
+b4012088eb38603ce23652765fd4e49d: {"cmd":"proxy-connect-report","ok":true,"detail":"HTTP/1.1 200 OK","i":0,"source_port":42000,"local":"10.201.0.1:42000","proxy_destination":"10.200.255.1:15001","mode":"close","phase":"established","elapsed_ms":4}
+event.name=cgroup_bpf.freeze result=PASS correlation=b4012088eb duration_ms=15
+event.name=cgroup_bpf.destroy result=PASS correlation=b4012088eb duration_ms=92
+2026-10-02T15:32:35.596110Z  INFO egress request allowed event.name="egress.allowed" execution_id=323ca00d09c1216dca156d175b35c085 method=CONNECT target=allowed.test:443 status=200
+soglia-agent 2026-10-02T15:32:35.600471Z  INFO tunnel ended event.name="egress.tunnel_ended" execution_id=323ca00d09c1216dca156d175b35c085 end="closed"
+323ca00d09c1216dca156d175b35c085: {"cmd":"proxy-connect-report","ok":true,"detail":"HTTP/1.1 200 OK","i":0,"source_port":42000,"local":"10.201.0.1:42000","proxy_destination":"10.200.255.1:15001","mode":"close","phase":"established","elapsed_ms":12}
+event.name=cgroup_bpf.freeze result=PASS correlation=323ca00d09 duration_ms=28
+event.name=cgroup_bpf.destroy result=PASS correlation=323ca00d09 duration_ms=24
+2026-10-02T15:32:35.927284Z  WARN Candidate-A Resolve denied event.name="cgroup_bpf.resolve_identity_mismatch" reason=CgroupId
+2026-10-02T15:32:35.927397Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:43000 result=IdentityMismatch(CgroupId)
+soglia-agent db1623b3c441b1b2f3180b2df27414c4: {"cmd":"proxy-connect-report","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)","i":0,"source_port":43000,"local":"10.201.0.1:43000","proxy_destination":"10.200.255.1:15001","mode":"close","phase":"established","elapsed_ms":22}
+event.name=cgroup_bpf.freeze result=PASS correlation=db1623b3c4 duration_ms=11
+event.name=cgroup_bpf.destroy result=PASS correlation=db1623b3c4 duration_ms=18
+2026-10-02T15:32:36.183594Z  WARN Candidate-A Resolve denied event.name="cgroup_bpf.resolve_identity_mismatch" reason=ExecutionNonce
+2026-10-02T15:32:36.183664Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:43000 result=IdentityMismatch(ExecutionNonce)
+soglia-agent 6bb1545346dc8934d6314256b68ea632: {"cmd":"proxy-connect-report","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)","i":0,"source_port":43000,"local":"10.201.0.1:43000","proxy_destination":"10.200.255.1:15001","mode":"close","phase":"established","elapsed_ms":15}
+event.name=cgroup_bpf.freeze result=PASS correlation=6bb1545346 duration_ms=10
+event.name=cgroup_bpf.destroy result=PASS correlation=6bb1545346 duration_ms=13
+2026-10-02T15:32:36.494519Z  WARN Candidate-A Resolve denied event.name="cgroup_bpf.resolve_identity_mismatch" reason=BackendGeneration
+2026-10-02T15:32:36.494643Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:43000 result=IdentityMismatch(BackendGeneration)
+soglia-agent 9ee2a854fc50c0612323c4fae6da0721: {"cmd":"proxy-connect-report","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)","i":0,"source_port":43000,"local":"10.201.0.1:43000","proxy_destination":"10.200.255.1:15001","mode":"close","phase":"established","elapsed_ms":15}
+event.name=cgroup_bpf.freeze result=PASS correlation=9ee2a854fc duration_ms=18
+event.name=cgroup_bpf.destroy result=PASS correlation=9ee2a854fc duration_ms=21
+2026-10-02T15:32:36.808617Z  WARN Candidate-A Resolve denied event.name="cgroup_bpf.resolve_identity_mismatch" reason=Cookie
+2026-10-02T15:32:36.823564Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:43000 result=IdentityMismatch(Cookie)
+soglia-agent 29ec2acba2faca31cd80a75db17736e6: {"cmd":"proxy-connect-report","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)","i":0,"source_port":43000,"local":"10.201.0.1:43000","proxy_destination":"10.200.255.1:15001","mode":"close","phase":"established","elapsed_ms":37}
+event.name=cgroup_bpf.freeze result=PASS correlation=29ec2acba2 duration_ms=8
+event.name=cgroup_bpf.destroy result=PASS correlation=29ec2acba2 duration_ms=16
+2026-10-02T15:32:37.112053Z  WARN Candidate-A Resolve denied event.name="cgroup_bpf.resolve_identity_mismatch" reason=Cookie
+2026-10-02T15:32:37.114634Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:43000 result=IdentityMismatch(Cookie)
+soglia-agent 6642f43f804601dafc713822b3547dd6: {"cmd":"proxy-connect-report","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)","i":0,"source_port":43000,"local":"10.201.0.1:43000","proxy_destination":"10.200.255.1:15001","mode":"close","phase":"established","elapsed_ms":25}
+event.name=cgroup_bpf.freeze result=PASS correlation=6642f43f80 duration_ms=9
+event.name=cgroup_bpf.destroy result=PASS correlation=6642f43f80 duration_ms=14
+2026-10-02T15:32:37.430978Z  WARN Candidate-A Resolve denied event.name="cgroup_bpf.resolve_identity_mismatch" reason=Cookie
+2026-10-02T15:32:37.432609Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:43000 result=IdentityMismatch(Cookie)
+soglia-agent 2ff4fa156002b1085fffa6be3c4b8197: {"cmd":"proxy-connect-report","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)","i":0,"source_port":43000,"local":"10.201.0.1:43000","proxy_destination":"10.200.255.1:15001","mode":"close","phase":"established","elapsed_ms":45}
+event.name=cgroup_bpf.freeze result=PASS correlation=2ff4fa1560 duration_ms=9
+event.name=cgroup_bpf.destroy result=PASS correlation=2ff4fa1560 duration_ms=17
+2026-10-02T15:32:37.774665Z  WARN Candidate-A Resolve denied event.name="cgroup_bpf.resolve_identity_mismatch" reason=Policy
+2026-10-02T15:32:37.780711Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:43000 result=IdentityMismatch(Policy)
+soglia-agent df537d90c812687531f660e9997d421d: {"cmd":"proxy-connect-report","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)","i":0,"source_port":43000,"local":"10.201.0.1:43000","proxy_destination":"10.200.255.1:15001","mode":"close","phase":"established","elapsed_ms":41}
+event.name=cgroup_bpf.freeze result=PASS correlation=df537d90c8 duration_ms=9
+event.name=cgroup_bpf.destroy result=PASS correlation=df537d90c8 duration_ms=22
+2026-10-02T15:32:38.160737Z  WARN Candidate-A Resolve denied event.name="cgroup_bpf.resolve_identity_mismatch" reason=Policy
+2026-10-02T15:32:38.163324Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:43000 result=IdentityMismatch(Policy)
+soglia-agent 0aa3255fd67652d3a1c74bb50ea1ea84: {"cmd":"proxy-connect-report","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)","i":0,"source_port":43000,"local":"10.201.0.1:43000","proxy_destination":"10.200.255.1:15001","mode":"close","phase":"established","elapsed_ms":41}
+event.name=cgroup_bpf.freeze result=PASS correlation=0aa3255fd6 duration_ms=14
+event.name=cgroup_bpf.destroy result=PASS correlation=0aa3255fd6 duration_ms=20
+2026-10-02T15:32:38.753400Z  WARN Candidate-A Resolve denied event.name="cgroup_bpf.resolve_identity_mismatch" reason=Policy
+2026-10-02T15:32:38.766084Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:43000 result=IdentityMismatch(Policy)
+soglia-agent a73e5fe677event.name=cgroup_bpf.freeze result=PASS correlation=a74ec13e5f146ce6775d3a duration_ms=2561e9
+e3977b: {"cmd":"proxy-connect-report","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)","i":0,"source_port":43000,"local":"10.201.0.1:43000","proxy_destination":"10.200.255.1:15001","mode":"close","phase":"established","elapsed_ms":47}
+event.name=cgroup_bpf.destroy result=PASS correlation=a73e5fe677 duration_ms=17
+2026-10-02T15:32:39.398624Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:43000 result=NotFound
+soglia-agent f51bbbevent.name=cgroup_bpf.freeze result=PASS correlation=f5eeae1bbb727feeaeef69 duration_ms=15bfd0
+8afee5373d: {"cmd":"proxy-connect-report","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)","i":0,"source_port":43000,"local":"10.201.0.1:43000","proxy_destination":"10.200.255.1:15001","mode":"close","phase":"established","elapsed_ms":9}
+event.name=cgroup_bpf.destroy result=PASS correlation=f51bbbeeae duration_ms=18
+2026-10-02T15:32:39.981924Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:43000 result=NotFound
+soglia-agent 69dac09bevent.name=cgroup_bpf.freeze result=PASS correlation=69aaa2dac0fdee9baa03 duration_ms=2093ea
+e55b3f0be7: {"cmd":"proxy-connect-report","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)","i":0,"source_port":43000,"local":"10.201.0.1:43000","proxy_destination":"10.200.255.1:15001","mode":"close","phase":"established","elapsed_ms":12}
+event.name=cgroup_bpf.destroy result=PASS correlation=69dac09baa duration_ms=37
+2026-10-02T15:32:40.507634Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:43000 result=NotFound
+soglia-agent b87529520881f0f83c8d4fed3c23da41: {"cmd":"proxy-connect-report","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)","i":0,"source_port":43000,"local":"10.201.0.1:43000","proxy_destination":"10.200.255.1:15001","mode":"close","phase":"established","elapsed_ms":9}
+event.name=cgroup_bpf.freeze result=PASS correlation=b875295208 duration_ms=17
+event.name=cgroup_bpf.destroy result=PASS correlation=b875295208 duration_ms=28
+2026-10-02T15:32:40.824376Z  WARN Candidate-A Resolve denied event.name="cgroup_bpf.resolve_identity_mismatch" reason=BackendGeneration
+2026-10-02T15:32:40.828367Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:43000 result=IdentityMismatch(BackendGeneration)
+soglia-agent 4fc60cffc9c9536c97a5f114af11dc55: {"cmd":"proxy-connect-report","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)","i":0,"source_port":43000,"local":"10.201.0.1:43000","proxy_destination":"10.200.255.1:15001","mode":"close","phase":"established","elapsed_ms":20}
+event.name=cgroup_bpf.freeze result=PASS correlation=4fc60cffc9 duration_ms=12
+event.name=cgroup_bpf.destroy result=PASS correlation=4fc60cffc9 duration_ms=16
+2026-10-02T15:32:41.089907Z  WARN Candidate-A Resolve denied event.name="cgroup_bpf.resolve_identity_mismatch" reason=OwnershipRecord
+2026-10-02T15:32:41.093826Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:43000 result=IdentityMismatch(OwnershipRecord)
+soglia-agent fa51d349261f6bd07e2e344ae0270146: {"cmd":"proxy-connect-report","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)","i":0,"source_port":43000,"local":"10.201.0.1:43000","proxy_destination":"10.200.255.1:15001","mode":"close","phase":"established","elapsed_ms":15}
+event.name=cgroup_bpf.freeze result=PASS correlation=fa51d34926 duration_ms=7
+event.name=cgroup_bpf.destroy result=PASS correlation=fa51d34926 duration_ms=12
+2026-10-02T15:32:41.339380Z  WARN Candidate-A Resolve denied event.name="cgroup_bpf.resolve_identity_mismatch" reason=Cookie
+2026-10-02T15:32:41.341012Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:43000 result=IdentityMismatch(Cookie)
+soglia-agent e3c62ee6f49406d7d30716c44026719f: {"cmd":"proxy-connect-report","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)","i":0,"source_port":43000,"local":"10.201.0.1:43000","proxy_destination":"10.200.255.1:15001","mode":"close","phase":"established","elapsed_ms":12}
+event.name=cgroup_bpf.freeze result=PASS correlation=e3c62ee6f4 duration_ms=15
+event.name=cgroup_bpf.destroy result=PASS correlation=e3c62ee6f4 duration_ms=11
+2026-10-02T15:32:41.600031Z  WARN Candidate-A Resolve denied event.name="cgroup_bpf.resolve_identity_mismatch" reason=Cookie
+2026-10-02T15:32:41.601575Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:43000 result=IdentityMismatch(Cookie)
+soglia-agent c3a930e5c447d0ea4c94b35ae280a0e8: {"cmd":"proxy-connect-report","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)","i":0,"source_port":43000,"local":"10.201.0.1:43000","proxy_destination":"10.200.255.1:15001","mode":"close","phase":"established","elapsed_ms":17}
+event.name=cgroup_bpf.freeze result=PASS correlation=c3a930e5c4 duration_ms=11
+event.name=cgroup_bpf.destroy result=PASS correlation=c3a930e5c4 duration_ms=15
+2026-10-02T15:32:41.846624Z  INFO egress request allowed event.name="egress.allowed" execution_id=508488f8fa4975a4b68364a63eca80ca method=CONNECT target=allowed.test:443 status=200
+2026-10-02T15:32:41.849840Z  INFO tunnel ended event.name="egress.tunnel_ended" execution_id=508488f8fa4975a4b68364a63eca80ca end="execution-teardown"
+soglia-agent 508488f8fa4975a4b6event.name=cgroup_bpf.freeze result=PASS correlation=5083648488a63ef8faca80 duration_ms=10ca: 
+{"cmd":"proxy-connect-report","ok":true,"detail":"HTTP/1.1 200 OK","i":0,"source_port":44000,"local":"10.201.0.1:44000","proxy_destination":"10.200.255.1:15001","mode":"hold","phase":"established","elapsed_ms":3}
+soglia-agent 508488f8fa4975a4b68364a63eca80ca: {"cmd":"proxy-connect-report","ok":true,"detail":"proxy closed the tunnel","i":0,"source_port":44000,"mode":"hold","phase":"closed","elapsed_ms":3}
+event.name=cgroup_bpf.freeze result=PASS correlation=508488f8fa duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=508488f8fa duration_ms=13
+event.name=cgroup_bpf.freeze result=PASS correlation=e67f12fc7f duration_ms=7
+2026-10-02T15:32:42.132033Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=e67f12fc7f duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=e67f12fc7f duration_ms=13
+2026-10-02T15:32:42.383669Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+soglia-agent 577234323d71f2f6bc5d5352b344cfcf: {"cmd":"proxy-connect-report","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)","i":0,"source_port":44000,"local":"10.201.0.1:44000","proxy_destination":"10.200.255.1:15001","mode":"hold","phase":"established","elapsed_ms":4}
+event.name=cgroup_bpf.freeze result=PASS correlation=577234323d duration_ms=15
+event.name=cgroup_bpf.freeze result=PASS correlation=577234323d duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=577234323d duration_ms=15
+event.name=cgroup_bpf.freeze result=PASS correlation=e19d1f7a32 duration_ms=6
+2026-10-02T15:32:42.668934Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=e19d1f7a32 duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=e19d1f7a32 duration_ms=12
+2026-10-02T15:32:42.924310Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+soglia-agent 99b83e1b23ddevent.name=cgroup_bpf.freeze result=PASS correlation=99b1f7b83e36771b23c224 duration_ms=7af2e
+b9c9: {"cmd":"proxy-connect-report","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)","i":0,"source_port":44000,"local":"10.201.0.1:44000","proxy_destination":"10.200.255.1:15001","mode":"hold","phase":"established","elapsed_ms":1}
+event.name=cgroup_bpf.freeze result=PASS correlation=99b83e1b23 duration_ms=1
+event.name=cgroup_bpf.destroy result=PASS correlation=99b83e1b23 duration_ms=16
+event.name=cgroup_bpf.freeze result=PASS correlation=c6e69394c2 duration_ms=10
+2026-10-02T15:32:43.215853Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=c6e69394c2 duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=c6e69394c2 duration_ms=10
+event.name=cgroup_bpf.freeze result=PASS correlation=6adce8248f duration_ms=5
+2026-10-02T15:32:43.482433Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=6adce8248f duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=6adce8248f duration_ms=12
+2026-10-02T15:32:43.746971Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+soglia-agent f24c9df42bc7130b1dae314fe7c699event.name=cgroup_bpf.freeze result=PASS correlation=f2044c9d: {"cmd":"proxy-connect-report","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)","i":0,"source_port":44000,"local":"10.201.0.1:44000","proxy_destination":"10.200.255.1:15001","mode":"hold","phase":"established","elapsed_ms":0}f42b
+ duration_ms=6
+event.name=cgroup_bpf.freeze result=PASS correlation=f24c9df42b duration_ms=1
+event.name=cgroup_bpf.destroy result=PASS correlation=f24c9df42b duration_ms=12
+event.name=cgroup_bpf.freeze result=PASS correlation=4e88be5244 duration_ms=4
+2026-10-02T15:32:44.043435Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=4e88be5244 duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=4e88be5244 duration_ms=16
+event.name=cgroup_bpf.freeze result=PASS correlation=21d904f3e5 duration_ms=11
+2026-10-02T15:32:44.327101Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=21d904f3e5 duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=21d904f3e5 duration_ms=18
+event.name=cgroup_bpf.freeze result=PASS correlation=c7dc8998f7 duration_ms=5
+2026-10-02T15:32:44.603717Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=c7dc8998f7 duration_ms=1
+event.name=cgroup_bpf.destroy result=PASS correlation=c7dc8998f7 duration_ms=12
+event.name=cgroup_bpf.freeze result=PASS correlation=f488fa2852 duration_ms=4
+2026-10-02T15:32:44.870487Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=f488fa2852 duration_ms=1
+event.name=cgroup_bpf.destroy result=PASS correlation=f488fa2852 duration_ms=15
+event.name=cgroup_bpf.freeze result=PASS correlation=6a1edf0bc1 duration_ms=8
+2026-10-02T15:32:45.151513Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=6a1edf0bc1 duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=6a1edf0bc1 duration_ms=20
+event.name=cgroup_bpf.freeze result=PASS correlation=d84e1ef75f duration_ms=5
+2026-10-02T15:32:45.425638Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=d84e1ef75f duration_ms=1
+event.name=cgroup_bpf.destroy result=PASS correlation=d84e1ef75f duration_ms=15
+event.name=cgroup_bpf.freeze result=PASS correlation=1b655caaa7 duration_ms=4
+2026-10-02T15:32:45.703676Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=1b655caaa7 duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=1b655caaa7 duration_ms=28
+event.name=cgroup_bpf.freeze result=PASS correlation=f6c69152d0 duration_ms=7
+2026-10-02T15:32:46.005411Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=f6c69152d0 duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=f6c69152d0 duration_ms=19
+event.name=cgroup_bpf.freeze result=PASS correlation=a3a5ce5140 duration_ms=4
+2026-10-02T15:32:46.272287Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=a3a5ce5140 duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=a3a5ce5140 duration_ms=12
+event.name=cgroup_bpf.freeze result=PASS correlation=aaf9e1ff4c duration_ms=5
+2026-10-02T15:32:46.537622Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=aaf9e1ff4c duration_ms=1
+event.name=cgroup_bpf.destroy result=PASS correlation=aaf9e1ff4c duration_ms=17
+event.name=cgroup_bpf.freeze result=PASS correlation=b93e2046f9 duration_ms=6
+2026-10-02T15:32:46.812310Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=b93e2046f9 duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=b93e2046f9 duration_ms=13
+event.name=cgroup_bpf.freeze result=PASS correlation=ca5b844d55 duration_ms=5
+2026-10-02T15:32:47.081333Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=ca5b844d55 duration_ms=1
+event.name=cgroup_bpf.destroy result=PASS correlation=ca5b844d55 duration_ms=13
+event.name=cgroup_bpf.freeze result=PASS correlation=0bdd5906f7 duration_ms=6
+2026-10-02T15:32:47.359361Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=0bdd5906f7 duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=0bdd5906f7 duration_ms=17
+event.name=cgroup_bpf.freeze result=PASS correlation=6337b7a26a duration_ms=5
+2026-10-02T15:32:47.629456Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=6337b7a26a duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=6337b7a26a duration_ms=13
+2026-10-02T15:32:47.884267Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+soglia-agent 665855dbevent.name=cgroup_bpf.freeze result=PASS correlation=6672705855eff5db725a4d duration_ms=65cd3
+bba6dddb: {"cmd":"proxy-connect-report","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)","i":0,"source_port":44000,"local":"10.201.0.1:44000","proxy_destination":"10.200.255.1:15001","mode":"hold","phase":"established","elapsed_ms":1}
+event.name=cgroup_bpf.freeze result=PASS correlation=665855db72 duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=665855db72 duration_ms=21
+event.name=cgroup_bpf.freeze result=PASS correlation=ef89c8557f duration_ms=4
+2026-10-02T15:32:48.176882Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=ef89c8557f duration_ms=1
+event.name=cgroup_bpf.destroy result=PASS correlation=ef89c8557f duration_ms=15
+event.name=cgroup_bpf.freeze result=PASS correlation=0d09ff64fb duration_ms=8
+2026-10-02T15:32:48.461408Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=0d09ff64fb duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=0d09ff64fb duration_ms=14
+event.name=cgroup_bpf.freeze result=PASS correlation=ebc7731b80 duration_ms=9
+2026-10-02T15:32:48.735296Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=ebc7731b80 duration_ms=1
+event.name=cgroup_bpf.destroy result=PASS correlation=ebc7731b80 duration_ms=16
+event.name=cgroup_bpf.freeze result=PASS correlation=dea49ba46e duration_ms=8
+2026-10-02T15:32:49.011737Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=dea49ba46e duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=dea49ba46e duration_ms=24
+event.name=cgroup_bpf.freeze result=PASS correlation=bf3f2c2a96 duration_ms=7
+2026-10-02T15:32:49.288975Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=bf3f2c2a96 duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=bf3f2c2a96 duration_ms=22
+event.name=cgroup_bpf.freeze result=PASS correlation=e16bd3144f duration_ms=4
+2026-10-02T15:32:49.562966Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=e16bd3144f duration_ms=1
+event.name=cgroup_bpf.destroy result=PASS correlation=e16bd3144f duration_ms=13
+event.name=cgroup_bpf.freeze result=PASS correlation=9aaac82ea7 duration_ms=3
+2026-10-02T15:32:49.834493Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=9aaac82ea7 duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=9aaac82ea7 duration_ms=18
+event.name=cgroup_bpf.freeze result=PASS correlation=ab249697d5 duration_ms=6
+2026-10-02T15:32:50.111880Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=ab249697d5 duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=ab249697d5 duration_ms=19
+event.name=cgroup_bpf.freeze result=PASS correlation=247c4ac34d duration_ms=9
+2026-10-02T15:32:50.391697Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=247c4ac34d duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=247c4ac34d duration_ms=11
+event.name=cgroup_bpf.freeze result=PASS correlation=d52008136e duration_ms=6
+2026-10-02T15:32:50.666660Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=d52008136e duration_ms=1
+event.name=cgroup_bpf.destroy result=PASS correlation=d52008136e duration_ms=13
+event.name=cgroup_bpf.freeze result=PASS correlation=5466b6b246 duration_ms=7
+2026-10-02T15:32:50.940312Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=5466b6b246 duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=5466b6b246 duration_ms=14
+event.name=cgroup_bpf.freeze result=PASS correlation=a458932188 duration_ms=5
+2026-10-02T15:32:51.212616Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=a458932188 duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=a458932188 duration_ms=15
+event.name=cgroup_bpf.freeze result=PASS correlation=ba8d40909d duration_ms=6
+2026-10-02T15:32:51.481900Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=ba8d40909d duration_ms=1
+event.name=cgroup_bpf.destroy result=PASS correlation=ba8d40909d duration_ms=18
+event.name=cgroup_bpf.freeze result=PASS correlation=89c26e5e95 duration_ms=5
+2026-10-02T15:32:51.756640Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=89c26e5e95 duration_ms=1
+event.name=cgroup_bpf.destroy result=PASS correlation=89c26e5e95 duration_ms=14
+2026-10-02T15:32:52.012289Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+soglia-agent 14e2ddba75a58ffabffa78408dac02e8: {"cmd":"proxy-connect-report","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)","i":0,"source_port":44000,"local":"10.201.0.1:44000","proxy_destination":"10.200.255.1:15001","mode":"hold","phase":"established","elapsed_ms":0}
+event.name=cgroup_bpf.freeze result=PASS correlation=14e2ddba75 duration_ms=16
+event.name=cgroup_bpf.freeze result=PASS correlation=14e2ddba75 duration_ms=1
+event.name=cgroup_bpf.destroy result=PASS correlation=14e2ddba75 duration_ms=25
+event.name=cgroup_bpf.freeze result=PASS correlation=10eb2cc45a duration_ms=5
+2026-10-02T15:32:52.312847Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=10eb2cc45a duration_ms=1
+event.name=cgroup_bpf.destroy result=PASS correlation=10eb2cc45a duration_ms=15
+event.name=cgroup_bpf.freeze result=PASS correlation=f4ecc755b7 duration_ms=4
+2026-10-02T15:32:52.709574Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=f4ecc755b7 duration_ms=1
+event.name=cgroup_bpf.destroy result=PASS correlation=f4ecc755b7 duration_ms=20
+2026-10-02T15:32:52.999591Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=0a575abb5c duration_ms=4
+event.name=cgroup_bpf.freeze result=PASS correlation=0a575abb5c duration_ms=11
+event.name=cgroup_bpf.destroy result=PASS correlation=0a575abb5c duration_ms=35
+2026-10-02T15:32:53.312253Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=a8d5a7cdd8 duration_ms=7
+event.name=cgroup_bpf.freeze result=PASS correlation=a8d5a7cdd8 duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=a8d5a7cdd8 duration_ms=18
+event.name=cgroup_bpf.freeze result=PASS correlation=ad26e7dfcd duration_ms=5
+2026-10-02T15:32:53.615330Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=ad26e7dfcd duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=ad26e7dfcd duration_ms=24
+event.name=cgroup_bpf.freeze result=PASS correlation=d37e4a5843 duration_ms=5
+2026-10-02T15:32:53.903505Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=d37e4a5843 duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=d37e4a5843 duration_ms=20
+event.name=cgroup_bpf.freeze result=PASS correlation=a6e2a0bd6f duration_ms=4
+2026-10-02T15:32:54.193261Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=a6e2a0bd6f duration_ms=1
+event.name=cgroup_bpf.destroy result=PASS correlation=a6e2a0bd6f duration_ms=16
+event.name=cgroup_bpf.freeze result=PASS correlation=a4ee30cdb5 duration_ms=6
+2026-10-02T15:32:54.467835Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=a4ee30cdb5 duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=a4ee30cdb5 duration_ms=32
+event.name=cgroup_bpf.freeze result=PASS correlation=8d358b7e8c duration_ms=5
+2026-10-02T15:32:54.760238Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=8d358b7e8c duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=8d358b7e8c duration_ms=15
+event.name=cgroup_bpf.freeze result=PASS correlation=c4147ca6a7 duration_ms=5
+2026-10-02T15:32:55.026816Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=c4147ca6a7 duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=c4147ca6a7 duration_ms=113
+event.name=cgroup_bpf.freeze result=PASS correlation=7de3df81fb duration_ms=4
+2026-10-02T15:32:55.484798Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=7de3df81fb duration_ms=1
+event.name=cgroup_bpf.destroy result=PASS correlation=7de3df81fb duration_ms=16
+event.name=cgroup_bpf.freeze result=PASS correlation=2aba225c31 duration_ms=8
+2026-10-02T15:32:55.776867Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=2aba225c31 duration_ms=9
+event.name=cgroup_bpf.destroy result=PASS correlation=2aba225c31 duration_ms=17
+event.name=cgroup_bpf.freeze result=PASS correlation=daeda626bb duration_ms=4
+2026-10-02T15:32:56.083019Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=daeda626bb duration_ms=1
+event.name=cgroup_bpf.destroy result=PASS correlation=daeda626bb duration_ms=13
+event.name=cgroup_bpf.freeze result=PASS correlation=32d4a4dfc6 duration_ms=4
+2026-10-02T15:32:56.347655Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=32d4a4dfc6 duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=32d4a4dfc6 duration_ms=18
+event.name=cgroup_bpf.freeze result=PASS correlation=e6506158c9 duration_ms=16
+2026-10-02T15:32:56.518585Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=e6506158c9 duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=e6506158c9 duration_ms=21
+event.name=cgroup_bpf.freeze result=PASS correlation=5ffd0e6dea duration_ms=8
+2026-10-02T15:32:56.808693Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=5ffd0e6dea duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=5ffd0e6dea duration_ms=21
+event.name=cgroup_bpf.freeze result=PASS correlation=469213e1f1 duration_ms=5
+2026-10-02T15:32:57.080704Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=469213e1f1 duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=469213e1f1 duration_ms=19
+event.name=cgroup_bpf.freeze result=PASS correlation=07def5bb1b duration_ms=5
+2026-10-02T15:32:57.362072Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=07def5bb1b duration_ms=1
+event.name=cgroup_bpf.destroy result=PASS correlation=07def5bb1b duration_ms=14
+event.name=cgroup_bpf.freeze result=PASS correlation=751002259d duration_ms=6
+2026-10-02T15:32:57.648331Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=751002259d duration_ms=1
+event.name=cgroup_bpf.destroy result=PASS correlation=751002259d duration_ms=25
+event.name=cgroup_bpf.freeze result=PASS correlation=7a8f8cf4af duration_ms=6
+2026-10-02T15:32:57.930729Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=7a8f8cf4af duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=7a8f8cf4af duration_ms=12
+event.name=cgroup_bpf.freeze result=PASS correlation=29d3885f35 duration_ms=5
+2026-10-02T15:32:58.206134Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=29d3885f35 duration_ms=1
+event.name=cgroup_bpf.destroy result=PASS correlation=29d3885f35 duration_ms=13
+event.name=cgroup_bpf.freeze result=PASS correlation=786c572c23 duration_ms=5
+2026-10-02T15:32:58.496336Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=786c572c23 duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=786c572c23 duration_ms=18
+event.name=cgroup_bpf.freeze result=PASS correlation=0829f6f6dd duration_ms=5
+2026-10-02T15:32:58.775760Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=0829f6f6dd duration_ms=1
+event.name=cgroup_bpf.destroy result=PASS correlation=0829f6f6dd duration_ms=20
+event.name=cgroup_bpf.freeze result=PASS correlation=0422716ea8 duration_ms=5
+2026-10-02T15:32:59.051838Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=0422716ea8 duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=0422716ea8 duration_ms=14
+event.name=cgroup_bpf.freeze result=PASS correlation=49822dbcdd duration_ms=4
+2026-10-02T15:32:59.323169Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=49822dbcdd duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=49822dbcdd duration_ms=16
+event.name=cgroup_bpf.freeze result=PASS correlation=c0f85bcc61 duration_ms=4
+2026-10-02T15:32:59.631771Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=c0f85bcc61 duration_ms=1
+event.name=cgroup_bpf.destroy result=PASS correlation=c0f85bcc61 duration_ms=15
+event.name=cgroup_bpf.freeze result=PASS correlation=ac7c1a0008 duration_ms=8
+2026-10-02T15:32:59.902983Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=ac7c1a0008 duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=ac7c1a0008 duration_ms=21
+event.name=cgroup_bpf.freeze result=PASS correlation=cdd9e31fb5 duration_ms=11
+2026-10-02T15:33:00.188607Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=cdd9e31fb5 duration_ms=1
+event.name=cgroup_bpf.destroy result=PASS correlation=cdd9e31fb5 duration_ms=17
+event.name=cgroup_bpf.freeze result=PASS correlation=683294dbb2 duration_ms=6
+2026-10-02T15:33:00.455634Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=683294dbb2 duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=683294dbb2 duration_ms=20
+2026-10-02T15:33:00.725429Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+soglia-agent abc2e76bc6d350ad3cb3eb3eb3ffc64aevent.name=cgroup_bpf.freeze result=PASS correlation=ab: {"cmd":"proxy-connect-report","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)","i":0,"source_port":44000,"local":"10.201.0.1:44000","proxy_destination":"10.200.255.1:15001","mode":"hold","phase":"established","elapsed_ms":0}c2e7
+6bc6 duration_ms=11
+event.name=cgroup_bpf.freeze result=PASS correlation=abc2e76bc6 duration_ms=1
+event.name=cgroup_bpf.destroy result=PASS correlation=abc2e76bc6 duration_ms=12
+event.name=cgroup_bpf.freeze result=PASS correlation=f5530a82ef duration_ms=7
+2026-10-02T15:33:01.014268Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=f5530a82ef duration_ms=1
+event.name=cgroup_bpf.destroy result=PASS correlation=f5530a82ef duration_ms=28
+event.name=cgroup_bpf.freeze result=PASS correlation=bccf0c7340 duration_ms=5
+2026-10-02T15:33:01.304916Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=bccf0c7340 duration_ms=1
+event.name=cgroup_bpf.destroy result=PASS correlation=bccf0c7340 duration_ms=23
+event.name=cgroup_bpf.freeze result=PASS correlation=b4fe797afc duration_ms=4
+2026-10-02T15:33:01.716278Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=b4fe797afc duration_ms=1
+event.name=cgroup_bpf.destroy result=PASS correlation=b4fe797afc duration_ms=13
+event.name=cgroup_bpf.freeze result=PASS correlation=27c518e4ba duration_ms=5
+2026-10-02T15:33:01.986678Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=27c518e4ba duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=27c518e4ba duration_ms=17
+event.name=cgroup_bpf.freeze result=PASS correlation=ba6a4fc2c5 duration_ms=4
+2026-10-02T15:33:02.259741Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=ba6a4fc2c5 duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=ba6a4fc2c5 duration_ms=13
+event.name=cgroup_bpf.freeze result=PASS correlation=aefd8825da duration_ms=5
+2026-10-02T15:33:02.519280Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=aefd8825da duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=aefd8825da duration_ms=21
+event.name=cgroup_bpf.freeze result=PASS correlation=31c6c98929 duration_ms=7
+2026-10-02T15:33:02.796780Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=31c6c98929 duration_ms=1
+event.name=cgroup_bpf.destroy result=PASS correlation=31c6c98929 duration_ms=18
+event.name=cgroup_bpf.freeze result=PASS correlation=bfc80e178a duration_ms=5
+2026-10-02T15:33:03.071464Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=bfc80e178a duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=bfc80e178a duration_ms=16
+event.name=cgroup_bpf.freeze result=PASS correlation=4286969f3d duration_ms=5
+2026-10-02T15:33:03.340941Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=4286969f3d duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=4286969f3d duration_ms=12
+event.name=cgroup_bpf.freeze result=PASS correlation=23a216df3c duration_ms=4
+2026-10-02T15:33:03.606557Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=23a216df3c duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=23a216df3c duration_ms=16
+event.name=cgroup_bpf.freeze result=PASS correlation=6c24f25b2e duration_ms=5
+2026-10-02T15:33:03.879690Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=6c24f25b2e duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=6c24f25b2e duration_ms=17
+event.name=cgroup_bpf.freeze result=PASS correlation=614736f1b2 duration_ms=6
+2026-10-02T15:33:04.170970Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=614736f1b2 duration_ms=3
+event.name=cgroup_bpf.destroy result=PASS correlation=614736f1b2 duration_ms=35
+event.name=cgroup_bpf.freeze result=PASS correlation=d3fcfa6d7f duration_ms=5
+2026-10-02T15:33:04.495338Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=d3fcfa6d7f duration_ms=1
+event.name=cgroup_bpf.destroy result=PASS correlation=d3fcfa6d7f duration_ms=12
+event.name=cgroup_bpf.freeze result=PASS correlation=92a1fcfbbd duration_ms=5
+2026-10-02T15:33:04.799154Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=92a1fcfbbd duration_ms=2
+event.name=cgroup_bpf.destroy result=PASS correlation=92a1fcfbbd duration_ms=15
+event.name=cgroup_bpf.freeze result=PASS correlation=53fae9c366 duration_ms=12
+2026-10-02T15:33:05.145328Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=53fae9c366 duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=53fae9c366 duration_ms=33
+event.name=cgroup_bpf.freeze result=PASS correlation=9a70626781 duration_ms=5
+2026-10-02T15:33:05.495415Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=9a70626781 duration_ms=1
+event.name=cgroup_bpf.destroy result=PASS correlation=9a70626781 duration_ms=15
+event.name=cgroup_bpf.freeze result=PASS correlation=7c22473a84 duration_ms=5
+2026-10-02T15:33:05.781366Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=7c22473a84 duration_ms=1
+event.name=cgroup_bpf.destroy result=PASS correlation=7c22473a84 duration_ms=16
+event.name=cgroup_bpf.freeze result=PASS correlation=848461f975 duration_ms=8
+2026-10-02T15:33:06.059467Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=848461f975 duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=848461f975 duration_ms=19
+event.name=cgroup_bpf.freeze result=PASS correlation=5247c7281c duration_ms=4
+2026-10-02T15:33:06.344129Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=5247c7281c duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=5247c7281c duration_ms=21
+event.name=cgroup_bpf.freeze result=PASS correlation=07155084e6 duration_ms=4
+2026-10-02T15:33:06.615308Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=07155084e6 duration_ms=1
+event.name=cgroup_bpf.destroy result=PASS correlation=07155084e6 duration_ms=18
+event.name=cgroup_bpf.freeze result=PASS correlation=a3562c7160 duration_ms=5
+2026-10-02T15:33:06.898221Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=a3562c7160 duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=a3562c7160 duration_ms=18
+event.name=cgroup_bpf.freeze result=PASS correlation=54c9838ba6 duration_ms=6
+2026-10-02T15:33:07.176085Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=54c9838ba6 duration_ms=1
+event.name=cgroup_bpf.destroy result=PASS correlation=54c9838ba6 duration_ms=14
+event.name=cgroup_bpf.freeze result=PASS correlation=9d6d4dad4c duration_ms=5
+2026-10-02T15:33:07.448042Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=9d6d4dad4c duration_ms=1
+event.name=cgroup_bpf.destroy result=PASS correlation=9d6d4dad4c duration_ms=18
+event.name=cgroup_bpf.freeze result=PASS correlation=a25b96e499 duration_ms=8
+2026-10-02T15:33:07.724155Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=a25b96e499 duration_ms=1
+event.name=cgroup_bpf.destroy result=PASS correlation=a25b96e499 duration_ms=13
+event.name=cgroup_bpf.freeze result=PASS correlation=a8bcf0b376 duration_ms=7
+2026-10-02T15:33:08.010892Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=a8bcf0b376 duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=a8bcf0b376 duration_ms=17
+event.name=cgroup_bpf.freeze result=PASS correlation=ada8061c2f duration_ms=7
+2026-10-02T15:33:08.280100Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=ada8061c2f duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=ada8061c2f duration_ms=19
+event.name=cgroup_bpf.freeze result=PASS correlation=7b1631daee duration_ms=7
+2026-10-02T15:33:08.571614Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=7b1631daee duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=7b1631daee duration_ms=19
+event.name=cgroup_bpf.freeze result=PASS correlation=8de5b72465 duration_ms=5
+2026-10-02T15:33:08.845335Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=8de5b72465 duration_ms=1
+event.name=cgroup_bpf.destroy result=PASS correlation=8de5b72465 duration_ms=19
+event.name=cgroup_bpf.freeze result=PASS correlation=cdaa2811ff duration_ms=6
+2026-10-02T15:33:09.128397Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=cdaa2811ff duration_ms=1
+event.name=cgroup_bpf.destroy result=PASS correlation=cdaa2811ff duration_ms=12
+event.name=cgroup_bpf.freeze result=PASS correlation=91e68cacbc duration_ms=3
+2026-10-02T15:33:09.404422Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=91e68cacbc duration_ms=1
+event.name=cgroup_bpf.destroy result=PASS correlation=91e68cacbc duration_ms=17
+2026-10-02T15:33:09.664176Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+soglia-agent 1a3a26event.name=cgroup_bpf.freeze result=PASS correlation=1afe593a26766afe5909 duration_ms=93b67
+512527b7089b: {"cmd":"proxy-connect-report","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)","i":0,"source_port":44000,"local":"10.201.0.1:44000","proxy_destination":"10.200.255.1:15001","mode":"hold","phase":"established","elapsed_ms":3}
+event.name=cgroup_bpf.freeze result=PASS correlation=1a3a26fe59 duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=1a3a26fe59 duration_ms=19
+event.name=cgroup_bpf.freeze result=PASS correlation=e77bdf1074 duration_ms=4
+2026-10-02T15:33:09.956197Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=e77bdf1074 duration_ms=1
+event.name=cgroup_bpf.destroy result=PASS correlation=e77bdf1074 duration_ms=27
+event.name=cgroup_bpf.freeze result=PASS correlation=9ce40a986f duration_ms=5
+2026-10-02T15:33:10.240742Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=9ce40a986f duration_ms=1
+event.name=cgroup_bpf.destroy result=PASS correlation=9ce40a986f duration_ms=20
+event.name=cgroup_bpf.freeze result=PASS correlation=f7c97e00fc duration_ms=8
+2026-10-02T15:33:10.978515Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=f7c97e00fc duration_ms=8
+event.name=cgroup_bpf.destroy result=PASS correlation=f7c97e00fc duration_ms=18
+event.name=cgroup_bpf.freeze result=PASS correlation=944be71f5a duration_ms=14
+2026-10-02T15:33:11.682464Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=944be71f5a duration_ms=3
+event.name=cgroup_bpf.destroy result=PASS correlation=944be71f5a duration_ms=18
+event.name=cgroup_bpf.freeze result=PASS correlation=32ba050a85 duration_ms=4
+2026-10-02T15:33:11.979075Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=32ba050a85 duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=32ba050a85 duration_ms=15
+event.name=cgroup_bpf.freeze result=PASS correlation=5555f35f85 duration_ms=8
+2026-10-02T15:33:12.252088Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=5555f35f85 duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=5555f35f85 duration_ms=17
+event.name=cgroup_bpf.freeze result=PASS correlation=695bce8d4b duration_ms=4
+2026-10-02T15:33:12.521144Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=695bce8d4b duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=695bce8d4b duration_ms=14
+event.name=cgroup_bpf.freeze result=PASS correlation=12b00ccd1a duration_ms=4
+2026-10-02T15:33:12.794107Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=12b00ccd1a duration_ms=1
+event.name=cgroup_bpf.destroy result=PASS correlation=12b00ccd1a duration_ms=25
+event.name=cgroup_bpf.freeze result=PASS correlation=880494e6c4 duration_ms=4
+2026-10-02T15:33:13.079160Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=880494e6c4 duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=880494e6c4 duration_ms=19
+event.name=cgroup_bpf.freeze result=PASS correlation=7b16a47800 duration_ms=8
+2026-10-02T15:33:13.358491Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=7b16a47800 duration_ms=1
+event.name=cgroup_bpf.destroy result=PASS correlation=7b16a47800 duration_ms=16
+event.name=cgroup_bpf.freeze result=PASS correlation=abccb5b350 duration_ms=6
+2026-10-02T15:33:13.630480Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=abccb5b350 duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=abccb5b350 duration_ms=20
+event.name=cgroup_bpf.freeze result=PASS correlation=14077bdf17 duration_ms=6
+2026-10-02T15:33:13.906243Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=14077bdf17 duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=14077bdf17 duration_ms=16
+event.name=cgroup_bpf.freeze result=PASS correlation=91a2621a9d duration_ms=6
+2026-10-02T15:33:14.386605Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=91a2621a9d duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=91a2621a9d duration_ms=22
+event.name=cgroup_bpf.freeze result=PASS correlation=1fbaddba33 duration_ms=4
+2026-10-02T15:33:14.807910Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=1fbaddba33 duration_ms=1
+event.name=cgroup_bpf.destroy result=PASS correlation=1fbaddba33 duration_ms=18
+event.name=cgroup_bpf.freeze result=PASS correlation=f50a8dcc90 duration_ms=5
+2026-10-02T15:33:15.395947Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=f50a8dcc90 duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=f50a8dcc90 duration_ms=17
+event.name=cgroup_bpf.freeze result=PASS correlation=daeada2619 duration_ms=5
+2026-10-02T15:33:15.667929Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=daeada2619 duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=daeada2619 duration_ms=11
+event.name=cgroup_bpf.freeze result=PASS correlation=6506c8f5db duration_ms=5
+2026-10-02T15:33:16.153176Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=6506c8f5db duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=6506c8f5db duration_ms=35
+event.name=cgroup_bpf.freeze result=PASS correlation=d4c10e100d duration_ms=6
+2026-10-02T15:33:16.479568Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=d4c10e100d duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=d4c10e100d duration_ms=22
+event.name=cgroup_bpf.freeze result=PASS correlation=891332ba18 duration_ms=5
+2026-10-02T15:33:16.711768Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=891332ba18 duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=891332ba18 duration_ms=14
+event.name=cgroup_bpf.freeze result=PASS correlation=44e9c4f594 duration_ms=5
+2026-10-02T15:33:16.981311Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=44e9c4f594 duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=44e9c4f594 duration_ms=16
+event.name=cgroup_bpf.freeze result=PASS correlation=b63936d737 duration_ms=4
+2026-10-02T15:33:17.250412Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=b63936d737 duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=b63936d737 duration_ms=18
+event.name=cgroup_bpf.freeze result=PASS correlation=29cd489e88 duration_ms=4
+2026-10-02T15:33:17.521100Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=29cd489e88 duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=29cd489e88 duration_ms=17
+event.name=cgroup_bpf.freeze result=PASS correlation=e2ee22af14 duration_ms=5
+2026-10-02T15:33:17.791551Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=e2ee22af14 duration_ms=3
+event.name=cgroup_bpf.destroy result=PASS correlation=e2ee22af14 duration_ms=16
+event.name=cgroup_bpf.freeze result=PASS correlation=21a2d3edbf duration_ms=5
+2026-10-02T15:33:18.085259Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=21a2d3edbf duration_ms=1
+event.name=cgroup_bpf.destroy result=PASS correlation=21a2d3edbf duration_ms=25
+event.name=cgroup_bpf.freeze result=PASS correlation=23c79b4cac duration_ms=4
+2026-10-02T15:33:18.405100Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=23c79b4cac duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=23c79b4cac duration_ms=22
+event.name=cgroup_bpf.freeze result=PASS correlation=26e245e503 duration_ms=5
+2026-10-02T15:33:18.685379Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=26e245e503 duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=26e245e503 duration_ms=14
+event.name=cgroup_bpf.freeze result=PASS correlation=aa33687178 duration_ms=6
+2026-10-02T15:33:18.958424Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=aa33687178 duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=aa33687178 duration_ms=12
+event.name=cgroup_bpf.freeze result=PASS correlation=2bf7eb670b duration_ms=4
+2026-10-02T15:33:19.223989Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=2bf7eb670b duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=2bf7eb670b duration_ms=13
+event.name=cgroup_bpf.freeze result=PASS correlation=9181d1782d duration_ms=6
+2026-10-02T15:33:19.530310Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=9181d1782d duration_ms=1
+event.name=cgroup_bpf.destroy result=PASS correlation=9181d1782d duration_ms=12
+event.name=cgroup_bpf.freeze result=PASS correlation=76b80fa254 duration_ms=9
+2026-10-02T15:33:19.799567Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=76b80fa254 duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=76b80fa254 duration_ms=23
+event.name=cgroup_bpf.freeze result=PASS correlation=cf810cd45f duration_ms=4
+2026-10-02T15:33:20.081882Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=cf810cd45f duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=cf810cd45f duration_ms=19
+event.name=cgroup_bpf.freeze result=PASS correlation=dd643b146d duration_ms=3
+2026-10-02T15:33:20.369286Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=dd643b146d duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=dd643b146d duration_ms=18
+event.name=cgroup_bpf.freeze result=PASS correlation=73c49f89eb duration_ms=5
+2026-10-02T15:33:20.642340Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=73c49f89eb duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=73c49f89eb duration_ms=10
+event.name=cgroup_bpf.freeze result=PASS correlation=574bd8ec06 duration_ms=5
+2026-10-02T15:33:20.909982Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=574bd8ec06 duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=574bd8ec06 duration_ms=27
+event.name=cgroup_bpf.freeze result=PASS correlation=326c55405d duration_ms=6
+2026-10-02T15:33:21.183867Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=326c55405d duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=326c55405d duration_ms=13
+event.name=cgroup_bpf.freeze result=PASS correlation=a608cb4bcf duration_ms=4
+2026-10-02T15:33:21.450111Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=a608cb4bcf duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=a608cb4bcf duration_ms=16
+event.name=cgroup_bpf.freeze result=PASS correlation=23355bdd17 duration_ms=4
+2026-10-02T15:33:21.714508Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=23355bdd17 duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=23355bdd17 duration_ms=13
+event.name=cgroup_bpf.freeze result=PASS correlation=0838826820 duration_ms=4
+2026-10-02T15:33:21.981347Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=0838826820 duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=0838826820 duration_ms=20
+event.name=cgroup_bpf.freeze result=PASS correlation=066c3b3fa9 duration_ms=6
+2026-10-02T15:33:22.263503Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=066c3b3fa9 duration_ms=1
+event.name=cgroup_bpf.destroy result=PASS correlation=066c3b3fa9 duration_ms=26
+event.name=cgroup_bpf.freeze result=PASS correlation=6367ff1288 duration_ms=6
+2026-10-02T15:33:22.548606Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=6367ff1288 duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=6367ff1288 duration_ms=15
+event.name=cgroup_bpf.freeze result=PASS correlation=a7bc92eeb3 duration_ms=3
+2026-10-02T15:33:22.878962Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=a7bc92eeb3 duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=a7bc92eeb3 duration_ms=17
+event.name=cgroup_bpf.freeze result=PASS correlation=36e4cd3f96 duration_ms=6
+2026-10-02T15:33:23.155315Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=36e4cd3f96 duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=36e4cd3f96 duration_ms=13
+event.name=cgroup_bpf.freeze result=PASS correlation=9f0d4fbbb6 duration_ms=6
+2026-10-02T15:33:23.428537Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=9f0d4fbbb6 duration_ms=1
+event.name=cgroup_bpf.destroy result=PASS correlation=9f0d4fbbb6 duration_ms=22
+event.name=cgroup_bpf.freeze result=PASS correlation=e759010dc3 duration_ms=4
+2026-10-02T15:33:23.709340Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=e759010dc3 duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=e759010dc3 duration_ms=16
+event.name=cgroup_bpf.freeze result=PASS correlation=283f52d977 duration_ms=11
+2026-10-02T15:33:23.986582Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=283f52d977 duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=283f52d977 duration_ms=15
+event.name=cgroup_bpf.freeze result=PASS correlation=a7d2393afa duration_ms=10
+2026-10-02T15:33:24.256907Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=a7d2393afa duration_ms=1
+event.name=cgroup_bpf.destroy result=PASS correlation=a7d2393afa duration_ms=20
+event.name=cgroup_bpf.freeze result=PASS correlation=34cff81f4d duration_ms=4
+2026-10-02T15:33:24.540790Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=34cff81f4d duration_ms=1
+event.name=cgroup_bpf.destroy result=PASS correlation=34cff81f4d duration_ms=14
+event.name=cgroup_bpf.freeze result=PASS correlation=c8545a8af6 duration_ms=7
+2026-10-02T15:33:24.814736Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=c8545a8af6 duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=c8545a8af6 duration_ms=17
+event.name=cgroup_bpf.freeze result=PASS correlation=82f95fb524 duration_ms=4
+2026-10-02T15:33:25.087871Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=82f95fb524 duration_ms=1
+event.name=cgroup_bpf.destroy result=PASS correlation=82f95fb524 duration_ms=17
+event.name=cgroup_bpf.freeze result=PASS correlation=c8e1771cc0 duration_ms=5
+2026-10-02T15:33:25.365314Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=c8e1771cc0 duration_ms=1
+event.name=cgroup_bpf.destroy result=PASS correlation=c8e1771cc0 duration_ms=17
+event.name=cgroup_bpf.freeze result=PASS correlation=bc958fffd2 duration_ms=4
+2026-10-02T15:33:25.633785Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=bc958fffd2 duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=bc958fffd2 duration_ms=14
+event.name=cgroup_bpf.freeze result=PASS correlation=2607b1d4fc duration_ms=9
+2026-10-02T15:33:25.910466Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=2607b1d4fc duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=2607b1d4fc duration_ms=18
+event.name=cgroup_bpf.freeze result=PASS correlation=9f5116c66b duration_ms=5
+2026-10-02T15:33:26.180320Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=9f5116c66b duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=9f5116c66b duration_ms=15
+event.name=cgroup_bpf.freeze result=PASS correlation=fcead64a09 duration_ms=5
+2026-10-02T15:33:26.447646Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=fcead64a09 duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=fcead64a09 duration_ms=22
+event.name=cgroup_bpf.freeze result=PASS correlation=959dc244f7 duration_ms=5
+2026-10-02T15:33:26.724896Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=959dc244f7 duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=959dc244f7 duration_ms=17
+event.name=cgroup_bpf.freeze result=PASS correlation=b150feb613 duration_ms=4
+2026-10-02T15:33:27.002354Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=b150feb613 duration_ms=1
+event.name=cgroup_bpf.destroy result=PASS correlation=b150feb613 duration_ms=16
+event.name=cgroup_bpf.freeze result=PASS correlation=16f53bcefa duration_ms=8
+2026-10-02T15:33:27.274262Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=16f53bcefa duration_ms=1
+event.name=cgroup_bpf.destroy result=PASS correlation=16f53bcefa duration_ms=22
+event.name=cgroup_bpf.freeze result=PASS correlation=0efaf8b55e duration_ms=4
+2026-10-02T15:33:27.562444Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=0efaf8b55e duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=0efaf8b55e duration_ms=13
+event.name=cgroup_bpf.freeze result=PASS correlation=64153f9e91 duration_ms=5
+2026-10-02T15:33:27.831494Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=64153f9e91 duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=64153f9e91 duration_ms=15
+event.name=cgroup_bpf.freeze result=PASS correlation=734255e270 duration_ms=7
+2026-10-02T15:33:28.113718Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=734255e270 duration_ms=1
+event.name=cgroup_bpf.destroy result=PASS correlation=734255e270 duration_ms=22
+event.name=cgroup_bpf.freeze result=PASS correlation=1dcdb9652d duration_ms=5
+2026-10-02T15:33:28.391678Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=1dcdb9652d duration_ms=1
+event.name=cgroup_bpf.destroy result=PASS correlation=1dcdb9652d duration_ms=17
+event.name=cgroup_bpf.freeze result=PASS correlation=41cf6e96b9 duration_ms=6
+2026-10-02T15:33:28.681135Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=41cf6e96b9 duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=41cf6e96b9 duration_ms=21
+2026-10-02T15:33:28.944018Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+soglia-agent 9127fa6834event.name=cgroup_bpf.freeze result=PASS correlation=919af927fa791c6834d72e duration_ms=13fe4b
+af9302: {"cmd":"proxy-connect-report","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)","i":0,"source_port":44000,"local":"10.201.0.1:44000","proxy_destination":"10.200.255.1:15001","mode":"hold","phase":"established","elapsed_ms":5}
+event.name=cgroup_bpf.freeze result=PASS correlation=9127fa6834 duration_ms=1
+event.name=cgroup_bpf.destroy result=PASS correlation=9127fa6834 duration_ms=15
+event.name=cgroup_bpf.freeze result=PASS correlation=83bc8c2bfb duration_ms=5
+2026-10-02T15:33:29.243863Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=83bc8c2bfb duration_ms=1
+event.name=cgroup_bpf.destroy result=PASS correlation=83bc8c2bfb duration_ms=14
+2026-10-02T15:33:29.496984Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+soglia-agent d9ccdad27156event.name=cgroup_bpf.freeze result=PASS correlation=d9c91fccda3645d27133f0 duration_ms=89424
+8232: {"cmd":"proxy-connect-report","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)","i":0,"source_port":44000,"local":"10.201.0.1:44000","proxy_destination":"10.200.255.1:15001","mode":"hold","phase":"established","elapsed_ms":1}
+event.name=cgroup_bpf.freeze result=PASS correlation=d9ccdad271 duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=d9ccdad271 duration_ms=17
+event.name=cgroup_bpf.freeze result=PASS correlation=13c85e3bd5 duration_ms=4
+2026-10-02T15:33:29.788974Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=13c85e3bd5 duration_ms=1
+event.name=cgroup_bpf.destroy result=PASS correlation=13c85e3bd5 duration_ms=16
+event.name=cgroup_bpf.freeze result=PASS correlation=d84244d6d1 duration_ms=4
+2026-10-02T15:33:30.067663Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=d84244d6d1 duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=d84244d6d1 duration_ms=15
+event.name=cgroup_bpf.freeze result=PASS correlation=a6473990db duration_ms=5
+2026-10-02T15:33:30.336579Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=a6473990db duration_ms=1
+event.name=cgroup_bpf.destroy result=PASS correlation=a6473990db duration_ms=22
+event.name=cgroup_bpf.freeze result=PASS correlation=e8d04fae58 duration_ms=4
+2026-10-02T15:33:30.620965Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=e8d04fae58 duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=e8d04fae58 duration_ms=18
+event.name=cgroup_bpf.freeze result=PASS correlation=28382e210d duration_ms=6
+2026-10-02T15:33:30.896323Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=28382e210d duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=28382e210d duration_ms=47
+event.name=cgroup_bpf.freeze result=PASS correlation=8b87cf3142 duration_ms=7
+2026-10-02T15:33:31.207630Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=8b87cf3142 duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=8b87cf3142 duration_ms=14
+event.name=cgroup_bpf.freeze result=PASS correlation=a1d9a125fe duration_ms=6
+2026-10-02T15:33:31.478362Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=a1d9a125fe duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=a1d9a125fe duration_ms=11
+event.name=cgroup_bpf.freeze result=PASS correlation=51a6ed30e2 duration_ms=8
+2026-10-02T15:33:31.745907Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=51a6ed30e2 duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=51a6ed30e2 duration_ms=16
+2026-10-02T15:33:31.999936Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+soglia-agent a2bf2348180cdcc1b0f962be4250640bevent.name=cgroup_bpf.freeze result=PASS correlation=a2: {"cmd":"proxy-connect-report","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)","i":0,"source_port":44000,"local":"10.201.0.1:44000","proxy_destination":"10.200.255.1:15001","mode":"hold","phase":"established","elapsed_ms":0}bf23
+4818 duration_ms=8
+event.name=cgroup_bpf.freeze result=PASS correlation=a2bf234818 duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=a2bf234818 duration_ms=14
+event.name=cgroup_bpf.freeze result=PASS correlation=d87a28f80e duration_ms=5
+2026-10-02T15:33:32.285524Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=d87a28f80e duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=d87a28f80e duration_ms=16
+event.name=cgroup_bpf.freeze result=PASS correlation=e1f99d926a duration_ms=10
+2026-10-02T15:33:32.559665Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=e1f99d926a duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=e1f99d926a duration_ms=12
+event.name=cgroup_bpf.freeze result=PASS correlation=c8400a2aa2 duration_ms=6
+2026-10-02T15:33:32.828500Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=c8400a2aa2 duration_ms=1
+event.name=cgroup_bpf.destroy result=PASS correlation=c8400a2aa2 duration_ms=18
+event.name=cgroup_bpf.freeze result=PASS correlation=1ccfb687d3 duration_ms=4
+2026-10-02T15:33:33.108085Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=1ccfb687d3 duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=1ccfb687d3 duration_ms=11
+event.name=cgroup_bpf.freeze result=PASS correlation=f38a30e230 duration_ms=9
+2026-10-02T15:33:33.376790Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=f38a30e230 duration_ms=1
+event.name=cgroup_bpf.destroy result=PASS correlation=f38a30e230 duration_ms=16
+event.name=cgroup_bpf.freeze result=PASS correlation=014a6cc4e3 duration_ms=5
+2026-10-02T15:33:33.646580Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=014a6cc4e3 duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=014a6cc4e3 duration_ms=13
+event.name=cgroup_bpf.freeze result=PASS correlation=596c85e258 duration_ms=5
+2026-10-02T15:33:33.918001Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=596c85e258 duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=596c85e258 duration_ms=13
+event.name=cgroup_bpf.freeze result=PASS correlation=197aeb3d82 duration_ms=4
+2026-10-02T15:33:34.185706Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=197aeb3d82 duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=197aeb3d82 duration_ms=17
+event.name=cgroup_bpf.freeze result=PASS correlation=c08cec96fd duration_ms=8
+2026-10-02T15:33:34.459320Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=c08cec96fd duration_ms=1
+event.name=cgroup_bpf.destroy result=PASS correlation=c08cec96fd duration_ms=15
+event.name=cgroup_bpf.freeze result=PASS correlation=a30d6f1ca9 duration_ms=6
+2026-10-02T15:33:34.727846Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=a30d6f1ca9 duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=a30d6f1ca9 duration_ms=16
+event.name=cgroup_bpf.freeze result=PASS correlation=910891ccf7 duration_ms=11
+2026-10-02T15:33:35.001776Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=910891ccf7 duration_ms=1
+event.name=cgroup_bpf.destroy result=PASS correlation=910891ccf7 duration_ms=15
+event.name=cgroup_bpf.freeze result=PASS correlation=5bef2d00b0 duration_ms=13
+2026-10-02T15:33:35.275050Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=5bef2d00b0 duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=5bef2d00b0 duration_ms=17
+event.name=cgroup_bpf.freeze result=PASS correlation=c64d3771de duration_ms=5
+2026-10-02T15:33:35.550394Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=c64d3771de duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=c64d3771de duration_ms=12
+event.name=cgroup_bpf.freeze result=PASS correlation=57363d3112 duration_ms=8
+2026-10-02T15:33:35.848498Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=57363d3112 duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=57363d3112 duration_ms=11
+event.name=cgroup_bpf.freeze result=PASS correlation=6c5d548c6f duration_ms=8
+2026-10-02T15:33:36.120108Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=6c5d548c6f duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=6c5d548c6f duration_ms=24
+event.name=cgroup_bpf.freeze result=PASS correlation=b4be0997e9 duration_ms=4
+2026-10-02T15:33:36.393957Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=b4be0997e9 duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=b4be0997e9 duration_ms=11
+event.name=cgroup_bpf.freeze result=PASS correlation=32ace1600a duration_ms=5
+2026-10-02T15:33:36.567656Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=32ace1600a duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=32ace1600a duration_ms=23
+event.name=cgroup_bpf.freeze result=PASS correlation=024490ccef duration_ms=4
+2026-10-02T15:33:36.842999Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=024490ccef duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=024490ccef duration_ms=17
+event.name=cgroup_bpf.freeze result=PASS correlation=51d75633c1 duration_ms=6
+2026-10-02T15:33:37.113773Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=51d75633c1 duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=51d75633c1 duration_ms=12
+event.name=cgroup_bpf.freeze result=PASS correlation=a32764ecd3 duration_ms=5
+2026-10-02T15:33:37.378766Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=a32764ecd3 duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=a32764ecd3 duration_ms=13
+event.name=cgroup_bpf.freeze result=PASS correlation=5b0656d4c5 duration_ms=8
+2026-10-02T15:33:37.687124Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=5b0656d4c5 duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=5b0656d4c5 duration_ms=21
+event.name=cgroup_bpf.freeze result=PASS correlation=5700304c51 duration_ms=6
+2026-10-02T15:33:37.965532Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=5700304c51 duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=5700304c51 duration_ms=12
+event.name=cgroup_bpf.freeze result=PASS correlation=e25ae71eda duration_ms=3
+2026-10-02T15:33:38.229179Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=e25ae71eda duration_ms=2
+event.name=cgroup_bpf.destroy result=PASS correlation=e25ae71eda duration_ms=12
+event.name=cgroup_bpf.freeze result=PASS correlation=c81f25dfe0 duration_ms=6
+2026-10-02T15:33:38.497452Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=c81f25dfe0 duration_ms=1
+event.name=cgroup_bpf.destroy result=PASS correlation=c81f25dfe0 duration_ms=20
+2026-10-02T15:33:38.757147Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+soglia-agent 6b80e1bce0fc7f2e15a576event.name=cgroup_bpf.freeze result=PASS correlation=6b70dc80e1f39bbce035:  duration_ms=13{"cmd":"proxy-connect-report","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)","i":0,"source_port":44000,"local":"10.201.0.1:44000","proxy_destination":"10.200.255.1:15001","mode":"hold","phase":"established","elapsed_ms":6}
+
+event.name=cgroup_bpf.freeze result=PASS correlation=6b80e1bce0 duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=6b80e1bce0 duration_ms=18
+event.name=cgroup_bpf.freeze result=PASS correlation=cb5f56d3ae duration_ms=6
+2026-10-02T15:33:39.044681Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=cb5f56d3ae duration_ms=1
+event.name=cgroup_bpf.destroy result=PASS correlation=cb5f56d3ae duration_ms=14
+event.name=cgroup_bpf.freeze result=PASS correlation=9a6bbfe2e8 duration_ms=5
+2026-10-02T15:33:39.333491Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=9a6bbfe2e8 duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=9a6bbfe2e8 duration_ms=17
+event.name=cgroup_bpf.freeze result=PASS correlation=b8b7c1464a duration_ms=8
+2026-10-02T15:33:39.605430Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=b8b7c1464a duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=b8b7c1464a duration_ms=14
+event.name=cgroup_bpf.freeze result=PASS correlation=7d6864223e duration_ms=3
+2026-10-02T15:33:39.878700Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:44000 result=Revoked
+event.name=cgroup_bpf.freeze result=PASS correlation=7d6864223e duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=7d6864223e duration_ms=17
+2026-10-02T15:33:40.143848Z  INFO egress request allowed event.name="egress.allowed" execution_id=7bbb527fe9c7694c148ba428b4d283c3 method=CONNECT target=allowed.test:443 status=200
+soglia-agent 2026-10-02T15:33:40.147027Z  INFO tunnel ended event.name="egress.tunnel_ended" execution_id=7bbb527fe9c7694c148ba428b4d283c3 end="execution-teardown"
+7bbb527fe9c7694c148ba428b4d283event.name=cgroup_bpf.freeze result=PASS correlation=7bc3: bb52{"cmd":"proxy-connect-report","ok":true,"detail":"HTTP/1.1 200 OK","i":0,"source_port":45000,"local":"10.201.0.1:45000","proxy_destination":"10.200.255.1:15001","mode":"hold","phase":"established","elapsed_ms":6}
+7fe9soglia-agent  duration_ms=107bbb
+527fe9c7694c148ba428b4d283c3: {"cmd":"proxy-connect-report","ok":true,"detail":"proxy closed the tunnel","i":0,"source_port":45000,"mode":"hold","phase":"closed","elapsed_ms":6}
+event.name=cgroup_bpf.freeze result=PASS correlation=7bbb527fe9 duration_ms=0
+event.name=cgroup_bpf.destroy result=PASS correlation=7bbb527fe9 duration_ms=15
+event.name=cgroup_bpf.freeze result=PASS correlation=2d95ea837a duration_ms=9
+soglia: the cgroup-bpf backend could not start: refused: UNKNOWN per-Execution ownership record; no kernel object was changed
+soglia: the cgroup-bpf backend could not start: refused: UNKNOWN per-Execution ownership record; no kernel object was changed
+soglia: the cgroup-bpf backend could not start: refused: UNKNOWN per-Execution ownership record; no kernel object was changed
+event.name=cgroup_bpf.recovery_cleanup_observation elapsed_ms=0 surviving=program:122,program:123,program:124,program:125,program:126,program:127,map:23,map:20,map:18,map:21,map:17,map:24
+event.name=cgroup_bpf.attach_probe result=PASS mode=single hooks=6 effective=true
+event.name=cgroup_bpf.ready generation=2 programs=6 links=6 maps=7 policy_capacity=3 socket_capacity=128 ring_bytes=65536
+event.name=cgroup_bpf.startup result=PASS generation=2 duration_ms=120 swept=1 readiness=READY
+event.name=cgroup_bpf.resolve_protocol_ready version=2 max_pending=64 workers=4
+event.name=cgroup_bpf.resolve_worker_occupancy active=1 high_water=1 capacity=64 refused_total=0
+2026-10-02T15:33:40.963217Z  INFO egress request allowed event.name="egress.allowed" execution_id=dc951233adf948e95a9d4f7c24b756c5 method=CONNECT target=allowed.test:443 status=200
+soglia-agent 2026-10-02T15:33:40.967160Z  INFO tunnel ended event.name="egress.tunnel_ended" execution_id=dc951233adf948e95a9d4f7c24b756c5 end="closed"
+dc951233adf948e95a9d4f7c24b756c5: {"cmd":"proxy-connect-report","ok":true,"detail":"HTTP/1.1 200 OK","i":0,"source_port":46000,"local":"10.201.0.1:46000","proxy_destination":"10.200.255.1:15001","mode":"close","phase":"established","elapsed_ms":16}
+event.name=cgroup_bpf.freeze result=PASS correlation=dc951233ad duration_ms=10
+event.name=cgroup_bpf.destroy result=PASS correlation=dc951233ad duration_ms=24
+2026-10-02T15:33:41.228081Z  WARN Candidate-A Resolve denied event.name="cgroup_bpf.resolve_identity_mismatch" reason=BackendGeneration
+2026-10-02T15:33:41.228226Z  WARN an unattributed connection was closed before application reads event.name="egress.unattributed" peer=10.201.0.1:46000 result=IdentityMismatch(BackendGeneration)
+soglia-agent 41d28e497efd0676a9a3167505005faa: {"cmd":"proxy-connect-report","ok":false,"errno":104,"error":"Connection reset by peer (os error 104)","i":0,"source_port":46000,"local":"10.201.0.1:46000","proxy_destination":"10.200.255.1:15001","mode":"close","phase":"established","elapsed_ms":14}
+event.name=cgroup_bpf.freeze result=PASS correlation=41d28e497e duration_ms=8
+event.name=cgroup_bpf.destroy result=PASS correlation=41d28e497e duration_ms=17
+Finished with result: success
+Main processes terminated with: code=exited/status=0
+Service runtime: 1min 9.451s
+CPU time consumed: 18.429s
+Memory peak: 4.1M
+Memory swap peak: 0B

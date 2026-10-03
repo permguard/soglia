@@ -5,7 +5,7 @@
 
 ## Status and scope
 
-Status: `APPROVED`.
+Status: `QUALIFIED` on production baseline `cfb2d375e76de59694e25374ec5df47c2bfb6c6a`, aggregate run `qualification-20261002T152506Z-81876`.
 
 This is the SOG-2.02 design for deferred Resolve option B.
 It replaces the one-exchange-at-a-time Candidate-A channel with a bounded, request-ID-correlated pipeline and a fixed stateless Enforcer worker pool.

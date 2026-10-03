@@ -1,0 +1,20 @@
+{
+  "forbidden_absent": true,
+  "forbidden_fd_passing_fragments": [
+    "--preserve-fds",
+    "SCM_RIGHTS"
+  ],
+  "production_runtime_passes_socket_fds": false,
+  "required_fragments": [
+    ".stdin(Stdio::null())",
+    ".stdout(input.try_clone()?)",
+    ".stderr(input)"
+  ],
+  "runc_stdio": {
+    "stderr": "bounded pipe",
+    "stdin": "null",
+    "stdout": "bounded pipe"
+  },
+  "sha256": "e68fd0856e3960d8a1a373fb76450162626cf970e943ccdd91a9cca0a2e1c34a",
+  "source": "/soglia/crates/soglia-sandbox/src/backend.rs"
+}

@@ -1,0 +1,8 @@
+46926 openat(AT_FDCWD, "/etc/ld.so.cache", O_RDONLY|O_CLOEXEC) = 3
+46926 openat(AT_FDCWD, "/lib/aarch64-linux-gnu/libc.so.6", O_RDONLY|O_CLOEXEC) = 3
+46926 openat(AT_FDCWD, "/sys/fs/cgroup/system.slice/soglia-b6-sandbox-sigkill.service/executions", O_RDONLY|O_CLOEXEC|O_DIRECTORY) = 3
+46926 openat(AT_FDCWD, "/sys/fs/cgroup/system.slice/soglia-b6-sandbox-sigkill.service/executions/cgroup.procs", O_WRONLY|O_CLOEXEC) = 4
+46926 write(1, "{\"stage\":\"before\",\"directory_fd_"..., 72) = 72
+46926 write(4, "46926\n", 6)            = -1 ENODEV (No such device)
+46926 clone3({flags=CLONE_INTO_CGROUP, exit_signal=SIGCHLD, stack=NULL, stack_size=0, cgroup=3}, 88) = -1 ENOENT (No such file or directory)
+46926 write(1, "{\"stage\":\"after\",\"write_result\":"..., 163) = 163

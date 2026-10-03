@@ -1,0 +1,29 @@
+{
+  "binding": {
+    "backend_generation": 1,
+    "cgroup_id": 18432,
+    "execution_nonce": [
+      223,
+      215,
+      203,
+      208,
+      131,
+      117,
+      83,
+      56,
+      106,
+      0,
+      33,
+      156,
+      118,
+      34,
+      228,
+      99
+    ]
+  },
+  "boundary": "ACTIVE",
+  "cgroup_inode": 18432,
+  "execution_id": "e5d99ad320f7337029a58bf79697ef3d",
+  "pid": 36869,
+  "trace_boundary": "active_complete"
+}

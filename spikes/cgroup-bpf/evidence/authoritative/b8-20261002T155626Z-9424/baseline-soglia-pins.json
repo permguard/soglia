@@ -1,0 +1,7 @@
+{
+  "path": "/sys/fs/bpf/soglia-b8",
+  "exists": true,
+  "entries": [
+    "/sys/fs/bpf/soglia-b8"
+  ]
+}

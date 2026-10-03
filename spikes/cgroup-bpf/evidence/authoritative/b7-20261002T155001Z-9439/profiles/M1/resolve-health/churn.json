@@ -1,0 +1,49 @@
+{
+  "control_resolves_excluded": 1,
+  "event_count": 1,
+  "events": [
+    {
+      "delayed_hit": 0,
+      "identity_mismatch": 0,
+      "integrity_failure": 0,
+      "interval_ms": 1760,
+      "latency_max_us": 607,
+      "not_found": 0,
+      "queue_refusal": 0,
+      "resolved": 1025,
+      "revoked": 0,
+      "stale_generation": 0,
+      "timeout": 0,
+      "unavailable": 0
+    }
+  ],
+  "label": "churn",
+  "raw_totals": {
+    "delayed_hit": 0,
+    "identity_mismatch": 0,
+    "integrity_failure": 0,
+    "not_found": 0,
+    "queue_refusal": 0,
+    "resolved": 1025,
+    "revoked": 0,
+    "stale_generation": 0,
+    "timeout": 0,
+    "unavailable": 0
+  },
+  "source": "production cgroup_bpf.resolve_health structured events",
+  "supported_envelope": true,
+  "verdict": "PASS",
+  "workload_attempts": 1024,
+  "workload_totals": {
+    "delayed_hit": 0,
+    "identity_mismatch": 0,
+    "integrity_failure": 0,
+    "not_found": 0,
+    "queue_refusal": 0,
+    "resolved": 1024,
+    "revoked": 0,
+    "stale_generation": 0,
+    "timeout": 0,
+    "unavailable": 0
+  }
+}

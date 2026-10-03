@@ -1,0 +1,90 @@
+runtime:
+  uid: 65534
+  gid: 65534
+  state_dir: /run/soglia-b5
+  max_concurrency: 4
+  max_queue: 4
+  max_ingress_connections: 8
+  cleanup_failure_threshold: 1
+  teardown_timeout_ms: 5000
+  runc: /usr/sbin/runc
+  nft: /usr/sbin/nft
+  ip: /usr/sbin/ip
+  bpftool: /usr/sbin/bpftool
+ingress:
+  listen: 127.0.0.1:18095
+network:
+  backend: cgroup-bpf
+  execution_pool: 10.201.0.0/24
+  proxy_address: 10.200.255.1
+  proxy_port: 15001
+  max_proxy_connections: 128
+egress:
+  connect_timeout_ms: 1000
+  idle_timeout_ms: 2000
+  allow:
+    - { host: allowed.test, ports: [443] }
+    - { host: 11.0.0.1, ports: [443] }
+cgroup:
+  root: /sys/fs/cgroup/system.slice/soglia-b5-root.service
+cgroup_bpf:
+  max_tracked_sockets: 128
+  resolve_timeout_ms: 2000
+  ring_buffer_bytes: 65536
+  max_pending_resolves: 64
+  resolve_workers: 4
+  pin_root: /sys/fs/bpf/soglia-b5
+agents:
+  probe:
+    rootfs: /var/tmp/soglia-b5-rootfs
+    command: ["/agent", "netns-cookie"]
+    env: {}
+    timeout_ms: 10000
+  successful-close:
+    rootfs: /var/tmp/soglia-b5-rootfs
+    command: ["/agent", "proxy-connect-report allowed.test:443 40000 close /tmp/b3-report.jsonl 2 1"]
+    env: {}
+    timeout_ms: 10000
+    tmpfs: [{ path: /tmp, size_bytes: 1048576 }]
+  fin:
+    rootfs: /var/tmp/soglia-b5-rootfs
+    command: ["/agent", "proxy-connect-report allowed.test:443 40001 fin /tmp/b3-report.jsonl 2 1"]
+    env: {}
+    timeout_ms: 10000
+    tmpfs: [{ path: /tmp, size_bytes: 1048576 }]
+  b5-fd-table:
+    rootfs: /var/tmp/soglia-b5-rootfs
+    command: ["/agent", "b5-probe-report fd_table /tmp/b5-report.json 5"]
+    env: {}
+    timeout_ms: 10000
+    tmpfs: [{ path: /tmp, size_bytes: 1048576 }]
+  b5-ipv6-stream:
+    rootfs: /var/tmp/soglia-b5-rootfs
+    command: ["/agent", "b5-probe-report ipv6_stream /tmp/b5-report.json 5"]
+    env: {}
+    timeout_ms: 10000
+    tmpfs: [{ path: /tmp, size_bytes: 1048576 }]
+  b5-ipv4-datagram:
+    rootfs: /var/tmp/soglia-b5-rootfs
+    command: ["/agent", "b5-probe-report ipv4_datagram /tmp/b5-report.json 5"]
+    env: {}
+    timeout_ms: 10000
+    tmpfs: [{ path: /tmp, size_bytes: 1048576 }]
+  b5-ipv6-datagram:
+    rootfs: /var/tmp/soglia-b5-rootfs
+    command: ["/agent", "b5-probe-report ipv6_datagram /tmp/b5-report.json 5"]
+    env: {}
+    timeout_ms: 10000
+    tmpfs: [{ path: /tmp, size_bytes: 1048576 }]
+  b5-direct-ipv4:
+    rootfs: /var/tmp/soglia-b5-rootfs
+    command: ["/agent", "b5-probe-report direct_ipv4 /tmp/b5-report.json 5"]
+    env: {}
+    timeout_ms: 10000
+    tmpfs: [{ path: /tmp, size_bytes: 1048576 }]
+  b5-foreign-rewrite:
+    rootfs: /var/tmp/soglia-b5-rootfs
+    command: ["/agent", "b5-probe-report foreign_rewrite /tmp/b5-report.json 5"]
+    env: {}
+    timeout_ms: 10000
+    tmpfs: [{ path: /tmp, size_bytes: 1048576 }]

@@ -1,0 +1,61 @@
+{
+  "schema": 1,
+  "run_id": "b4-20261002T153725Z-9465",
+  "gate": "B4",
+  "authoritative": true,
+  "verdict": "PASS",
+  "driver_status": 0,
+  "cases": [
+    "admission_limit",
+    "cookie_full",
+    "delayed_publication",
+    "duplicate_cookie",
+    "duplicate_tuple",
+    "event_ring_overflow",
+    "ingress_connection_limit",
+    "missing_publication_timeout",
+    "policy_full",
+    "proxy_connection_limit",
+    "resolve_queue_full",
+    "tuple_full"
+  ],
+  "cleanup": {
+    "verdict": "PASS",
+    "programs": "EXTERNAL_CHURN",
+    "links": "MATCH",
+    "maps": "MATCH"
+  },
+  "production_source_baseline": {
+    "commit": "cfb2d375e76de59694e25374ec5df47c2bfb6c6a",
+    "matches": true
+  },
+  "capacity_contract": {
+    "max_tracked_sockets": 4,
+    "policy_capacity": 3,
+    "ring_buffer_bytes": 4096,
+    "max_concurrency": 2,
+    "max_queue": 0,
+    "max_ingress_connections": 4,
+    "max_proxy_connections": 4,
+    "max_pending_resolves": 4,
+    "resolve_workers": 2,
+    "resolve_timeout_ms": 2000
+  },
+  "scope": {
+    "production_bpf_object": "PERFORMED: unchanged embedded production object",
+    "capacity_and_publication_fail_closed": "PERFORMED",
+    "event_ring_overflow": "PERFORMED without production modification",
+    "supported_platform": "the exact recorded environment fingerprint",
+    "authoritative_fresh_vm": "PERFORMED",
+    "production_code_change": "NOT_PERFORMED: qualification harness only"
+  },
+  "authoritative_vm": {
+    "name": "soglia-spike-b4-20261002T153529Z-3425"
+  },
+  "remaining_gates": {
+    "B5": "NOT_EXECUTED",
+    "B6": "NOT_EXECUTED",
+    "B7": "NOT_EXECUTED",
+    "B8": "NOT_EXECUTED"
+  }
+}

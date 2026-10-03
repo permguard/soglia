@@ -1,0 +1,16 @@
+{
+  "cases": {
+    "lifecycle_writer_has_priority_over_new_resolve_readers": {
+      "exit_code": 0,
+      "test": "lifecycle_writer_has_priority_over_new_resolve_readers",
+      "verdict": "PASS"
+    },
+    "out_of_order_replies_are_correlated_to_their_request_ids": {
+      "exit_code": 0,
+      "test": "out_of_order_replies_are_correlated_to_their_request_ids",
+      "verdict": "PASS"
+    }
+  },
+  "gate": "B3",
+  "verdict": "PASS"
+}

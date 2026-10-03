@@ -1,0 +1,3 @@
+704c25e7a650a669252576a064473defe280bbd460c8ffff5d60d6ce39974836  /var/tmp/soglia-b4-production-target/release/soglia
+37b539e335b8ed7ff1ebc43b9919696a8b20cc0a73ef065835c6cfc00384d649  /var/tmp/soglia-spike-2/bin/b4-driver
+7d8d54994e4e1665342d3074fdee7e45692d699064b1294c66f9d65a96e1f66b  /var/tmp/soglia-spike-2/bin/soglia-spike-agent

@@ -1,0 +1,15 @@
+× soglia-b1-no-bpftool.service - /var/tmp/soglia-b1-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b1-diagnostic-refusals-20261002T152750Z-11574/missing-bpftool/config.yaml
+     Loaded: loaded (/run/systemd/transient/soglia-b1-no-bpftool.service; transient)
+  Transient: yes
+     Active: failed (Result: exit-code) since Fri 2026-10-02 17:27:50 CEST; 19ms ago
+   Duration: 50ms
+    Process: 11665 ExecStart=/var/tmp/soglia-b1-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b1-diagnostic-refusals-20261002T152750Z-11574/missing-bpftool/config.yaml (code=exited, status=22)
+   Main PID: 11665 (code=exited, status=22)
+        CPU: 7ms
+
+Oct 02 17:27:50 lima-soglia-spike-b1-20261002T152540Z-82965 systemd[1]: Started soglia-b1-no-bpftool.service - /var/tmp/soglia-b1-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b1-diagnostic-refusals-20261002T152750Z-11574/missing-bpftool/config.yaml.
+Oct 02 17:27:50 lima-soglia-spike-b1-20261002T152540Z-82965 soglia[11671]: soglia: the cgroup-bpf probe failed: refused: bpftool is unavailable: /usr/sbin/soglia-missing-bpftool: No such file or directory (os error 2); to request the compatibility backend explicitly, set network.backend: netns-nft and restart
+Oct 02 17:27:50 lima-soglia-spike-b1-20261002T152540Z-82965 soglia[11665]: 2026-10-02T15:27:50.728719Z ERROR Soglia refused startup event.name="startup.refused" refusal.class="UNSUPPORTED"
+Oct 02 17:27:50 lima-soglia-spike-b1-20261002T152540Z-82965 soglia[11665]: soglia: the enforcer did not start: the cgroup-bpf probe failed: refused: bpftool is unavailable: /usr/sbin/soglia-missing-bpftool: No such file or directory (os error 2); to request the compatibility backend explicitly, set network.backend: netns-nft and restart
+Oct 02 17:27:50 lima-soglia-spike-b1-20261002T152540Z-82965 systemd[1]: soglia-b1-no-bpftool.service: Main process exited, code=exited, status=22/n/a
+Oct 02 17:27:50 lima-soglia-spike-b1-20261002T152540Z-82965 systemd[1]: soglia-b1-no-bpftool.service: Failed with result 'exit-code'.

@@ -1,0 +1,1 @@
+704c25e7a650a669252576a064473defe280bbd460c8ffff5d60d6ce39974836  /var/tmp/soglia-b1-production-target/release/soglia

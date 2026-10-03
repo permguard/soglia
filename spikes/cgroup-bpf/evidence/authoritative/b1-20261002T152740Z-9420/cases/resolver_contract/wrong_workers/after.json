@@ -1,0 +1,12 @@
+{
+  "cgroup": [],
+  "links": [],
+  "netns": [],
+  "nft_soglia_host": {
+    "status": 1,
+    "stderr": "Error: No such file or directory\nlist table inet soglia_host\n                ^^^^^^^^^^^\n",
+    "stdout": ""
+  },
+  "pins": [],
+  "state": []
+}

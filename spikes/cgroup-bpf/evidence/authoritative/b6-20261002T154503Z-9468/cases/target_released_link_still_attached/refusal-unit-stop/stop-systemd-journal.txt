@@ -1,0 +1,1 @@
+Stopped soglia-b6-target-link-still-attached.service - /var/tmp/b6-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b6-20261002T154503Z-9468/cases/target_released_link_still_attached/config.yaml.

@@ -1,0 +1,508 @@
+{
+  "churn": {
+    "measurement": {
+      "attempts": 64,
+      "elapsed_ms": 11,
+      "expected_status": null,
+      "failed": 0,
+      "kind": "churn",
+      "max_us": 237,
+      "p50_us": 157,
+      "p95_us": 229,
+      "p99_us": 231,
+      "requested": 64,
+      "retry_count": 0,
+      "strategy": "one-shot-no-retry",
+      "succeeded": 64
+    },
+    "resolve_health": {
+      "control_resolves_excluded": 1,
+      "event_count": 1,
+      "events": [
+        {
+          "delayed_hit": 0,
+          "identity_mismatch": 0,
+          "integrity_failure": 0,
+          "interval_ms": 1542,
+          "latency_max_us": 124,
+          "not_found": 0,
+          "queue_refusal": 0,
+          "resolved": 65,
+          "revoked": 0,
+          "stale_generation": 0,
+          "timeout": 0,
+          "unavailable": 0
+        }
+      ],
+      "label": "churn",
+      "raw_totals": {
+        "delayed_hit": 0,
+        "identity_mismatch": 0,
+        "integrity_failure": 0,
+        "not_found": 0,
+        "queue_refusal": 0,
+        "resolved": 65,
+        "revoked": 0,
+        "stale_generation": 0,
+        "timeout": 0,
+        "unavailable": 0
+      },
+      "source": "production cgroup_bpf.resolve_health structured events",
+      "supported_envelope": true,
+      "verdict": "PASS",
+      "workload_attempts": 64,
+      "workload_totals": {
+        "delayed_hit": 0,
+        "identity_mismatch": 0,
+        "integrity_failure": 0,
+        "not_found": 0,
+        "queue_refusal": 0,
+        "resolved": 64,
+        "revoked": 0,
+        "stale_generation": 0,
+        "timeout": 0,
+        "unavailable": 0
+      }
+    }
+  },
+  "execution_residue": {
+    "all_before_harness_teardown": true,
+    "all_pass": true,
+    "measurement_count": 4,
+    "resource_registry_closed": true
+  },
+  "live": {
+    "correct_attribution": true,
+    "measurements": [
+      {
+        "elapsed_ms": 0,
+        "failed": 0,
+        "kind": "live",
+        "max_us": 431,
+        "requested": 48,
+        "resolved_connections": 1,
+        "succeeded": 48,
+        "unconnected_sockets": 47
+      }
+    ],
+    "per_execution": 48,
+    "requested_sockets": 48,
+    "resolve_health": {
+      "control_resolves_excluded": 1,
+      "event_count": 2,
+      "events": [
+        {
+          "delayed_hit": 0,
+          "identity_mismatch": 0,
+          "integrity_failure": 0,
+          "interval_ms": 10213,
+          "latency_max_us": 163,
+          "not_found": 0,
+          "queue_refusal": 0,
+          "resolved": 1,
+          "revoked": 0,
+          "stale_generation": 0,
+          "timeout": 0,
+          "unavailable": 0
+        },
+        {
+          "delayed_hit": 0,
+          "identity_mismatch": 0,
+          "integrity_failure": 0,
+          "interval_ms": 4308,
+          "latency_max_us": 128,
+          "not_found": 0,
+          "queue_refusal": 0,
+          "resolved": 1,
+          "revoked": 0,
+          "stale_generation": 0,
+          "timeout": 0,
+          "unavailable": 0
+        }
+      ],
+      "label": "live",
+      "raw_totals": {
+        "delayed_hit": 0,
+        "identity_mismatch": 0,
+        "integrity_failure": 0,
+        "not_found": 0,
+        "queue_refusal": 0,
+        "resolved": 2,
+        "revoked": 0,
+        "stale_generation": 0,
+        "timeout": 0,
+        "unavailable": 0
+      },
+      "source": "production cgroup_bpf.resolve_health structured events",
+      "supported_envelope": true,
+      "verdict": "PASS",
+      "workload_attempts": 1,
+      "workload_totals": {
+        "delayed_hit": 0,
+        "identity_mismatch": 0,
+        "integrity_failure": 0,
+        "not_found": 0,
+        "queue_refusal": 0,
+        "resolved": 1,
+        "revoked": 0,
+        "stale_generation": 0,
+        "timeout": 0,
+        "unavailable": 0
+      }
+    },
+    "resolved_connections": 1,
+    "sampled_children": [
+      {
+        "body": {
+          "elapsed_ms": 0,
+          "failed": 0,
+          "kind": "live",
+          "max_us": 431,
+          "requested": 48,
+          "resolved_connections": 1,
+          "succeeded": 48,
+          "unconnected_sockets": 47
+        },
+        "command": "delayed-b7-live-report 10000 11.0.0.1:443 48 3 /tmp/b7-live-0.json",
+        "elapsed_ms": 13208,
+        "execution_id": "378369f8d0983e6776ad6c8fba4d8541",
+        "status": 200
+      }
+    ],
+    "unconnected_tracked_sockets": 47
+  },
+  "matrix": {
+    "burst": 0,
+    "checkpoints": "0,1",
+    "churn": 64,
+    "deadline_ms": 2000,
+    "evidence": "/soglia/spikes/cgroup-bpf/evidence/replay/b7-20261002T155001Z-9439/profiles/M0",
+    "ingress_port": 18100,
+    "live": 48,
+    "profile": "M0",
+    "rates": "1x30",
+    "state": "/run/soglia-b7/M0/cgroup-bpf/state.json",
+    "unit": "soglia-b7-m0"
+  },
+  "observability": {
+    "all_present": true,
+    "direct_bpftool_role": "independent comparison only",
+    "required": [
+      "event.name=cgroup_bpf.startup",
+      "event.name=cgroup_bpf.health",
+      "event.name=cgroup_bpf.occupancy",
+      "cgroup_bpf.resolve_health",
+      "event.name=cgroup_bpf.freeze",
+      "event.name=cgroup_bpf.destroy"
+    ],
+    "source": "production structured events"
+  },
+  "profile": "M0",
+  "rates": [
+    {
+      "effects": {
+        "dns_packet_delta": {
+          "tcp": 0,
+          "udp": 0
+        },
+        "outbound_accept_delta": 30,
+        "outbound_attempts": null
+      },
+      "measurement": {
+        "achieved_rate_per_second": 1.0344827586206897,
+        "attempts": 30,
+        "elapsed_ms": 29000,
+        "expected_status": null,
+        "failed": 0,
+        "kind": "rate",
+        "max_us": 616,
+        "minimum_rate_per_second": 0.95,
+        "p50_us": 386,
+        "p95_us": 506,
+        "p99_us": 577,
+        "requested": 30,
+        "requested_rate_per_second": 1,
+        "retry_count": 0,
+        "strategy": "one-shot-no-retry",
+        "succeeded": 30
+      },
+      "one_attempt_per_scheduled_connection": true,
+      "post_resolve_decision": "allowed",
+      "refusal_retry": false,
+      "resolve_health": {
+        "control_resolves_excluded": 1,
+        "event_count": 17,
+        "events": [
+          {
+            "delayed_hit": 0,
+            "identity_mismatch": 0,
+            "integrity_failure": 0,
+            "interval_ms": 1333,
+            "latency_max_us": 174,
+            "not_found": 0,
+            "queue_refusal": 0,
+            "resolved": 2,
+            "revoked": 0,
+            "stale_generation": 0,
+            "timeout": 0,
+            "unavailable": 0
+          },
+          {
+            "delayed_hit": 0,
+            "identity_mismatch": 0,
+            "integrity_failure": 0,
+            "interval_ms": 1999,
+            "latency_max_us": 175,
+            "not_found": 0,
+            "queue_refusal": 0,
+            "resolved": 2,
+            "revoked": 0,
+            "stale_generation": 0,
+            "timeout": 0,
+            "unavailable": 0
+          },
+          {
+            "delayed_hit": 0,
+            "identity_mismatch": 0,
+            "integrity_failure": 0,
+            "interval_ms": 1999,
+            "latency_max_us": 148,
+            "not_found": 0,
+            "queue_refusal": 0,
+            "resolved": 2,
+            "revoked": 0,
+            "stale_generation": 0,
+            "timeout": 0,
+            "unavailable": 0
+          },
+          {
+            "delayed_hit": 0,
+            "identity_mismatch": 0,
+            "integrity_failure": 0,
+            "interval_ms": 2001,
+            "latency_max_us": 172,
+            "not_found": 0,
+            "queue_refusal": 0,
+            "resolved": 2,
+            "revoked": 0,
+            "stale_generation": 0,
+            "timeout": 0,
+            "unavailable": 0
+          },
+          {
+            "delayed_hit": 0,
+            "identity_mismatch": 0,
+            "integrity_failure": 0,
+            "interval_ms": 1998,
+            "latency_max_us": 168,
+            "not_found": 0,
+            "queue_refusal": 0,
+            "resolved": 2,
+            "revoked": 0,
+            "stale_generation": 0,
+            "timeout": 0,
+            "unavailable": 0
+          },
+          {
+            "delayed_hit": 0,
+            "identity_mismatch": 0,
+            "integrity_failure": 0,
+            "interval_ms": 1999,
+            "latency_max_us": 124,
+            "not_found": 0,
+            "queue_refusal": 0,
+            "resolved": 2,
+            "revoked": 0,
+            "stale_generation": 0,
+            "timeout": 0,
+            "unavailable": 0
+          },
+          {
+            "delayed_hit": 0,
+            "identity_mismatch": 0,
+            "integrity_failure": 0,
+            "interval_ms": 1999,
+            "latency_max_us": 116,
+            "not_found": 0,
+            "queue_refusal": 0,
+            "resolved": 2,
+            "revoked": 0,
+            "stale_generation": 0,
+            "timeout": 0,
+            "unavailable": 0
+          },
+          {
+            "delayed_hit": 0,
+            "identity_mismatch": 0,
+            "integrity_failure": 0,
+            "interval_ms": 2000,
+            "latency_max_us": 131,
+            "not_found": 0,
+            "queue_refusal": 0,
+            "resolved": 2,
+            "revoked": 0,
+            "stale_generation": 0,
+            "timeout": 0,
+            "unavailable": 0
+          },
+          {
+            "delayed_hit": 0,
+            "identity_mismatch": 0,
+            "integrity_failure": 0,
+            "interval_ms": 1999,
+            "latency_max_us": 161,
+            "not_found": 0,
+            "queue_refusal": 0,
+            "resolved": 2,
+            "revoked": 0,
+            "stale_generation": 0,
+            "timeout": 0,
+            "unavailable": 0
+          },
+          {
+            "delayed_hit": 0,
+            "identity_mismatch": 0,
+            "integrity_failure": 0,
+            "interval_ms": 1999,
+            "latency_max_us": 141,
+            "not_found": 0,
+            "queue_refusal": 0,
+            "resolved": 2,
+            "revoked": 0,
+            "stale_generation": 0,
+            "timeout": 0,
+            "unavailable": 0
+          },
+          {
+            "delayed_hit": 0,
+            "identity_mismatch": 0,
+            "integrity_failure": 0,
+            "interval_ms": 2000,
+            "latency_max_us": 130,
+            "not_found": 0,
+            "queue_refusal": 0,
+            "resolved": 2,
+            "revoked": 0,
+            "stale_generation": 0,
+            "timeout": 0,
+            "unavailable": 0
+          },
+          {
+            "delayed_hit": 0,
+            "identity_mismatch": 0,
+            "integrity_failure": 0,
+            "interval_ms": 1999,
+            "latency_max_us": 137,
+            "not_found": 0,
+            "queue_refusal": 0,
+            "resolved": 2,
+            "revoked": 0,
+            "stale_generation": 0,
+            "timeout": 0,
+            "unavailable": 0
+          },
+          {
+            "delayed_hit": 0,
+            "identity_mismatch": 0,
+            "integrity_failure": 0,
+            "interval_ms": 1000,
+            "latency_max_us": 135,
+            "not_found": 0,
+            "queue_refusal": 0,
+            "resolved": 1,
+            "revoked": 0,
+            "stale_generation": 0,
+            "timeout": 0,
+            "unavailable": 0
+          },
+          {
+            "delayed_hit": 0,
+            "identity_mismatch": 0,
+            "integrity_failure": 0,
+            "interval_ms": 2000,
+            "latency_max_us": 127,
+            "not_found": 0,
+            "queue_refusal": 0,
+            "resolved": 2,
+            "revoked": 0,
+            "stale_generation": 0,
+            "timeout": 0,
+            "unavailable": 0
+          },
+          {
+            "delayed_hit": 0,
+            "identity_mismatch": 0,
+            "integrity_failure": 0,
+            "interval_ms": 1000,
+            "latency_max_us": 139,
+            "not_found": 0,
+            "queue_refusal": 0,
+            "resolved": 1,
+            "revoked": 0,
+            "stale_generation": 0,
+            "timeout": 0,
+            "unavailable": 0
+          },
+          {
+            "delayed_hit": 0,
+            "identity_mismatch": 0,
+            "integrity_failure": 0,
+            "interval_ms": 1998,
+            "latency_max_us": 140,
+            "not_found": 0,
+            "queue_refusal": 0,
+            "resolved": 2,
+            "revoked": 0,
+            "stale_generation": 0,
+            "timeout": 0,
+            "unavailable": 0
+          },
+          {
+            "delayed_hit": 0,
+            "identity_mismatch": 0,
+            "integrity_failure": 0,
+            "interval_ms": 1339,
+            "latency_max_us": 168,
+            "not_found": 0,
+            "queue_refusal": 0,
+            "resolved": 1,
+            "revoked": 0,
+            "stale_generation": 0,
+            "timeout": 0,
+            "unavailable": 0
+          }
+        ],
+        "label": "rate-1x30",
+        "raw_totals": {
+          "delayed_hit": 0,
+          "identity_mismatch": 0,
+          "integrity_failure": 0,
+          "not_found": 0,
+          "queue_refusal": 0,
+          "resolved": 31,
+          "revoked": 0,
+          "stale_generation": 0,
+          "timeout": 0,
+          "unavailable": 0
+        },
+        "source": "production cgroup_bpf.resolve_health structured events",
+        "supported_envelope": true,
+        "verdict": "PASS",
+        "workload_attempts": 30,
+        "workload_totals": {
+          "delayed_hit": 0,
+          "identity_mismatch": 0,
+          "integrity_failure": 0,
+          "not_found": 0,
+          "queue_refusal": 0,
+          "resolved": 30,
+          "revoked": 0,
+          "stale_generation": 0,
+          "timeout": 0,
+          "unavailable": 0
+        }
+      }
+    }
+  ],
+  "verdict": "PASS"
+}

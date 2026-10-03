@@ -1,0 +1,9 @@
+{
+  "cgroup_procs": "13631\n",
+  "execution_id": "0d8d52daafbd99c2cc29b126198f6ecc",
+  "pid": 13631,
+  "pid_member": true,
+  "proc_cgroup": "0::/system.slice/soglia-b4.service/executions/0d8d52daaf\n",
+  "target": "/sys/fs/cgroup/system.slice/soglia-b4.service/executions/0d8d52daaf",
+  "target_inode": 9189
+}

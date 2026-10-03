@@ -1,0 +1,207 @@
+{
+  "schema": 3,
+  "abi": 2,
+  "phase": "READY",
+  "state_id": [
+    42,
+    166,
+    252,
+    175,
+    195,
+    198,
+    154,
+    22,
+    59,
+    19,
+    52,
+    189,
+    206,
+    208,
+    216,
+    173
+  ],
+  "generation": 1,
+  "object_sha256": "3deda346efe5da381ebe4efa2da222f24edc8b6a007c0afe3d82895addc09102",
+  "config_sha256": "54175c6cfa6f965c4e124188f5bf7b47cc162b5866d28ad364de8f2332b85af7",
+  "attachment_target": "/sys/fs/cgroup/soglia-uninstall-uninstall-20261002T160106Z-9493-interrupted-resume/executions",
+  "attachment_inode": 7824,
+  "attachment_handle": {
+    "handle_type": 254,
+    "handle": [
+      144,
+      30,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "mount_id_unique": 4294967335
+  },
+  "pin_root": "/sys/fs/bpf/soglia-uninstall-uninstall-20261002T160106Z-9493-interrupted-resume/2aa6fcafc3c69a163b1334bdced0d8ad-g1",
+  "maps": [
+    {
+      "name": "soglia_meta",
+      "id": 139,
+      "key_size": 4,
+      "value_size": 40,
+      "max_entries": 1,
+      "pin": "/sys/fs/bpf/soglia-uninstall-uninstall-20261002T160106Z-9493-interrupted-resume/2aa6fcafc3c69a163b1334bdced0d8ad-g1/maps/soglia_meta"
+    },
+    {
+      "name": "soglia_policy",
+      "id": 144,
+      "key_size": 8,
+      "value_size": 40,
+      "max_entries": 3,
+      "pin": "/sys/fs/bpf/soglia-uninstall-uninstall-20261002T160106Z-9493-interrupted-resume/2aa6fcafc3c69a163b1334bdced0d8ad-g1/maps/soglia_policy"
+    },
+    {
+      "name": "soglia_cookie_a",
+      "id": 141,
+      "key_size": 8,
+      "value_size": 32,
+      "max_entries": 64,
+      "pin": "/sys/fs/bpf/soglia-uninstall-uninstall-20261002T160106Z-9493-interrupted-resume/2aa6fcafc3c69a163b1334bdced0d8ad-g1/maps/soglia_cookie_a"
+    },
+    {
+      "name": "soglia_tuples",
+      "id": 137,
+      "key_size": 16,
+      "value_size": 48,
+      "max_entries": 64,
+      "pin": "/sys/fs/bpf/soglia-uninstall-uninstall-20261002T160106Z-9493-interrupted-resume/2aa6fcafc3c69a163b1334bdced0d8ad-g1/maps/soglia_tuples"
+    },
+    {
+      "name": "soglia_counters",
+      "id": 138,
+      "key_size": 4,
+      "value_size": 8,
+      "max_entries": 26,
+      "pin": "/sys/fs/bpf/soglia-uninstall-uninstall-20261002T160106Z-9493-interrupted-resume/2aa6fcafc3c69a163b1334bdced0d8ad-g1/maps/soglia_counters"
+    },
+    {
+      "name": "soglia_denies",
+      "id": 143,
+      "key_size": 32,
+      "value_size": 8,
+      "max_entries": 3,
+      "pin": "/sys/fs/bpf/soglia-uninstall-uninstall-20261002T160106Z-9493-interrupted-resume/2aa6fcafc3c69a163b1334bdced0d8ad-g1/maps/soglia_denies"
+    },
+    {
+      "name": "soglia_events",
+      "id": 142,
+      "key_size": 0,
+      "value_size": 0,
+      "max_entries": 65536,
+      "pin": "/sys/fs/bpf/soglia-uninstall-uninstall-20261002T160106Z-9493-interrupted-resume/2aa6fcafc3c69a163b1334bdced0d8ad-g1/maps/soglia_events"
+    }
+  ],
+  "programs": [
+    {
+      "symbol": "soglia_sock_create",
+      "id": 242,
+      "kernel_name": "soglia_sock_create",
+      "program_type": "BPF_PROG_TYPE_CGROUP_SOCK",
+      "tag": 12626944358849527452
+    },
+    {
+      "symbol": "soglia_connect4",
+      "id": 243,
+      "kernel_name": "soglia_connect4",
+      "program_type": "BPF_PROG_TYPE_CGROUP_SOCK_ADDR",
+      "tag": 12845370664493608589
+    },
+    {
+      "symbol": "soglia_connect6",
+      "id": 244,
+      "kernel_name": "soglia_connect6",
+      "program_type": "BPF_PROG_TYPE_CGROUP_SOCK_ADDR",
+      "tag": 15864753419888867284
+    },
+    {
+      "symbol": "soglia_sendmsg4",
+      "id": 245,
+      "kernel_name": "soglia_sendmsg4",
+      "program_type": "BPF_PROG_TYPE_CGROUP_SOCK_ADDR",
+      "tag": 14872533123478428682
+    },
+    {
+      "symbol": "soglia_sendmsg6",
+      "id": 246,
+      "kernel_name": "soglia_sendmsg6",
+      "program_type": "BPF_PROG_TYPE_CGROUP_SOCK_ADDR",
+      "tag": 10596496531753336652
+    },
+    {
+      "symbol": "soglia_sockops",
+      "id": 247,
+      "kernel_name": "soglia_sockops",
+      "program_type": "BPF_PROG_TYPE_SOCK_OPS",
+      "tag": 11685218317444006836
+    }
+  ],
+  "links": [
+    {
+      "name": "sock_create",
+      "id": 81,
+      "program_id": 242,
+      "link_type": "Cgroup",
+      "target_inode": 7824,
+      "pin": "/sys/fs/bpf/soglia-uninstall-uninstall-20261002T160106Z-9493-interrupted-resume/2aa6fcafc3c69a163b1334bdced0d8ad-g1/links/sock_create"
+    },
+    {
+      "name": "connect4",
+      "id": 82,
+      "program_id": 243,
+      "link_type": "Cgroup",
+      "target_inode": 7824,
+      "pin": "/sys/fs/bpf/soglia-uninstall-uninstall-20261002T160106Z-9493-interrupted-resume/2aa6fcafc3c69a163b1334bdced0d8ad-g1/links/connect4"
+    },
+    {
+      "name": "connect6",
+      "id": 83,
+      "program_id": 244,
+      "link_type": "Cgroup",
+      "target_inode": 7824,
+      "pin": "/sys/fs/bpf/soglia-uninstall-uninstall-20261002T160106Z-9493-interrupted-resume/2aa6fcafc3c69a163b1334bdced0d8ad-g1/links/connect6"
+    },
+    {
+      "name": "sendmsg4",
+      "id": 84,
+      "program_id": 245,
+      "link_type": "Cgroup",
+      "target_inode": 7824,
+      "pin": "/sys/fs/bpf/soglia-uninstall-uninstall-20261002T160106Z-9493-interrupted-resume/2aa6fcafc3c69a163b1334bdced0d8ad-g1/links/sendmsg4"
+    },
+    {
+      "name": "sendmsg6",
+      "id": 85,
+      "program_id": 246,
+      "link_type": "Cgroup",
+      "target_inode": 7824,
+      "pin": "/sys/fs/bpf/soglia-uninstall-uninstall-20261002T160106Z-9493-interrupted-resume/2aa6fcafc3c69a163b1334bdced0d8ad-g1/links/sendmsg6"
+    },
+    {
+      "name": "sock_ops",
+      "id": 86,
+      "program_id": 247,
+      "link_type": "Cgroup",
+      "target_inode": 7824,
+      "pin": "/sys/fs/bpf/soglia-uninstall-uninstall-20261002T160106Z-9493-interrupted-resume/2aa6fcafc3c69a163b1334bdced0d8ad-g1/links/sock_ops"
+    }
+  ],
+  "ancestor_bpf": [],
+  "resource_envelope": {
+    "memlock_soft": 1038385152,
+    "memlock_hard": 1038385152,
+    "nofile_soft": 1024,
+    "nofile_hard": 1048576,
+    "enforcer_fds_before_load": 7,
+    "policy_capacity": 3,
+    "tracked_socket_capacity": 64,
+    "ring_buffer_bytes": 65536
+  },
+  "executions": {}
+}

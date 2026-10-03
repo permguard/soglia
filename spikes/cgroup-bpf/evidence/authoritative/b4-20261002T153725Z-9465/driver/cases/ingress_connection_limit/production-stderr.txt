@@ -1,0 +1,22 @@
+event.name=cgroup_bpf.attach_probe result=PASS mode=single hooks=6 effective=true
+event.name=cgroup_bpf.ready generation=1 programs=6 links=6 maps=7 policy_capacity=3 socket_capacity=4 ring_bytes=4096
+event.name=cgroup_bpf.startup result=PASS generation=1 duration_ms=133 swept=0 readiness=READY
+event.name=cgroup_bpf.resolve_protocol_ready version=2 max_pending=4 workers=2
+[2m2026-10-02T15:37:32.711732Z[0m [32m INFO[0m privileges dropped [3mevent.name[0m[2m=[0m"startup.privileges_dropped" [3muid[0m[2m=[0m65534 [3mgid[0m[2m=[0m65534
+[2m2026-10-02T15:37:32.712017Z[0m [32m INFO[0m soglia is ready [3mevent.name[0m[2m=[0m"startup.ready" [3mingress[0m[2m=[0m127.0.0.1:18094 [3megress[0m[2m=[0m10.200.255.1:15001
+[2m2026-10-02T15:37:33.076678Z[0m [33m WARN[0m ingress connection refused before a task was created [3mevent.name[0m[2m=[0m"ingress.connection_limit" [3mlimit[0m[2m=[0m4 [3mrefused_total[0m[2m=[0m1
+[2m2026-10-02T15:37:33.178731Z[0m [32m INFO[0m execution admitted [3mevent.name[0m[2m=[0m"execution.admitted" [3mexecution_id[0m[2m=[0md9efd86a171e854cc1447331cb582801 [3magent[0m[2m=[0madmission [3mslot[0m[2m=[0m0
+[2m2026-10-02T15:37:33.179006Z[0m [32m INFO[0m execution phase [3mevent.name[0m[2m=[0m"execution.phase" [3mexecution_id[0m[2m=[0md9efd86a171e854cc1447331cb582801 [3mphase[0m[2m=[0mCreating
+[2m2026-10-02T15:37:33.189657Z[0m [32m INFO[0m execution phase [3mevent.name[0m[2m=[0m"execution.phase" [3mexecution_id[0m[2m=[0md9efd86a171e854cc1447331cb582801 [3mphase[0m[2m=[0mStarting
+[2m2026-10-02T15:37:33.258317Z[0m [32m INFO[0m execution phase [3mevent.name[0m[2m=[0m"execution.phase" [3mexecution_id[0m[2m=[0md9efd86a171e854cc1447331cb582801 [3mphase[0m[2m=[0mReady
+[2m2026-10-02T15:37:33.258449Z[0m [32m INFO[0m execution phase [3mevent.name[0m[2m=[0m"execution.phase" [3mexecution_id[0m[2m=[0md9efd86a171e854cc1447331cb582801 [3mphase[0m[2m=[0mRunning
+event.name=cgroup_bpf.resolve_worker_occupancy active=1 high_water=1 capacity=4 refused_total=0
+[2m2026-10-02T15:37:33.260039Z[0m [32m INFO[0m egress request allowed [3mevent.name[0m[2m=[0m"egress.allowed" [3mexecution_id[0m[2m=[0md9efd86a171e854cc1447331cb582801 [3mmethod[0m[2m=[0mCONNECT [3mtarget[0m[2m=[0m11.0.0.1:443 [3mstatus[0m[2m=[0m200
+[2m2026-10-02T15:37:33.260196Z[0m [32m INFO[0m tunnel ended [3mevent.name[0m[2m=[0m"egress.tunnel_ended" [3mexecution_id[0m[2m=[0md9efd86a171e854cc1447331cb582801 [3mend[0m[2m=[0m"closed"
+[2m2026-10-02T15:37:33.260300Z[0m [32m INFO[0m execution phase [3mevent.name[0m[2m=[0m"execution.phase" [3mexecution_id[0m[2m=[0md9efd86a171e854cc1447331cb582801 [3mphase[0m[2m=[0mCapturingResponse
+[2m2026-10-02T15:37:33.260386Z[0m [32m INFO[0m execution phase [3mevent.name[0m[2m=[0m"execution.phase" [3mexecution_id[0m[2m=[0md9efd86a171e854cc1447331cb582801 [3mphase[0m[2m=[0mTearingDown
+event.name=cgroup_bpf.freeze result=PASS correlation=d9efd86a17 duration_ms=6
+event.name=cgroup_bpf.destroy result=PASS correlation=d9efd86a17 duration_ms=18
+[2m2026-10-02T15:37:33.421911Z[0m [32m INFO[0m execution destroyed and verified [3mevent.name[0m[2m=[0m"execution.destroyed" [3mexecution_id[0m[2m=[0md9efd86a171e854cc1447331cb582801 [3mexit[0m[2m=[0mKilled
+[2m2026-10-02T15:37:33.422011Z[0m [32m INFO[0m execution phase [3mevent.name[0m[2m=[0m"execution.phase" [3mexecution_id[0m[2m=[0md9efd86a171e854cc1447331cb582801 [3mphase[0m[2m=[0mCompleted
+[2m2026-10-02T15:37:33.424094Z[0m [32m INFO[0m soglia stopped [3mevent.name[0m[2m=[0m"shutdown.done"

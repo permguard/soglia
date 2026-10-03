@@ -1,0 +1,7 @@
+{
+  "id": 74,
+  "type": "cgroup",
+  "prog_id": 451,
+  "cgroup_id": 70,
+  "attach_type": "cgroup_device"
+}

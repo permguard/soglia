@@ -1,0 +1,6 @@
+Oct 02 17:27:51 lima-soglia-spike-b1-20261002T152540Z-82965 systemd[1]: Started soglia-b1-direct-app.service - /var/tmp/soglia-b1-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b1-diagnostic-refusals-20261002T152750Z-11574/unexpected-direct/config.yaml.
+Oct 02 17:27:51 lima-soglia-spike-b1-20261002T152540Z-82965 soglia[12053]: soglia: the cgroup-bpf backend could not start: refused: the executions cgroup has 1 unrecorded direct BPF attachment(s)
+Oct 02 17:27:51 lima-soglia-spike-b1-20261002T152540Z-82965 soglia[12047]: 2026-10-02T15:27:51.814345Z ERROR Soglia refused startup event.name="startup.refused" refusal.class="INCOMPATIBLE"
+Oct 02 17:27:51 lima-soglia-spike-b1-20261002T152540Z-82965 soglia[12047]: soglia: the enforcer did not start: the cgroup-bpf backend could not start: refused: the executions cgroup has 1 unrecorded direct BPF attachment(s)
+Oct 02 17:27:51 lima-soglia-spike-b1-20261002T152540Z-82965 systemd[1]: soglia-b1-direct-app.service: Main process exited, code=exited, status=20/n/a
+Oct 02 17:27:51 lima-soglia-spike-b1-20261002T152540Z-82965 systemd[1]: soglia-b1-direct-app.service: Failed with result 'exit-code'.

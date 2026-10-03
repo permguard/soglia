@@ -1,0 +1,16 @@
+{
+  "held_connections": 4,
+  "limit": 4,
+  "policy_entries_after_refusal": 0,
+  "policy_entries_before_refusal": 0,
+  "post_release_control": {
+    "body": "{\"cmd\":\"tunnel\",\"ok\":true,\"detail\":\"HTTP/1.1 200 OK; tunnel closed by the proxy\",\"held_ms\":1}",
+    "execution": null,
+    "status": 200
+  },
+  "post_release_outcome": "RESOLVED",
+  "production_event": "ingress.connection_limit",
+  "refused_before_admission": true,
+  "refused_elapsed_ms": 0,
+  "verdict": "PASS"
+}

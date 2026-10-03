@@ -1,0 +1,6 @@
+Stopping soglia-b1-unnamed.service - /var/tmp/soglia-b1-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b1-unnamed-external-20261002T152752Z-12428/config.yaml...
+soglia-b1-unnamed.service: Killing process 12484 (exe) with signal SIGKILL.
+soglia-b1-unnamed.service: Failed to kill control group /system.slice/soglia-b1-unnamed.service, ignoring: Invalid argument
+soglia-b1-unnamed.service: Deactivated successfully.
+soglia-b1-unnamed.service: Unit process 12484 (exe) remains running after unit stopped.
+Stopped soglia-b1-unnamed.service - /var/tmp/soglia-b1-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/b1-unnamed-external-20261002T152752Z-12428/config.yaml.

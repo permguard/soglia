@@ -1,0 +1,15 @@
+{
+  "direct_ipv4": {
+    "connect4_deny_delta": 1,
+    "execution_nft_drop_path_packets": 0,
+    "resolve_required_before_effect": true,
+    "veth_syn_packets": 0
+  },
+  "phase2_capacity_refusals": {
+    "ingress_before_admission": true,
+    "pending_resolve_queue_full": true,
+    "proxy_before_read": true,
+    "qualified_by": "B4"
+  },
+  "verdict": "PASS"
+}

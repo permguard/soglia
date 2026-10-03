@@ -1,0 +1,6 @@
+Stopping soglia-uninstall-normal-uninstall-20261002T160106Z-9493.service - /var/tmp/uninstall-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/uninstall-20261002T160106Z-9493/cases/normal_service_stop/config.yaml...
+soglia-uninstall-normal-uninstall-20261002T160106Z-9493.service: Killing process 9745 (exe) with signal SIGKILL.
+soglia-uninstall-normal-uninstall-20261002T160106Z-9493.service: Failed to kill control group /system.slice/soglia-uninstall-normal-uninstall-20261002T160106Z-9493.service, ignoring: Invalid argument
+soglia-uninstall-normal-uninstall-20261002T160106Z-9493.service: Deactivated successfully.
+soglia-uninstall-normal-uninstall-20261002T160106Z-9493.service: Unit process 9745 (exe) remains running after unit stopped.
+Stopped soglia-uninstall-normal-uninstall-20261002T160106Z-9493.service - /var/tmp/uninstall-production-target/release/soglia run -f /soglia/spikes/cgroup-bpf/evidence/replay/uninstall-20261002T160106Z-9493/cases/normal_service_stop/config.yaml.

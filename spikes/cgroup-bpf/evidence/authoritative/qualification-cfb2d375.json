@@ -1,0 +1,90 @@
+{
+  "harness_commit_policy": "single_commit",
+  "production_baseline": "cfb2d375e76de59694e25374ec5df47c2bfb6c6a",
+  "runs": [
+    {
+      "checksums": 466,
+      "gate": "B1",
+      "production_baseline": "cfb2d375e76de59694e25374ec5df47c2bfb6c6a",
+      "run_id": "b1-20261002T152740Z-9420",
+      "source_commit": "82a2d119503b67fbf7208f1e6f3ed8548b8891ef",
+      "systemd_prune_races": 1,
+      "verdict": "PASS"
+    },
+    {
+      "checksums": 382,
+      "gate": "B2",
+      "production_baseline": "cfb2d375e76de59694e25374ec5df47c2bfb6c6a",
+      "run_id": "b2-20261002T153007Z-9460",
+      "source_commit": "82a2d119503b67fbf7208f1e6f3ed8548b8891ef",
+      "systemd_prune_races": 0,
+      "verdict": "PASS"
+    },
+    {
+      "checksums": 1934,
+      "gate": "B3",
+      "production_baseline": "cfb2d375e76de59694e25374ec5df47c2bfb6c6a",
+      "run_id": "b3-20261002T153226Z-9501",
+      "source_commit": "82a2d119503b67fbf7208f1e6f3ed8548b8891ef",
+      "systemd_prune_races": 0,
+      "verdict": "PASS"
+    },
+    {
+      "checksums": 103,
+      "gate": "B4",
+      "production_baseline": "cfb2d375e76de59694e25374ec5df47c2bfb6c6a",
+      "run_id": "b4-20261002T153725Z-9465",
+      "source_commit": "82a2d119503b67fbf7208f1e6f3ed8548b8891ef",
+      "systemd_prune_races": 0,
+      "verdict": "PASS"
+    },
+    {
+      "checksums": 179,
+      "gate": "B5",
+      "production_baseline": "cfb2d375e76de59694e25374ec5df47c2bfb6c6a",
+      "run_id": "b5-20261002T154120Z-9427",
+      "source_commit": "82a2d119503b67fbf7208f1e6f3ed8548b8891ef",
+      "systemd_prune_races": 0,
+      "verdict": "PASS"
+    },
+    {
+      "checksums": 1469,
+      "gate": "B6",
+      "production_baseline": "cfb2d375e76de59694e25374ec5df47c2bfb6c6a",
+      "run_id": "b6-20261002T154503Z-9468",
+      "source_commit": "82a2d119503b67fbf7208f1e6f3ed8548b8891ef",
+      "systemd_prune_races": 5,
+      "verdict": "PASS"
+    },
+    {
+      "checksums": 360,
+      "gate": "B7",
+      "production_baseline": "cfb2d375e76de59694e25374ec5df47c2bfb6c6a",
+      "run_id": "b7-20261002T155001Z-9439",
+      "source_commit": "82a2d119503b67fbf7208f1e6f3ed8548b8891ef",
+      "systemd_prune_races": 0,
+      "verdict": "PASS"
+    },
+    {
+      "checksums": 146,
+      "gate": "B8",
+      "production_baseline": "cfb2d375e76de59694e25374ec5df47c2bfb6c6a",
+      "run_id": "b8-20261002T155626Z-9424",
+      "source_commit": "82a2d119503b67fbf7208f1e6f3ed8548b8891ef",
+      "systemd_prune_races": 0,
+      "verdict": "PASS"
+    },
+    {
+      "checksums": 214,
+      "gate": "UNINSTALL",
+      "production_baseline": "cfb2d375e76de59694e25374ec5df47c2bfb6c6a",
+      "run_id": "uninstall-20261002T160106Z-9493",
+      "source_commit": "82a2d119503b67fbf7208f1e6f3ed8548b8891ef",
+      "systemd_prune_races": 0,
+      "verdict": "PASS"
+    }
+  ],
+  "schema": 1,
+  "total_checksums": 5253,
+  "verdict": "PASS"
+}

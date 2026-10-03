@@ -1,0 +1,2 @@
+[2m2026-10-02T16:01:15.758496Z[0m [31mERROR[0m Soglia refused uninstall [3mevent.name[0m[2m=[0m"uninstall.refused" [3mrefusal.class[0m[2m=[0m"INFRASTRUCTURE"
+soglia: uninstall refused: the Soglia runtime is still active in /sys/fs/cgroup/soglia-uninstall-uninstall-20261002T160106Z-9493-nonempty-refusal/runtime

@@ -1,0 +1,17 @@
+{
+  "capture_filter": "tcp and dst host 11.0.0.2 and dst port 443 and (tcp[tcpflags] & (tcp-syn|tcp-ack) == tcp-syn)",
+  "capture_interface": "any",
+  "capture_scope": "the controlled workload window to the qualification-only endpoint 11.0.0.2:443",
+  "decoded_evidence": "/soglia/spikes/cgroup-bpf/evidence/replay/b8-20261002T155626Z-9424/profiles/B8/rate-500x60-outbound-syn.txt",
+  "deduplication_key": [
+    "source",
+    "source_port",
+    "destination",
+    "destination_port"
+  ],
+  "distinct_connection_attempts": 0,
+  "duplicate_or_retransmitted_syn_packets": 0,
+  "flows": [],
+  "raw_evidence": "/soglia/spikes/cgroup-bpf/evidence/replay/b8-20261002T155626Z-9424/profiles/B8/rate-500x60-outbound-syn.pcap",
+  "raw_syn_packets": 0
+}

@@ -1,0 +1,31 @@
+{
+  "cases": {
+    "a_cancelled_caller_cannot_desynchronize_the_next_exchange": {
+      "exit_code": 0,
+      "test": "a_cancelled_caller_cannot_desynchronize_the_next_exchange",
+      "verdict": "PASS"
+    },
+    "cancellation_before_write_removes_the_request_without_a_frame": {
+      "exit_code": 0,
+      "test": "cancellation_before_write_removes_the_request_without_a_frame",
+      "verdict": "PASS"
+    },
+    "complete_after_the_publication_deadline_is_still_consumed": {
+      "exit_code": 0,
+      "test": "complete_after_the_publication_deadline_is_still_consumed",
+      "verdict": "PASS"
+    },
+    "out_of_order_replies_are_correlated_to_their_request_ids": {
+      "exit_code": 0,
+      "test": "out_of_order_replies_are_correlated_to_their_request_ids",
+      "verdict": "PASS"
+    },
+    "pending_after_the_publication_deadline_times_out_without_poisoning": {
+      "exit_code": 0,
+      "test": "pending_after_the_publication_deadline_times_out_without_poisoning",
+      "verdict": "PASS"
+    }
+  },
+  "gate": "B2",
+  "verdict": "PASS"
+}

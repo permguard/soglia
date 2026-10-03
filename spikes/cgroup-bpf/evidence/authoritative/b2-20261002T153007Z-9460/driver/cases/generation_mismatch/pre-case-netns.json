@@ -1,0 +1,5 @@
+{
+  "case": "GENERATION_MISMATCH",
+  "previous_netns_path": "/run/netns/soglia-0889b93ff7",
+  "previous_netns_path_absent": true
+}

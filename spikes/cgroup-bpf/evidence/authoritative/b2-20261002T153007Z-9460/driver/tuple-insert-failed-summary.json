@@ -1,0 +1,63 @@
+{
+  "counter": "C_TUPLE_INSERT_FAILED",
+  "expected_throughout_run": 0,
+  "holds": true,
+  "index": 2,
+  "observations": [
+    {
+      "case": "POSITIVE",
+      "stage": "post-cleanup",
+      "value": 0
+    },
+    {
+      "case": "WRONG_PID",
+      "stage": "post-cleanup",
+      "value": 0
+    },
+    {
+      "case": "WRONG_CGROUP",
+      "stage": "post-cleanup",
+      "value": 0
+    },
+    {
+      "case": "NONCE_MISMATCH",
+      "stage": "post-cleanup",
+      "value": 0
+    },
+    {
+      "case": "GENERATION_MISMATCH",
+      "stage": "post-cleanup",
+      "value": 0
+    },
+    {
+      "case": "TUPLE_BYTE_ORDER",
+      "stage": "post-cleanup",
+      "value": 0
+    },
+    {
+      "case": "WRONG_DESTINATION",
+      "stage": "post-cleanup",
+      "value": 0
+    },
+    {
+      "case": "MISSING_COOKIE",
+      "stage": "post-cleanup",
+      "value": 0
+    },
+    {
+      "case": "IP_ONLY",
+      "stage": "post-cleanup",
+      "value": 0
+    },
+    {
+      "case": "HOST_ORIGIN_REFUSED",
+      "stage": "post-case",
+      "value": 0
+    },
+    {
+      "case": "CONCURRENT_TIMEOUT",
+      "stage": "post-cleanup",
+      "value": 0
+    }
+  ]
+}

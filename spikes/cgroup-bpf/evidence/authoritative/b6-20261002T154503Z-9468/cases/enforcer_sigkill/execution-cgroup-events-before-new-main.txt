@@ -1,0 +1,2 @@
+cgroup=/sys/fs/cgroup/system.slice/soglia-b6-enforcer-sigkill.service/executions/45b5771566 state=ABSENT_AFTER_VERIFIED_KILL
+cgroup=/sys/fs/cgroup/system.slice/soglia-b6-enforcer-sigkill.service/executions/8d96f12cee state=ABSENT_AFTER_VERIFIED_KILL
