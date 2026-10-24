@@ -24,7 +24,7 @@ use std::process::{Command, Stdio};
 use std::thread;
 use std::time::{Duration, Instant};
 
-use rustix::process::{WaitOptions, getpid, set_child_subreaper, wait};
+use rustix::process::{WaitOptions, getpid, set_child_subreaper , wait};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use soglia_core::config::{AgentConfig, Config};
