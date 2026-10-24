@@ -6,7 +6,7 @@
 [![licence](https://img.shields.io/badge/licence-Apache--2.0-blue)](LICENSE)
 
 <p align="center">
-  <img src="assets/readme/hero.png" alt="Soglia. Trusted execution for AI agents. One call, one fresh Execution, gone when it ends. Agentic Execution Fabric, in development. Soglia is Italian for threshold." width="820">
+  <img src="https://raw.githubusercontent.com/permguard/soglia/main/assets/readme/hero.png" alt="Soglia. Trusted execution for AI agents. One call, one fresh Execution, gone when it ends. Agentic Execution Fabric, in development. Soglia is Italian for threshold." width="820">
 </p>
 
 <p align="center">
@@ -35,8 +35,8 @@ One boundary is still left: **the code that actually exercises that authority.**
 
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="assets/readme/compare-dark.png">
-    <img src="assets/readme/compare-light.png" alt="Left, a traditional server: requests A, B and C share one long-lived process with its credentials, caches, connections and global state, which become ambient authority. Right, Soglia: each request gets its own Execution with its own authority, destroyed at the end, so B never reuses A's authority. The process is no longer the security unit. The invocation is." width="820">
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/permguard/soglia/main/assets/readme/compare-dark.png">
+    <img src="https://raw.githubusercontent.com/permguard/soglia/main/assets/readme/compare-light.png" alt="Left, a traditional server: requests A, B and C share one long-lived process with its credentials, caches, connections and global state, which become ambient authority. Right, Soglia: each request gets its own Execution with its own authority, destroyed at the end, so B never reuses A's authority. The process is no longer the security unit. The invocation is." width="820">
   </picture>
 </p>
 
@@ -53,8 +53,8 @@ It borrows the per-invocation execution model popularized by serverless, and use
 
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="assets/readme/flow-dark.png">
-    <img src="assets/readme/flow-light.png" alt="The path of a call in the target security model. The Caller sends a request; Ingress swaps real authority for virtual; a fresh Execution runs the AI agent or workload, untrusted code in any framework, with virtual authority only and HTTP and gRPC only through Egress; Egress swaps virtual authority back for real, toward a PIC continuation for PIC-aware destinations or the Credential Anchor for legacy ones. The Execution Context, with Permguard, runs PIC validation, policy evaluation and IFC labels on the way in and out. The response is held until the Execution is destroyed. PIC controls authority flow, IFC controls information flow, Soglia controls execution and effects." width="820">
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/permguard/soglia/main/assets/readme/flow-dark.png">
+    <img src="https://raw.githubusercontent.com/permguard/soglia/main/assets/readme/flow-light.png" alt="The path of a call in the target security model. The Caller sends a request; Ingress swaps real authority for virtual; a fresh Execution runs the AI agent or workload, untrusted code in any framework, with virtual authority only and HTTP and gRPC only through Egress; Egress swaps virtual authority back for real, toward a PIC continuation for PIC-aware destinations or the Credential Anchor for legacy ones. The Execution Context, with Permguard, runs PIC validation, policy evaluation and IFC labels on the way in and out. The response is held until the Execution is destroyed. PIC controls authority flow, IFC controls information flow, Soglia controls execution and effects." width="820">
   </picture>
 </p>
 
@@ -95,8 +95,8 @@ LangChain, Google ADK, Microsoft Agent Framework, Strands or your own code: the 
 
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="assets/readme/stack-dark.png">
-    <img src="assets/readme/stack-light.png" alt="Three layers. Permguard decides and verifies authority, with the Control Plane, the Data Plane and the Trust Plane, in development. Soglia confines each Execution, with the Proxy, the Supervisor, sandboxd and the Enforcer. The Linux kernel enforces it physically, with namespaces, cgroup v2, nftables and eBPF." width="820">
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/permguard/soglia/main/assets/readme/stack-dark.png">
+    <img src="https://raw.githubusercontent.com/permguard/soglia/main/assets/readme/stack-light.png" alt="Three layers. Permguard decides and verifies authority, with the Control Plane, the Data Plane and the Trust Plane, in development. Soglia confines each Execution, with the Proxy, the Supervisor, sandboxd and the Enforcer. The Linux kernel enforces it physically, with namespaces, cgroup v2, nftables and eBPF." width="820">
   </picture>
 </p>
 
